@@ -3,43 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个性化学习平台 - AI课程任务系统</title>
+    <title>智慧课程建设平台 - 天蓝版</title>
     <style>
         :root {
-            --sky-blue-50: #f0f7ff;
-            --sky-blue-100: #dceeff;
-            --sky-blue-200: #b8ddfe;
-            --sky-blue-300: #7dc6fc;
-            --sky-blue-400: #4aa9f5;
-            --sky-blue-500: #1a8fe3;
-            --sky-blue-600: #0d72c4;
-            --sky-blue-700: #0f5b9e;
-            --sky-blue-800: #124d82;
-            --sky-blue-900: #13416c;
-            --white: #ffffff;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --locked: #94a3b8;
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
-            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
-            --radius-sm: 8px;
-            --radius: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
+            --primary: #4A9ED6;
+            --primary-dark: #357CAB;
+            --primary-light: #6DB9E8;
+            --primary-bg: #EAF4FB;
+            --primary-bg-deep: #D6ECF8;
+            --sidebar-bg: #F5F9FC;
+            --sidebar-hover: #E1F0F8;
+            --sidebar-active: #D0E8F5;
+            --white: #FFFFFF;
+            --text: #2C3E50;
+            --text-secondary: #5A6F80;
+            --text-light: #7B8FA0;
+            --border: #D9E6F0;
+            --border-light: #E8F0F6;
+            --shadow-sm: 0 1px 3px rgba(74, 158, 214, 0.08);
+            --shadow: 0 2px 12px rgba(74, 158, 214, 0.12);
+            --shadow-lg: 0 8px 32px rgba(74, 158, 214, 0.16);
+            --radius-sm: 6px;
+            --radius: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
             --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
         }
 
         * {
@@ -49,986 +38,784 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #e8f4fd 0%, #dceeff 30%, #f0f7ff 60%, #e0f0ff 100%);
-            background-attachment: fixed;
+            font-family: var(--font);
+            background: #EDF4FA;
+            color: var(--text);
             min-height: 100vh;
-            color: var(--gray-800);
-            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* ============ 顶部导航栏 ============ */
+        /* ========== 顶部导航栏 ========== */
         .top-nav {
-            background: var(--white);
-            border-bottom: 1px solid var(--gray-200);
-            padding: 0 28px;
-            height: 62px;
+            background: linear-gradient(135deg, #4A9ED6 0%, #5BAFE0 30%, #3D8CC4 100%);
+            color: #fff;
+            height: 58px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: 0 2px 16px rgba(58, 120, 180, 0.25);
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: var(--shadow-sm);
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
+            gap: 16px;
         }
-        .nav-brand {
+        .top-nav .logo-area {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 1.2rem;
+            gap: 11px;
+            flex-shrink: 0;
+        }
+        .top-nav .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.22);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .top-nav .logo-text {
+            font-size: 17px;
             font-weight: 700;
-            color: var(--sky-blue-700);
-            letter-spacing: -0.3px;
-        }
-        .nav-brand .logo-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-sm);
-            background: linear-gradient(135deg, var(--sky-blue-400), var(--sky-blue-600));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            color: white;
-            box-shadow: 0 2px 8px rgba(26, 143, 227, 0.35);
-        }
-        .nav-tabs {
-            display: flex;
-            gap: 6px;
-            background: var(--gray-100);
-            border-radius: 30px;
-            padding: 4px;
-        }
-        .nav-tab {
-            padding: 9px 22px;
-            border-radius: 26px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: var(--transition);
-            background: transparent;
-            color: var(--gray-600);
+            letter-spacing: 0.5px;
             white-space: nowrap;
-            letter-spacing: 0.2px;
         }
-        .nav-tab.active {
-            background: var(--white);
-            color: var(--sky-blue-600);
-            font-weight: 600;
-            box-shadow: var(--shadow-md);
-        }
-        .nav-tab:hover:not(.active) {
-            color: var(--sky-blue-500);
-            background: rgba(255, 255, 255, 0.6);
-        }
-        .nav-actions {
+        .top-nav .nav-links {
             display: flex;
-            align-items: center;
-            gap: 12px;
+            gap: 4px;
+            margin-left: 36px;
         }
-        .btn-teacher-mode {
-            padding: 9px 18px;
-            border-radius: 24px;
-            border: 2px solid var(--sky-blue-300);
-            cursor: pointer;
-            font-size: 0.85rem;
+        .top-nav .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
             font-weight: 500;
             transition: var(--transition);
-            background: var(--white);
-            color: var(--sky-blue-600);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .top-nav .nav-link:hover,
+        .top-nav .nav-link.active {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+        }
+        .top-nav .spacer {
+            flex: 1;
+        }
+        .top-nav .user-info {
             display: flex;
             align-items: center;
-            gap: 6px;
-            letter-spacing: 0.2px;
+            gap: 9px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 6px 14px;
+            border-radius: 20px;
+            transition: var(--transition);
+            white-space: nowrap;
         }
-        .btn-teacher-mode:hover {
-            background: var(--sky-blue-50);
-            border-color: var(--sky-blue-400);
-            box-shadow: 0 0 0 4px rgba(74, 169, 245, 0.1);
+        .top-nav .user-info:hover {
+            background: rgba(255, 255, 255, 0.15);
         }
-        .btn-teacher-mode.active-teacher {
-            background: var(--sky-blue-500);
-            color: white;
-            border-color: var(--sky-blue-500);
-            box-shadow: 0 2px 10px rgba(26, 143, 227, 0.35);
-        }
-        .avatar-small {
-            width: 36px;
-            height: 36px;
+        .top-nav .avatar {
+            width: 33px;
+            height: 33px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #a5d8ff, #4aa9f5);
+            background: #fff;
+            color: var(--primary-dark);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 2px 6px rgba(74, 169, 245, 0.3);
-        }
-        .avatar-small:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(74, 169, 245, 0.4);
+            font-weight: 700;
+            font-size: 15px;
         }
 
-        /* ============ 主布局 ============ */
+        /* ========== 主体布局 ========== */
         .main-container {
             display: flex;
-            height: calc(100vh - 62px);
-            overflow: hidden;
+            flex: 1;
+            min-height: calc(100vh - 58px);
         }
 
-        /* ============ 左侧任务列表 ============ */
+        /* ========== 侧边栏 ========== */
         .sidebar {
-            width: 340px;
-            min-width: 340px;
-            background: var(--white);
-            border-right: 1px solid var(--gray-200);
+            width: 230px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-light);
+            padding: 16px 10px;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            gap: 4px;
+            flex-shrink: 0;
             box-shadow: var(--shadow-sm);
-            z-index: 10;
+            z-index: 50;
+            transition: var(--transition);
         }
-        .sidebar-header {
-            padding: 18px 20px;
-            border-bottom: 1px solid var(--gray-200);
-            background: var(--sky-blue-50);
+        .sidebar .menu-section {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-light);
+            padding: 12px 12px 6px;
+            font-weight: 600;
         }
-        .sidebar-header h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--sky-blue-800);
+        .sidebar .menu-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            letter-spacing: -0.2px;
-        }
-        .sidebar-header h3 .icon-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--sky-blue-500);
-            animation: pulse-dot 2s infinite;
-        }
-        @keyframes pulse-dot {
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(26, 143, 227, 0.5);
-            }
-            50% {
-                box-shadow: 0 0 0 10px rgba(26, 143, 227, 0);
-            }
-        }
-        .task-search {
-            margin: 12px 16px;
-            position: relative;
-        }
-        .task-search input {
-            width: 100%;
-            padding: 10px 14px 10px 38px;
-            border-radius: 24px;
-            border: 1.5px solid var(--gray-200);
-            font-size: 0.88rem;
-            transition: var(--transition);
-            background: var(--gray-50);
-            color: var(--gray-700);
-            outline: none;
-        }
-        .task-search input:focus {
-            border-color: var(--sky-blue-400);
-            box-shadow: 0 0 0 4px rgba(74, 169, 245, 0.08);
-            background: white;
-        }
-        .task-search .search-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-400);
-            font-size: 0.9rem;
-            pointer-events: none;
-        }
-        .task-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 6px 12px 16px 12px;
-            scroll-behavior: smooth;
-        }
-        .task-list::-webkit-scrollbar {
-            width: 5px;
-        }
-        .task-list::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .task-list::-webkit-scrollbar-thumb {
-            background: var(--gray-300);
-            border-radius: 10px;
-        }
-        .task-item {
-            padding: 14px 16px;
-            margin: 4px 0;
+            gap: 10px;
+            padding: 11px 14px;
             border-radius: var(--radius);
             cursor: pointer;
             transition: var(--transition);
-            border: 1.5px solid transparent;
-            position: relative;
-            background: var(--white);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .task-item:hover {
-            background: var(--sky-blue-50);
-            border-color: var(--sky-blue-200);
-            box-shadow: var(--shadow);
-            transform: translateX(2px);
-        }
-        .task-item.active-task {
-            background: linear-gradient(135deg, #e8f4fd, #d0eaff);
-            border-color: var(--sky-blue-400);
-            box-shadow: var(--shadow-md);
+            font-size: 14px;
             font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            user-select: none;
+            position: relative;
         }
-        .task-item.locked-item {
-            opacity: 0.6;
-            cursor: not-allowed;
-            background: var(--gray-50);
+        .sidebar .menu-item:hover {
+            background: var(--sidebar-hover);
+            color: var(--primary-dark);
         }
-        .task-item.locked-item:hover {
-            transform: none;
-            border-color: transparent;
-            box-shadow: none;
-            background: var(--gray-50);
-        }
-        .task-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-            font-weight: 700;
-        }
-        .task-icon.completed {
-            background: #d1fae5;
-            color: #059669;
-        }
-        .task-icon.in-progress {
-            background: #dbeafe;
-            color: #2563eb;
-        }
-        .task-icon.locked {
-            background: #f1f5f9;
-            color: #94a3b8;
-        }
-        .task-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .task-info .task-name {
-            font-size: 0.9rem;
+        .sidebar .menu-item.active {
+            background: var(--sidebar-active);
+            color: var(--primary-dark);
             font-weight: 600;
-            color: var(--gray-800);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            letter-spacing: -0.1px;
+            box-shadow: inset 3px 0 0 var(--primary);
         }
-        .task-info .task-meta {
-            font-size: 0.75rem;
-            color: var(--gray-500);
-            margin-top: 2px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .task-progress-mini {
-            width: 48px;
-            height: 6px;
-            border-radius: 3px;
-            background: var(--gray-200);
-            overflow: hidden;
+        .sidebar .menu-icon {
+            font-size: 18px;
+            width: 22px;
+            text-align: center;
             flex-shrink: 0;
         }
-        .task-progress-mini .fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.5s ease;
-            background: var(--sky-blue-500);
+        .sidebar .badge {
+            margin-left: auto;
+            background: var(--primary);
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 9px;
+            border-radius: 12px;
+            font-weight: 600;
+            min-width: 22px;
+            text-align: center;
         }
-        .task-progress-mini .fill.completed-fill {
-            background: var(--success);
-        }
-        .lock-badge {
-            font-size: 0.7rem;
-            color: var(--gray-400);
-            flex-shrink: 0;
+        .sidebar .divider {
+            height: 1px;
+            background: var(--border-light);
+            margin: 8px 10px;
         }
 
-        /* ============ 右侧主内容区 ============ */
+        /* ========== 内容区 ========== */
         .content-area {
             flex: 1;
-            display: flex;
-            flex-direction: column;
+            padding: 24px 28px;
             overflow-y: auto;
-            padding: 20px 24px;
-            gap: 18px;
-        }
-        .content-area::-webkit-scrollbar {
-            width: 6px;
-        }
-        .content-area::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .content-area::-webkit-scrollbar-thumb {
-            background: var(--gray-300);
-            border-radius: 10px;
-        }
-
-        /* 任务详情卡片 */
-        .detail-card {
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            padding: 22px 26px;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--gray-100);
+            background: #EDF4FA;
             transition: var(--transition);
         }
-        .detail-card:hover {
-            box-shadow: var(--shadow-lg);
+        .content-area .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-        .detail-card-header {
+        .content-area .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 0.3px;
+        }
+        .content-area .page-subtitle {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        /* ========== 按钮 ========== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 20px;
+            border-radius: 22px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            text-decoration: none;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+            font-family: var(--font);
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(74, 158, 214, 0.3);
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 5px 18px rgba(74, 158, 214, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            background: var(--white);
+            color: var(--primary-dark);
+            border: 1.5px solid var(--primary);
+        }
+        .btn-outline:hover {
+            background: var(--primary-bg);
+            border-color: var(--primary-dark);
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px;
+            border-radius: 16px;
+            gap: 4px;
+        }
+        .btn-xs {
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 12px;
+            gap: 3px;
+        }
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            box-shadow: none;
+            padding: 8px 14px;
+        }
+        .btn-ghost:hover {
+            background: var(--sidebar-hover);
+            color: var(--primary-dark);
+        }
+        .btn-danger {
+            background: #fff;
+            color: #e05555;
+            border: 1.5px solid #f5c6c6;
+        }
+        .btn-danger:hover {
+            background: #fef5f5;
+            border-color: #e05555;
+        }
+        .btn-success {
+            background: #4CB8A5;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #3DA593;
+        }
+
+        /* ========== 课程卡片网格 ========== */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 18px;
+        }
+        .course-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+        .course-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+            border-color: #C5DFF0;
+        }
+        .course-card .card-accent {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #4A9ED6, #6DB9E8, #8EC8F0);
+        }
+        .course-card .card-header {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        .detail-card-header h2 {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: var(--gray-900);
-            letter-spacing: -0.3px;
-        }
-        .badge-status {
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-        .badge-status.unlocked-badge {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-        .badge-status.locked-badge {
-            background: #f1f5f9;
-            color: #64748b;
-        }
-        .badge-status.completed-badge {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .detail-meta-row {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-top: 14px;
-            font-size: 0.85rem;
-            color: var(--gray-600);
-        }
-        .detail-meta-row span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .detail-meta-row .meta-label {
-            color: var(--gray-400);
-            font-weight: 500;
-        }
-        .detail-desc {
-            margin-top: 14px;
-            color: var(--gray-600);
-            font-size: 0.9rem;
-            line-height: 1.7;
-            background: var(--sky-blue-50);
-            padding: 14px 18px;
-            border-radius: var(--radius);
-            border-left: 3px solid var(--sky-blue-400);
-        }
-
-        /* 达标情况 & 解锁情况 */
-        .status-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-        }
-        @media (max-width: 900px) {
-            .status-grid {
-                grid-template-columns: 1fr;
-            }
-            .sidebar {
-                width: 280px;
-                min-width: 280px;
-            }
-        }
-        .status-card {
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            padding: 20px 22px;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--gray-100);
-            transition: var(--transition);
-        }
-        .status-card:hover {
-            box-shadow: var(--shadow-lg);
-        }
-        .status-card h4 {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--gray-800);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            letter-spacing: -0.2px;
-        }
-        .progress-ring-container {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .progress-ring {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            position: relative;
-            flex-shrink: 0;
-        }
-        .progress-ring svg {
-            transform: rotate(-90deg);
-        }
-        .progress-ring .bg-circle {
-            fill: none;
-            stroke: var(--gray-200);
-            stroke-width: 8;
-        }
-        .progress-ring .fg-circle {
-            fill: none;
-            stroke: var(--sky-blue-500);
-            stroke-width: 8;
-            stroke-linecap: round;
-            transition: stroke-dashoffset 0.8s ease;
-        }
-        .progress-ring .fg-circle.high-progress {
-            stroke: var(--success);
-        }
-        .progress-ring .percent-text {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--gray-800);
-        }
-        .progress-details {
-            font-size: 0.82rem;
-            color: var(--gray-600);
-            line-height: 1.6;
-        }
-        .progress-details .highlight {
-            color: var(--sky-blue-600);
-            font-weight: 600;
-        }
-        .unlock-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .unlock-list li {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.85rem;
-            padding: 8px 12px;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-        }
-        .unlock-list li.unlocked-condition {
-            background: #f0fdf4;
-            color: #065f46;
-        }
-        .unlock-list li.locked-condition {
-            background: #fefce8;
-            color: #92400e;
-        }
-        .unlock-icon {
-            font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-
-        /* ============ 学习路径视图区域 ============ */
-        .path-view-section {
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--gray-100);
-            overflow: hidden;
-            transition: var(--transition);
-        }
-        .path-view-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 22px;
-            border-bottom: 1px solid var(--gray-200);
-            background: var(--sky-blue-50);
-            flex-wrap: wrap;
             gap: 10px;
         }
-        .path-view-header h4 {
-            font-size: 0.95rem;
+        .course-card .course-name {
+            font-size: 16px;
             font-weight: 700;
-            color: var(--sky-blue-800);
+            color: var(--text);
+            line-height: 1.3;
+            flex: 1;
+        }
+        .course-card .course-meta {
             display: flex;
-            align-items: center;
+            flex-wrap: wrap;
             gap: 8px;
-            letter-spacing: -0.2px;
-        }
-        .mode-switch-group {
-            display: flex;
-            gap: 4px;
-            background: var(--gray-100);
-            border-radius: 24px;
-            padding: 3px;
-        }
-        .mode-switch-btn {
-            padding: 8px 18px;
-            border-radius: 22px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.82rem;
-            font-weight: 500;
-            transition: var(--transition);
-            background: transparent;
-            color: var(--gray-600);
-            white-space: nowrap;
-            letter-spacing: 0.2px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .mode-switch-btn.active-mode {
-            background: var(--white);
-            color: var(--sky-blue-600);
-            font-weight: 600;
-            box-shadow: var(--shadow);
-        }
-        .mode-switch-btn:hover:not(.active-mode) {
-            color: var(--sky-blue-500);
-            background: rgba(255, 255, 255, 0.5);
-        }
-        .path-view-body {
-            padding: 20px;
-            min-height: 380px;
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition);
-        }
-
-        /* ============ 地图模式 ============ */
-        .map-mode-container {
-            position: relative;
-            width: 100%;
-            height: 380px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .map-svg {
-            width: 100%;
-            height: 100%;
-            max-width: 750px;
-        }
-        .map-node {
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .map-node:hover {
-            filter: brightness(1.1);
-            transform-origin: center;
-        }
-        .map-node circle {
-            transition: all 0.3s ease;
-        }
-        .map-node:hover circle {
-            r: 22;
-            stroke-width: 4;
-        }
-        .map-node text {
             font-size: 12px;
-            font-weight: 600;
-            pointer-events: none;
-            text-anchor: middle;
-            dominant-baseline: central;
-            fill: #374151;
-            transition: fill 0.3s;
+            color: var(--text-light);
         }
-        .map-path-line {
-            stroke: #cbd5e1;
-            stroke-width: 3;
-            stroke-linecap: round;
-            transition: stroke 0.5s ease;
-            fill: none;
-        }
-        .map-path-line.active-path {
-            stroke: var(--sky-blue-500);
-            stroke-width: 3.5;
-            stroke-dasharray: 8 4;
-            animation: dash-flow 1.5s linear infinite;
-        }
-        @keyframes dash-flow {
-            to {
-                stroke-dashoffset: -24;
-            }
-        }
-        .map-path-line.completed-path {
-            stroke: var(--success);
-            stroke-width: 3.5;
-        }
-
-        /* ============ 3D模式 ============ */
-        .mode-3d-container {
-            width: 100%;
-            height: 400px;
-            perspective: 900px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: grab;
-            user-select: none;
-        }
-        .mode-3d-container:active {
-            cursor: grabbing;
-        }
-        .scene-3d {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .node-3d-wrapper {
-            position: absolute;
-            transform-style: preserve-3d;
-            transition: transform 0.5s ease;
-        }
-        .node-3d-card {
-            width: 100px;
-            height: 120px;
-            border-radius: var(--radius);
-            background: var(--white);
-            border: 2px solid var(--gray-200);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            box-shadow: var(--shadow-lg);
-            transition: all 0.4s ease;
-            cursor: pointer;
-            backface-visibility: hidden;
-        }
-        .node-3d-card:hover {
-            box-shadow: var(--shadow-xl);
-            border-color: var(--sky-blue-400);
-            transform: translateZ(15px) scale(1.08);
-        }
-        .node-3d-card.completed-3d {
-            border-color: #10b981;
-            background: #f0fdf4;
-        }
-        .node-3d-card.in-progress-3d {
-            border-color: var(--sky-blue-500);
-            background: #eff6ff;
-            animation: glow-3d 2s ease-in-out infinite;
-        }
-        .node-3d-card.locked-3d {
-            border-color: #e2e8f0;
-            background: #f8fafc;
-            opacity: 0.55;
-            filter: grayscale(30%);
-        }
-        @keyframes glow-3d {
-            0%,
-            100% {
-                box-shadow: 0 8px 25px rgba(26, 143, 227, 0.2);
-            }
-            50% {
-                box-shadow: 0 8px 35px rgba(26, 143, 227, 0.45);
-            }
-        }
-        .node-3d-icon {
-            font-size: 2rem;
-        }
-        .node-3d-name {
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--gray-700);
-            text-align: center;
-            line-height: 1.2;
-        }
-        .node-3d-progress {
-            font-size: 0.65rem;
-            color: var(--sky-blue-600);
+        .course-card .meta-tag {
+            background: var(--primary-bg);
+            color: var(--primary-dark);
+            padding: 4px 10px;
+            border-radius: 12px;
             font-weight: 500;
+            font-size: 11px;
+            white-space: nowrap;
         }
-        .hint-rotate {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.75rem;
-            color: var(--gray-400);
-            pointer-events: none;
+        .course-card .card-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+        .course-card .resource-count {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 500;
             display: flex;
             align-items: center;
             gap: 4px;
-            animation: fade-hint 3s ease-in-out infinite;
         }
-        @keyframes fade-hint {
-            0%,
-            100% {
-                opacity: 0.4;
+
+        /* ========== 资源库表格样式 ========== */
+        .resource-table-wrap {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+        }
+        .resource-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .resource-table thead th {
+            background: #F5F9FC;
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 12px;
+            letter-spacing: 0.4px;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+        .resource-table tbody td {
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+        .resource-table tbody tr {
+            transition: var(--transition);
+        }
+        .resource-table tbody tr:hover {
+            background: #F8FBFD;
+        }
+        .resource-table .res-type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .badge-ppt {
+            background: #FFF3E0;
+            color: #E67E22;
+        }
+        .badge-doc {
+            background: #E8F4FD;
+            color: #357CAB;
+        }
+        .badge-video {
+            background: #FDE8EC;
+            color: #C0392B;
+        }
+        .badge-case {
+            background: #E8F8F0;
+            color: #27AE60;
+        }
+        .badge-other {
+            background: #F3F0FA;
+            color: #6C5CE7;
+        }
+        .resource-table .res-name-link {
+            color: var(--primary-dark);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .resource-table .res-name-link:hover {
+            color: #2C6AA0;
+            text-decoration: underline;
+        }
+
+        /* ========== 模态框 ========== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(30, 50, 70, 0.5);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.closing {
+            animation: fadeOut 0.18s ease forwards;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
             }
-            50% {
+            to {
                 opacity: 1;
             }
         }
-
-        /* ============ 教师发布任务面板 ============ */
-        .teacher-panel {
-            position: fixed;
-            right: -480px;
-            top: 62px;
-            width: 440px;
-            height: calc(100vh - 62px);
-            background: var(--white);
-            box-shadow: var(--shadow-xl);
-            z-index: 200;
-            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+        .modal {
+            background: #fff;
+            border-radius: var(--radius-xl);
+            width: 90%;
+            max-width: 720px;
+            max-height: 85vh;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
-            border-left: 1px solid var(--gray-200);
+            box-shadow: 0 20px 50px rgba(40, 80, 120, 0.25);
+            animation: slideUp 0.25s ease;
         }
-        .teacher-panel.open {
-            right: 0;
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
-        .teacher-panel-header {
-            padding: 18px 22px;
-            border-bottom: 1px solid var(--gray-200);
-            background: var(--sky-blue-50);
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-light);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            gap: 12px;
+            background: #FAFCFE;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
         }
-        .teacher-panel-header h3 {
-            font-size: 1rem;
+        .modal-header h3 {
+            font-size: 18px;
             font-weight: 700;
-            color: var(--sky-blue-800);
-            letter-spacing: -0.2px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: var(--text);
         }
-        .btn-close-panel {
-            width: 32px;
-            height: 32px;
+        .modal-close {
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             border: none;
-            background: var(--gray-200);
+            background: #f0f4f8;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 18px;
+            color: var(--text-light);
+            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: var(--transition);
-            color: var(--gray-600);
         }
-        .btn-close-panel:hover {
-            background: var(--gray-300);
-            color: var(--gray-800);
+        .modal-close:hover {
+            background: #e0e8f0;
+            color: #333;
         }
-        .teacher-panel-body {
-            padding: 20px 22px;
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-footer {
+            padding: 14px 24px;
+            border-top: 1px solid var(--border-light);
             display: flex;
-            flex-direction: column;
-            gap: 16px;
+            justify-content: flex-end;
+            gap: 10px;
+            background: #FAFCFE;
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
         }
+        /* 表单 */
         .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+            margin-bottom: 16px;
         }
         .form-group label {
-            font-size: 0.82rem;
+            display: block;
             font-weight: 600;
-            color: var(--gray-700);
-            letter-spacing: 0.1px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            letter-spacing: 0.3px;
         }
         .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
             padding: 10px 14px;
+            border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
-            border: 1.5px solid var(--gray-300);
-            font-size: 0.88rem;
+            font-size: 14px;
+            font-family: var(--font);
             transition: var(--transition);
-            font-family: inherit;
-            background: var(--gray-50);
-            color: var(--gray-800);
-            outline: none;
+            background: #FAFCFE;
+            color: var(--text);
             resize: vertical;
         }
         .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--sky-blue-400);
-            box-shadow: 0 0 0 4px rgba(74, 169, 245, 0.08);
-            background: white;
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 158, 214, 0.1);
+            background: #fff;
         }
-        .btn-publish {
-            padding: 12px 24px;
-            border-radius: 24px;
-            border: none;
+        .form-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .form-row .form-group {
+            flex: 1;
+            min-width: 140px;
+        }
+        /* 资源选择区 */
+        .resource-picker {
+            border: 1.5px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+            background: #FAFCFE;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .resource-picker .picker-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, var(--sky-blue-500), var(--sky-blue-600));
-            color: white;
             transition: var(--transition);
-            letter-spacing: 0.3px;
-            box-shadow: 0 4px 14px rgba(26, 143, 227, 0.4);
-            width: 100%;
-            margin-top: 8px;
+            font-size: 13px;
         }
-        .btn-publish:hover {
-            background: linear-gradient(135deg, var(--sky-blue-600), var(--sky-blue-700));
-            box-shadow: 0 6px 20px rgba(26, 143, 227, 0.5);
-            transform: translateY(-1px);
+        .resource-picker .picker-item:hover {
+            background: var(--primary-bg);
         }
-        .btn-publish:active {
-            transform: scale(0.97);
+        .resource-picker .picker-item.selected {
+            background: #D6ECF8;
+            font-weight: 600;
         }
-
-        /* ============ 遮罩层 ============ */
-        .overlay {
-            position: fixed;
-            inset: 0;
-            top: 62px;
-            background: rgba(0, 0, 0, 0.35);
-            z-index: 150;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.35s ease;
-            backdrop-filter: blur(2px);
+        .resource-picker input[type="checkbox"] {
+            accent-color: var(--primary);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
         }
-        .overlay.show {
-            opacity: 1;
-            pointer-events: all;
+        .picker-header {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .picker-header .icon-highlight {
+            color: #E67E22;
+            font-size: 16px;
         }
 
-        /* ============ Toast提示 ============ */
-        .toast {
+        /* ========== Toast提示 ========== */
+        .toast-container {
             position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-20px);
-            background: var(--gray-800);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 24px;
-            font-size: 0.85rem;
-            font-weight: 500;
+            top: 20px;
+            right: 20px;
             z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.35s ease;
-            box-shadow: var(--shadow-xl);
-            letter-spacing: 0.2px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
+        .toast {
+            background: #fff;
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            animation: toastIn 0.3s ease;
+            border-left: 4px solid var(--primary);
+            min-width: 200px;
+            max-width: 380px;
+        }
+        .toast.success {
+            border-left-color: #4CB8A5;
+        }
+        .toast.error {
+            border-left-color: #e05555;
+        }
+        @keyframes toastIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes toastOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(120%);
+                opacity: 0;
+            }
         }
 
-        /* ============ 响应式调整 ============ */
-        @media (max-width: 1100px) {
+        /* ========== 空状态 ========== */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+        .empty-state .empty-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+        .empty-state p {
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+
+        /* ========== 搜索栏 ========== */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-input {
+            padding: 9px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 22px;
+            font-size: 13px;
+            width: 240px;
+            transition: var(--transition);
+            background: #fff;
+            font-family: var(--font);
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 158, 214, 0.08);
+            width: 280px;
+        }
+
+        /* ========== 标签 ========== */
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .tag-blue {
+            background: #E1F0F8;
+            color: #357CAB;
+        }
+        .tag-green {
+            background: #E4F6F0;
+            color: #2D8A6E;
+        }
+        .tag-orange {
+            background: #FFF4E8;
+            color: #C77830;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #C5D8E8;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #A0BED5;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
             .sidebar {
-                width: 260px;
-                min-width: 260px;
+                width: 60px;
+                padding: 10px 4px;
             }
-            .status-grid {
+            .sidebar .menu-item span:not(.menu-icon) {
+                display: none;
+            }
+            .sidebar .menu-section {
+                display: none;
+            }
+            .sidebar .badge {
+                display: none;
+            }
+            .sidebar .menu-item {
+                justify-content: center;
+                padding: 12px;
+            }
+            .course-grid {
                 grid-template-columns: 1fr;
             }
-            .detail-card-header {
-                flex-direction: column;
-            }
-            .teacher-panel {
-                width: 380px;
-                right: -400px;
-            }
-        }
-        @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
-            }
-            .sidebar {
-                width: 100%;
-                min-width: 100%;
-                max-height: 35vh;
-                border-right: none;
-                border-bottom: 1px solid var(--gray-200);
-            }
             .content-area {
-                padding: 14px;
+                padding: 16px 12px;
             }
-            .teacher-panel {
-                width: 100%;
-                right: -105%;
+            .top-nav .nav-links {
+                display: none;
             }
-            .nav-tabs {
-                gap: 2px;
-            }
-            .nav-tab {
-                padding: 7px 12px;
-                font-size: 0.78rem;
-            }
-            .mode-switch-btn {
-                padding: 6px 12px;
-                font-size: 0.75rem;
-            }
-            .map-svg {
-                max-width: 100%;
+            .modal {
+                max-width: 95%;
+                width: 95%;
             }
         }
     </style>
@@ -1037,699 +824,784 @@
 
     <!-- ==================== 顶部导航栏 ==================== -->
     <nav class="top-nav">
-        <div class="nav-brand">
-            <div class="logo-icon">🎓</div>
-            <span>AI个性化学习平台</span>
+        <div class="logo-area">
+            <div class="logo-icon">📘</div>
+            <span class="logo-text">智慧课程建设平台</span>
         </div>
-        <div class="nav-tabs" id="navTabs">
-            <button class="nav-tab active" data-tab="personal">👤 个人空间</button>
-            <button class="nav-tab" data-tab="course">📚 课程页面</button>
+        <div class="nav-links">
+            <span class="nav-link active" data-nav="home">🏠 首页</span>
+            <span class="nav-link" data-nav="courses">📚 课程中心</span>
+            <span class="nav-link" data-nav="resources">📦 资源库</span>
         </div>
-        <div class="nav-actions">
-            <button class="btn-teacher-mode" id="btnTeacherMode" title="教师模式 - 发布任务">
-                ✏️ 教师模式
-            </button>
-            <div class="avatar-small" title="学生：李明">李</div>
+        <div class="spacer"></div>
+        <div class="user-info" title="教师账户">
+            <div class="avatar">张</div>
+            <span>张教授</span>
         </div>
     </nav>
 
-    <!-- ==================== 主布局 ==================== -->
+    <!-- ==================== 主体布局 ==================== -->
     <div class="main-container">
-        <!-- 左侧任务列表 -->
+        <!-- 侧边栏 -->
         <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h3><span class="icon-dot"></span>任务列表</h3>
+            <div class="menu-section">课程管理</div>
+            <div class="menu-item active" data-page="courses" id="menu-courses">
+                <span class="menu-icon">📋</span> <span>我的课程</span>
+                <span class="badge" id="course-count-badge">0</span>
             </div>
-            <div class="task-search">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="taskSearchInput" placeholder="搜索任务...">
+            <div class="menu-item" data-page="new-course" id="menu-new-course">
+                <span class="menu-icon">➕</span> <span>新建课程</span>
             </div>
-            <div class="task-list" id="taskList">
-                <!-- 动态生成任务项 -->
+            <div class="divider"></div>
+            <div class="menu-section">资源中心</div>
+            <div class="menu-item" data-page="resources" id="menu-resources">
+                <span class="menu-icon">📦</span> <span>资源库</span>
+                <span class="badge" style="background:#E67E22;" id="res-count-badge">0</span>
+            </div>
+            <div class="menu-item" data-page="predict-resources" id="menu-predict-resources">
+                <span class="menu-icon">🔮</span> <span>预测理论及方法资源</span>
+                <span class="badge" style="background:#27AE60;">推荐</span>
+            </div>
+            <div class="divider"></div>
+            <div class="menu-section">其他</div>
+            <div class="menu-item" data-page="settings">
+                <span class="menu-icon">⚙️</span> <span>设置</span>
             </div>
         </aside>
 
-        <!-- 右侧主内容区 -->
-        <main class="content-area" id="contentArea">
-            <!-- 任务详情卡片 -->
-            <div class="detail-card" id="detailCard">
-                <div class="detail-card-header">
-                    <div>
-                        <h2 id="detailTitle">Python基础语法</h2>
-                        <div class="detail-meta-row">
-                            <span><span class="meta-label">📅 发布日：</span>2024-09-15</span>
-                            <span><span class="meta-label">⏱ 建议时长：</span>4小时</span>
-                            <span><span class="meta-label">🏷 类型：</span>编程基础</span>
-                            <span><span class="meta-label">🤖 AI模块：</span>智能代码分析</span>
-                        </div>
-                    </div>
-                    <span class="badge-status unlocked-badge" id="badgeStatus">🔓 已解锁</span>
-                </div>
-                <div class="detail-desc" id="detailDesc">
-                    📖 本任务涵盖Python基础语法知识，包括变量、数据类型、控制流和函数定义。通过AI智能代码分析模块，你将获得实时的代码反馈和个性化指导。
-                </div>
-            </div>
-
-            <!-- 达标情况 & 解锁情况 -->
-            <div class="status-grid">
-                <div class="status-card" id="progressCard">
-                    <h4>📊 达标情况</h4>
-                    <div class="progress-ring-container">
-                        <div class="progress-ring">
-                            <svg width="70" height="70" viewBox="0 0 70 70">
-                                <circle class="bg-circle" cx="35" cy="35" r="30"/>
-                                <circle class="fg-circle" id="progressCircle" cx="35" cy="35" r="30"
-                                stroke-dasharray="188.5" stroke-dashoffset="37.7"/>
-                            </svg>
-                            <span class="percent-text" id="percentText">80%</span>
-                        </div>
-                        <div class="progress-details">
-                            <p>✅ 已完成 <span class="highlight">8/10</span> 个子任务</p>
-                            <p>🎯 达标标准：完成率 ≥ 70%</p>
-                            <p id="progressStatus" style="color:#10b981;font-weight:600;">✔ 已达标</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="status-card" id="unlockCard">
-                    <h4>🔐 解锁情况</h4>
-                    <ul class="unlock-list" id="unlockList">
-                        <li class="unlocked-condition">
-                            <span class="unlock-icon">✅</span> 前置任务「编程入门导论」已完成
-                        </li>
-                        <li class="unlocked-condition">
-                            <span class="unlock-icon">✅</span> 账户等级达到 Lv.2
-                        </li>
-                        <li class="locked-condition">
-                            <span class="unlock-icon">⏳</span> 需完成「算法设计」后解锁下一阶段
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- 学习路径视图 -->
-            <div class="path-view-section" id="pathViewSection">
-                <div class="path-view-header">
-                    <h4>🗺 学习路径视图</h4>
-                    <div class="mode-switch-group" id="modeSwitchGroup">
-                        <button class="mode-switch-btn active-mode" data-mode="map">🗺 地图模式</button>
-                        <button class="mode-switch-btn" data-mode="3d">🌐 3D模式</button>
-                    </div>
-                </div>
-                <div class="path-view-body" id="pathViewBody">
-                    <!-- 地图模式 -->
-                    <div class="map-mode-container" id="mapModeContainer">
-                        <svg class="map-svg" viewBox="0 0 700 320" id="mapSvg">
-                            <!-- 路径连线 -->
-                            <path class="map-path-line completed-path" d="M 70 160 Q 150 80 230 140 Q 310 200 390 150 Q 470 100 550 160 Q 610 200 650 170" id="pathLine1"/>
-                            <path class="map-path-line active-path" d="M 70 160 Q 150 240 230 180 Q 310 120 390 170 Q 470 220 550 160" id="pathLine2" style="display:none;"/>
-                            <!-- 节点由JS动态生成 -->
-                            <g id="mapNodesGroup"></g>
-                        </svg>
-                    </div>
-                    <!-- 3D模式 -->
-                    <div class="mode-3d-container" id="mode3dContainer" style="display:none;">
-                        <div class="scene-3d" id="scene3d">
-                            <!-- 3D节点由JS动态生成 -->
-                        </div>
-                        <div class="hint-rotate">🖱 拖拽鼠标旋转查看3D路径</div>
-                    </div>
-                </div>
-            </div>
+        <!-- 内容区 -->
+        <main class="content-area" id="content-area">
+            <!-- 动态填充 -->
         </main>
     </div>
 
-    <!-- ==================== 教师发布任务面板 ==================== -->
-    <div class="overlay" id="overlay"></div>
-    <div class="teacher-panel" id="teacherPanel">
-        <div class="teacher-panel-header">
-            <h3>✏️ 教师发布任务</h3>
-            <button class="btn-close-panel" id="btnClosePanel">✕</button>
-        </div>
-        <div class="teacher-panel-body">
-            <div class="form-group">
-                <label>📝 任务名称</label>
-                <input type="text" id="newTaskName" placeholder="请输入任务名称">
-            </div>
-            <div class="form-group">
-                <label>📖 任务描述</label>
-                <textarea id="newTaskDesc" rows="3" placeholder="请输入任务描述..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>🗺 默认学习路径类型</label>
-                <select id="newTaskPathType">
-                    <option value="map">地图模式</option>
-                    <option value="3d">3D模式</option>
-                    <option value="both">两种模式均支持</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>🔗 前置任务（解锁条件）</label>
-                <select id="newTaskPrerequisite">
-                    <option value="none">无前置任务</option>
-                    <option value="task1">编程入门导论</option>
-                    <option value="task2">Python基础语法</option>
-                    <option value="task3">数据结构入门</option>
-                    <option value="task4">算法设计</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>🎯 达标标准（完成率%）</label>
-                <input type="number" id="newTaskStandard" value="70" min="0" max="100" placeholder="达标百分比">
-            </div>
-            <div class="form-group">
-                <label>🤖 关联AI模块</label>
-                <select id="newTaskAiModule">
-                    <option value="code_analysis">智能代码分析</option>
-                    <option value="knowledge_graph">知识图谱导航</option>
-                    <option value="adaptive_quiz">自适应测验</option>
-                    <option value="smart_tutoring">智能辅导助手</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>⏱ 建议学习时长（小时）</label>
-                <input type="number" id="newTaskDuration" value="3" min="0.5" max="100" step="0.5">
-            </div>
-            <button class="btn-publish" id="btnPublish">🚀 发布任务</button>
-        </div>
-    </div>
+    <!-- ==================== Toast容器 ==================== -->
+    <div class="toast-container" id="toast-container"></div>
 
-    <!-- Toast提示 -->
-    <div class="toast" id="toast"></div>
+    <!-- ==================== 模态框容器 ==================== -->
+    <div id="modal-container"></div>
 
     <script>
         (function() {
-            // ============ 模拟数据 ============
-            const tasksData = [
-                { id: 'task0', name: '编程入门导论', icon: '📘', status: 'completed', progress: 100, date: '2024-09-01',
-                    duration: '2小时', type: '入门基础', aiModule: '知识图谱导航', desc: '编程世界的入门指南，了解基本概念和编程思维。',
-                    standard: 70, prerequisites: [], unlockConditionsMet: true, pathPos: { x: 70, y: 160 } },
-                { id: 'task1', name: 'Python基础语法', icon: '🐍', status: 'in-progress', progress: 80, date: '2024-09-15',
-                    duration: '4小时', type: '编程基础', aiModule: '智能代码分析', desc: '涵盖Python基础语法知识，包括变量、数据类型、控制流和函数定义。通过AI智能代码分析模块获得实时反馈。',
-                    standard: 70, prerequisites: ['task0'], unlockConditionsMet: true, pathPos: { x: 190, y: 130 } },
-                { id: 'task2', name: '数据结构入门', icon: '🌳', status: 'in-progress', progress: 45, date: '2024-10-01',
-                    duration: '5小时', type: '核心知识', aiModule: '自适应测验', desc: '学习数组、链表、栈、队列等基础数据结构，理解其原理与应用场景。',
-                    standard: 65, prerequisites: ['task1'], unlockConditionsMet: true, pathPos: { x: 310, y: 190 } },
-                { id: 'task3', name: '算法设计', icon: '🧩', status: 'in-progress', progress: 10, date: '2024-10-20',
-                    duration: '6小时', type: '高级技能', aiModule: '智能辅导助手', desc: '掌握常见算法设计范式：分治、贪心、动态规划等，通过AI辅导获得个性化学习路径。',
-                    standard: 70, prerequisites: ['task2'], unlockConditionsMet: true, pathPos: { x: 440, y: 120 } },
-                { id: 'task4', name: '项目实战训练', icon: '🚀', status: 'locked', progress: 0, date: '2024-11-10',
-                    duration: '8小时', type: '综合实践', aiModule: '智能代码分析', desc: '综合运用所学知识完成实际项目，AI将提供代码审查和优化建议。',
-                    standard: 75, prerequisites: ['task3'], unlockConditionsMet: false, pathPos: { x: 560, y: 170 } },
-                { id: 'task5', name: '高级应用拓展', icon: '💎', status: 'locked', progress: 0, date: '2024-12-01',
-                    duration: '10小时', type: '进阶拓展', aiModule: '知识图谱导航', desc: '探索前沿技术领域，定制化学习路径，满足个性化发展需求。',
-                    standard: 80, prerequisites: ['task4'], unlockConditionsMet: false, pathPos: { x: 650, y: 140 } },
+            // ==================== 数据存储 ====================
+            // 课程数据
+            let courses = [{
+                id: 'c001',
+                name: '预测理论及方法',
+                teacher: '张教授',
+                semester: '2025-2026学年第一学期',
+                credits: '3',
+                description: '本课程系统讲授预测理论的核心方法，涵盖时间序列分析、回归预测、神经网络预测等现代预测技术。',
+                resourceIds: ['r001', 'r002', 'r003', 'r005', 'r007', 'r009'],
+                createdAt: '2025-09-01',
+                status: 'active'
+            }, {
+                id: 'c002',
+                name: '数据科学导论',
+                teacher: '李副教授',
+                semester: '2025-2026学年第一学期',
+                credits: '4',
+                description: '介绍数据科学的基本概念、方法论和工具，培养学生的数据思维和分析能力。',
+                resourceIds: ['r004', 'r006'],
+                createdAt: '2025-08-28',
+                status: 'active'
+            }, {
+                id: 'c003',
+                name: '机器学习基础',
+                teacher: '王讲师',
+                semester: '2025-2026学年第二学期',
+                credits: '3',
+                description: '学习机器学习的基本算法和模型，包括监督学习、无监督学习和强化学习。',
+                resourceIds: [],
+                createdAt: '2025-10-15',
+                status: 'draft'
+            }];
+
+            // 资源库数据（重点：《预测理论及方法》相关资源）
+            const allResources = [
+                { id: 'r001', name: '《预测理论与方法》教材（第三版）', type: 'doc', category: '教材资料',
+                    desc: '官方指定教材，涵盖预测理论核心知识点，含习题与案例', format: 'PDF', size: '28MB',
+                    tags: ['预测理论及方法', '教材'], isPredictResource: true },
+                { id: 'r002', name: '时间序列分析课件PPT', type: 'ppt', category: '课件PPT',
+                    desc: '包含ARIMA模型、季节分解、指数平滑等核心内容', format: 'PPTX', size: '15MB',
+                    tags: ['预测理论及方法', '时间序列'], isPredictResource: true },
+                { id: 'r003', name: '回归预测方法课件PPT', type: 'ppt', category: '课件PPT',
+                    desc: '线性回归、多元回归、逻辑回归及其在预测中的应用', format: 'PPTX', size: '12MB',
+                    tags: ['预测理论及方法', '回归分析'], isPredictResource: true },
+                { id: 'r004', name: '神经网络预测模型课件', type: 'ppt', category: '课件PPT',
+                    desc: 'BP神经网络、RNN、LSTM在时间序列预测中的实践', format: 'PPTX', size: '18MB',
+                    tags: ['预测理论及方法', '神经网络'], isPredictResource: true },
+                { id: 'r005', name: '经济预测案例分析报告', type: 'case', category: '案例库',
+                    desc: '包含GDP预测、股票趋势预测、消费指数预测等10个真实案例', format: 'PDF', size: '22MB',
+                    tags: ['预测理论及方法', '案例'], isPredictResource: true },
+                { id: 'r006', name: '气象预测实战案例集', type: 'case', category: '案例库',
+                    desc: '基于气象数据的温度、降水量预测案例分析', format: 'PDF', size: '16MB',
+                    tags: ['预测理论及方法', '案例'], isPredictResource: true },
+                { id: 'r007', name: '《预测理论及方法》习题集（含答案）', type: 'doc', category: '习题库',
+                    desc: '各章节配套习题，含详细解答过程，适合课堂练习和课后作业', format: 'PDF', size: '10MB',
+                    tags: ['预测理论及方法', '习题'], isPredictResource: true },
+                { id: 'r008', name: 'Python预测建模实验指导书', type: 'doc', category: '实验指导',
+                    desc: '使用Python进行预测建模的完整实验指导，含代码示例', format: 'PDF', size: '20MB',
+                    tags: ['预测理论及方法', '实验'], isPredictResource: true },
+                { id: 'r009', name: '预测理论教学大纲（2025版）', type: 'doc', category: '教学大纲',
+                    desc: '课程教学目标、内容安排、学时分配、考核方式等完整大纲', format: 'DOCX', size: '2MB',
+                    tags: ['预测理论及方法', '大纲'], isPredictResource: true },
+                { id: 'r010', name: '预测方法综述与前沿讲座视频', type: 'video', category: '教学视频',
+                    desc: '特邀专家讲座，介绍预测方法的最新发展和前沿应用', format: 'MP4', size: '450MB',
+                    tags: ['预测理论及方法', '视频'], isPredictResource: true },
+                { id: 'r011', name: '参考文献与拓展阅读书单', type: 'other', category: '参考文献',
+                    desc: '推荐阅读的经典文献和最新研究成果列表', format: 'PDF', size: '1MB',
+                    tags: ['预测理论及方法', '文献'], isPredictResource: true },
+                { id: 'r012', name: '数据科学常用工具包', type: 'other', category: '其他资料',
+                    desc: 'Python/R常用数据分析与可视化工具包汇总', format: 'ZIP', size: '80MB',
+                    tags: ['数据科学', '工具'], isPredictResource: false },
             ];
 
-            let currentTaskId = 'task1';
-            let currentMode = 'map';
-            let isTeacherMode = false;
-            let rotateAngleX = -8;
-            let rotateAngleY = 15;
-            let isDragging3d = false;
-            let dragStartX = 0;
-            let dragStartY = 0;
-            let dragStartRotX = 0;
-            let dragStartRotY = 0;
+            // 当前页面
+            let currentPage = 'courses';
+            // 编辑中的课程ID（null表示新建）
+            let editingCourseId = null;
 
-            // ============ DOM引用 ============
-            const taskListEl = document.getElementById('taskList');
-            const detailTitle = document.getElementById('detailTitle');
-            const badgeStatus = document.getElementById('badgeStatus');
-            const detailDesc = document.getElementById('detailDesc');
-            const progressCircle = document.getElementById('progressCircle');
-            const percentText = document.getElementById('percentText');
-            const progressStatus = document.getElementById('progressStatus');
-            const unlockList = document.getElementById('unlockList');
-            const mapNodesGroup = document.getElementById('mapNodesGroup');
-            const scene3d = document.getElementById('scene3d');
-            const mapModeContainer = document.getElementById('mapModeContainer');
-            const mode3dContainer = document.getElementById('mode3dContainer');
-            const pathLine1 = document.getElementById('pathLine1');
-            const pathLine2 = document.getElementById('pathLine2');
-            const toast = document.getElementById('toast');
-            const overlay = document.getElementById('overlay');
-            const teacherPanel = document.getElementById('teacherPanel');
-            const btnTeacherMode = document.getElementById('btnTeacherMode');
-            const btnClosePanel = document.getElementById('btnClosePanel');
-            const btnPublish = document.getElementById('btnPublish');
-            const taskSearchInput = document.getElementById('taskSearchInput');
-            const modeSwitchGroup = document.getElementById('modeSwitchGroup');
-            const navTabs = document.getElementById('navTabs');
-            const detailCard = document.getElementById('detailCard');
-            const progressCard = document.getElementById('progressCard');
-            const unlockCard = document.getElementById('unlockCard');
-            const pathViewSection = document.getElementById('pathViewSection');
+            // ==================== DOM引用 ====================
+            const contentArea = document.getElementById('content-area');
+            const modalContainer = document.getElementById('modal-container');
+            const toastContainer = document.getElementById('toast-container');
+            const courseCountBadge = document.getElementById('course-count-badge');
+            const resCountBadge = document.getElementById('res-count-badge');
 
-            // ============ Toast ============
-            let toastTimer;
-
-            function showToast(msg) {
-                clearTimeout(toastTimer);
-                toast.textContent = msg;
-                toast.classList.add('show');
-                toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
-            }
-
-            // ============ 渲染任务列表 ============
-            function renderTaskList(filterText = '') {
-                taskListEl.innerHTML = '';
-                const filtered = tasksData.filter(t =>
-                    t.name.toLowerCase().includes(filterText.toLowerCase()) ||
-                    t.type.toLowerCase().includes(filterText.toLowerCase())
-                );
-                filtered.forEach(task => {
-                    const isLocked = task.status === 'locked';
-                    const item = document.createElement('div');
-                    item.className = 'task-item' +
-                        (task.id === currentTaskId ? ' active-task' : '') +
-                        (isLocked ? ' locked-item' : '');
-                    item.setAttribute('data-task-id', task.id);
-                    let iconClass = 'in-progress';
-                    if (task.status === 'completed') iconClass = 'completed';
-                    if (task.status === 'locked') iconClass = 'locked';
-                    item.innerHTML = `
-                        <div class="task-icon ${iconClass}">${task.icon}</div>
-                        <div class="task-info">
-                            <div class="task-name">${task.name}</div>
-                            <div class="task-meta">${task.type} · ${task.duration}</div>
-                        </div>
-                        <div class="task-progress-mini">
-                            <div class="fill ${task.status === 'completed' ? 'completed-fill' : ''}" style="width:${task.progress}%"></div>
-                        </div>
-                        ${isLocked ? '<span class="lock-badge">🔒</span>' : ''}
-                    `;
-                    if (!isLocked) {
-                        item.addEventListener('click', () => selectTask(task.id));
-                    } else {
-                        item.addEventListener('click', () => showToast('🔒 该任务尚未解锁，请先完成前置任务'));
-                    }
-                    taskListEl.appendChild(item);
-                });
-            }
-
-            // ============ 选择任务 ============
-            function selectTask(taskId) {
-                currentTaskId = taskId;
-                const task = tasksData.find(t => t.id === taskId);
-                if (!task) return;
-                // 更新详情
-                detailTitle.textContent = task.name;
-                detailDesc.textContent = '📖 ' + task.desc;
-                const metaRow = detailCard.querySelector('.detail-meta-row');
-                metaRow.innerHTML = `
-                    <span><span class="meta-label">📅 发布日：</span>${task.date}</span>
-                    <span><span class="meta-label">⏱ 建议时长：</span>${task.duration}</span>
-                    <span><span class="meta-label">🏷 类型：</span>${task.type}</span>
-                    <span><span class="meta-label">🤖 AI模块：</span>${task.aiModule}</span>
-                `;
-                // 状态徽章
-                badgeStatus.className = 'badge-status';
-                if (task.status === 'completed') {
-                    badgeStatus.classList.add('completed-badge');
-                    badgeStatus.textContent = '🏆 已完成';
-                } else if (task.status === 'locked') {
-                    badgeStatus.classList.add('locked-badge');
-                    badgeStatus.textContent = '🔒 未解锁';
-                } else {
-                    badgeStatus.classList.add('unlocked-badge');
-                    badgeStatus.textContent = '🔓 已解锁';
-                }
-                // 达标情况
-                const circumference = 188.5; // 2*pi*30 ≈ 188.5
-                const offset = circumference - (task.progress / 100) * circumference;
-                progressCircle.setAttribute('stroke-dashoffset', offset);
-                progressCircle.classList.toggle('high-progress', task.progress >= task.standard);
-                percentText.textContent = task.progress + '%';
-                if (task.progress >= task.standard) {
-                    progressStatus.textContent = '✔ 已达标';
-                    progressStatus.style.color = '#10b981';
-                } else if (task.status === 'locked') {
-                    progressStatus.textContent = '🔒 暂未解锁';
-                    progressStatus.style.color = '#94a3b8';
-                } else {
-                    progressStatus.textContent = '⏳ 未达标（需≥' + task.standard + '%）';
-                    progressStatus.style.color = '#f59e0b';
-                }
-                // 解锁情况
-                unlockList.innerHTML = '';
-                if (task.prerequisites.length === 0) {
-                    unlockList.innerHTML =
-                        '<li class="unlocked-condition"><span class="unlock-icon">✅</span>无前置任务要求，默认解锁</li>';
-                } else {
-                    task.prerequisites.forEach(preId => {
-                        const preTask = tasksData.find(t => t.id === preId);
-                        const preName = preTask ? preTask.name : preId;
-                        const preCompleted = preTask && preTask.status === 'completed';
-                        unlockList.innerHTML += `
-                            <li class="${preCompleted ? 'unlocked-condition' : 'locked-condition'}">
-                                <span class="unlock-icon">${preCompleted ? '✅' : '⏳'}</span>
-                                前置任务「${preName}」${preCompleted ? '已完成' : '未完成'}
-                            </li>
-                        `;
-                    });
-                    const allPreCompleted = task.prerequisites.every(preId => {
-                        const pt = tasksData.find(t => t.id === preId);
-                        return pt && pt.status === 'completed';
-                    });
-                    unlockList.innerHTML += `
-                        <li class="${allPreCompleted ? 'unlocked-condition' : 'locked-condition'}">
-                            <span class="unlock-icon">${allPreCompleted ? '✅' : '🔒'}</span>
-                            ${allPreCompleted ? '所有前置条件已满足，任务已解锁' : '前置条件未全部满足，任务锁定中'}
-                        </li>
-                    `;
-                }
-                // 更新列表高亮
-                renderTaskList(taskSearchInput.value);
-                // 更新路径视图
-                updateMapView();
-                update3DView();
-                // 滚动到对应任务项
-                const activeItem = taskListEl.querySelector('.active-task');
-                if (activeItem) {
-                    activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }
-
-            // ============ 地图模式更新 ============
-            function updateMapView() {
-                mapNodesGroup.innerHTML = '';
-                tasksData.forEach(task => {
-                    const pos = task.pathPos;
-                    let fillColor = '#94a3b8'; // locked
-                    let strokeColor = '#cbd5e1';
-                    let textColor = '#64748b';
-                    if (task.status === 'completed') {
-                        fillColor = '#10b981';
-                        strokeColor = '#059669';
-                        textColor = '#065f46';
-                    } else if (task.status === 'in-progress') {
-                        fillColor = '#4aa9f5';
-                        strokeColor = '#1a8fe3';
-                        textColor = '#1e40af';
-                    }
-                    const isCurrent = task.id === currentTaskId;
-                    const radius = isCurrent ? 20 : 16;
-                    const strokeW = isCurrent ? 4 : 2.5;
-                    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                    g.setAttribute('class', 'map-node');
-                    g.setAttribute('data-task-id', task.id);
-                    g.style.cursor = task.status === 'locked' ? 'not-allowed' : 'pointer';
-                    g.innerHTML = `
-                        <circle cx="${pos.x}" cy="${pos.y}" r="${radius}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeW}" />
-                        <text x="${pos.x}" y="${pos.y}" fill="white" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="central">${task.icon}</text>
-                        <text x="${pos.x}" y="${pos.y + radius + 16}" fill="${textColor}" font-size="11" font-weight="600" text-anchor="middle">${task.name}</text>
-                        ${isCurrent ? '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="' + (radius + 6) + '" fill="none" stroke="#1a8fe3" stroke-width="2" stroke-dasharray="5 3" opacity="0.6"><animateTransform attributeName="transform" type="rotate" from="0 ' + pos.x + ' ' + pos.y + '" to="360 ' + pos.x + ' ' + pos.y + '" dur="8s" repeatCount="indefinite"/></circle>' : ''}
-                    `;
-                    g.addEventListener('click', () => {
-                        if (task.status !== 'locked') selectTask(task.id);
-                        else showToast('🔒 该任务尚未解锁');
-                    });
-                    mapNodesGroup.appendChild(g);
-                });
-                // 更新路径连线
-                pathLine1.setAttribute('d', generatePathD(tasksData, 0));
-                pathLine2.setAttribute('d', generatePathD(tasksData, 1));
-                pathLine1.style.display = '';
-                pathLine2.style.display = 'none';
-            }
-
-            function generatePathD(tasks, offsetVariant = 0) {
-                if (tasks.length < 2) return '';
-                let d = '';
-                tasks.forEach((task, i) => {
-                    const pos = task.pathPos;
-                    if (i === 0) d += `M ${pos.x} ${pos.y}`;
-                    else {
-                        const prev = tasks[i - 1].pathPos;
-                        const midX = (prev.x + pos.x) / 2;
-                        const midY = (prev.y + pos.y) / 2 + (offsetVariant === 0 ? -25 : 35) * (i % 2 === 0 ? 1 : -
-                            1);
-                        d += ` Q ${midX} ${midY} ${pos.x} ${pos.y}`;
-                    }
-                });
-                return d;
-            }
-
-            // ============ 3D模式更新 ============
-            function update3DView() {
-                scene3d.innerHTML = '';
-                const totalTasks = tasksData.length;
-                const radiusX = 200;
-                const radiusZ = 120;
-                const centerX = 0;
-                const centerY = 20;
-                tasksData.forEach((task, index) => {
-                    const angle = (index / (totalTasks - 1)) * Math.PI - Math.PI / 2;
-                    const x = Math.cos(angle) * radiusX + centerX;
-                    const z = Math.sin(angle) * radiusZ;
-                    const y = centerY + (index - (totalTasks - 1) / 2) * 25;
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'node-3d-wrapper';
-                    wrapper.style.left = '50%';
-                    wrapper.style.top = '50%';
-                    wrapper.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
-                    wrapper.setAttribute('data-task-id', task.id);
-                    let cardClass = 'node-3d-card';
-                    if (task.status === 'completed') cardClass += ' completed-3d';
-                    else if (task.status === 'in-progress') cardClass += ' in-progress-3d';
-                    else cardClass += ' locked-3d';
-                    const isCurrent = task.id === currentTaskId;
-                    const borderGlow = isCurrent ? 'border: 3px solid #1a8fe3; box-shadow: 0 0 25px rgba(26,143,227,0.6);' :
-                        '';
-                    wrapper.innerHTML = `
-                        <div class="${cardClass}" style="${borderGlow}">
-                            <div class="node-3d-icon">${task.icon}</div>
-                            <div class="node-3d-name">${task.name}</div>
-                            <div class="node-3d-progress">${task.progress}%</div>
-                        </div>
-                    `;
-                    wrapper.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (task.status !== 'locked') selectTask(task.id);
-                        else showToast('🔒 该任务尚未解锁');
-                    });
-                    scene3d.appendChild(wrapper);
-                });
-                apply3DRotation();
-            }
-
-            function apply3DRotation() {
-                scene3d.style.transform = `rotateX(${rotateAngleX}deg) rotateY(${rotateAngleY}deg)`;
-            }
-
-            // ============ 模式切换 ============
-            function switchMode(mode) {
-                currentMode = mode;
-                document.querySelectorAll('.mode-switch-btn').forEach(b => b.classList.remove('active-mode'));
-                const activeBtn = document.querySelector(`.mode-switch-btn[data-mode="${mode}"]`);
-                if (activeBtn) activeBtn.classList.add('active-mode');
-                if (mode === 'map') {
-                    mapModeContainer.style.display = 'flex';
-                    mode3dContainer.style.display = 'none';
-                    updateMapView();
-                } else {
-                    mapModeContainer.style.display = 'none';
-                    mode3dContainer.style.display = 'flex';
-                    update3DView();
-                }
-            }
-
-            // ============ 3D拖拽旋转 ============
-            mode3dContainer.addEventListener('mousedown', (e) => {
-                if (currentMode !== '3d') return;
-                isDragging3d = true;
-                dragStartX = e.clientX;
-                dragStartY = e.clientY;
-                dragStartRotX = rotateAngleX;
-                dragStartRotY = rotateAngleY;
-                mode3dContainer.style.cursor = 'grabbing';
-                e.preventDefault();
-            });
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging3d || currentMode !== '3d') return;
-                const dx = e.clientX - dragStartX;
-                const dy = e.clientY - dragStartY;
-                rotateAngleY = dragStartRotY + dx * 0.4;
-                rotateAngleX = dragStartRotX - dy * 0.4;
-                rotateAngleX = Math.max(-50, Math.min(50, rotateAngleX));
-                apply3DRotation();
-            });
-            document.addEventListener('mouseup', () => {
-                if (isDragging3d) {
-                    isDragging3d = false;
-                    mode3dContainer.style.cursor = 'grab';
-                }
-            });
-            // 触摸支持
-            mode3dContainer.addEventListener('touchstart', (e) => {
-                if (currentMode !== '3d') return;
-                isDragging3d = true;
-                dragStartX = e.touches[0].clientX;
-                dragStartY = e.touches[0].clientY;
-                dragStartRotX = rotateAngleX;
-                dragStartRotY = rotateAngleY;
-            }, { passive: false });
-            document.addEventListener('touchmove', (e) => {
-                if (!isDragging3d || currentMode !== '3d') return;
-                const dx = e.touches[0].clientX - dragStartX;
-                const dy = e.touches[0].clientY - dragStartY;
-                rotateAngleY = dragStartRotY + dx * 0.4;
-                rotateAngleX = dragStartRotX - dy * 0.4;
-                rotateAngleX = Math.max(-50, Math.min(50, rotateAngleX));
-                apply3DRotation();
-            }, { passive: false });
-            document.addEventListener('touchend', () => {
-                if (isDragging3d) {
-                    isDragging3d = false;
-                }
-            });
-
-            // ============ 教师面板 ============
-            function openTeacherPanel() {
-                isTeacherMode = true;
-                teacherPanel.classList.add('open');
-                overlay.classList.add('show');
-                btnTeacherMode.classList.add('active-teacher');
-                btnTeacherMode.textContent = '✏️ 教师模式（已开启）';
-            }
-
-            function closeTeacherPanel() {
-                isTeacherMode = false;
-                teacherPanel.classList.remove('open');
-                overlay.classList.remove('show');
-                btnTeacherMode.classList.remove('active-teacher');
-                btnTeacherMode.textContent = '✏️ 教师模式';
-            }
-            btnTeacherMode.addEventListener('click', () => {
-                if (isTeacherMode) closeTeacherPanel();
-                else openTeacherPanel();
-            });
-            btnClosePanel.addEventListener('click', closeTeacherPanel);
-            overlay.addEventListener('click', closeTeacherPanel);
-
-            // 发布任务
-            btnPublish.addEventListener('click', () => {
-                const name = document.getElementById('newTaskName').value.trim();
-                const desc = document.getElementById('newTaskDesc').value.trim();
-                const pathType = document.getElementById('newTaskPathType').value;
-                const prerequisite = document.getElementById('newTaskPrerequisite').value;
-                const standard = parseInt(document.getElementById('newTaskStandard').value) || 70;
-                const aiModule = document.getElementById('newTaskAiModule').value;
-                const duration = parseFloat(document.getElementById('newTaskDuration').value) || 3;
-                if (!name) {
-                    showToast('⚠️ 请输入任务名称');
-                    return;
-                }
-                if (!desc) {
-                    showToast('⚠️ 请输入任务描述');
-                    return;
-                }
-                const newId = 'task' + Date.now();
-                const lastTask = tasksData[tasksData.length - 1];
-                const newPos = {
-                    x: Math.min(lastTask.pathPos.x + 80, 680),
-                    y: lastTask.pathPos.y + (Math.random() - 0.5) * 80
-                };
-                const prerequisites = prerequisite !== 'none' ? [prerequisite] : [];
-                const unlockMet = prerequisites.length === 0 || prerequisites.every(preId => {
-                    const pt = tasksData.find(t => t.id === preId);
-                    return pt && pt.status === 'completed';
-                });
-                const newTask = {
-                    id: newId,
-                    name: name,
-                    icon: ['📗', '📙', '📕', '💡', '🎯', '🔮', '📐', '⚡'][Math.floor(Math.random() * 8)],
-                    status: unlockMet ? 'in-progress' : 'locked',
-                    progress: 0,
-                    date: new Date().toISOString().split('T')[0],
-                    duration: duration + '小时',
-                    type: pathType === '3d' ? '3D探索' : '地图导航',
-                    aiModule: aiModule === 'code_analysis' ? '智能代码分析' :
-                        aiModule === 'knowledge_graph' ? '知识图谱导航' :
-                        aiModule === 'adaptive_quiz' ? '自适应测验' : '智能辅导助手',
-                    desc: desc,
-                    standard: standard,
-                    prerequisites: prerequisites,
-                    unlockConditionsMet: unlockMet,
-                    pathPos: newPos,
-                };
-                tasksData.push(newTask);
-                renderTaskList(taskSearchInput.value);
-                updateMapView();
-                update3DView();
-                // 清空表单
-                document.getElementById('newTaskName').value = '';
-                document.getElementById('newTaskDesc').value = '';
-                document.getElementById('newTaskStandard').value = '70';
-                document.getElementById('newTaskDuration').value = '3';
-                document.getElementById('newTaskPrerequisite').value = 'none';
-                showToast('✅ 任务「' + name + '」发布成功！');
-                // 自动选中新任务
-                setTimeout(() => selectTask(newId), 300);
-            });
-
-            // ============ 导航标签切换 ============
-            navTabs.addEventListener('click', (e) => {
-                const tab = e.target.closest('.nav-tab');
-                if (!tab) return;
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                const tabType = tab.getAttribute('data-tab');
-                if (tabType === 'personal') {
-                    showToast('👤 已切换到个人空间视图');
-                    document.getElementById('sidebar').querySelector('.sidebar-header h3').innerHTML =
-                        '<span class="icon-dot"></span>个人任务列表';
-                } else {
-                    showToast('📚 已切换到课程页面视图');
-                    document.getElementById('sidebar').querySelector('.sidebar-header h3').innerHTML =
-                        '<span class="icon-dot"></span>课程任务列表';
-                }
-            });
-
-            // ============ 搜索过滤 ============
-            taskSearchInput.addEventListener('input', () => {
-                renderTaskList(taskSearchInput.value);
-            });
-
-            // ============ 模式切换按钮 ============
-            modeSwitchGroup.addEventListener('click', (e) => {
-                const btn = e.target.closest('.mode-switch-btn');
-                if (!btn) return;
-                const mode = btn.getAttribute('data-mode');
-                switchMode(mode);
-                showToast(mode === 'map' ? '🗺 已切换到地图模式' : '🌐 已切换到3D模式');
-            });
-
-            // ============ 键盘快捷键 ============
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    if (isTeacherMode) closeTeacherPanel();
-                }
-                if (e.key === 'm' && e.ctrlKey) {
-                    e.preventDefault();
-                    switchMode(currentMode === 'map' ? '3d' : 'map');
-                }
-                if (e.key === 't' && e.ctrlKey && !isTeacherMode) {
-                    e.preventDefault();
-                    openTeacherPanel();
-                }
-            });
-
-            // ============ 初始化 ============
+            // ==================== 初始化 ====================
             function init() {
-                renderTaskList();
-                selectTask('task1');
-                switchMode('map');
-                mode3dContainer.style.cursor = 'grab';
-                updateMapView();
-                update3DView();
-                console.log('🚀 个性化学习平台已就绪');
-                console.log('   🗺 地图模式 - 查看2D学习路径');
-                console.log('   🌐 3D模式 - 拖拽旋转查看3D路径');
-                console.log('   ✏️ 点击"教师模式"发布新任务');
-                console.log('   ⌨ 快捷键：Ctrl+M 切换模式 | Ctrl+T 教师模式 | Esc 关闭面板');
+                updateBadges();
+                renderPage('courses');
+                setupSidebarListeners();
+                setupNavListeners();
             }
+
+            function updateBadges() {
+                const activeCourses = courses.filter(c => c.status === 'active').length;
+                courseCountBadge.textContent = activeCourses;
+                const predictResources = allResources.filter(r => r.isPredictResource).length;
+                resCountBadge.textContent = predictResources;
+            }
+
+            // ==================== Toast ====================
+            function showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                const icons = { info: 'ℹ️', success: '✅', error: '❌' };
+                toast.innerHTML = `<span>${icons[type] || icons.info}</span> ${message}`;
+                toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.animation = 'toastOut 0.3s ease forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2500);
+            }
+
+            // ==================== 模态框 ====================
+            function openModal(htmlContent) {
+                modalContainer.innerHTML = `
+                    <div class="modal-overlay" id="modal-overlay">
+                        ${htmlContent}
+                    </div>`;
+                const overlay = document.getElementById('modal-overlay');
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) closeModal();
+                });
+                document.addEventListener('keydown', handleEscKey);
+            }
+
+            function closeModal() {
+                const overlay = document.getElementById('modal-overlay');
+                if (overlay) {
+                    overlay.classList.add('closing');
+                    setTimeout(() => {
+                        modalContainer.innerHTML = '';
+                    }, 180);
+                }
+                document.removeEventListener('keydown', handleEscKey);
+            }
+
+            function handleEscKey(e) {
+                if (e.key === 'Escape') closeModal();
+            }
+            // 暴露到全局
+            window.closeModal = closeModal;
+
+            // ==================== 页面渲染 ====================
+            function renderPage(page, extraData = null) {
+                currentPage = page;
+                switch (page) {
+                    case 'courses':
+                        renderCoursesPage();
+                        break;
+                    case 'new-course':
+                        openNewCourseModal();
+                        break;
+                    case 'resources':
+                        renderResourcesPage('all');
+                        break;
+                    case 'predict-resources':
+                        renderResourcesPage('predict');
+                        break;
+                    case 'settings':
+                        renderSettingsPage();
+                        break;
+                    default:
+                        renderCoursesPage();
+                }
+                updateSidebarActive(page);
+            }
+
+            function updateSidebarActive(page) {
+                document.querySelectorAll('.sidebar .menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.page === page) item.classList.add('active');
+                });
+                document.querySelectorAll('.top-nav .nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+            }
+
+            // ==================== 课程列表页 ====================
+            function renderCoursesPage() {
+                const activeCourses = courses.filter(c => c.status === 'active');
+                const draftCourses = courses.filter(c => c.status === 'draft');
+                let cardsHTML = '';
+                const allDisplay = [...activeCourses, ...draftCourses];
+
+                if (allDisplay.length === 0) {
+                    cardsHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📭</div>
+                            <p>暂无课程，点击下方按钮创建您的第一门课程</p>
+                            <button class="btn btn-primary" onclick="document.getElementById('menu-new-course').click()">
+                                ➕ 新建课程
+                            </button>
+                        </div>`;
+                } else {
+                    cardsHTML = allDisplay.map(c => {
+                        const resourceCount = c.resourceIds ? c.resourceIds.length : 0;
+                        const statusTag = c.status === 'draft' ?
+                            '<span class="tag tag-orange" style="margin-left:6px;">草稿</span>' :
+                            '<span class="tag tag-green" style="margin-left:6px;">进行中</span>';
+                        return `
+                        <div class="course-card" data-course-id="${c.id}">
+                            <div class="card-accent"></div>
+                            <div class="card-header">
+                                <span class="course-name">${escapeHTML(c.name)}${statusTag}</span>
+                            </div>
+                            <div class="course-meta">
+                                <span>👨‍🏫 ${escapeHTML(c.teacher)}</span>
+                                <span>📅 ${escapeHTML(c.semester)}</span>
+                                <span>🎓 ${escapeHTML(c.credits)} 学分</span>
+                            </div>
+                            <p style="font-size:12px;color:var(--text-light);line-height:1.5;margin:4px 0;">
+                                ${escapeHTML(c.description || '暂无描述')}
+                            </p>
+                            <div class="resource-count">
+                                📎 关联资源：<strong>${resourceCount}</strong> 个
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();window._editCourse('${c.id}')">
+                                    ✏️ 编辑
+                                </button>
+                                <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();window._viewCourseDetail('${c.id}')">
+                                    👁️ 详情
+                                </button>
+                                <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();window._deleteCourse('${c.id}')">
+                                    🗑️ 删除
+                                </button>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+
+                contentArea.innerHTML = `
+                    <div class="page-header">
+                        <div>
+                            <div class="page-title">📋 我的课程</div>
+                            <div class="page-subtitle">管理您创建的所有课程，共 <strong>${courses.length}</strong> 门</div>
+                        </div>
+                        <div class="search-bar">
+                            <input type="text" class="search-input" placeholder="🔍 搜索课程..." id="course-search-input">
+                            <button class="btn btn-primary" onclick="document.getElementById('menu-new-course').click()">
+                                ➕ 新建课程
+                            </button>
+                        </div>
+                    </div>
+                    <div class="course-grid" id="course-grid">
+                        ${cardsHTML}
+                    </div>
+                `;
+
+                // 搜索功能
+                const searchInput = document.getElementById('course-search-input');
+                if (searchInput) {
+                    searchInput.addEventListener('input', function() {
+                        const keyword = this.value.toLowerCase().trim();
+                        const grid = document.getElementById('course-grid');
+                        if (!grid) return;
+                        const cards = grid.querySelectorAll('.course-card');
+                        cards.forEach(card => {
+                            const text = card.textContent.toLowerCase();
+                            card.style.display = text.includes(keyword) ? '' : 'none';
+                        });
+                    });
+                }
+            }
+
+            // ==================== 资源库页面 ====================
+            function renderResourcesPage(filter = 'all') {
+                let resourcesToShow = filter === 'predict' ?
+                    allResources.filter(r => r.isPredictResource) :
+                    allResources;
+                const pageTitle = filter === 'predict' ?
+                    '🔮 《预测理论及方法》课程资源' :
+                    '📦 全部资源库';
+                const pageSubtitle = filter === 'predict' ?
+                    '以下资源专为《预测理论及方法》课程建设准备，教师可在新建课程时选用' :
+                    '平台所有可用教学资源，支持教师自由选用';
+
+                const typeBadgeClass = {
+                    'ppt': 'badge-ppt',
+                    'doc': 'badge-doc',
+                    'video': 'badge-video',
+                    'case': 'badge-case',
+                    'other': 'badge-other'
+                };
+                const typeLabels = { 'ppt': '课件PPT', 'doc': '文档', 'video': '视频', 'case': '案例',
+                'other': '其他' };
+
+                const rowsHTML = resourcesToShow.map(r => `
+                    <tr>
+                        <td><span class="res-name-link" title="${escapeHTML(r.desc)}">${escapeHTML(r.name)}</span></td>
+                        <td><span class="res-type-badge ${typeBadgeClass[r.type] || 'badge-other'}">${typeLabels[r.type] || r.type}</span></td>
+                        <td>${escapeHTML(r.category)}</td>
+                        <td>${escapeHTML(r.format)}</td>
+                        <td>${escapeHTML(r.size)}</td>
+                        <td>${escapeHTML(r.desc)}</td>
+                        <td>
+                            <button class="btn btn-outline btn-xs" onclick="window._addResourceToCoursePrompt('${r.id}')" title="将此资源添加到某门课程">
+                                📎 选用
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                contentArea.innerHTML = `
+                    <div class="page-header">
+                        <div>
+                            <div class="page-title">${pageTitle}</div>
+                            <div class="page-subtitle">${pageSubtitle} · 共 <strong>${resourcesToShow.length}</strong> 条资源</div>
+                        </div>
+                        <div class="search-bar">
+                            <input type="text" class="search-input" placeholder="🔍 搜索资源..." id="res-search-input">
+                            ${filter === 'predict' ? '<span class="tag tag-green" style="font-size:12px;">⭐ 《预测理论及方法》专属资源</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="resource-table-wrap">
+                        <table class="resource-table">
+                            <thead>
+                                <tr>
+                                    <th>资源名称</th>
+                                    <th>类型</th>
+                                    <th>分类</th>
+                                    <th>格式</th>
+                                    <th>大小</th>
+                                    <th>描述</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="res-table-body">
+                                ${rowsHTML}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${filter === 'all' ? `
+                    <div style="margin-top:18px;padding:16px;background:#FFF9E6;border-radius:10px;border:1px solid #F5E6B8;">
+                        <strong>💡 提示：</strong> 点击左侧菜单 <em>"预测理论及方法资源"</em> 可快速筛选该课程专属资源。在新建或编辑课程时，可从资源库中勾选需要的资源进行关联。
+                    </div>` : `
+                    <div style="margin-top:18px;padding:16px;background:#E8F8F0;border-radius:10px;border:1px solid #B8E6D0;">
+                        <strong>🔮 《预测理论及方法》资源包说明：</strong> 以上资源涵盖教材、课件、案例、习题、实验指导、教学大纲等完整教学配套。教师在<em>新建课程</em>时可直接勾选添加，快速完成课程建设。
+                    </div>`}
+                `;
+
+                // 资源搜索
+                const resSearchInput = document.getElementById('res-search-input');
+                if (resSearchInput) {
+                    resSearchInput.addEventListener('input', function() {
+                        const keyword = this.value.toLowerCase().trim();
+                        const tbody = document.getElementById('res-table-body');
+                        if (!tbody) return;
+                        const rows = tbody.querySelectorAll('tr');
+                        rows.forEach(row => {
+                            const text = row.textContent.toLowerCase();
+                            row.style.display = text.includes(keyword) ? '' : 'none';
+                        });
+                    });
+                }
+            }
+
+            // ==================== 设置页 ====================
+            function renderSettingsPage() {
+                contentArea.innerHTML = `
+                    <div class="page-header">
+                        <div>
+                            <div class="page-title">⚙️ 平台设置</div>
+                            <div class="page-subtitle">管理平台基本配置和偏好</div>
+                        </div>
+                    </div>
+                    <div style="background:#fff;border-radius:14px;padding:28px;box-shadow:var(--shadow);border:1px solid var(--border-light);">
+                        <p style="color:var(--text-secondary);">设置页面（演示用途）。教师可在此配置个人信息、通知偏好等。</p>
+                        <br>
+                        <p style="color:var(--text-light);font-size:13px;">💡 提示：当前平台已支持课程管理、资源库浏览、新建课程时灵活编辑信息并选用资源等功能。</p>
+                    </div>
+                `;
+            }
+
+            // ==================== 新建课程模态框 ====================
+            function openNewCourseModal(prefillData = null) {
+                editingCourseId = prefillData ? prefillData.id : null;
+                const isEdit = !!prefillData;
+                const title = isEdit ? '✏️ 编辑课程' : '➕ 新建课程';
+                const courseName = prefillData ? prefillData.name : '';
+                const teacher = prefillData ? prefillData.teacher : '张教授';
+                const semester = prefillData ? prefillData.semester : '2025-2026学年第一学期';
+                const credits = prefillData ? prefillData.credits : '3';
+                const description = prefillData ? (prefillData.description || '') : '';
+                const existingResourceIds = prefillData ? (prefillData.resourceIds || []) : [];
+
+                // 构建资源选择列表
+                const predictResources = allResources.filter(r => r.isPredictResource);
+                const otherResources = allResources.filter(r => !r.isPredictResource);
+
+                function buildPickerItems(resources, groupLabel) {
+                    return resources.map(r => {
+                        const checked = existingResourceIds.includes(r.id) ? 'checked' : '';
+                        const selClass = existingResourceIds.includes(r.id) ? 'selected' : '';
+                        return `
+                        <label class="picker-item ${selClass}" data-res-id="${r.id}">
+                            <input type="checkbox" value="${r.id}" ${checked} onchange="this.parentElement.classList.toggle('selected', this.checked)">
+                            <span>${escapeHTML(r.name)}</span>
+                            <span style="font-size:10px;color:var(--text-light);">(${r.format}, ${r.size})</span>
+                        </label>`;
+                    }).join('');
+                }
+
+                const modalHTML = `
+                <div class="modal" id="course-form-modal">
+                    <div class="modal-header">
+                        <h3>${title}</h3>
+                        <button class="modal-close" onclick="window.closeModal()">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group" style="flex:2;min-width:200px;">
+                                <label>📛 课程名称 <span style="color:#e05555;">*</span></label>
+                                <input type="text" id="input-course-name" value="${escapeHTML(courseName)}" placeholder="请输入课程名称，例如：预测理论及方法">
+                            </div>
+                            <div class="form-group" style="flex:1;min-width:120px;">
+                                <label>🎓 学分</label>
+                                <input type="text" id="input-credits" value="${escapeHTML(credits)}" placeholder="例如：3">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>👨‍🏫 授课教师</label>
+                                <input type="text" id="input-teacher" value="${escapeHTML(teacher)}" placeholder="请输入授课教师姓名">
+                            </div>
+                            <div class="form-group">
+                                <label>📅 学期</label>
+                                <input type="text" id="input-semester" value="${escapeHTML(semester)}" placeholder="例如：2025-2026学年第一学期">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>📝 课程描述</label>
+                            <textarea id="input-description" rows="3" placeholder="请输入课程描述信息...">${escapeHTML(description)}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>📂 课程状态</label>
+                            <select id="input-status">
+                                <option value="active" ${prefillData && prefillData.status==='active'?'selected':''}>进行中</option>
+                                <option value="draft" ${prefillData && prefillData.status==='draft'?'selected':''}>草稿</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <div class="picker-header">
+                                <span class="icon-highlight">🔮</span> 从资源库选择关联资源（可多选）
+                                <span style="font-weight:400;font-size:11px;color:var(--text-light);">—— 勾选后资源将关联到此课程</span>
+                            </div>
+                            <div class="resource-picker" id="resource-picker-container">
+                                <p style="font-weight:700;font-size:12px;color:#E67E22;margin-bottom:6px;">⭐ 《预测理论及方法》专属资源：</p>
+                                ${buildPickerItems(predictResources, '预测理论及方法')}
+                                <p style="font-weight:700;font-size:12px;color:var(--text-light);margin:10px 0 6px;">📦 其他通用资源：</p>
+                                ${buildPickerItems(otherResources, '其他')}
+                            </div>
+                            <p style="font-size:11px;color:var(--text-light);margin-top:4px;">
+                                💡 提示：课程名称、授课教师、学期等信息均可<strong>灵活填写修改</strong>，所有字段支持随时编辑。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-ghost" onclick="window.closeModal()">取消</button>
+                        <button class="btn btn-primary" id="btn-save-course">
+                            ${isEdit ? '💾 保存修改' : '✅ 创建课程'}
+                        </button>
+                    </div>
+                </div>`;
+
+                openModal(modalHTML);
+
+                // 绑定保存按钮
+                setTimeout(() => {
+                    const saveBtn = document.getElementById('btn-save-course');
+                    if (saveBtn) {
+                        saveBtn.addEventListener('click', function() {
+                            saveCourse(isEdit, prefillData);
+                        });
+                    }
+                }, 100);
+            }
+
+            function saveCourse(isEdit, prefillData) {
+                const name = document.getElementById('input-course-name')?.value.trim();
+                const teacher = document.getElementById('input-teacher')?.value.trim();
+                const semester = document.getElementById('input-semester')?.value.trim();
+                const credits = document.getElementById('input-credits')?.value.trim();
+                const description = document.getElementById('input-description')?.value.trim();
+                const status = document.getElementById('input-status')?.value || 'active';
+
+                if (!name) {
+                    showToast('请填写课程名称', 'error');
+                    return;
+                }
+                if (!teacher) {
+                    showToast('请填写授课教师', 'error');
+                    return;
+                }
+
+                // 收集选中的资源ID
+                const checkedBoxes = document.querySelectorAll('#resource-picker-container input[type="checkbox"]:checked');
+                const selectedResourceIds = Array.from(checkedBoxes).map(cb => cb.value);
+
+                if (isEdit && prefillData) {
+                    // 更新现有课程
+                    const idx = courses.findIndex(c => c.id === prefillData.id);
+                    if (idx >= 0) {
+                        courses[idx].name = name;
+                        courses[idx].teacher = teacher;
+                        courses[idx].semester = semester;
+                        courses[idx].credits = credits;
+                        courses[idx].description = description;
+                        courses[idx].resourceIds = selectedResourceIds;
+                        courses[idx].status = status;
+                    }
+                    showToast('课程修改成功！信息已更新', 'success');
+                } else {
+                    // 创建新课程
+                    const newCourse = {
+                        id: 'c' + Date.now().toString(36).toUpperCase(),
+                        name,
+                        teacher,
+                        semester,
+                        credits,
+                        description,
+                        resourceIds: selectedResourceIds,
+                        createdAt: new Date().toISOString().split('T')[0],
+                        status
+                    };
+                    courses.unshift(newCourse);
+                    showToast(`课程"${name}"创建成功！已关联 ${selectedResourceIds.length} 个资源`, 'success');
+                }
+
+                closeModal();
+                updateBadges();
+                renderPage('courses');
+                editingCourseId = null;
+            }
+
+            // ==================== 全局函数暴露 ====================
+            window._editCourse = function(courseId) {
+                const course = courses.find(c => c.id === courseId);
+                if (course) {
+                    openNewCourseModal(course);
+                }
+            };
+
+            window._viewCourseDetail = function(courseId) {
+                const course = courses.find(c => c.id === courseId);
+                if (!course) return;
+                const linkedResources = allResources.filter(r => course.resourceIds && course.resourceIds.includes(r
+                    .id));
+                const resListHTML = linkedResources.length > 0 ?
+                    linkedResources.map(r =>
+                        `<li style="margin:4px 0;font-size:13px;">📎 ${escapeHTML(r.name)} <span style="font-size:10px;color:var(--text-light);">(${r.format}, ${r.size})</span></li>`
+                        ).join('') :
+                    '<li style="color:var(--text-light);">暂无关联资源</li>';
+
+                const detailHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3>📋 课程详情</h3>
+                        <button class="modal-close" onclick="window.closeModal()">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>课程名称：</strong>${escapeHTML(course.name)}</p>
+                        <p><strong>授课教师：</strong>${escapeHTML(course.teacher)}</p>
+                        <p><strong>学期：</strong>${escapeHTML(course.semester)}</p>
+                        <p><strong>学分：</strong>${escapeHTML(course.credits)}</p>
+                        <p><strong>状态：</strong>${course.status==='active'?'进行中':'草稿'}</p>
+                        <p><strong>描述：</strong>${escapeHTML(course.description || '暂无')}</p>
+                        <p><strong>创建日期：</strong>${escapeHTML(course.createdAt)}</p>
+                        <hr style="margin:12px 0;border-color:var(--border-light);">
+                        <p><strong>📎 关联资源（${linkedResources.length}个）：</strong></p>
+                        <ul>${resListHTML}</ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline btn-sm" onclick="window.closeModal();window._editCourse('${course.id}')">✏️ 编辑此课程</button>
+                        <button class="btn btn-ghost btn-sm" onclick="window.closeModal()">关闭</button>
+                    </div>
+                </div>`;
+                openModal(detailHTML);
+            };
+
+            window._deleteCourse = function(courseId) {
+                const course = courses.find(c => c.id === courseId);
+                if (!course) return;
+                const confirmHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3>⚠️ 确认删除</h3>
+                        <button class="modal-close" onclick="window.closeModal()">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>确定要删除课程 <strong>"${escapeHTML(course.name)}"</strong> 吗？</p>
+                        <p style="color:#e05555;font-size:13px;">此操作不可恢复，关联的资源引用将被移除。</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-ghost" onclick="window.closeModal()">取消</button>
+                        <button class="btn btn-danger" id="btn-confirm-delete">确认删除</button>
+                    </div>
+                </div>`;
+                openModal(confirmHTML);
+                setTimeout(() => {
+                    const confirmBtn = document.getElementById('btn-confirm-delete');
+                    if (confirmBtn) {
+                        confirmBtn.addEventListener('click', function() {
+                            courses = courses.filter(c => c.id !== courseId);
+                            closeModal();
+                            updateBadges();
+                            renderPage('courses');
+                            showToast(`课程"${course.name}"已删除`, 'success');
+                        });
+                    }
+                }, 100);
+            };
+
+            window._addResourceToCoursePrompt = function(resourceId) {
+                const resource = allResources.find(r => r.id === resourceId);
+                if (!resource) return;
+                const activeCourses = courses.filter(c => c.status === 'active');
+                if (activeCourses.length === 0) {
+                    showToast('暂无进行中的课程，请先创建课程', 'error');
+                    return;
+                }
+                const optionsHTML = activeCourses.map(c => `
+                    <option value="${c.id}">${escapeHTML(c.name)} — ${escapeHTML(c.teacher)}</option>
+                `).join('');
+                const promptHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3>📎 选用资源到课程</h3>
+                        <button class="modal-close" onclick="window.closeModal()">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>将资源 <strong>"${escapeHTML(resource.name)}"</strong> 添加到：</p>
+                        <div class="form-group">
+                            <label>选择目标课程</label>
+                            <select id="select-target-course">
+                                ${optionsHTML}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-ghost" onclick="window.closeModal()">取消</button>
+                        <button class="btn btn-primary" id="btn-add-resource">确认添加</button>
+                    </div>
+                </div>`;
+                openModal(promptHTML);
+                setTimeout(() => {
+                    const addBtn = document.getElementById('btn-add-resource');
+                    if (addBtn) {
+                        addBtn.addEventListener('click', function() {
+                            const targetId = document.getElementById('select-target-course')?.value;
+                            if (targetId) {
+                                const course = courses.find(c => c.id === targetId);
+                                if (course) {
+                                    if (!course.resourceIds) course.resourceIds = [];
+                                    if (!course.resourceIds.includes(resourceId)) {
+                                        course.resourceIds.push(resourceId);
+                                        showToast(`资源已添加到课程"${course.name}"`, 'success');
+                                    } else {
+                                        showToast('该资源已在此课程中', 'info');
+                                    }
+                                    closeModal();
+                                    updateBadges();
+                                    if (currentPage === 'courses') renderCoursesPage();
+                                }
+                            }
+                        });
+                    }
+                }, 100);
+            };
+
+            // ==================== 侧边栏监听 ====================
+            function setupSidebarListeners() {
+                document.querySelectorAll('.sidebar .menu-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const page = this.dataset.page;
+                        if (page) {
+                            if (page === 'new-course') {
+                                openNewCourseModal();
+                                updateSidebarActive('new-course');
+                            } else {
+                                renderPage(page);
+                            }
+                        }
+                    });
+                });
+            }
+
+            function setupNavListeners() {
+                document.querySelectorAll('.top-nav .nav-link').forEach(link => {
+                    link.addEventListener('click', function() {
+                        const nav = this.dataset.nav;
+                        document.querySelectorAll('.top-nav .nav-link').forEach(l => l
+                            .classList.remove('active'));
+                        this.classList.add('active');
+                        if (nav === 'home' || nav === 'courses') {
+                            renderPage('courses');
+                        } else if (nav === 'resources') {
+                            renderPage('resources');
+                        }
+                    });
+                });
+            }
+
+            // ==================== 工具函数 ====================
+            function escapeHTML(str) {
+                if (!str) return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ==================== 启动 ====================
             init();
+            console.log('✅ 智慧课程建设平台（天蓝版）已就绪');
+            console.log('📋 功能：课程管理 | 灵活新建/编辑课程 | 资源库浏览');
+            console.log('🔮 《预测理论及方法》专属资源已预置，教师可在新建课程时选用');
+            console.log('💡 所有课程字段（名称、教师、学期等）均可灵活填写修改');
         })();
     </script>
 </body>
