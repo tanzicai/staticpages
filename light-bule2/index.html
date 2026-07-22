@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识图谱资源管理平台</title>
+    <style>
+        :root {
+            --primary: #4A90D9;
+            --primary-dark: #357ABD;
+            --primary-light: #7CB8F0;
+            --primary-bg: #E8F4FD;
+            --primary-lighter: #F0F7FC;
+            --sky-50: #f0f7ff;
+            --sky-100: #e0f0fe;
+            --sky-200: #b9dffc;
+            --sky-300: #7cc5f7;
+            --sky-400: #4aa9f0;
+            --sky-500: #2b8fe0;
+            --sky-600: #1a6fbf;
+            --sky-700: #155a9b;
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --info: #3b82f6;
+            --info-light: #dbeafe;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+            --radius-sm: 6px;
+            --radius: 8px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #e8f4fd 0%, #dceefb 30%, #e0f0fe 60%, #f0f7fc 100%);
+            color: var(--gray-800);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            background: linear-gradient(135deg, #1e6fbf 0%, #2b8fe0 40%, #3b9ce8 100%);
+            color: #fff;
+            padding: 0 28px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(30, 111, 191, 0.25);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        .navbar .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .navbar .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .navbar .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+        .navbar .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .navbar .nav-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 7px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+        }
+        .navbar .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.28);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+        .navbar .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #fff;
+            color: var(--sky-600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            transition: var(--transition);
+        }
+        .navbar .user-avatar:hover {
+            border-color: #fff;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+        }
+
+        /* 主布局 */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 58px);
+            gap: 0;
+            padding: 16px;
+            overflow: hidden;
+        }
+
+        /* 左侧面板 */
+        .left-panel {
+            width: 320px;
+            min-width: 320px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--sky-200);
+            transition: var(--transition);
+        }
+        .panel-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--gray-200);
+            background: linear-gradient(180deg, #f8fbfe 0%, #fff 100%);
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--gray-800);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            letter-spacing: 0.3px;
+        }
+        .panel-header .badge {
+            font-size: 11px;
+            background: var(--primary-bg);
+            color: var(--primary-dark);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 12px;
+        }
+        .panel-body::-webkit-scrollbar {
+            width: 5px;
+        }
+        .panel-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .panel-body::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 10px;
+        }
+
+        /* 章节树 */
+        .chapter-tree .chapter-item {
+            padding: 8px 10px;
+            margin: 3px 0;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            border: 1px solid transparent;
+            position: relative;
+        }
+        .chapter-tree .chapter-item:hover {
+            background: var(--sky-50);
+            border-color: var(--sky-200);
+        }
+        .chapter-tree .chapter-item.active {
+            background: var(--primary-bg);
+            border-color: var(--primary-light);
+            font-weight: 600;
+            color: var(--primary-dark);
+            box-shadow: var(--shadow-sm);
+        }
+        .chapter-tree .chapter-item .icon {
+            width: 20px;
+            text-align: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .chapter-tree .sub-chapter {
+            padding-left: 24px;
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+        .chapter-tree .imported-tag {
+            font-size: 10px;
+            background: #d1fae5;
+            color: #059669;
+            padding: 2px 7px;
+            border-radius: 10px;
+            margin-left: auto;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .chapter-tree .linked-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--sky-400);
+            flex-shrink: 0;
+            margin-left: 4px;
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(74, 169, 240, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(74, 169, 240, 0);
+            }
+        }
+
+        /* 中间面板 - 知识图谱 */
+        .center-panel {
+            flex: 1;
+            margin: 0 16px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--sky-200);
+            position: relative;
+        }
+        .graph-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(74, 169, 240, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(43, 143, 224, 0.04) 0%, transparent 50%),
+                #fdfdfd;
+        }
+        .graph-container:active {
+            cursor: grabbing;
+        }
+        .graph-container svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .graph-container .edge-line {
+            stroke: #c5d9ef;
+            stroke-width: 2.5;
+            transition: var(--transition);
+            cursor: pointer;
+            stroke-linecap: round;
+        }
+        .graph-container .edge-line:hover {
+            stroke: var(--sky-400);
+            stroke-width: 4;
+            filter: drop-shadow(0 0 4px rgba(74, 169, 240, 0.4));
+        }
+        .graph-container .edge-line.primary-edge {
+            stroke: var(--sky-400);
+            stroke-width: 3;
+            stroke-dasharray: none;
+        }
+        .graph-node {
+            position: absolute;
+            background: #fff;
+            border: 2px solid var(--sky-300);
+            border-radius: 50%;
+            width: 72px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            z-index: 5;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gray-700);
+            text-align: center;
+            line-height: 1.2;
+            user-select: none;
+            letter-spacing: 0.3px;
+        }
+        .graph-node:hover {
+            transform: scale(1.12);
+            border-color: var(--sky-500);
+            box-shadow: var(--shadow-xl), 0 0 0 8px rgba(74, 169, 240, 0.1);
+            z-index: 20;
+        }
+        .graph-node.selected {
+            border-color: var(--sky-600);
+            background: linear-gradient(135deg, #e8f4fd 0%, #d0e8fb 100%);
+            box-shadow: var(--shadow-lg), 0 0 0 12px rgba(43, 143, 224, 0.12);
+            z-index: 15;
+            animation: selected-glow 2s ease-in-out infinite;
+        }
+        @keyframes selected-glow {
+            0%,
+            100% {
+                box-shadow: var(--shadow-lg), 0 0 0 8px rgba(43, 143, 224, 0.1);
+            }
+            50% {
+                box-shadow: var(--shadow-lg), 0 0 0 16px rgba(43, 143, 224, 0.18);
+            }
+        }
+        .graph-node .node-core {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e0f0fe 0%, #c8e4f9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--sky-700);
+            font-weight: 700;
+        }
+        .graph-node.root-node {
+            width: 90px;
+            height: 90px;
+            border-color: var(--sky-500);
+            border-width: 3px;
+        }
+        .graph-node.root-node .node-core {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #4a90d9 0%, #357abd 100%);
+            color: #fff;
+            font-size: 12px;
+        }
+        .graph-legend {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius);
+            padding: 10px 14px;
+            font-size: 11px;
+            color: var(--gray-500);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            display: flex;
+            gap: 16px;
+            z-index: 10;
+            backdrop-filter: blur(6px);
+        }
+        .graph-legend span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .graph-legend .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .graph-toolbar {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            display: flex;
+            gap: 6px;
+            z-index: 10;
+        }
+        .graph-toolbar button {
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            color: var(--gray-600);
+        }
+        .graph-toolbar button:hover {
+            background: var(--sky-50);
+            border-color: var(--sky-300);
+            color: var(--sky-600);
+            box-shadow: var(--shadow);
+        }
+
+        /* 右侧面板 */
+        .right-panel {
+            width: 360px;
+            min-width: 360px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--sky-200);
+        }
+        .right-panel .panel-body {
+            padding: 14px;
+        }
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gray-700);
+            margin: 12px 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.3px;
+        }
+        .section-title:first-child {
+            margin-top: 0;
+        }
+        .section-title .dot-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--sky-400);
+        }
+        .resource-card {
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            margin: 6px 0;
+            border: 1px solid var(--gray-200);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            position: relative;
+        }
+        .resource-card:hover {
+            border-color: var(--sky-300);
+            background: var(--sky-50);
+            box-shadow: var(--shadow);
+        }
+        .resource-card .file-type-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .file-type-video {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+        .file-type-doc {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+        .file-type-sim {
+            background: #d1fae5;
+            color: #059669;
+        }
+        .file-type-other {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .resource-card .card-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .resource-card .card-title {
+            font-weight: 600;
+            color: var(--gray-800);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .resource-card .card-meta {
+            font-size: 10px;
+            color: var(--gray-400);
+            margin-top: 2px;
+        }
+        .resource-card .card-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .btn-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid var(--gray-200);
+            background: #fff;
+            cursor: pointer;
+            font-size: 12px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-500);
+        }
+        .btn-icon:hover {
+            background: var(--sky-50);
+            border-color: var(--sky-300);
+            color: var(--sky-600);
+        }
+        .btn-icon.danger:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #ef4444;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4a90d9 0%, #3b7fc4 100%);
+            color: #fff;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 2px 8px rgba(74, 144, 217, 0.3);
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #3b7fc4 0%, #2e6ba8 100%);
+            box-shadow: 0 4px 14px rgba(74, 144, 217, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            background: #fff;
+            border: 1.5px solid var(--sky-300);
+            color: var(--sky-600);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: var(--transition);
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-outline:hover {
+            background: var(--sky-50);
+            border-color: var(--sky-500);
+            box-shadow: var(--shadow);
+        }
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 11px;
+            border-radius: 14px;
+        }
+
+        /* 弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            width: 520px;
+            max-width: 95vw;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--gray-800);
+            background: var(--gray-50);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--gray-100);
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-500);
+        }
+        .modal-close:hover {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .modal-body label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-600);
+            margin-bottom: 5px;
+            letter-spacing: 0.3px;
+        }
+        .modal-body input[type="text"],
+        .modal-body select,
+        .modal-body textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid var(--gray-300);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            transition: var(--transition);
+            font-family: inherit;
+            background: #fafbfc;
+        }
+        .modal-body input:focus,
+        .modal-body select:focus,
+        .modal-body textarea:focus {
+            outline: none;
+            border-color: var(--sky-400);
+            box-shadow: 0 0 0 3px rgba(74, 169, 240, 0.1);
+            background: #fff;
+        }
+        .modal-body textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+        .alert-info {
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            font-size: 12px;
+            color: #1e40af;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid #6ee7b7;
+            color: #065f46;
+        }
+        .alert-warning {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            color: #92400e;
+        }
+        .alert-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: var(--gray-50);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+
+        /* 虚拟仿真素材标签 */
+        .sim-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            background: #d1fae5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+            letter-spacing: 0.3px;
+        }
+        .sim-tag.vr {
+            background: #ede9fe;
+            color: #6d28d9;
+            border-color: #c4b5fd;
+        }
+        .sim-tag.model3d {
+            background: #fce7f3;
+            color: #be185d;
+            border-color: #f9a8d4;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            background: #fff;
+            padding: 12px 18px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            font-size: 13px;
+            font-weight: 500;
+            animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-left: 4px solid var(--sky-400);
+            max-width: 380px;
+        }
+        .toast.success {
+            border-left-color: #10b981;
+        }
+        .toast.warning {
+            border-left-color: #f59e0b;
+        }
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+        }
+
+        /* 虚拟仿真素材选择卡片 */
+        .sim-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 8px 0;
+        }
+        .sim-option-card {
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+            font-size: 12px;
+            font-weight: 500;
+            background: #fff;
+        }
+        .sim-option-card:hover {
+            border-color: var(--sky-400);
+            background: var(--sky-50);
+        }
+        .sim-option-card.selected {
+            border-color: var(--sky-500);
+            background: var(--primary-bg);
+            box-shadow: 0 0 0 3px rgba(74, 169, 240, 0.12);
+        }
+        .sim-option-card .sim-icon {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* 响应式微调 */
+        @media (max-width: 1400px) {
+            .left-panel {
+                width: 270px;
+                min-width: 270px;
+            }
+            .right-panel {
+                width: 310px;
+                min-width: 310px;
+            }
+            .graph-node {
+                width: 60px;
+                height: 60px;
+                font-size: 10px;
+            }
+            .graph-node.root-node {
+                width: 76px;
+                height: 76px;
+            }
+            .graph-node .node-core {
+                width: 42px;
+                height: 42px;
+                font-size: 9px;
+            }
+            .graph-node.root-node .node-core {
+                width: 52px;
+                height: 52px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="logo-area">
+            <div class="logo-icon">🧠</div>
+            <span class="logo-text">知识图谱资源管理平台</span>
+        </div>
+        <div class="nav-actions">
+            <button class="nav-btn" onclick="openImportModal()" title="从校本教学平台导入章节">
+                📥 导入校本章节
+            </button>
+            <button class="nav-btn" onclick="openUploadResourceModal()" title="上传资源并关联知识点">
+                ➕ 上传资源
+            </button>
+            <div class="user-avatar" title="教师用户">张</div>
+        </div>
+    </nav>
+
+    <!-- 主布局 -->
+    <div class="main-container">
+        <!-- 左侧面板：章节树 + 知识点列表 -->
+        <aside class="left-panel">
+            <div class="panel-header">
+                📚 章节资源库
+                <span class="badge" id="chapterCount">已导入 5 章</span>
+            </div>
+            <div class="panel-body chapter-tree" id="chapterTree">
+                <!-- 动态渲染 -->
+            </div>
+            <div class="panel-header" style="border-top:1px solid var(--gray-200);">
+                🔗 知识点列表
+                <span class="badge" id="kpCount">共 8 个</span>
+            </div>
+            <div class="panel-body" id="knowledgePointList" style="max-height:200px;">
+                <!-- 动态渲染 -->
+            </div>
+        </aside>
+
+        <!-- 中间面板：知识图谱可视化 -->
+        <main class="center-panel">
+            <div class="panel-header">
+                🗺️ 知识图谱可视化
+                <span style="font-size:11px;color:var(--gray-400);">点击节点查看关联资源 | 拖拽平移图谱</span>
+            </div>
+            <div class="graph-container" id="graphContainer">
+                <svg id="graphSvg"></svg>
+                <!-- 节点由JS动态生成 -->
+                <div class="graph-legend">
+                    <span><span class="dot" style="background:var(--sky-500);"></span> 核心知识点</span>
+                    <span><span class="dot" style="background:var(--sky-300);"></span> 关联知识点</span>
+                    <span style="color:var(--sky-400);">—</span> 关联关系
+                </div>
+                <div class="graph-toolbar">
+                    <button title="放大" onclick="zoomGraph(1.1)">🔍</button>
+                    <button title="缩小" onclick="zoomGraph(0.9)">🔎</button>
+                    <button title="重置视图" onclick="resetGraphView()">🔄</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧面板：资源管理 -->
+        <aside class="right-panel">
+            <div class="panel-header">
+                📁 资源管理面板
+                <span style="font-size:11px;color:var(--gray-400);" id="selectedKpLabel">请选择知识点</span>
+            </div>
+            <div class="panel-body" id="resourcePanel">
+                <div class="section-title">
+                    <span class="dot-indicator"></span> 已关联资源
+                </div>
+                <div id="resourceList">
+                    <!-- 动态渲染 -->
+                </div>
+                <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn-primary btn-sm" onclick="openUploadResourceModal()">📤 上传新资源</button>
+                    <button class="btn-outline btn-sm" onclick="openSimInsertModal()">🧪 插入虚拟仿真素材</button>
+                </div>
+                <div class="section-title" style="margin-top:16px;">
+                    <span class="dot-indicator"></span> 视频资源管理
+                </div>
+                <div style="font-size:11px;color:var(--gray-500);padding:6px 0;">
+                    替换视频文件将<span style="color:#059669;font-weight:600;">保留所有学习记录与成绩</span>
+                </div>
+                <div id="videoResourceList">
+                    <!-- 动态渲染视频资源 -->
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Toast容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 弹窗：导入校本章节 -->
+    <div class="modal-overlay" id="importModal" style="display:none;">
+        <div class="modal">
+            <div class="modal-header">
+                📥 从校本教学平台导入章节
+                <button class="modal-close" onclick="closeModal('importModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <label>选择校本平台资源库</label>
+                <select id="importSource">
+                    <option value="school-platform">校本教学平台 - 数学资源库</option>
+                    <option value="school-platform-2">校本教学平台 - 科学资源库</option>
+                </select>
+                <label style="margin-top:12px;">可选章节列表</label>
+                <div style="max-height:250px;overflow-y:auto;border:1px solid var(--gray-200);border-radius:var(--radius);padding:8px;" id="importChapterList">
+                    <!-- 动态勾选 -->
+                </div>
+                <div class="alert-info" style="margin-top:10px;">
+                    <span class="alert-icon">💡</span>
+                    <span>导入后将自动匹配现有知识点，您也可以手动调整关联关系。</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="closeModal('importModal')">取消</button>
+                <button class="btn-primary" onclick="confirmImport()">确认导入选中章节</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗：上传资源 & 关联知识点 -->
+    <div class="modal-overlay" id="uploadModal" style="display:none;">
+        <div class="modal">
+            <div class="modal-header">
+                📤 上传资源并关联知识点
+                <button class="modal-close" onclick="closeModal('uploadModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <label>资源名称</label>
+                <input type="text" id="uploadResName" placeholder="请输入资源名称">
+                <label style="margin-top:10px;">资源类型</label>
+                <select id="uploadResType">
+                    <option value="video">视频</option>
+                    <option value="doc">文档/PPT</option>
+                    <option value="image">图片</option>
+                    <option value="simulation">虚拟仿真素材</option>
+                </select>
+                <label style="margin-top:10px;">关联知识点</label>
+                <select id="uploadLinkKp">
+                    <option value="">-- 请选择关联知识点 --</option>
+                </select>
+                <label style="margin-top:10px;">关联章节（可选）</label>
+                <select id="uploadLinkChapter">
+                    <option value="">-- 请选择关联章节 --</option>
+                </select>
+                <div class="alert-info" style="margin-top:10px;" id="simInsertHint" style="display:none;">
+                    <span class="alert-icon">🧪</span>
+                    <span>选择"虚拟仿真素材"类型后，可在下方插入具体仿真内容。</span>
+                </div>
+                <div id="simInsertArea" style="display:none;margin-top:8px;">
+                    <label>插入虚拟仿真素材类型</label>
+                    <div class="sim-options" id="simOptions">
+                        <div class="sim-option-card" data-sim="3d-model" onclick="selectSimType(this)">
+                            <span class="sim-icon">🧊</span> 3D模型
+                        </div>
+                        <div class="sim-option-card" data-sim="vr-scene" onclick="selectSimType(this)">
+                            <span class="sim-icon">🥽</span> VR场景
+                        </div>
+                        <div class="sim-option-card" data-sim="interactive-demo" onclick="selectSimType(this)">
+                            <span class="sim-icon">🎮</span> 互动演示
+                        </div>
+                        <div class="sim-option-card" data-sim="sim-experiment" onclick="selectSimType(this)">
+                            <span class="sim-icon">🔬</span> 仿真实验
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="closeModal('uploadModal')">取消</button>
+                <button class="btn-primary" onclick="confirmUpload()">确认上传</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗：替换视频 -->
+    <div class="modal-overlay" id="replaceVideoModal" style="display:none;">
+        <div class="modal">
+            <div class="modal-header">
+                🔄 替换视频文件
+                <button class="modal-close" onclick="closeModal('replaceVideoModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert-warning" style="margin-bottom:14px;">
+                    <span class="alert-icon">⚠️</span>
+                    <span><strong>重要提示：</strong>替换视频文件后，系统将自动保留该视频下的<strong>所有学习记录与成绩数据</strong>，不会影响学生的历史学习进度和成绩统计。</span>
+                </div>
+                <label>当前视频</label>
+                <div style="padding:8px 12px;background:var(--gray-100);border-radius:var(--radius-sm);font-size:13px;" id="replaceCurrentVideo">--</div>
+                <label style="margin-top:10px;">关联知识点</label>
+                <div style="padding:8px 12px;background:var(--gray-100);border-radius:var(--radius-sm);font-size:13px;" id="replaceLinkedKp">--</div>
+                <label style="margin-top:10px;">学习记录统计</label>
+                <div style="display:flex;gap:12px;margin-top:4px;" id="replaceStats">
+                    <span style="background:#d1fae5;padding:6px 12px;border-radius:12px;font-size:11px;color:#065f46;">✅ 已学习 128 人次</span>
+                    <span style="background:#dbeafe;padding:6px 12px;border-radius:12px;font-size:11px;color:#1e40af;">📊 平均成绩 87分</span>
+                    <span style="background:#fef3c7;padding:6px 12px;border-radius:12px;font-size:11px;color:#92400e;">📝 记录数 256条</span>
+                </div>
+                <div class="alert-success" style="margin-top:10px;">
+                    <span class="alert-icon">🛡️</span>
+                    <span>替换后以上数据<strong>全部保留</strong>，仅更新视频文件内容。学生端将无缝切换到新视频继续学习。</span>
+                </div>
+                <label style="margin-top:10px;">上传新视频文件</label>
+                <input type="text" id="replaceVideoUrl" placeholder="请输入新视频URL或选择文件" style="width:100%;">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="closeModal('replaceVideoModal')">取消</button>
+                <button class="btn-primary" onclick="confirmReplaceVideo()" style="background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);">确认替换（保留学习记录）</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗：插入虚拟仿真素材 -->
+    <div class="modal-overlay" id="simInsertModal" style="display:none;">
+        <div class="modal">
+            <div class="modal-header">
+                🧪 插入虚拟仿真素材
+                <button class="modal-close" onclick="closeModal('simInsertModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <label>目标关联知识点</label>
+                <select id="simTargetKp">
+                    <option value="">-- 请选择知识点 --</option>
+                </select>
+                <label style="margin-top:10px;">虚拟仿真素材类型</label>
+                <div class="sim-options" id="simOptions2">
+                    <div class="sim-option-card" data-sim="3d-model" onclick="selectSimType2(this)">
+                        <span class="sim-icon">🧊</span> 3D模型
+                    </div>
+                    <div class="sim-option-card" data-sim="vr-scene" onclick="selectSimType2(this)">
+                        <span class="sim-icon">🥽</span> VR场景
+                    </div>
+                    <div class="sim-option-card" data-sim="interactive-demo" onclick="selectSimType2(this)">
+                        <span class="sim-icon">🎮</span> 互动演示
+                    </div>
+                    <div class="sim-option-card" data-sim="sim-experiment" onclick="selectSimType2(this)">
+                        <span class="sim-icon">🔬</span> 仿真实验
+                    </div>
+                </div>
+                <label style="margin-top:10px;">素材名称</label>
+                <input type="text" id="simName" placeholder="请输入虚拟仿真素材名称">
+                <label style="margin-top:10px;">素材URL/路径</label>
+                <input type="text" id="simUrl" placeholder="请输入素材路径">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="closeModal('simInsertModal')">取消</button>
+                <button class="btn-primary" onclick="confirmInsertSim()">确认插入</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ 数据模型 ============
+        const knowledgePoints = [
+            { id: 'kp1', name: '二次函数', x: 42, y: 28, isRoot: true, color: '#4a90d9' },
+            { id: 'kp2', name: '一元二次方程', x: 20, y: 55, isRoot: false, color: '#7cb8f0' },
+            { id: 'kp3', name: '抛物线', x: 60, y: 18, isRoot: false, color: '#7cb8f0' },
+            { id: 'kp4', name: '函数图像', x: 68, y: 50, isRoot: false, color: '#7cb8f0' },
+            { id: 'kp5', name: '配方法', x: 30, y: 72, isRoot: false, color: '#7cb8f0' },
+            { id: 'kp6', name: '顶点式', x: 52, y: 68, isRoot: false, color: '#7cb8f0' },
+            { id: 'kp7', name: '判别式', x: 10, y: 35, isRoot: false, color: '#7cb8f0' },
+            { id: 'kp8', name: '对称轴', x: 75, y: 32, isRoot: false, color: '#7cb8f0' },
+        ];
+
+        const edges = [
+            { from: 'kp1', to: 'kp2', primary: true },
+            { from: 'kp1', to: 'kp3', primary: true },
+            { from: 'kp1', to: 'kp4', primary: true },
+            { from: 'kp1', to: 'kp6', primary: false },
+            { from: 'kp2', to: 'kp5', primary: false },
+            { from: 'kp2', to: 'kp7', primary: true },
+            { from: 'kp3', to: 'kp8', primary: true },
+            { from: 'kp4', to: 'kp6', primary: false },
+            { from: 'kp4', to: 'kp8', primary: false },
+            { from: 'kp5', to: 'kp6', primary: false },
+            { from: 'kp7', to: 'kp5', primary: false },
+        ];
+
+        const chapters = [
+            { id: 'ch1', name: '第三章 函数', sub: [
+                    { id: 'ch1-1', name: '3.1 函数概念', linkedKp: 'kp4', imported: true },
+                    { id: 'ch1-2', name: '3.2 一次函数', linkedKp: null, imported: true },
+                    { id: 'ch1-3', name: '3.3 二次函数', linkedKp: 'kp1', imported: true },
+                    { id: 'ch1-4', name: '3.4 函数应用', linkedKp: 'kp3', imported: true },
+                ] },
+            { id: 'ch2', name: '第四章 方程', sub: [
+                    { id: 'ch2-1', name: '4.1 一元一次方程', linkedKp: null, imported: true },
+                    { id: 'ch2-2', name: '4.2 一元二次方程', linkedKp: 'kp2', imported: false },
+                    { id: 'ch2-3', name: '4.3 配方法解方程', linkedKp: 'kp5', imported: false },
+                ] },
+        ];
+
+        // 资源数据
+        let resources = [
+            { id: 'res1', name: '二次函数入门视频.mp4', type: 'video', linkedKp: 'kp1', linkedChapter: 'ch1-3',
+                simTag: null, views: 128, avgScore: 87, records: 256 },
+            { id: 'res2', name: '抛物线3D演示模型', type: 'simulation', linkedKp: 'kp3', linkedChapter: 'ch1-4',
+                simTag: '3d-model', views: 56, avgScore: 92, records: 103 },
+            { id: 'res3', name: '配方法教学PPT.pptx', type: 'doc', linkedKp: 'kp5', linkedChapter: 'ch2-3', simTag: null,
+                views: 89, avgScore: 83, records: 178 },
+            { id: 'res4', name: '判别式讲解视频.mp4', type: 'video', linkedKp: 'kp7', linkedChapter: null, simTag: null,
+                views: 210, avgScore: 79, records: 412 },
+            { id: 'res5', name: '对称轴互动演示', type: 'simulation', linkedKp: 'kp8', linkedChapter: null,
+                simTag: 'interactive-demo', views: 45, avgScore: 94, records: 88 },
+        ];
+
+        let selectedKpId = 'kp1';
+        let selectedSimType = null;
+        let selectedSimType2 = null;
+        let replaceTargetResId = null;
+        let graphScale = 1;
+        let graphPanX = 0;
+        let graphPanY = 0;
+
+        // ============ 初始化 ============
+        function init() {
+            renderChapterTree();
+            renderKnowledgePointList();
+            renderGraph();
+            renderResourcePanel();
+            updateCounts();
+            populateSelects();
+            // 监听资源类型切换
+            document.getElementById('uploadResType').addEventListener('change', toggleSimArea);
+        }
+
+        function updateCounts() {
+            const importedCount = chapters.reduce((acc, ch) => acc + ch.sub.filter(s => s.imported).length, 0);
+            document.getElementById('chapterCount').textContent = `已导入 ${importedCount} 节`;
+            document.getElementById('kpCount').textContent = `共 ${knowledgePoints.length} 个`;
+        }
+
+        function populateSelects() {
+            const kpSelects = ['uploadLinkKp', 'simTargetKp'];
+            kpSelects.forEach(selId => {
+                const sel = document.getElementById(selId);
+                if (!sel) return;
+                sel.innerHTML = '<option value="">-- 请选择关联知识点 --</option>' +
+                    knowledgePoints.map(kp => `<option value="${kp.id}">${kp.name}</option>`).join('');
+            });
+            const chSelect = document.getElementById('uploadLinkChapter');
+            if (chSelect) {
+                let opts = '<option value="">-- 请选择关联章节 --</option>';
+                chapters.forEach(ch => {
+                    ch.sub.forEach(s => {
+                        opts +=
+                            `<option value="${s.id}">${ch.name} - ${s.name}${s.imported ? ' (已导入)' : ''}</option>`;
+                    });
+                });
+                chSelect.innerHTML = opts;
+            }
+            // 导入弹窗的章节列表
+            const importList = document.getElementById('importChapterList');
+            if (importList) {
+                let html = '';
+                chapters.forEach(ch => {
+                    html +=
+                        `<div style="font-weight:700;padding:6px 0;color:var(--gray-700);font-size:13px;">${ch.name}</div>`;
+                    ch.sub.forEach(s => {
+                        const checked = s.imported ? 'checked' : '';
+                        const disabled = s.imported ? 'disabled' : '';
+                        html += `
+                        <label style="display:flex;align-items:center;gap:8px;padding:6px 10px;cursor:${s.imported?'default':'pointer'};font-size:12px;border-radius:4px;transition:var(--transition);" 
+                               onmouseover="this.style.background='var(--sky-50)'" onmouseout="this.style.background='transparent'">
+                            <input type="checkbox" value="${s.id}" ${checked} ${disabled} style="accent-color:var(--sky-500);">
+                            <span>${s.name}</span>
+                            ${s.imported ? '<span style="font-size:10px;color:#059669;">(已导入)</span>' : ''}
+                            ${s.linkedKp ? `<span style="font-size:10px;color:var(--sky-500);margin-left:auto;">→ ${knowledgePoints.find(k=>k.id===s.linkedKp)?.name||''}</span>` : ''}
+                        </label>`;
+                    });
+                });
+                importList.innerHTML = html;
+            }
+        }
+
+        // ============ 渲染章节树 ============
+        function renderChapterTree() {
+            const container = document.getElementById('chapterTree');
+            let html = '';
+            chapters.forEach(ch => {
+                html +=
+                    `<div style="font-weight:700;padding:8px 4px 4px;color:var(--gray-700);font-size:13px;display:flex;align-items:center;gap:6px;">
+                    📂 ${ch.name}
+                </div>`;
+                ch.sub.forEach(s => {
+                    const isLinked = s.linkedKp && s.linkedKp === selectedKpId;
+                    html += `
+                    <div class="chapter-item sub-chapter ${isLinked ? 'active' : ''}" 
+                         onclick="selectChapterLink('${s.id}')" 
+                         title="${s.linkedKp ? '已关联知识点: ' + (knowledgePoints.find(k=>k.id===s.linkedKp)?.name||'') : '点击关联知识点'}">
+                        <span class="icon">📄</span>
+                        <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.name}</span>
+                        ${s.imported ? '<span class="imported-tag">已导入</span>' : '<span style="font-size:10px;color:var(--gray-400);margin-left:auto;">未导入</span>'}
+                        ${s.linkedKp ? '<span class="linked-dot" title="已关联知识点"></span>' : ''}
+                    </div>`;
+                });
+            });
+            container.innerHTML = html;
+        }
+
+        function selectChapterLink(chapterId) {
+            // 找到该章节关联的知识点
+            let targetKp = null;
+            chapters.forEach(ch => {
+                ch.sub.forEach(s => {
+                    if (s.id === chapterId && s.linkedKp) targetKp = s.linkedKp;
+                });
+            });
+            if (targetKp) {
+                selectKnowledgePoint(targetKp);
+                showToast('已跳转到关联知识点', 'success');
+            } else {
+                showToast('该章节尚未关联知识点，请先关联', 'warning');
+            }
+        }
+
+        // ============ 渲染知识点列表 ============
+        function renderKnowledgePointList() {
+            const container = document.getElementById('knowledgePointList');
+            let html = '';
+            knowledgePoints.forEach(kp => {
+                const resCount = resources.filter(r => r.linkedKp === kp.id).length;
+                html += `
+                <div class="chapter-item ${kp.id === selectedKpId ? 'active' : ''}" 
+                     onclick="selectKnowledgePoint('${kp.id}')"
+                     style="justify-content:space-between;">
+                    <span style="display:flex;align-items:center;gap:6px;">
+                        <span style="width:8px;height:8px;border-radius:50%;background:${kp.color};flex-shrink:0;"></span>
+                        ${kp.name}
+                    </span>
+                    <span style="font-size:10px;color:var(--gray-400);">${resCount}个资源</span>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function selectKnowledgePoint(kpId) {
+            selectedKpId = kpId;
+            const kp = knowledgePoints.find(k => k.id === kpId);
+            document.getElementById('selectedKpLabel').textContent = '当前: ' + (kp ? kp.name : '--');
+            renderKnowledgePointList();
+            renderChapterTree();
+            renderGraph();
+            renderResourcePanel();
+        }
+
+        // ============ 渲染知识图谱 ============
+        function renderGraph() {
+            const container = document.getElementById('graphContainer');
+            const svg = document.getElementById('graphSvg');
+            // 清除旧节点
+            container.querySelectorAll('.graph-node').forEach(el => el.remove());
+
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+
+            // 渲染连线 SVG
+            let svgContent = '';
+            edges.forEach(edge => {
+                const fromKp = knowledgePoints.find(k => k.id === edge.from);
+                const toKp = knowledgePoints.find(k => k.id === edge.to);
+                if (!fromKp || !toKp) return;
+                const x1 = (fromKp.x / 100) * containerWidth;
+                const y1 = (fromKp.y / 100) * containerHeight;
+                const x2 = (toKp.x / 100) * containerWidth;
+                const y2 = (toKp.y / 100) * containerHeight;
+                const cls = edge.primary ? 'edge-line primary-edge' : 'edge-line';
+                svgContent +=
+                    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${cls}" data-from="${edge.from}" data-to="${edge.to}" />`;
+            });
+            svg.innerHTML = svgContent;
+
+            // 渲染节点
+            knowledgePoints.forEach(kp => {
+                const node = document.createElement('div');
+                node.className = 'graph-node' + (kp.isRoot ? ' root-node' : '') + (kp.id === selectedKpId ?
+                    ' selected' : '');
+                node.style.left = (kp.x / 100 * containerWidth - (kp.isRoot ? 45 : 36)) + 'px';
+                node.style.top = (kp.y / 100 * containerHeight - (kp.isRoot ? 45 : 36)) + 'px';
+                node.innerHTML = `<div class="node-core">${kp.name}</div>`;
+                node.title = kp.name + ' - 点击查看关联资源';
+                node.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectKnowledgePoint(kp.id);
+                });
+                container.appendChild(node);
+            });
+
+            // 点击空白取消选择
+            container.onclick = function(e) {
+                if (e.target === container || e.target === svg) {
+                    // 保持当前选择
+                }
+            };
+        }
+
+        function zoomGraph(factor) {
+            graphScale = Math.max(0.5, Math.min(2.5, graphScale * factor));
+            applyGraphTransform();
+        }
+
+        function resetGraphView() {
+            graphScale = 1;
+            graphPanX = 0;
+            graphPanY = 0;
+            applyGraphTransform();
+            showToast('图谱视图已重置', 'success');
+        }
+
+        function applyGraphTransform() {
+            const container = document.getElementById('graphContainer');
+            const svg = document.getElementById('graphSvg');
+            const nodes = container.querySelectorAll('.graph-node');
+            const transform = `scale(${graphScale}) translate(${graphPanX}px, ${graphPanY}px)`;
+            svg.style.transform = transform;
+            svg.style.transformOrigin = '0 0';
+            nodes.forEach(node => {
+                node.style.transform = transform;
+                node.style.transformOrigin = '0 0';
+            });
+        }
+
+        // ============ 渲染资源面板 ============
+        function renderResourcePanel() {
+            const kp = knowledgePoints.find(k => k.id === selectedKpId);
+            const kpResources = resources.filter(r => r.linkedKp === selectedKpId);
+            const videoResources = resources.filter(r => r.type === 'video');
+
+            // 关联资源列表
+            const resList = document.getElementById('resourceList');
+            if (kpResources.length === 0) {
+                resList.innerHTML =
+                    '<div style="padding:16px;text-align:center;color:var(--gray-400);font-size:12px;">该知识点暂无关联资源<br>点击下方按钮上传</div>';
+            } else {
+                resList.innerHTML = kpResources.map(r => `
+                <div class="resource-card" onclick="highlightResource('${r.id}')">
+                    <div class="file-type-icon ${getFileTypeClass(r.type, r.simTag)}">
+                        ${getFileTypeIcon(r.type, r.simTag)}
+                    </div>
+                    <div class="card-info">
+                        <div class="card-title">${r.name}</div>
+                        <div class="card-meta">
+                            ${r.type === 'video' ? '📹 视频' : r.type === 'simulation' ? '🧪 虚拟仿真' : '📄 文档'}
+                            ${r.simTag ? getSimTagHtml(r.simTag) : ''}
+                            ${r.linkedChapter ? ' · 已关联章节' : ''}
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        ${r.type === 'video' ? `<button class="btn-icon" title="替换视频(保留学习记录)" onclick="event.stopPropagation();openReplaceVideoModal('${r.id}')">🔄</button>` : ''}
+                        <button class="btn-icon danger" title="取消关联" onclick="event.stopPropagation();unlinkResource('${r.id}')">🗑️</button>
+                    </div>
+                </div>
+                `).join('');
+            }
+
+            // 视频资源列表
+            const videoList = document.getElementById('videoResourceList');
+            if (videoResources.length === 0) {
+                videoList.innerHTML =
+                    '<div style="padding:12px;text-align:center;color:var(--gray-400);font-size:11px;">暂无视频资源</div>';
+            } else {
+                videoList.innerHTML = videoResources.map(r => `
+                <div class="resource-card" style="border-left:3px solid #ef4444;">
+                    <div class="file-type-icon file-type-video">🎬</div>
+                    <div class="card-info">
+                        <div class="card-title">${r.name}</div>
+                        <div class="card-meta">
+                            📊 学习${r.views}人次 · 均分${r.avgScore} · 📝${r.records}条记录
+                        </div>
+                    </div>
+                    <button class="btn-icon" title="替换视频(保留学习记录与成绩)" onclick="openReplaceVideoModal('${r.id}')">🔄</button>
+                </div>
+                `).join('');
+            }
+
+            document.getElementById('selectedKpLabel').textContent = '当前: ' + (kp ? kp.name : '--');
+        }
+
+        function getFileTypeClass(type, simTag) {
+            if (type === 'video') return 'file-type-video';
+            if (type === 'simulation') return 'file-type-sim';
+            if (type === 'doc') return 'file-type-doc';
+            return 'file-type-other';
+        }
+
+        function getFileTypeIcon(type, simTag) {
+            if (type === 'video') return '🎬';
+            if (type === 'simulation') {
+                if (simTag === '3d-model') return '🧊';
+                if (simTag === 'vr-scene') return '🥽';
+                if (simTag === 'interactive-demo') return '🎮';
+                if (simTag === 'sim-experiment') return '🔬';
+                return '🧪';
+            }
+            if (type === 'doc') return '📄';
+            return '📁';
+        }
+
+        function getSimTagHtml(simTag) {
+            if (!simTag) return '';
+            const labels = { '3d-model': '3D模型', 'vr-scene': 'VR场景', 'interactive-demo': '互动演示',
+                'sim-experiment': '仿真实验' };
+            const cls = simTag === 'vr-scene' ? 'sim-tag vr' : simTag === '3d-model' ? 'sim-tag model3d' : 'sim-tag';
+            return `<span class="${cls}">${labels[simTag] || simTag}</span>`;
+        }
+
+        function highlightResource(resId) {
+            const res = resources.find(r => r.id === resId);
+            if (res && res.linkedKp) {
+                selectKnowledgePoint(res.linkedKp);
+                showToast(`已定位资源: ${res.name}`, 'success');
+            }
+        }
+
+        function unlinkResource(resId) {
+            const res = resources.find(r => r.id === resId);
+            if (!res) return;
+            if (confirm(`确定要取消"${res.name}"与知识点的关联吗？`)) {
+                res.linkedKp = null;
+                res.linkedChapter = null;
+                renderResourcePanel();
+                renderKnowledgePointList();
+                showToast('已取消关联', 'warning');
+            }
+        }
+
+        // ============ 弹窗操作 ============
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+            if (id === 'importModal') populateSelects();
+            if (id === 'uploadModal') {
+                populateSelects();
+                toggleSimArea();
+            }
+            if (id === 'simInsertModal') populateSelects();
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+            if (id === 'uploadModal') {
+                selectedSimType = null;
+                document.querySelectorAll('#simOptions .sim-option-card').forEach(c => c.classList.remove(
+                    'selected'));
+            }
+            if (id === 'simInsertModal') {
+                selectedSimType2 = null;
+                document.querySelectorAll('#simOptions2 .sim-option-card').forEach(c => c.classList.remove(
+                    'selected'));
+            }
+        }
+
+        function openImportModal() {
+            populateSelects();
+            openModal('importModal');
+        }
+
+        function openUploadResourceModal() {
+            document.getElementById('uploadLinkKp').value = selectedKpId || '';
+            populateSelects();
+            toggleSimArea();
+            openModal('uploadModal');
+        }
+
+        function openSimInsertModal() {
+            document.getElementById('simTargetKp').value = selectedKpId || '';
+            populateSelects();
+            openModal('simInsertModal');
+        }
+
+        function openReplaceVideoModal(resId) {
+            replaceTargetResId = resId;
+            const res = resources.find(r => r.id === resId);
+            if (!res) return;
+            document.getElementById('replaceCurrentVideo').textContent = res.name;
+            const linkedKp = knowledgePoints.find(k => k.id === res.linkedKp);
+            document.getElementById('replaceLinkedKp').textContent = linkedKp ? linkedKp.name : '未关联';
+            document.getElementById('replaceStats').innerHTML = `
+                <span style="background:#d1fae5;padding:6px 12px;border-radius:12px;font-size:11px;color:#065f46;">✅ 已学习 ${res.views} 人次</span>
+                <span style="background:#dbeafe;padding:6px 12px;border-radius:12px;font-size:11px;color:#1e40af;">📊 平均成绩 ${res.avgScore}分</span>
+                <span style="background:#fef3c7;padding:6px 12px;border-radius:12px;font-size:11px;color:#92400e;">📝 记录数 ${res.records}条</span>
+            `;
+            document.getElementById('replaceVideoUrl').value = '';
+            openModal('replaceVideoModal');
+        }
+
+        function toggleSimArea() {
+            const type = document.getElementById('uploadResType').value;
+            const area = document.getElementById('simInsertArea');
+            const hint = document.getElementById('simInsertHint');
+            if (type === 'simulation') {
+                area.style.display = 'block';
+                hint.style.display = 'flex';
+            } else {
+                area.style.display = 'none';
+                hint.style.display = 'none';
+                selectedSimType = null;
+                document.querySelectorAll('#simOptions .sim-option-card').forEach(c => c.classList.remove(
+                'selected'));
+            }
+        }
+
+        function selectSimType(card) {
+            document.querySelectorAll('#simOptions .sim-option-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedSimType = card.dataset.sim;
+        }
+
+        function selectSimType2(card) {
+            document.querySelectorAll('#simOptions2 .sim-option-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedSimType2 = card.dataset.sim;
+        }
+
+        // ============ 确认操作 ============
+        function confirmImport() {
+            const checkboxes = document.querySelectorAll('#importChapterList input[type="checkbox"]:checked:not([disabled])');
+            if (checkboxes.length === 0) {
+                showToast('请至少选择一个未导入的章节', 'warning');
+                return;
+            }
+            const importedIds = [];
+            checkboxes.forEach(cb => {
+                const chId = cb.value;
+                chapters.forEach(ch => {
+                    ch.sub.forEach(s => {
+                        if (s.id === chId && !s.imported) {
+                            s.imported = true;
+                            importedIds.push(s.name);
+                            // 自动尝试匹配知识点
+                            if (!s.linkedKp) {
+                                const autoMatch = knowledgePoints.find(kp => s.name.includes(kp
+                                    .name));
+                                if (autoMatch) s.linkedKp = autoMatch.id;
+                            }
+                        }
+                    });
+                });
+            });
+            updateCounts();
+            renderChapterTree();
+            renderKnowledgePointList();
+            renderResourcePanel();
+            populateSelects();
+            closeModal('importModal');
+            showToast(`成功导入 ${importedIds.length} 个章节：${importedIds.join('、')}`, 'success');
+        }
+
+        function confirmUpload() {
+            const name = document.getElementById('uploadResName').value.trim();
+            const type = document.getElementById('uploadResType').value;
+            const linkedKp = document.getElementById('uploadLinkKp').value;
+            const linkedChapter = document.getElementById('uploadLinkChapter').value;
+
+            if (!name) { showToast('请输入资源名称', 'warning');
+                return; }
+            if (!linkedKp) { showToast('请选择关联知识点', 'warning');
+                return; }
+
+            const newRes = {
+                id: 'res' + Date.now(),
+                name: name,
+                type: type,
+                linkedKp: linkedKp,
+                linkedChapter: linkedChapter || null,
+                simTag: type === 'simulation' ? selectedSimType : null,
+                views: 0,
+                avgScore: 0,
+                records: 0,
+            };
+            resources.push(newRes);
+
+            // 如果关联了章节，更新章节关联
+            if (linkedChapter) {
+                chapters.forEach(ch => {
+                    ch.sub.forEach(s => {
+                        if (s.id === linkedChapter && !s.linkedKp) {
+                            s.linkedKp = linkedKp;
+                        }
+                    });
+                });
+            }
+
+            document.getElementById('uploadResName').value = '';
+            document.getElementById('uploadLinkKp').value = '';
+            document.getElementById('uploadLinkChapter').value = '';
+            selectedSimType = null;
+            document.querySelectorAll('#simOptions .sim-option-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('simInsertArea').style.display = 'none';
+
+            renderResourcePanel();
+            renderKnowledgePointList();
+            renderChapterTree();
+            populateSelects();
+            closeModal('uploadModal');
+            selectKnowledgePoint(linkedKp);
+            const simInfo = newRes.simTag ? '（含虚拟仿真素材）' : '';
+            showToast(`资源"${name}"上传成功${simInfo}，已关联知识点`, 'success');
+        }
+
+        function confirmReplaceVideo() {
+            const newUrl = document.getElementById('replaceVideoUrl').value.trim();
+            if (!newUrl) { showToast('请输入新视频URL', 'warning');
+                return; }
+            if (!replaceTargetResId) return;
+
+            const res = resources.find(r => r.id === replaceTargetResId);
+            if (!res) return;
+
+            const oldName = res.name;
+            // 模拟替换：更新名称但保留统计数据
+            res.name = res.name.replace(/\.mp4$/, '') + '_v2.mp4';
+            res.views = res.views; // 保留
+            res.avgScore = res.avgScore; // 保留
+            res.records = res.records; // 保留
+
+            renderResourcePanel();
+            closeModal('replaceVideoModal');
+            replaceTargetResId = null;
+            showToast(`视频"${oldName}"已替换，学习记录与成绩全部保留 ✅`, 'success');
+        }
+
+        function confirmInsertSim() {
+            const targetKp = document.getElementById('simTargetKp').value;
+            const simName = document.getElementById('simName').value.trim();
+            const simUrl = document.getElementById('simUrl').value.trim();
+
+            if (!targetKp) { showToast('请选择目标知识点', 'warning');
+                return; }
+            if (!simName) { showToast('请输入素材名称', 'warning');
+                return; }
+            if (!selectedSimType2) { showToast('请选择虚拟仿真素材类型', 'warning');
+                return; }
+
+            const newRes = {
+                id: 'res' + Date.now(),
+                name: simName,
+                type: 'simulation',
+                linkedKp: targetKp,
+                linkedChapter: null,
+                simTag: selectedSimType2,
+                views: 0,
+                avgScore: 0,
+                records: 0,
+            };
+            resources.push(newRes);
+
+            document.getElementById('simName').value = '';
+            document.getElementById('simUrl').value = '';
+            document.getElementById('simTargetKp').value = '';
+            selectedSimType2 = null;
+            document.querySelectorAll('#simOptions2 .sim-option-card').forEach(c => c.classList.remove('selected'));
+
+            renderResourcePanel();
+            renderKnowledgePointList();
+            populateSelects();
+            closeModal('simInsertModal');
+            selectKnowledgePoint(targetKp);
+            showToast(`虚拟仿真素材"${simName}"已插入并关联知识点`, 'success');
+        }
+
+        // ============ Toast ============
+        function showToast(message, type = '') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            const icons = { success: '✅', warning: '⚠️', error: '❌' };
+            toast.innerHTML = `<span>${icons[type] || '💬'}</span> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'toastOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 2800);
+        }
+
+        // ============ 窗口大小调整 ============
+        window.addEventListener('resize', () => {
+            renderGraph();
+        });
+
+        // 关闭弹窗（点击遮罩）
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.style.display = 'none';
+                // 清理状态
+                if (e.target.id === 'uploadModal') {
+                    selectedSimType = null;
+                    document.querySelectorAll('#simOptions .sim-option-card').forEach(c => c.classList.remove(
+                        'selected'));
+                }
+                if (e.target.id === 'simInsertModal') {
+                    selectedSimType2 = null;
+                    document.querySelectorAll('#simOptions2 .sim-option-card').forEach(c => c.classList.remove(
+                        'selected'));
+                }
+            }
+        });
+
+        // 图谱平移拖拽
+        (function() {
+            const container = document.getElementById('graphContainer');
+            let isPanning = false;
+            let startX, startY, origPanX, origPanY;
+
+            container.addEventListener('mousedown', function(e) {
+                if (e.target.closest('.graph-node') || e.target.closest('line')) return;
+                isPanning = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                origPanX = graphPanX;
+                origPanY = graphPanY;
+                container.style.cursor = 'grabbing';
+            });
+
+            window.addEventListener('mousemove', function(e) {
+                if (!isPanning) return;
+                graphPanX = origPanX + (e.clientX - startX) / graphScale;
+                graphPanY = origPanY + (e.clientY - startY) / graphScale;
+                applyGraphTransform();
+            });
+
+            window.addEventListener('mouseup', function() {
+                if (isPanning) {
+                    isPanning = false;
+                    container.style.cursor = 'grab';
+                }
+            });
+        })();
+
+        // ============ 启动 ============
+        init();
+        console.log('🧠 知识图谱资源管理平台已就绪');
+        console.log('  ✅ 支持从校本教学平台资源库导入章节');
+        console.log('  ✅ 支持与现有知识点进行关联');
+        console.log('  ✅ 支持插入虚拟仿真素材（3D模型/VR场景/互动演示/仿真实验）');
+        console.log('  ✅ 支持替换视频不影响已有学习记录与成绩');
+    </script>
+</body>
+</html>
