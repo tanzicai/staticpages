@@ -3,31 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学习任务点设计平台 - 教师管控中心</title>
+    <title>个性化学习平台 - AI课程任务系统</title>
     <style>
         :root {
-            --primary: #4a90d9;
-            --primary-light: #6ba3e0;
-            --primary-lighter: #e8f2fc;
-            --primary-dark: #357abd;
-            --primary-soft: #d0e4f7;
-            --bg: #f4f8fc;
+            --sky-blue-50: #f0f7ff;
+            --sky-blue-100: #dceeff;
+            --sky-blue-200: #b8ddfe;
+            --sky-blue-300: #7dc6fc;
+            --sky-blue-400: #4aa9f5;
+            --sky-blue-500: #1a8fe3;
+            --sky-blue-600: #0d72c4;
+            --sky-blue-700: #0f5b9e;
+            --sky-blue-800: #124d82;
+            --sky-blue-900: #13416c;
             --white: #ffffff;
-            --text: #2c3e50;
-            --text-light: #5a6c7d;
-            --text-muted: #8a9bb0;
-            --border: #d9e4f0;
-            --border-light: #e8eff7;
-            --shadow-sm: 0 1px 3px rgba(74, 144, 217, 0.06);
-            --shadow: 0 4px 16px rgba(74, 144, 217, 0.08);
-            --shadow-md: 0 8px 30px rgba(74, 144, 217, 0.12);
-            --shadow-lg: 0 16px 40px rgba(74, 144, 217, 0.15);
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --locked: #94a3b8;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
             --radius-sm: 8px;
             --radius: 12px;
             --radius-lg: 16px;
             --radius-xl: 20px;
             --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', monospace;
         }
 
         * {
@@ -37,423 +49,268 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #e8f4fd 0%, #dceeff 30%, #f0f7ff 60%, #e0f0ff 100%);
+            background-attachment: fixed;
             min-height: 100vh;
+            color: var(--gray-800);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* ========== 顶部导航栏 ========== */
-        .navbar {
-            background: linear-gradient(135deg, #3b7dc4 0%, #4a90d9 30%, #5098e2 60%, #4a90d9 100%);
-            color: #fff;
-            padding: 0 32px;
-            height: 60px;
+        /* ============ 顶部导航栏 ============ */
+        .top-nav {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 0 28px;
+            height: 62px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 2px 20px rgba(58, 120, 195, 0.25);
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: var(--shadow-sm);
             backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
         }
-        .navbar .logo-area {
+        .nav-brand {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            letter-spacing: 0.3px;
+            color: var(--sky-blue-700);
+            letter-spacing: -0.3px;
         }
-        .navbar .logo-icon {
-            width: 38px;
-            height: 38px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+        .nav-brand .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, var(--sky-blue-400), var(--sky-blue-600));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
-            backdrop-filter: blur(6px);
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            font-size: 1.4rem;
+            color: white;
+            box-shadow: 0 2px 8px rgba(26, 143, 227, 0.35);
         }
-        .navbar .nav-actions {
+        .nav-tabs {
             display: flex;
-            align-items: center;
-            gap: 16px;
+            gap: 6px;
+            background: var(--gray-100);
+            border-radius: 30px;
+            padding: 4px;
         }
-        .navbar .teacher-badge {
-            background: rgba(255, 255, 255, 0.18);
-            padding: 7px 16px;
-            border-radius: 22px;
+        .nav-tab {
+            padding: 9px 22px;
+            border-radius: 26px;
+            border: none;
+            cursor: pointer;
             font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+            background: transparent;
+            color: var(--gray-600);
+            white-space: nowrap;
+            letter-spacing: 0.2px;
+        }
+        .nav-tab.active {
+            background: var(--white);
+            color: var(--sky-blue-600);
+            font-weight: 600;
+            box-shadow: var(--shadow-md);
+        }
+        .nav-tab:hover:not(.active) {
+            color: var(--sky-blue-500);
+            background: rgba(255, 255, 255, 0.6);
+        }
+        .nav-actions {
             display: flex;
             align-items: center;
-            gap: 7px;
-            backdrop-filter: blur(6px);
-            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            gap: 12px;
+        }
+        .btn-teacher-mode {
+            padding: 9px 18px;
+            border-radius: 24px;
+            border: 2px solid var(--sky-blue-300);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: var(--transition);
+            background: var(--white);
+            color: var(--sky-blue-600);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.2px;
+        }
+        .btn-teacher-mode:hover {
+            background: var(--sky-blue-50);
+            border-color: var(--sky-blue-400);
+            box-shadow: 0 0 0 4px rgba(74, 169, 245, 0.1);
+        }
+        .btn-teacher-mode.active-teacher {
+            background: var(--sky-blue-500);
+            color: white;
+            border-color: var(--sky-blue-500);
+            box-shadow: 0 2px 10px rgba(26, 143, 227, 0.35);
+        }
+        .avatar-small {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a5d8ff, #4aa9f5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: var(--transition);
-            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(74, 169, 245, 0.3);
         }
-        .navbar .teacher-badge:hover {
-            background: rgba(255, 255, 255, 0.28);
-            transform: translateY(-1px);
-        }
-        .avatar-dot {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ffd166, #ffb347);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.8rem;
-            color: #7a5500;
+        .avatar-small:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(74, 169, 245, 0.4);
         }
 
-        /* ========== 主布局 ========== */
+        /* ============ 主布局 ============ */
         .main-container {
             display: flex;
-            gap: 20px;
-            padding: 20px 28px;
-            max-width: 1500px;
-            margin: 0 auto;
-            min-height: calc(100vh - 60px);
+            height: calc(100vh - 62px);
+            overflow: hidden;
         }
 
-        /* ========== 左侧面板 - 章节树 ========== */
+        /* ============ 左侧任务列表 ============ */
         .sidebar {
-            width: 300px;
-            min-width: 300px;
+            width: 340px;
+            min-width: 340px;
             background: var(--white);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
+            border-right: 1px solid var(--gray-200);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            border: 1px solid var(--border-light);
-            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+            z-index: 10;
         }
         .sidebar-header {
             padding: 18px 20px;
-            border-bottom: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--primary-lighter);
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--sky-blue-50);
         }
         .sidebar-header h3 {
             font-size: 1rem;
             font-weight: 700;
-            color: var(--primary-dark);
+            color: var(--sky-blue-800);
             display: flex;
             align-items: center;
             gap: 8px;
+            letter-spacing: -0.2px;
         }
-        .sidebar-header h3 .icon {
-            font-size: 1.2rem;
-        }
-        .btn-add-chapter {
-            width: 32px;
-            height: 32px;
+        .sidebar-header h3 .icon-dot {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            box-shadow: 0 2px 8px rgba(74, 144, 217, 0.3);
+            background: var(--sky-blue-500);
+            animation: pulse-dot 2s infinite;
         }
-        .btn-add-chapter:hover {
-            background: var(--primary-dark);
-            transform: scale(1.08);
-            box-shadow: 0 4px 14px rgba(74, 144, 217, 0.4);
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(26, 143, 227, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(26, 143, 227, 0);
+            }
         }
-        .chapter-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 8px 12px;
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .chapter-list::-webkit-scrollbar {
-            width: 5px;
-        }
-        .chapter-list::-webkit-scrollbar-thumb {
-            background: #c8d9eb;
-            border-radius: 10px;
-        }
-        .chapter-item {
-            padding: 13px 15px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
-            font-size: 0.93rem;
+        .task-search {
+            margin: 12px 16px;
             position: relative;
-            border: 1.5px solid transparent;
-            user-select: none;
-            color: var(--text);
         }
-        .chapter-item:hover {
-            background: var(--primary-lighter);
-            border-color: var(--primary-soft);
-            transform: translateX(2px);
-        }
-        .chapter-item.active {
-            background: linear-gradient(135deg, #e8f2fc 0%, #dcecf9 100%);
-            border-color: var(--primary);
-            color: var(--primary-dark);
-            font-weight: 700;
-            box-shadow: 0 2px 8px rgba(74, 144, 217, 0.12);
-        }
-        .chapter-item .chapter-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            background: var(--primary-soft);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.95rem;
-            flex-shrink: 0;
-            transition: var(--transition);
-        }
-        .chapter-item.active .chapter-icon {
-            background: var(--primary);
-            color: #fff;
-        }
-        .chapter-item .chapter-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .chapter-item .chapter-name {
-            font-size: 0.9rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .chapter-item .chapter-meta {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-        .chapter-item .task-count-badge {
-            font-size: 0.7rem;
-            background: var(--primary-soft);
-            color: var(--primary-dark);
-            padding: 3px 9px;
-            border-radius: 12px;
-            font-weight: 600;
-            flex-shrink: 0;
-            transition: var(--transition);
-        }
-        .chapter-item.active .task-count-badge {
-            background: var(--primary);
-            color: #fff;
-        }
-        .chapter-item .delete-chapter-btn {
-            opacity: 0;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: none;
-            background: #fee2e2;
-            color: #c0392b;
-            cursor: pointer;
-            font-size: 0.75rem;
-            transition: var(--transition);
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .chapter-item:hover .delete-chapter-btn {
-            opacity: 1;
-        }
-        .chapter-item .delete-chapter-btn:hover {
-            background: #fca5a5;
-            color: #fff;
-        }
-
-        /* ========== 右侧主内容区 ========== */
-        .content-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            min-width: 0;
-        }
-
-        /* 统计卡片行 */
-        .stats-row {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        .stat-card {
-            flex: 1;
-            min-width: 160px;
-            background: var(--white);
-            border-radius: var(--radius);
-            padding: 18px 20px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            transition: var(--transition);
-            cursor: default;
-        }
-        .stat-card:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
-            border-color: var(--primary-soft);
-        }
-        .stat-card .stat-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            flex-shrink: 0;
-        }
-        .stat-card .stat-icon.video {
-            background: #e8f4fd;
-            color: #4a90d9;
-        }
-        .stat-card .stat-icon.book {
-            background: #fef3e0;
-            color: #e8943e;
-        }
-        .stat-card .stat-icon.assignment {
-            background: #e8faf0;
-            color: #3cb878;
-        }
-        .stat-card .stat-icon.completion {
-            background: #f0e8fd;
-            color: #7c4dff;
-        }
-        .stat-card .stat-value {
-            font-size: 1.7rem;
-            font-weight: 700;
-            color: var(--text);
-            line-height: 1;
-        }
-        .stat-card .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        /* 任务点面板 */
-        .task-panel {
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-light);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .task-panel-header {
-            padding: 16px 22px;
-            border-bottom: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-            background: #fafcfe;
-        }
-        .task-panel-header h2 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .task-panel-header h2 .highlight {
-            color: var(--primary);
-        }
-        .btn-add-task {
-            padding: 9px 18px;
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            border-radius: 22px;
-            cursor: pointer;
-            font-weight: 600;
+        .task-search input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            border-radius: 24px;
+            border: 1.5px solid var(--gray-200);
             font-size: 0.88rem;
             transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 2px 8px rgba(74, 144, 217, 0.25);
-            white-space: nowrap;
+            background: var(--gray-50);
+            color: var(--gray-700);
+            outline: none;
         }
-        .btn-add-task:hover {
-            background: var(--primary-dark);
-            box-shadow: 0 4px 16px rgba(74, 144, 217, 0.35);
-            transform: translateY(-1px);
+        .task-search input:focus {
+            border-color: var(--sky-blue-400);
+            box-shadow: 0 0 0 4px rgba(74, 169, 245, 0.08);
+            background: white;
+        }
+        .task-search .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            font-size: 0.9rem;
+            pointer-events: none;
         }
         .task-list {
             flex: 1;
             overflow-y: auto;
-            padding: 16px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            padding: 6px 12px 16px 12px;
+            scroll-behavior: smooth;
         }
         .task-list::-webkit-scrollbar {
             width: 5px;
         }
+        .task-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
         .task-list::-webkit-scrollbar-thumb {
-            background: #c8d9eb;
+            background: var(--gray-300);
             border-radius: 10px;
         }
         .task-item {
+            padding: 14px 16px;
+            margin: 4px 0;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1.5px solid transparent;
+            position: relative;
+            background: var(--white);
             display: flex;
             align-items: center;
-            gap: 14px;
-            padding: 15px 18px;
-            border-radius: var(--radius);
-            background: #fafcfe;
-            border: 1.5px solid var(--border-light);
-            transition: var(--transition);
-            cursor: pointer;
-            position: relative;
+            gap: 12px;
         }
         .task-item:hover {
-            border-color: var(--primary-soft);
-            box-shadow: var(--shadow-sm);
-            background: #fff;
-            transform: translateX(1px);
+            background: var(--sky-blue-50);
+            border-color: var(--sky-blue-200);
+            box-shadow: var(--shadow);
+            transform: translateX(2px);
         }
-        .task-item .task-type-icon {
+        .task-item.active-task {
+            background: linear-gradient(135deg, #e8f4fd, #d0eaff);
+            border-color: var(--sky-blue-400);
+            box-shadow: var(--shadow-md);
+            font-weight: 500;
+        }
+        .task-item.locked-item {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: var(--gray-50);
+        }
+        .task-item.locked-item:hover {
+            transform: none;
+            border-color: transparent;
+            box-shadow: none;
+            background: var(--gray-50);
+        }
+        .task-icon {
             width: 42px;
             height: 42px;
-            border-radius: 10px;
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -461,397 +318,717 @@
             flex-shrink: 0;
             font-weight: 700;
         }
-        .task-item .task-type-icon.type-video {
-            background: #e8f4fd;
-            color: #4a90d9;
+        .task-icon.completed {
+            background: #d1fae5;
+            color: #059669;
         }
-        .task-item .task-type-icon.type-book {
-            background: #fef3e0;
-            color: #e8943e;
+        .task-icon.in-progress {
+            background: #dbeafe;
+            color: #2563eb;
         }
-        .task-item .task-type-icon.type-assignment {
-            background: #e8faf0;
-            color: #3cb878;
+        .task-icon.locked {
+            background: #f1f5f9;
+            color: #94a3b8;
         }
-        .task-item .task-details {
+        .task-info {
             flex: 1;
             min-width: 0;
         }
-        .task-item .task-name {
+        .task-info .task-name {
+            font-size: 0.9rem;
             font-weight: 600;
-            font-size: 0.93rem;
-            color: var(--text);
+            color: var(--gray-800);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            letter-spacing: -0.1px;
         }
-        .task-item .task-meta-row {
-            display: flex;
-            gap: 14px;
-            font-size: 0.76rem;
-            color: var(--text-muted);
-            margin-top: 3px;
-            flex-wrap: wrap;
-        }
-        .task-item .required-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            flex-shrink: 0;
-        }
-        .required-badge.required {
-            background: #fde8e8;
-            color: #c0392b;
-        }
-        .required-badge.optional {
-            background: #e8f4fd;
-            color: #4a90d9;
-        }
-        .task-item .task-actions {
-            display: flex;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-        .task-item .task-actions button {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 1.5px solid var(--border);
-            background: #fff;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: var(--transition);
+        .task-info .task-meta {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: 2px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: var(--text-light);
+            gap: 6px;
         }
-        .task-item .task-actions button:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: var(--primary-lighter);
+        .task-progress-mini {
+            width: 48px;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--gray-200);
+            overflow: hidden;
+            flex-shrink: 0;
         }
-        .task-item .task-actions button.delete-btn:hover {
-            border-color: #e74c3c;
-            color: #e74c3c;
-            background: #fef2f2;
+        .task-progress-mini .fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+            background: var(--sky-blue-500);
         }
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--text-muted);
-            font-size: 0.95rem;
+        .task-progress-mini .fill.completed-fill {
+            background: var(--success);
         }
-        .empty-state .empty-icon {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 12px;
-            opacity: 0.6;
+        .lock-badge {
+            font-size: 0.7rem;
+            color: var(--gray-400);
+            flex-shrink: 0;
         }
 
-        /* ========== 模态框 ========== */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(30, 50, 75, 0.45);
-            z-index: 200;
+        /* ============ 右侧主内容区 ============ */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 20px 24px;
+            gap: 18px;
+        }
+        .content-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        .content-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .content-area::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 10px;
+        }
+
+        /* 任务详情卡片 */
+        .detail-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 22px 26px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-100);
+            transition: var(--transition);
+        }
+        .detail-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        .detail-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .detail-card-header h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            letter-spacing: -0.3px;
+        }
+        .badge-status {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .badge-status.unlocked-badge {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        .badge-status.locked-badge {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        .badge-status.completed-badge {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .detail-meta-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+            font-size: 0.85rem;
+            color: var(--gray-600);
+        }
+        .detail-meta-row span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .detail-meta-row .meta-label {
+            color: var(--gray-400);
+            font-weight: 500;
+        }
+        .detail-desc {
+            margin-top: 14px;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            background: var(--sky-blue-50);
+            padding: 14px 18px;
+            border-radius: var(--radius);
+            border-left: 3px solid var(--sky-blue-400);
+        }
+
+        /* 达标情况 & 解锁情况 */
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        @media (max-width: 900px) {
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                width: 280px;
+                min-width: 280px;
+            }
+        }
+        .status-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-100);
+            transition: var(--transition);
+        }
+        .status-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        .status-card h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.2px;
+        }
+        .progress-ring-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .progress-ring {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+        .progress-ring .bg-circle {
+            fill: none;
+            stroke: var(--gray-200);
+            stroke-width: 8;
+        }
+        .progress-ring .fg-circle {
+            fill: none;
+            stroke: var(--sky-blue-500);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s ease;
+        }
+        .progress-ring .fg-circle.high-progress {
+            stroke: var(--success);
+        }
+        .progress-ring .percent-text {
+            position: absolute;
+            inset: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: fadeIn 0.2s ease;
-            backdrop-filter: blur(2px);
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--gray-800);
         }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
+        .progress-details {
+            font-size: 0.82rem;
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+        .progress-details .highlight {
+            color: var(--sky-blue-600);
+            font-weight: 600;
+        }
+        .unlock-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .unlock-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+        .unlock-list li.unlocked-condition {
+            background: #f0fdf4;
+            color: #065f46;
+        }
+        .unlock-list li.locked-condition {
+            background: #fefce8;
+            color: #92400e;
+        }
+        .unlock-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        /* ============ 学习路径视图区域 ============ */
+        .path-view-section {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-100);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .path-view-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 22px;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--sky-blue-50);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .path-view-header h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--sky-blue-800);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.2px;
+        }
+        .mode-switch-group {
+            display: flex;
+            gap: 4px;
+            background: var(--gray-100);
+            border-radius: 24px;
+            padding: 3px;
+        }
+        .mode-switch-btn {
+            padding: 8px 18px;
+            border-radius: 22px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: var(--transition);
+            background: transparent;
+            color: var(--gray-600);
+            white-space: nowrap;
+            letter-spacing: 0.2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .mode-switch-btn.active-mode {
+            background: var(--white);
+            color: var(--sky-blue-600);
+            font-weight: 600;
+            box-shadow: var(--shadow);
+        }
+        .mode-switch-btn:hover:not(.active-mode) {
+            color: var(--sky-blue-500);
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .path-view-body {
+            padding: 20px;
+            min-height: 380px;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        /* ============ 地图模式 ============ */
+        .map-mode-container {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .map-svg {
+            width: 100%;
+            height: 100%;
+            max-width: 750px;
+        }
+        .map-node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .map-node:hover {
+            filter: brightness(1.1);
+            transform-origin: center;
+        }
+        .map-node circle {
+            transition: all 0.3s ease;
+        }
+        .map-node:hover circle {
+            r: 22;
+            stroke-width: 4;
+        }
+        .map-node text {
+            font-size: 12px;
+            font-weight: 600;
+            pointer-events: none;
+            text-anchor: middle;
+            dominant-baseline: central;
+            fill: #374151;
+            transition: fill 0.3s;
+        }
+        .map-path-line {
+            stroke: #cbd5e1;
+            stroke-width: 3;
+            stroke-linecap: round;
+            transition: stroke 0.5s ease;
+            fill: none;
+        }
+        .map-path-line.active-path {
+            stroke: var(--sky-blue-500);
+            stroke-width: 3.5;
+            stroke-dasharray: 8 4;
+            animation: dash-flow 1.5s linear infinite;
+        }
+        @keyframes dash-flow {
             to {
-                opacity: 1;
+                stroke-dashoffset: -24;
             }
         }
-        .modal-dialog {
-            background: #fff;
-            border-radius: var(--radius-xl);
-            padding: 28px 30px;
-            width: 520px;
-            max-width: 94vw;
+        .map-path-line.completed-path {
+            stroke: var(--success);
+            stroke-width: 3.5;
+        }
+
+        /* ============ 3D模式 ============ */
+        .mode-3d-container {
+            width: 100%;
+            height: 400px;
+            perspective: 900px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            user-select: none;
+        }
+        .mode-3d-container:active {
+            cursor: grabbing;
+        }
+        .scene-3d {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .node-3d-wrapper {
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+        }
+        .node-3d-card {
+            width: 100px;
+            height: 120px;
+            border-radius: var(--radius);
+            background: var(--white);
+            border: 2px solid var(--gray-200);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
             box-shadow: var(--shadow-lg);
-            animation: slideUp 0.3s ease;
-            border: 1px solid var(--border-light);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            backface-visibility: hidden;
         }
-        @keyframes slideUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
+        .node-3d-card:hover {
+            box-shadow: var(--shadow-xl);
+            border-color: var(--sky-blue-400);
+            transform: translateZ(15px) scale(1.08);
+        }
+        .node-3d-card.completed-3d {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        .node-3d-card.in-progress-3d {
+            border-color: var(--sky-blue-500);
+            background: #eff6ff;
+            animation: glow-3d 2s ease-in-out infinite;
+        }
+        .node-3d-card.locked-3d {
+            border-color: #e2e8f0;
+            background: #f8fafc;
+            opacity: 0.55;
+            filter: grayscale(30%);
+        }
+        @keyframes glow-3d {
+            0%,
+            100% {
+                box-shadow: 0 8px 25px rgba(26, 143, 227, 0.2);
             }
-            to {
-                transform: translateY(0);
+            50% {
+                box-shadow: 0 8px 35px rgba(26, 143, 227, 0.45);
+            }
+        }
+        .node-3d-icon {
+            font-size: 2rem;
+        }
+        .node-3d-name {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            text-align: center;
+            line-height: 1.2;
+        }
+        .node-3d-progress {
+            font-size: 0.65rem;
+            color: var(--sky-blue-600);
+            font-weight: 500;
+        }
+        .hint-rotate {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--gray-400);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            animation: fade-hint 3s ease-in-out infinite;
+        }
+        @keyframes fade-hint {
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+            50% {
                 opacity: 1;
             }
         }
-        .modal-dialog h3 {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: var(--text);
+
+        /* ============ 教师发布任务面板 ============ */
+        .teacher-panel {
+            position: fixed;
+            right: -480px;
+            top: 62px;
+            width: 440px;
+            height: calc(100vh - 62px);
+            background: var(--white);
+            box-shadow: var(--shadow-xl);
+            z-index: 200;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            border-left: 1px solid var(--gray-200);
+        }
+        .teacher-panel.open {
+            right: 0;
+        }
+        .teacher-panel-header {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--sky-blue-50);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .teacher-panel-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--sky-blue-800);
+            letter-spacing: -0.2px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
+        .btn-close-panel {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--gray-200);
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            color: var(--gray-600);
+        }
+        .btn-close-panel:hover {
+            background: var(--gray-300);
+            color: var(--gray-800);
+        }
+        .teacher-panel-body {
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
         .form-group {
-            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
         .form-group label {
-            display: block;
+            font-size: 0.82rem;
             font-weight: 600;
-            font-size: 0.85rem;
-            margin-bottom: 6px;
-            color: var(--text);
+            color: var(--gray-700);
+            letter-spacing: 0.1px;
         }
         .form-group input,
         .form-group select,
         .form-group textarea {
-            width: 100%;
             padding: 10px 14px;
             border-radius: var(--radius-sm);
-            border: 1.5px solid var(--border);
-            font-size: 0.9rem;
-            font-family: inherit;
+            border: 1.5px solid var(--gray-300);
+            font-size: 0.88rem;
             transition: var(--transition);
-            background: #fafcfe;
-            color: var(--text);
+            font-family: inherit;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            outline: none;
             resize: vertical;
         }
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.08);
-            background: #fff;
+            border-color: var(--sky-blue-400);
+            box-shadow: 0 0 0 4px rgba(74, 169, 245, 0.08);
+            background: white;
         }
-        .form-group textarea {
-            min-height: 70px;
-        }
-        .form-row {
-            display: flex;
-            gap: 12px;
-        }
-        .form-row .form-group {
-            flex: 1;
-        }
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 22px;
-        }
-        .btn {
-            padding: 10px 22px;
-            border-radius: 22px;
+        .btn-publish {
+            padding: 12px 24px;
+            border-radius: 24px;
             border: none;
             cursor: pointer;
-            font-weight: 600;
             font-size: 0.9rem;
-            transition: var(--transition);
-            font-family: inherit;
-        }
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(74, 144, 217, 0.3);
-        }
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            box-shadow: 0 4px 14px rgba(74, 144, 217, 0.4);
-        }
-        .btn-secondary {
-            background: #eef3f8;
-            color: var(--text);
-            border: 1.5px solid var(--border);
-        }
-        .btn-secondary:hover {
-            background: #dce6f0;
-        }
-        .btn-danger {
-            background: #fff;
-            color: #e74c3c;
-            border: 1.5px solid #fca5a5;
-        }
-        .btn-danger:hover {
-            background: #fef2f2;
-        }
-
-        /* ========== 学生进度面板（可折叠） ========== */
-        .progress-panel {
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-light);
-            overflow: hidden;
-            margin-top: 0;
-        }
-        .progress-panel-header {
-            padding: 14px 22px;
-            border-bottom: 1px solid var(--border-light);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #fafcfe;
-            user-select: none;
-            transition: var(--transition);
-        }
-        .progress-panel-header:hover {
-            background: #f0f5fa;
-        }
-        .progress-panel-header h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .progress-panel-header .collapse-icon {
-            transition: var(--transition);
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-        .progress-panel-header .collapse-icon.open {
-            transform: rotate(180deg);
-        }
-        .progress-body {
-            padding: 16px 22px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-height: 280px;
-            overflow-y: auto;
-        }
-        .progress-body::-webkit-scrollbar {
-            width: 5px;
-        }
-        .progress-body::-webkit-scrollbar-thumb {
-            background: #c8d9eb;
-            border-radius: 10px;
-        }
-        .student-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            border-radius: var(--radius-sm);
-            background: #fafcfe;
-            border: 1px solid transparent;
-            transition: var(--transition);
-        }
-        .student-row:hover {
-            border-color: var(--border-light);
-            background: #fff;
-        }
-        .student-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.75rem;
-            color: #fff;
-        }
-        .student-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .student-name {
             font-weight: 600;
-            font-size: 0.88rem;
-        }
-        .student-progress-bar-wrap {
-            height: 6px;
-            background: #e8eff7;
-            border-radius: 10px;
-            margin-top: 5px;
-            overflow: hidden;
+            background: linear-gradient(135deg, var(--sky-blue-500), var(--sky-blue-600));
+            color: white;
+            transition: var(--transition);
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 14px rgba(26, 143, 227, 0.4);
             width: 100%;
-            max-width: 200px;
+            margin-top: 8px;
         }
-        .student-progress-bar-fill {
-            height: 100%;
-            border-radius: 10px;
-            transition: width 0.5s ease;
-            background: linear-gradient(90deg, #4a90d9, #6ba3e0);
+        .btn-publish:hover {
+            background: linear-gradient(135deg, var(--sky-blue-600), var(--sky-blue-700));
+            box-shadow: 0 6px 20px rgba(26, 143, 227, 0.5);
+            transform: translateY(-1px);
         }
-        .student-progress-text {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            flex-shrink: 0;
-            font-weight: 600;
-            min-width: 40px;
-            text-align: right;
-        }
-        .student-status {
-            font-size: 0.7rem;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-weight: 600;
-            flex-shrink: 0;
-        }
-        .student-status.completed {
-            background: #e8faf0;
-            color: #27ae60;
-        }
-        .student-status.in-progress {
-            background: #fef3e0;
-            color: #e8943e;
-        }
-        .student-status.not-started {
-            background: #fde8e8;
-            color: #c0392b;
+        .btn-publish:active {
+            transform: scale(0.97);
         }
 
-        /* ========== 响应式 ========== */
-        @media (max-width: 900px) {
+        /* ============ 遮罩层 ============ */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            top: 62px;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 150;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+            backdrop-filter: blur(2px);
+        }
+        .overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ============ Toast提示 ============ */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--gray-800);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.35s ease;
+            box-shadow: var(--shadow-xl);
+            letter-spacing: 0.2px;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ============ 响应式调整 ============ */
+        @media (max-width: 1100px) {
+            .sidebar {
+                width: 260px;
+                min-width: 260px;
+            }
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+            .detail-card-header {
+                flex-direction: column;
+            }
+            .teacher-panel {
+                width: 380px;
+                right: -400px;
+            }
+        }
+        @media (max-width: 768px) {
             .main-container {
                 flex-direction: column;
-                padding: 12px;
-                gap: 12px;
             }
             .sidebar {
                 width: 100%;
                 min-width: 100%;
-                max-height: 240px;
+                max-height: 35vh;
+                border-right: none;
+                border-bottom: 1px solid var(--gray-200);
             }
-            .stats-row {
-                flex-wrap: wrap;
-                gap: 8px;
+            .content-area {
+                padding: 14px;
             }
-            .stat-card {
-                min-width: 42%;
-                flex: 1 1 42%;
-                padding: 14px 16px;
+            .teacher-panel {
+                width: 100%;
+                right: -105%;
             }
-            .stat-card .stat-value {
-                font-size: 1.3rem;
+            .nav-tabs {
+                gap: 2px;
             }
-            .navbar {
-                padding: 0 16px;
+            .nav-tab {
+                padding: 7px 12px;
+                font-size: 0.78rem;
             }
-            .navbar .logo-area {
-                font-size: 1rem;
+            .mode-switch-btn {
+                padding: 6px 12px;
+                font-size: 0.75rem;
             }
-            .task-panel-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .form-row {
-                flex-direction: column;
+            .map-svg {
+                max-width: 100%;
             }
         }
     </style>
@@ -859,703 +1036,699 @@
 <body>
 
     <!-- ==================== 顶部导航栏 ==================== -->
-    <nav class="navbar">
-        <div class="logo-area">
-            <div class="logo-icon">📚</div>
-            <span>学习任务点设计平台</span>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <div class="logo-icon">🎓</div>
+            <span>AI个性化学习平台</span>
+        </div>
+        <div class="nav-tabs" id="navTabs">
+            <button class="nav-tab active" data-tab="personal">👤 个人空间</button>
+            <button class="nav-tab" data-tab="course">📚 课程页面</button>
         </div>
         <div class="nav-actions">
-            <span style="font-size:0.85rem;opacity:0.9;">📅 2026年春季学期</span>
-            <div class="teacher-badge" title="当前教师账号">
-                <div class="avatar-dot">张</div>
-                <span>张教授 · 教师端</span>
-            </div>
+            <button class="btn-teacher-mode" id="btnTeacherMode" title="教师模式 - 发布任务">
+                ✏️ 教师模式
+            </button>
+            <div class="avatar-small" title="学生：李明">李</div>
         </div>
     </nav>
 
     <!-- ==================== 主布局 ==================== -->
     <div class="main-container">
-        <!-- 左侧：章节树 -->
-        <aside class="sidebar">
+        <!-- 左侧任务列表 -->
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h3><span class="icon">📑</span>课程章节</h3>
-                <button class="btn-add-chapter" id="btnAddChapter" title="添加新章节">+</button>
+                <h3><span class="icon-dot"></span>任务列表</h3>
             </div>
-            <ul class="chapter-list" id="chapterList">
-                <!-- 动态渲染章节 -->
-            </ul>
+            <div class="task-search">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="taskSearchInput" placeholder="搜索任务...">
+            </div>
+            <div class="task-list" id="taskList">
+                <!-- 动态生成任务项 -->
+            </div>
         </aside>
 
-        <!-- 右侧内容区 -->
-        <div class="content-area">
-            <!-- 统计卡片 -->
-            <div class="stats-row" id="statsRow">
-                <div class="stat-card">
-                    <div class="stat-icon video">🎬</div>
-                    <div><div class="stat-value" id="statVideo">0</div><div class="stat-label">视频任务点</div></div>
+        <!-- 右侧主内容区 -->
+        <main class="content-area" id="contentArea">
+            <!-- 任务详情卡片 -->
+            <div class="detail-card" id="detailCard">
+                <div class="detail-card-header">
+                    <div>
+                        <h2 id="detailTitle">Python基础语法</h2>
+                        <div class="detail-meta-row">
+                            <span><span class="meta-label">📅 发布日：</span>2024-09-15</span>
+                            <span><span class="meta-label">⏱ 建议时长：</span>4小时</span>
+                            <span><span class="meta-label">🏷 类型：</span>编程基础</span>
+                            <span><span class="meta-label">🤖 AI模块：</span>智能代码分析</span>
+                        </div>
+                    </div>
+                    <span class="badge-status unlocked-badge" id="badgeStatus">🔓 已解锁</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon book">📖</div>
-                    <div><div class="stat-value" id="statBook">0</div><div class="stat-label">图书任务点</div></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon assignment">📝</div>
-                    <div><div class="stat-value" id="statAssignment">0</div><div class="stat-label">作业任务点</div></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon completion">✅</div>
-                    <div><div class="stat-value" id="statCompletion">0%</div><div class="stat-label">学生整体完成率</div></div>
+                <div class="detail-desc" id="detailDesc">
+                    📖 本任务涵盖Python基础语法知识，包括变量、数据类型、控制流和函数定义。通过AI智能代码分析模块，你将获得实时的代码反馈和个性化指导。
                 </div>
             </div>
 
-            <!-- 任务点列表面板 -->
-            <div class="task-panel" id="taskPanel">
-                <div class="task-panel-header">
-                    <h2>📋 <span class="highlight" id="currentChapterTitle">请选择章节</span> — 任务点列表</h2>
-                    <button class="btn-add-task" id="btnAddTask" disabled>＋ 添加任务点</button>
+            <!-- 达标情况 & 解锁情况 -->
+            <div class="status-grid">
+                <div class="status-card" id="progressCard">
+                    <h4>📊 达标情况</h4>
+                    <div class="progress-ring-container">
+                        <div class="progress-ring">
+                            <svg width="70" height="70" viewBox="0 0 70 70">
+                                <circle class="bg-circle" cx="35" cy="35" r="30"/>
+                                <circle class="fg-circle" id="progressCircle" cx="35" cy="35" r="30"
+                                stroke-dasharray="188.5" stroke-dashoffset="37.7"/>
+                            </svg>
+                            <span class="percent-text" id="percentText">80%</span>
+                        </div>
+                        <div class="progress-details">
+                            <p>✅ 已完成 <span class="highlight">8/10</span> 个子任务</p>
+                            <p>🎯 达标标准：完成率 ≥ 70%</p>
+                            <p id="progressStatus" style="color:#10b981;font-weight:600;">✔ 已达标</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="task-list" id="taskList">
-                    <div class="empty-state">
-                        <span class="empty-icon">📂</span>
-                        <p>请先选择左侧章节，然后添加任务点</p>
-                        <p style="font-size:0.8rem;">支持视频、图书、作业三种类型</p>
+                <div class="status-card" id="unlockCard">
+                    <h4>🔐 解锁情况</h4>
+                    <ul class="unlock-list" id="unlockList">
+                        <li class="unlocked-condition">
+                            <span class="unlock-icon">✅</span> 前置任务「编程入门导论」已完成
+                        </li>
+                        <li class="unlocked-condition">
+                            <span class="unlock-icon">✅</span> 账户等级达到 Lv.2
+                        </li>
+                        <li class="locked-condition">
+                            <span class="unlock-icon">⏳</span> 需完成「算法设计」后解锁下一阶段
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 学习路径视图 -->
+            <div class="path-view-section" id="pathViewSection">
+                <div class="path-view-header">
+                    <h4>🗺 学习路径视图</h4>
+                    <div class="mode-switch-group" id="modeSwitchGroup">
+                        <button class="mode-switch-btn active-mode" data-mode="map">🗺 地图模式</button>
+                        <button class="mode-switch-btn" data-mode="3d">🌐 3D模式</button>
+                    </div>
+                </div>
+                <div class="path-view-body" id="pathViewBody">
+                    <!-- 地图模式 -->
+                    <div class="map-mode-container" id="mapModeContainer">
+                        <svg class="map-svg" viewBox="0 0 700 320" id="mapSvg">
+                            <!-- 路径连线 -->
+                            <path class="map-path-line completed-path" d="M 70 160 Q 150 80 230 140 Q 310 200 390 150 Q 470 100 550 160 Q 610 200 650 170" id="pathLine1"/>
+                            <path class="map-path-line active-path" d="M 70 160 Q 150 240 230 180 Q 310 120 390 170 Q 470 220 550 160" id="pathLine2" style="display:none;"/>
+                            <!-- 节点由JS动态生成 -->
+                            <g id="mapNodesGroup"></g>
+                        </svg>
+                    </div>
+                    <!-- 3D模式 -->
+                    <div class="mode-3d-container" id="mode3dContainer" style="display:none;">
+                        <div class="scene-3d" id="scene3d">
+                            <!-- 3D节点由JS动态生成 -->
+                        </div>
+                        <div class="hint-rotate">🖱 拖拽鼠标旋转查看3D路径</div>
                     </div>
                 </div>
             </div>
-
-            <!-- 学生学习进度面板（可折叠） -->
-            <div class="progress-panel" id="progressPanel">
-                <div class="progress-panel-header" id="progressPanelHeader">
-                    <h3>👨‍🎓 学生完成进度一览 <span style="font-weight:400;font-size:0.8rem;color:var(--text-muted);">（点击展开/折叠）</span></h3>
-                    <span class="collapse-icon open" id="collapseIcon">▼</span>
-                </div>
-                <div class="progress-body" id="progressBody">
-                    <!-- 动态渲染学生进度 -->
-                </div>
-            </div>
-        </div>
+        </main>
     </div>
 
-    <!-- ==================== 添加/编辑任务点模态框 ==================== -->
-    <div class="modal-overlay" id="taskModal" style="display:none;">
-        <div class="modal-dialog">
-            <h3 id="taskModalTitle">📌 添加任务点</h3>
+    <!-- ==================== 教师发布任务面板 ==================== -->
+    <div class="overlay" id="overlay"></div>
+    <div class="teacher-panel" id="teacherPanel">
+        <div class="teacher-panel-header">
+            <h3>✏️ 教师发布任务</h3>
+            <button class="btn-close-panel" id="btnClosePanel">✕</button>
+        </div>
+        <div class="teacher-panel-body">
             <div class="form-group">
-                <label>任务点类型 *</label>
-                <select id="taskType">
-                    <option value="video">🎬 视频</option>
-                    <option value="book">📖 图书</option>
-                    <option value="assignment">📝 作业</option>
+                <label>📝 任务名称</label>
+                <input type="text" id="newTaskName" placeholder="请输入任务名称">
+            </div>
+            <div class="form-group">
+                <label>📖 任务描述</label>
+                <textarea id="newTaskDesc" rows="3" placeholder="请输入任务描述..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>🗺 默认学习路径类型</label>
+                <select id="newTaskPathType">
+                    <option value="map">地图模式</option>
+                    <option value="3d">3D模式</option>
+                    <option value="both">两种模式均支持</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>任务点名称 *</label>
-                <input type="text" id="taskName" placeholder="请输入任务点名称，如：观看教学视频1">
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>资源链接/URL</label>
-                    <input type="text" id="taskUrl" placeholder="视频链接、图书ISBN或作业链接">
-                </div>
-                <div class="form-group">
-                    <label>预计时长（分钟）</label>
-                    <input type="number" id="taskDuration" placeholder="如：30" min="1" value="30">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>是否必修</label>
-                <select id="taskRequired">
-                    <option value="required">🔴 必修（学生必须完成）</option>
-                    <option value="optional">🔵 选修（学生可选完成）</option>
+                <label>🔗 前置任务（解锁条件）</label>
+                <select id="newTaskPrerequisite">
+                    <option value="none">无前置任务</option>
+                    <option value="task1">编程入门导论</option>
+                    <option value="task2">Python基础语法</option>
+                    <option value="task3">数据结构入门</option>
+                    <option value="task4">算法设计</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>备注说明</label>
-                <textarea id="taskNote" placeholder="可选：补充说明该任务点的要求"></textarea>
+                <label>🎯 达标标准（完成率%）</label>
+                <input type="number" id="newTaskStandard" value="70" min="0" max="100" placeholder="达标百分比">
             </div>
-            <input type="hidden" id="editingTaskId" value="">
-            <div class="modal-actions">
-                <button class="btn btn-secondary" id="btnCancelTask">取消</button>
-                <button class="btn btn-danger" id="btnDeleteTaskInModal" style="display:none;">删除任务点</button>
-                <button class="btn btn-primary" id="btnSaveTask">💾 保存任务点</button>
+            <div class="form-group">
+                <label>🤖 关联AI模块</label>
+                <select id="newTaskAiModule">
+                    <option value="code_analysis">智能代码分析</option>
+                    <option value="knowledge_graph">知识图谱导航</option>
+                    <option value="adaptive_quiz">自适应测验</option>
+                    <option value="smart_tutoring">智能辅导助手</option>
+                </select>
             </div>
+            <div class="form-group">
+                <label>⏱ 建议学习时长（小时）</label>
+                <input type="number" id="newTaskDuration" value="3" min="0.5" max="100" step="0.5">
+            </div>
+            <button class="btn-publish" id="btnPublish">🚀 发布任务</button>
         </div>
     </div>
 
-    <!-- ==================== 添加章节模态框 ==================== -->
-    <div class="modal-overlay" id="chapterModal" style="display:none;">
-        <div class="modal-dialog" style="width:420px;">
-            <h3>📑 添加新章节</h3>
-            <div class="form-group">
-                <label>章节名称 *</label>
-                <input type="text" id="chapterNameInput" placeholder="如：第一章 导论">
-            </div>
-            <div class="form-group">
-                <label>章节描述</label>
-                <textarea id="chapterDescInput" placeholder="可选：章节简要描述" rows="2"></textarea>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" id="btnCancelChapter">取消</button>
-                <button class="btn btn-primary" id="btnSaveChapter">💾 保存章节</button>
-            </div>
-        </div>
-    </div>
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
 
     <script>
         (function() {
-            // ==================== 数据模型 ====================
-            // 章节数据
-            let chapters = [{
-                id: 'ch1',
-                name: '第一章 课程导论',
-                desc: '介绍课程整体框架与学习目标',
-                tasks: [
-                    { id: 't1', type: 'video', name: '课程导学视频', url: 'https://example.com/video1',
-                        duration: 25, required: 'required', note: '必须完整观看' },
-                    { id: 't2', type: 'book', name: '参考书目《教育技术导论》第1-2章', url: 'ISBN-978-7-123456',
-                        duration: 60, required: 'required', note: '阅读并做笔记' },
-                    { id: 't3', type: 'assignment', name: '导论课后作业', url: 'https://example.com/hw1',
-                        duration: 40, required: 'optional', note: '选做，加分项' },
-                ]
-            }, {
-                id: 'ch2',
-                name: '第二章 核心理论',
-                desc: '深入理解核心理论体系',
-                tasks: [
-                    { id: 't4', type: 'video', name: '核心理论讲解视频', url: 'https://example.com/video2',
-                        duration: 35, required: 'required', note: '' },
-                    { id: 't5', type: 'assignment', name: '理论应用分析作业', url: 'https://example.com/hw2',
-                        duration: 90, required: 'required', note: '小组作业' },
-                ]
-            }, {
-                id: 'ch3',
-                name: '第三章 实践案例',
-                desc: '通过案例学习实践应用',
-                tasks: [
-                    { id: 't6', type: 'video', name: '案例解析视频合集', url: 'https://example.com/video3',
-                        duration: 45, required: 'required', note: '含3个子视频' },
-                    { id: 't7', type: 'book', name: '《实践案例手册》全文阅读', url: 'ISBN-978-7-654321',
-                        duration: 120, required: 'optional', note: '推荐阅读' },
-                    { id: 't8', type: 'assignment', name: '案例分析报告', url: 'https://example.com/hw3',
-                        duration: 60, required: 'required', note: '个人独立完成' },
-                    { id: 't9', type: 'video', name: '专家访谈实录', url: 'https://example.com/video4',
-                        duration: 50, required: 'optional', note: '拓展内容' },
-                ]
-            }];
-
-            // 模拟学生数据
-            const students = [
-                { id: 's1', name: '李同学', color: '#4a90d9', progress: { t1: true, t2: true, t3: false, t4: true,
-                        t5: false, t6: true, t7: false, t8: false, t9: false } },
-                { id: 's2', name: '王同学', color: '#e8943e', progress: { t1: true, t2: false, t3: true, t4: true,
-                        t5: true, t6: false, t7: true, t8: true, t9: true } },
-                { id: 's3', name: '赵同学', color: '#3cb878', progress: { t1: true, t2: true, t3: true, t4: true,
-                        t5: true, t6: true, t7: true, t8: true, t9: true } },
-                { id: 's4', name: '陈同学', color: '#7c4dff', progress: { t1: false, t2: false, t3: false, t4: false,
-                        t5: false, t6: false, t7: false, t8: false, t9: false } },
+            // ============ 模拟数据 ============
+            const tasksData = [
+                { id: 'task0', name: '编程入门导论', icon: '📘', status: 'completed', progress: 100, date: '2024-09-01',
+                    duration: '2小时', type: '入门基础', aiModule: '知识图谱导航', desc: '编程世界的入门指南，了解基本概念和编程思维。',
+                    standard: 70, prerequisites: [], unlockConditionsMet: true, pathPos: { x: 70, y: 160 } },
+                { id: 'task1', name: 'Python基础语法', icon: '🐍', status: 'in-progress', progress: 80, date: '2024-09-15',
+                    duration: '4小时', type: '编程基础', aiModule: '智能代码分析', desc: '涵盖Python基础语法知识，包括变量、数据类型、控制流和函数定义。通过AI智能代码分析模块获得实时反馈。',
+                    standard: 70, prerequisites: ['task0'], unlockConditionsMet: true, pathPos: { x: 190, y: 130 } },
+                { id: 'task2', name: '数据结构入门', icon: '🌳', status: 'in-progress', progress: 45, date: '2024-10-01',
+                    duration: '5小时', type: '核心知识', aiModule: '自适应测验', desc: '学习数组、链表、栈、队列等基础数据结构，理解其原理与应用场景。',
+                    standard: 65, prerequisites: ['task1'], unlockConditionsMet: true, pathPos: { x: 310, y: 190 } },
+                { id: 'task3', name: '算法设计', icon: '🧩', status: 'in-progress', progress: 10, date: '2024-10-20',
+                    duration: '6小时', type: '高级技能', aiModule: '智能辅导助手', desc: '掌握常见算法设计范式：分治、贪心、动态规划等，通过AI辅导获得个性化学习路径。',
+                    standard: 70, prerequisites: ['task2'], unlockConditionsMet: true, pathPos: { x: 440, y: 120 } },
+                { id: 'task4', name: '项目实战训练', icon: '🚀', status: 'locked', progress: 0, date: '2024-11-10',
+                    duration: '8小时', type: '综合实践', aiModule: '智能代码分析', desc: '综合运用所学知识完成实际项目，AI将提供代码审查和优化建议。',
+                    standard: 75, prerequisites: ['task3'], unlockConditionsMet: false, pathPos: { x: 560, y: 170 } },
+                { id: 'task5', name: '高级应用拓展', icon: '💎', status: 'locked', progress: 0, date: '2024-12-01',
+                    duration: '10小时', type: '进阶拓展', aiModule: '知识图谱导航', desc: '探索前沿技术领域，定制化学习路径，满足个性化发展需求。',
+                    standard: 80, prerequisites: ['task4'], unlockConditionsMet: false, pathPos: { x: 650, y: 140 } },
             ];
 
-            let currentChapterId = null;
-            let editingTaskId = null;
-            let progressPanelOpen = true;
+            let currentTaskId = 'task1';
+            let currentMode = 'map';
+            let isTeacherMode = false;
+            let rotateAngleX = -8;
+            let rotateAngleY = 15;
+            let isDragging3d = false;
+            let dragStartX = 0;
+            let dragStartY = 0;
+            let dragStartRotX = 0;
+            let dragStartRotY = 0;
 
-            // ==================== DOM引用 ====================
-            const chapterListEl = document.getElementById('chapterList');
+            // ============ DOM引用 ============
             const taskListEl = document.getElementById('taskList');
-            const currentChapterTitleEl = document.getElementById('currentChapterTitle');
-            const btnAddTask = document.getElementById('btnAddTask');
-            const btnAddChapter = document.getElementById('btnAddChapter');
-            const taskModal = document.getElementById('taskModal');
-            const chapterModal = document.getElementById('chapterModal');
-            const taskModalTitle = document.getElementById('taskModalTitle');
-            const taskTypeEl = document.getElementById('taskType');
-            const taskNameEl = document.getElementById('taskName');
-            const taskUrlEl = document.getElementById('taskUrl');
-            const taskDurationEl = document.getElementById('taskDuration');
-            const taskRequiredEl = document.getElementById('taskRequired');
-            const taskNoteEl = document.getElementById('taskNote');
-            const editingTaskIdEl = document.getElementById('editingTaskId');
-            const btnSaveTask = document.getElementById('btnSaveTask');
-            const btnCancelTask = document.getElementById('btnCancelTask');
-            const btnDeleteTaskInModal = document.getElementById('btnDeleteTaskInModal');
-            const btnSaveChapter = document.getElementById('btnSaveChapter');
-            const btnCancelChapter = document.getElementById('btnCancelChapter');
-            const chapterNameInput = document.getElementById('chapterNameInput');
-            const chapterDescInput = document.getElementById('chapterDescInput');
-            const progressPanelHeader = document.getElementById('progressPanelHeader');
-            const progressBody = document.getElementById('progressBody');
-            const collapseIcon = document.getElementById('collapseIcon');
-            const statVideo = document.getElementById('statVideo');
-            const statBook = document.getElementById('statBook');
-            const statAssignment = document.getElementById('statAssignment');
-            const statCompletion = document.getElementById('statCompletion');
+            const detailTitle = document.getElementById('detailTitle');
+            const badgeStatus = document.getElementById('badgeStatus');
+            const detailDesc = document.getElementById('detailDesc');
+            const progressCircle = document.getElementById('progressCircle');
+            const percentText = document.getElementById('percentText');
+            const progressStatus = document.getElementById('progressStatus');
+            const unlockList = document.getElementById('unlockList');
+            const mapNodesGroup = document.getElementById('mapNodesGroup');
+            const scene3d = document.getElementById('scene3d');
+            const mapModeContainer = document.getElementById('mapModeContainer');
+            const mode3dContainer = document.getElementById('mode3dContainer');
+            const pathLine1 = document.getElementById('pathLine1');
+            const pathLine2 = document.getElementById('pathLine2');
+            const toast = document.getElementById('toast');
+            const overlay = document.getElementById('overlay');
+            const teacherPanel = document.getElementById('teacherPanel');
+            const btnTeacherMode = document.getElementById('btnTeacherMode');
+            const btnClosePanel = document.getElementById('btnClosePanel');
+            const btnPublish = document.getElementById('btnPublish');
+            const taskSearchInput = document.getElementById('taskSearchInput');
+            const modeSwitchGroup = document.getElementById('modeSwitchGroup');
+            const navTabs = document.getElementById('navTabs');
+            const detailCard = document.getElementById('detailCard');
+            const progressCard = document.getElementById('progressCard');
+            const unlockCard = document.getElementById('unlockCard');
+            const pathViewSection = document.getElementById('pathViewSection');
 
-            // ==================== 工具函数 ====================
-            function getChapterById(id) {
-                return chapters.find(ch => ch.id === id);
+            // ============ Toast ============
+            let toastTimer;
+
+            function showToast(msg) {
+                clearTimeout(toastTimer);
+                toast.textContent = msg;
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
             }
 
-            function getTaskById(chapterId, taskId) {
-                const chapter = getChapterById(chapterId);
-                if (!chapter) return null;
-                return chapter.tasks.find(t => t.id === taskId) || null;
-            }
-
-            function generateId(prefix = 'id') {
-                return prefix + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-            }
-
-            function countTasksByType(chapter, type) {
-                if (!chapter) return 0;
-                return chapter.tasks.filter(t => t.type === type).length;
-            }
-
-            function getAllTasks() {
-                let all = [];
-                chapters.forEach(ch => {
-                    ch.tasks.forEach(t => all.push({ ...t, chapterId: ch.id, chapterName: ch.name }));
-                });
-                return all;
-            }
-
-            // ==================== 渲染函数 ====================
-            function renderChapters() {
-                chapterListEl.innerHTML = '';
-                chapters.forEach(ch => {
-                    const li = document.createElement('li');
-                    li.className = 'chapter-item' + (ch.id === currentChapterId ? ' active' : '');
-                    li.dataset.chapterId = ch.id;
-                    li.innerHTML = `
-                        <div class="chapter-icon">📘</div>
-                        <div class="chapter-info">
-                            <div class="chapter-name">${escapeHtml(ch.name)}</div>
-                            <div class="chapter-meta">${ch.tasks.length} 个任务点</div>
+            // ============ 渲染任务列表 ============
+            function renderTaskList(filterText = '') {
+                taskListEl.innerHTML = '';
+                const filtered = tasksData.filter(t =>
+                    t.name.toLowerCase().includes(filterText.toLowerCase()) ||
+                    t.type.toLowerCase().includes(filterText.toLowerCase())
+                );
+                filtered.forEach(task => {
+                    const isLocked = task.status === 'locked';
+                    const item = document.createElement('div');
+                    item.className = 'task-item' +
+                        (task.id === currentTaskId ? ' active-task' : '') +
+                        (isLocked ? ' locked-item' : '');
+                    item.setAttribute('data-task-id', task.id);
+                    let iconClass = 'in-progress';
+                    if (task.status === 'completed') iconClass = 'completed';
+                    if (task.status === 'locked') iconClass = 'locked';
+                    item.innerHTML = `
+                        <div class="task-icon ${iconClass}">${task.icon}</div>
+                        <div class="task-info">
+                            <div class="task-name">${task.name}</div>
+                            <div class="task-meta">${task.type} · ${task.duration}</div>
                         </div>
-                        <span class="task-count-badge">${ch.tasks.length}</span>
-                        <button class="delete-chapter-btn" data-action="delete-chapter" data-chapter-id="${ch.id}" title="删除章节">×</button>
-                    `;
-                    li.addEventListener('click', function(e) {
-                        // 如果点击的是删除按钮，不触发选中
-                        if (e.target.closest('[data-action="delete-chapter"]')) return;
-                        selectChapter(ch.id);
-                    });
-                    chapterListEl.appendChild(li);
-                });
-                // 绑定删除章节按钮
-                chapterListEl.querySelectorAll('[data-action="delete-chapter"]').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const chId = this.dataset.chapterId;
-                        deleteChapter(chId);
-                    });
-                });
-            }
-
-            function renderTasks() {
-                const chapter = getChapterById(currentChapterId);
-                if (!chapter) {
-                    taskListEl.innerHTML = `
-                        <div class="empty-state">
-                            <span class="empty-icon">📂</span>
-                            <p>请先选择左侧章节，然后添加任务点</p>
-                            <p style="font-size:0.8rem;">支持视频、图书、作业三种类型</p>
-                        </div>`;
-                    currentChapterTitleEl.textContent = '请选择章节';
-                    btnAddTask.disabled = true;
-                    return;
-                }
-                currentChapterTitleEl.textContent = chapter.name;
-                btnAddTask.disabled = false;
-                if (chapter.tasks.length === 0) {
-                    taskListEl.innerHTML = `
-                        <div class="empty-state">
-                            <span class="empty-icon">📭</span>
-                            <p>该章节暂无任务点</p>
-                            <p style="font-size:0.8rem;">点击右上角按钮添加视频、图书或作业任务点</p>
-                        </div>`;
-                } else {
-                    taskListEl.innerHTML = '';
-                    chapter.tasks.forEach(task => {
-                        const typeLabels = { video: '🎬 视频', book: '📖 图书', assignment: '📝 作业' };
-                        const typeIconClass = 'type-' + task.type;
-                        const typeEmoji = { video: '🎬', book: '📖', assignment: '📝' };
-                        const requiredClass = task.required === 'required' ? 'required' :
-                            'optional';
-                        const requiredText = task.required === 'required' ? '必修' : '选修';
-                        const div = document.createElement('div');
-                        div.className = 'task-item';
-                        div.dataset.taskId = task.id;
-                        div.innerHTML = `
-                            <div class="task-type-icon ${typeIconClass}">${typeEmoji[task.type]}</div>
-                            <div class="task-details">
-                                <div class="task-name">${escapeHtml(task.name)}</div>
-                                <div class="task-meta-row">
-                                    <span>⏱ ${task.duration}分钟</span>
-                                    <span>${task.url ? '🔗 有资源链接' : '📎 无链接'}</span>
-                                    <span class="required-badge ${requiredClass}">${requiredText}</span>
-                                    ${task.note ? `<span>💬 ${escapeHtml(task.note)}</span>` : ''}
-                                </div>
-                            </div>
-                            <div class="task-actions">
-                                <button data-action="edit-task" data-task-id="${task.id}" title="编辑">✎</button>
-                                <button class="delete-btn" data-action="delete-task" data-task-id="${task.id}" title="删除">🗑</button>
-                            </div>
-                        `;
-                        // 点击任务项编辑
-                        div.addEventListener('click', function(e) {
-                            if (e.target.closest('button')) return;
-                            openTaskModal(task.id);
-                        });
-                        taskListEl.appendChild(div);
-                    });
-                    // 绑定编辑和删除按钮
-                    taskListEl.querySelectorAll('[data-action="edit-task"]').forEach(btn => {
-                        btn.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            openTaskModal(this.dataset.taskId);
-                        });
-                    });
-                    taskListEl.querySelectorAll('[data-action="delete-task"]').forEach(btn => {
-                        btn.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            deleteTask(this.dataset.taskId);
-                        });
-                    });
-                }
-                updateStats();
-                renderProgress();
-            }
-
-            function renderProgress() {
-                const allTasks = getAllTasks();
-                if (allTasks.length === 0) {
-                    progressBody.innerHTML =
-                        '<p style="text-align:center;color:var(--text-muted);padding:20px;">暂无任务点数据，无法显示学生进度</p>';
-                    return;
-                }
-                progressBody.innerHTML = '';
-                students.forEach(student => {
-                    let completedCount = 0;
-                    let totalAssigned = 0;
-                    allTasks.forEach(t => {
-                        // 只统计必修任务 或 所有任务（这里统计所有分配的任务）
-                        totalAssigned++;
-                        if (student.progress[t.id]) completedCount++;
-                    });
-                    const pct = totalAssigned > 0 ? Math.round((completedCount / totalAssigned) *
-                        100) : 0;
-                    let statusClass = 'not-started';
-                    let statusText = '未开始';
-                    if (pct >= 100) { statusClass = 'completed';
-                        statusText = '已完成'; } else if (pct > 0) { statusClass = 'in-progress';
-                        statusText = '进行中'; }
-                    const row = document.createElement('div');
-                    row.className = 'student-row';
-                    row.innerHTML = `
-                        <div class="student-avatar" style="background:${student.color};">${student.name.charAt(0)}</div>
-                        <div class="student-info">
-                            <div class="student-name">${student.name}</div>
-                            <div class="student-progress-bar-wrap">
-                                <div class="student-progress-bar-fill" style="width:${pct}%;"></div>
-                            </div>
+                        <div class="task-progress-mini">
+                            <div class="fill ${task.status === 'completed' ? 'completed-fill' : ''}" style="width:${task.progress}%"></div>
                         </div>
-                        <span class="student-progress-text">${pct}%</span>
-                        <span class="student-status ${statusClass}">${statusText}</span>
+                        ${isLocked ? '<span class="lock-badge">🔒</span>' : ''}
                     `;
-                    progressBody.appendChild(row);
-                });
-            }
-
-            function updateStats() {
-                const chapter = getChapterById(currentChapterId);
-                let vCount = 0,
-                    bCount = 0,
-                    aCount = 0;
-                if (chapter) {
-                    vCount = countTasksByType(chapter, 'video');
-                    bCount = countTasksByType(chapter, 'book');
-                    aCount = countTasksByType(chapter, 'assignment');
-                } else {
-                    // 显示全部章节合计
-                    chapters.forEach(ch => {
-                        vCount += countTasksByType(ch, 'video');
-                        bCount += countTasksByType(ch, 'book');
-                        aCount += countTasksByType(ch, 'assignment');
-                    });
-                }
-                statVideo.textContent = vCount;
-                statBook.textContent = bCount;
-                statAssignment.textContent = aCount;
-                // 整体完成率
-                const allTasks = getAllTasks();
-                if (allTasks.length === 0) {
-                    statCompletion.textContent = '0%';
-                } else {
-                    let totalProgress = 0;
-                    students.forEach(s => {
-                        let comp = 0;
-                        allTasks.forEach(t => { if (s.progress[t.id]) comp++; });
-                        totalProgress += comp / allTasks.length;
-                    });
-                    const avg = Math.round((totalProgress / students.length) * 100);
-                    statCompletion.textContent = avg + '%';
-                }
-            }
-
-            function selectChapter(chapterId) {
-                currentChapterId = chapterId;
-                renderChapters();
-                renderTasks();
-                updateStats();
-                renderProgress();
-            }
-
-            function escapeHtml(str) {
-                const div = document.createElement('div');
-                div.textContent = str;
-                return div.innerHTML;
-            }
-
-            // ==================== 任务点CRUD ====================
-            function openTaskModal(taskId = null) {
-                if (!currentChapterId && !taskId) {
-                    alert('请先选择一个章节！');
-                    return;
-                }
-                editingTaskId = taskId;
-                if (taskId) {
-                    const task = getTaskById(currentChapterId, taskId);
-                    if (!task) return;
-                    taskModalTitle.textContent = '✏️ 编辑任务点';
-                    taskTypeEl.value = task.type;
-                    taskNameEl.value = task.name;
-                    taskUrlEl.value = task.url || '';
-                    taskDurationEl.value = task.duration;
-                    taskRequiredEl.value = task.required;
-                    taskNoteEl.value = task.note || '';
-                    editingTaskIdEl.value = taskId;
-                    btnDeleteTaskInModal.style.display = 'inline-block';
-                } else {
-                    taskModalTitle.textContent = '📌 添加任务点';
-                    taskTypeEl.value = 'video';
-                    taskNameEl.value = '';
-                    taskUrlEl.value = '';
-                    taskDurationEl.value = '30';
-                    taskRequiredEl.value = 'required';
-                    taskNoteEl.value = '';
-                    editingTaskIdEl.value = '';
-                    btnDeleteTaskInModal.style.display = 'none';
-                }
-                taskModal.style.display = 'flex';
-                taskNameEl.focus();
-            }
-
-            function closeTaskModal() {
-                taskModal.style.display = 'none';
-                editingTaskId = null;
-                editingTaskIdEl.value = '';
-                btnDeleteTaskInModal.style.display = 'none';
-            }
-
-            function saveTask() {
-                const type = taskTypeEl.value;
-                const name = taskNameEl.value.trim();
-                const url = taskUrlEl.value.trim();
-                const duration = parseInt(taskDurationEl.value) || 30;
-                const required = taskRequiredEl.value;
-                const note = taskNoteEl.value.trim();
-                if (!name) {
-                    alert('请输入任务点名称！');
-                    taskNameEl.focus();
-                    return;
-                }
-                if (!currentChapterId) {
-                    alert('请先选择章节！');
-                    return;
-                }
-                const chapter = getChapterById(currentChapterId);
-                if (!chapter) return;
-                const taskId = editingTaskIdEl.value;
-                if (taskId) {
-                    // 编辑模式
-                    const task = chapter.tasks.find(t => t.id === taskId);
-                    if (task) {
-                        task.type = type;
-                        task.name = name;
-                        task.url = url;
-                        task.duration = duration;
-                        task.required = required;
-                        task.note = note;
+                    if (!isLocked) {
+                        item.addEventListener('click', () => selectTask(task.id));
+                    } else {
+                        item.addEventListener('click', () => showToast('🔒 该任务尚未解锁，请先完成前置任务'));
                     }
+                    taskListEl.appendChild(item);
+                });
+            }
+
+            // ============ 选择任务 ============
+            function selectTask(taskId) {
+                currentTaskId = taskId;
+                const task = tasksData.find(t => t.id === taskId);
+                if (!task) return;
+                // 更新详情
+                detailTitle.textContent = task.name;
+                detailDesc.textContent = '📖 ' + task.desc;
+                const metaRow = detailCard.querySelector('.detail-meta-row');
+                metaRow.innerHTML = `
+                    <span><span class="meta-label">📅 发布日：</span>${task.date}</span>
+                    <span><span class="meta-label">⏱ 建议时长：</span>${task.duration}</span>
+                    <span><span class="meta-label">🏷 类型：</span>${task.type}</span>
+                    <span><span class="meta-label">🤖 AI模块：</span>${task.aiModule}</span>
+                `;
+                // 状态徽章
+                badgeStatus.className = 'badge-status';
+                if (task.status === 'completed') {
+                    badgeStatus.classList.add('completed-badge');
+                    badgeStatus.textContent = '🏆 已完成';
+                } else if (task.status === 'locked') {
+                    badgeStatus.classList.add('locked-badge');
+                    badgeStatus.textContent = '🔒 未解锁';
                 } else {
-                    // 新增模式
-                    const newTask = {
-                        id: generateId('task'),
-                        type: type,
-                        name: name,
-                        url: url,
-                        duration: duration,
-                        required: required,
-                        note: note,
-                    };
-                    chapter.tasks.push(newTask);
-                    // 为新任务初始化学生进度
-                    students.forEach(s => { s.progress[newTask.id] = false; });
+                    badgeStatus.classList.add('unlocked-badge');
+                    badgeStatus.textContent = '🔓 已解锁';
                 }
-                closeTaskModal();
-                renderChapters();
-                renderTasks();
-                updateStats();
-                renderProgress();
-            }
-
-            function deleteTask(taskId) {
-                if (!currentChapterId) return;
-                const chapter = getChapterById(currentChapterId);
-                if (!chapter) return;
-                if (!confirm('确定要删除该任务点吗？此操作不可恢复。')) return;
-                chapter.tasks = chapter.tasks.filter(t => t.id !== taskId);
-                // 清理学生进度
-                students.forEach(s => { delete s.progress[taskId]; });
-                renderChapters();
-                renderTasks();
-                updateStats();
-                renderProgress();
-            }
-
-            function deleteTaskFromModal() {
-                const taskId = editingTaskIdEl.value;
-                if (taskId) {
-                    deleteTask(taskId);
-                    closeTaskModal();
+                // 达标情况
+                const circumference = 188.5; // 2*pi*30 ≈ 188.5
+                const offset = circumference - (task.progress / 100) * circumference;
+                progressCircle.setAttribute('stroke-dashoffset', offset);
+                progressCircle.classList.toggle('high-progress', task.progress >= task.standard);
+                percentText.textContent = task.progress + '%';
+                if (task.progress >= task.standard) {
+                    progressStatus.textContent = '✔ 已达标';
+                    progressStatus.style.color = '#10b981';
+                } else if (task.status === 'locked') {
+                    progressStatus.textContent = '🔒 暂未解锁';
+                    progressStatus.style.color = '#94a3b8';
+                } else {
+                    progressStatus.textContent = '⏳ 未达标（需≥' + task.standard + '%）';
+                    progressStatus.style.color = '#f59e0b';
+                }
+                // 解锁情况
+                unlockList.innerHTML = '';
+                if (task.prerequisites.length === 0) {
+                    unlockList.innerHTML =
+                        '<li class="unlocked-condition"><span class="unlock-icon">✅</span>无前置任务要求，默认解锁</li>';
+                } else {
+                    task.prerequisites.forEach(preId => {
+                        const preTask = tasksData.find(t => t.id === preId);
+                        const preName = preTask ? preTask.name : preId;
+                        const preCompleted = preTask && preTask.status === 'completed';
+                        unlockList.innerHTML += `
+                            <li class="${preCompleted ? 'unlocked-condition' : 'locked-condition'}">
+                                <span class="unlock-icon">${preCompleted ? '✅' : '⏳'}</span>
+                                前置任务「${preName}」${preCompleted ? '已完成' : '未完成'}
+                            </li>
+                        `;
+                    });
+                    const allPreCompleted = task.prerequisites.every(preId => {
+                        const pt = tasksData.find(t => t.id === preId);
+                        return pt && pt.status === 'completed';
+                    });
+                    unlockList.innerHTML += `
+                        <li class="${allPreCompleted ? 'unlocked-condition' : 'locked-condition'}">
+                            <span class="unlock-icon">${allPreCompleted ? '✅' : '🔒'}</span>
+                            ${allPreCompleted ? '所有前置条件已满足，任务已解锁' : '前置条件未全部满足，任务锁定中'}
+                        </li>
+                    `;
+                }
+                // 更新列表高亮
+                renderTaskList(taskSearchInput.value);
+                // 更新路径视图
+                updateMapView();
+                update3DView();
+                // 滚动到对应任务项
+                const activeItem = taskListEl.querySelector('.active-task');
+                if (activeItem) {
+                    activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             }
 
-            // ==================== 章节CRUD ====================
-            function openChapterModal() {
-                chapterNameInput.value = '';
-                chapterDescInput.value = '';
-                chapterModal.style.display = 'flex';
-                chapterNameInput.focus();
+            // ============ 地图模式更新 ============
+            function updateMapView() {
+                mapNodesGroup.innerHTML = '';
+                tasksData.forEach(task => {
+                    const pos = task.pathPos;
+                    let fillColor = '#94a3b8'; // locked
+                    let strokeColor = '#cbd5e1';
+                    let textColor = '#64748b';
+                    if (task.status === 'completed') {
+                        fillColor = '#10b981';
+                        strokeColor = '#059669';
+                        textColor = '#065f46';
+                    } else if (task.status === 'in-progress') {
+                        fillColor = '#4aa9f5';
+                        strokeColor = '#1a8fe3';
+                        textColor = '#1e40af';
+                    }
+                    const isCurrent = task.id === currentTaskId;
+                    const radius = isCurrent ? 20 : 16;
+                    const strokeW = isCurrent ? 4 : 2.5;
+                    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    g.setAttribute('class', 'map-node');
+                    g.setAttribute('data-task-id', task.id);
+                    g.style.cursor = task.status === 'locked' ? 'not-allowed' : 'pointer';
+                    g.innerHTML = `
+                        <circle cx="${pos.x}" cy="${pos.y}" r="${radius}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeW}" />
+                        <text x="${pos.x}" y="${pos.y}" fill="white" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="central">${task.icon}</text>
+                        <text x="${pos.x}" y="${pos.y + radius + 16}" fill="${textColor}" font-size="11" font-weight="600" text-anchor="middle">${task.name}</text>
+                        ${isCurrent ? '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="' + (radius + 6) + '" fill="none" stroke="#1a8fe3" stroke-width="2" stroke-dasharray="5 3" opacity="0.6"><animateTransform attributeName="transform" type="rotate" from="0 ' + pos.x + ' ' + pos.y + '" to="360 ' + pos.x + ' ' + pos.y + '" dur="8s" repeatCount="indefinite"/></circle>' : ''}
+                    `;
+                    g.addEventListener('click', () => {
+                        if (task.status !== 'locked') selectTask(task.id);
+                        else showToast('🔒 该任务尚未解锁');
+                    });
+                    mapNodesGroup.appendChild(g);
+                });
+                // 更新路径连线
+                pathLine1.setAttribute('d', generatePathD(tasksData, 0));
+                pathLine2.setAttribute('d', generatePathD(tasksData, 1));
+                pathLine1.style.display = '';
+                pathLine2.style.display = 'none';
             }
 
-            function closeChapterModal() {
-                chapterModal.style.display = 'none';
+            function generatePathD(tasks, offsetVariant = 0) {
+                if (tasks.length < 2) return '';
+                let d = '';
+                tasks.forEach((task, i) => {
+                    const pos = task.pathPos;
+                    if (i === 0) d += `M ${pos.x} ${pos.y}`;
+                    else {
+                        const prev = tasks[i - 1].pathPos;
+                        const midX = (prev.x + pos.x) / 2;
+                        const midY = (prev.y + pos.y) / 2 + (offsetVariant === 0 ? -25 : 35) * (i % 2 === 0 ? 1 : -
+                            1);
+                        d += ` Q ${midX} ${midY} ${pos.x} ${pos.y}`;
+                    }
+                });
+                return d;
             }
 
-            function saveChapter() {
-                const name = chapterNameInput.value.trim();
-                const desc = chapterDescInput.value.trim();
+            // ============ 3D模式更新 ============
+            function update3DView() {
+                scene3d.innerHTML = '';
+                const totalTasks = tasksData.length;
+                const radiusX = 200;
+                const radiusZ = 120;
+                const centerX = 0;
+                const centerY = 20;
+                tasksData.forEach((task, index) => {
+                    const angle = (index / (totalTasks - 1)) * Math.PI - Math.PI / 2;
+                    const x = Math.cos(angle) * radiusX + centerX;
+                    const z = Math.sin(angle) * radiusZ;
+                    const y = centerY + (index - (totalTasks - 1) / 2) * 25;
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'node-3d-wrapper';
+                    wrapper.style.left = '50%';
+                    wrapper.style.top = '50%';
+                    wrapper.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
+                    wrapper.setAttribute('data-task-id', task.id);
+                    let cardClass = 'node-3d-card';
+                    if (task.status === 'completed') cardClass += ' completed-3d';
+                    else if (task.status === 'in-progress') cardClass += ' in-progress-3d';
+                    else cardClass += ' locked-3d';
+                    const isCurrent = task.id === currentTaskId;
+                    const borderGlow = isCurrent ? 'border: 3px solid #1a8fe3; box-shadow: 0 0 25px rgba(26,143,227,0.6);' :
+                        '';
+                    wrapper.innerHTML = `
+                        <div class="${cardClass}" style="${borderGlow}">
+                            <div class="node-3d-icon">${task.icon}</div>
+                            <div class="node-3d-name">${task.name}</div>
+                            <div class="node-3d-progress">${task.progress}%</div>
+                        </div>
+                    `;
+                    wrapper.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (task.status !== 'locked') selectTask(task.id);
+                        else showToast('🔒 该任务尚未解锁');
+                    });
+                    scene3d.appendChild(wrapper);
+                });
+                apply3DRotation();
+            }
+
+            function apply3DRotation() {
+                scene3d.style.transform = `rotateX(${rotateAngleX}deg) rotateY(${rotateAngleY}deg)`;
+            }
+
+            // ============ 模式切换 ============
+            function switchMode(mode) {
+                currentMode = mode;
+                document.querySelectorAll('.mode-switch-btn').forEach(b => b.classList.remove('active-mode'));
+                const activeBtn = document.querySelector(`.mode-switch-btn[data-mode="${mode}"]`);
+                if (activeBtn) activeBtn.classList.add('active-mode');
+                if (mode === 'map') {
+                    mapModeContainer.style.display = 'flex';
+                    mode3dContainer.style.display = 'none';
+                    updateMapView();
+                } else {
+                    mapModeContainer.style.display = 'none';
+                    mode3dContainer.style.display = 'flex';
+                    update3DView();
+                }
+            }
+
+            // ============ 3D拖拽旋转 ============
+            mode3dContainer.addEventListener('mousedown', (e) => {
+                if (currentMode !== '3d') return;
+                isDragging3d = true;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                dragStartRotX = rotateAngleX;
+                dragStartRotY = rotateAngleY;
+                mode3dContainer.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging3d || currentMode !== '3d') return;
+                const dx = e.clientX - dragStartX;
+                const dy = e.clientY - dragStartY;
+                rotateAngleY = dragStartRotY + dx * 0.4;
+                rotateAngleX = dragStartRotX - dy * 0.4;
+                rotateAngleX = Math.max(-50, Math.min(50, rotateAngleX));
+                apply3DRotation();
+            });
+            document.addEventListener('mouseup', () => {
+                if (isDragging3d) {
+                    isDragging3d = false;
+                    mode3dContainer.style.cursor = 'grab';
+                }
+            });
+            // 触摸支持
+            mode3dContainer.addEventListener('touchstart', (e) => {
+                if (currentMode !== '3d') return;
+                isDragging3d = true;
+                dragStartX = e.touches[0].clientX;
+                dragStartY = e.touches[0].clientY;
+                dragStartRotX = rotateAngleX;
+                dragStartRotY = rotateAngleY;
+            }, { passive: false });
+            document.addEventListener('touchmove', (e) => {
+                if (!isDragging3d || currentMode !== '3d') return;
+                const dx = e.touches[0].clientX - dragStartX;
+                const dy = e.touches[0].clientY - dragStartY;
+                rotateAngleY = dragStartRotY + dx * 0.4;
+                rotateAngleX = dragStartRotX - dy * 0.4;
+                rotateAngleX = Math.max(-50, Math.min(50, rotateAngleX));
+                apply3DRotation();
+            }, { passive: false });
+            document.addEventListener('touchend', () => {
+                if (isDragging3d) {
+                    isDragging3d = false;
+                }
+            });
+
+            // ============ 教师面板 ============
+            function openTeacherPanel() {
+                isTeacherMode = true;
+                teacherPanel.classList.add('open');
+                overlay.classList.add('show');
+                btnTeacherMode.classList.add('active-teacher');
+                btnTeacherMode.textContent = '✏️ 教师模式（已开启）';
+            }
+
+            function closeTeacherPanel() {
+                isTeacherMode = false;
+                teacherPanel.classList.remove('open');
+                overlay.classList.remove('show');
+                btnTeacherMode.classList.remove('active-teacher');
+                btnTeacherMode.textContent = '✏️ 教师模式';
+            }
+            btnTeacherMode.addEventListener('click', () => {
+                if (isTeacherMode) closeTeacherPanel();
+                else openTeacherPanel();
+            });
+            btnClosePanel.addEventListener('click', closeTeacherPanel);
+            overlay.addEventListener('click', closeTeacherPanel);
+
+            // 发布任务
+            btnPublish.addEventListener('click', () => {
+                const name = document.getElementById('newTaskName').value.trim();
+                const desc = document.getElementById('newTaskDesc').value.trim();
+                const pathType = document.getElementById('newTaskPathType').value;
+                const prerequisite = document.getElementById('newTaskPrerequisite').value;
+                const standard = parseInt(document.getElementById('newTaskStandard').value) || 70;
+                const aiModule = document.getElementById('newTaskAiModule').value;
+                const duration = parseFloat(document.getElementById('newTaskDuration').value) || 3;
                 if (!name) {
-                    alert('请输入章节名称！');
-                    chapterNameInput.focus();
+                    showToast('⚠️ 请输入任务名称');
                     return;
                 }
-                const newChapter = {
-                    id: generateId('ch'),
-                    name: name,
-                    desc: desc,
-                    tasks: [],
+                if (!desc) {
+                    showToast('⚠️ 请输入任务描述');
+                    return;
+                }
+                const newId = 'task' + Date.now();
+                const lastTask = tasksData[tasksData.length - 1];
+                const newPos = {
+                    x: Math.min(lastTask.pathPos.x + 80, 680),
+                    y: lastTask.pathPos.y + (Math.random() - 0.5) * 80
                 };
-                chapters.push(newChapter);
-                closeChapterModal();
-                renderChapters();
-                // 自动选中新章节
-                selectChapter(newChapter.id);
-            }
-
-            function deleteChapter(chapterId) {
-                const chapter = getChapterById(chapterId);
-                if (!chapter) return;
-                if (!confirm(`确定要删除章节"${chapter.name}"及其所有任务点吗？此操作不可恢复。`)) return;
-                // 清理学生进度中该章节的任务
-                const taskIds = chapter.tasks.map(t => t.id);
-                students.forEach(s => { taskIds.forEach(tid => delete s.progress[tid]); });
-                chapters = chapters.filter(ch => ch.id !== chapterId);
-                if (currentChapterId === chapterId) {
-                    currentChapterId = chapters.length > 0 ? chapters[0].id : null;
-                }
-                renderChapters();
-                if (currentChapterId) {
-                    selectChapter(currentChapterId);
-                } else {
-                    currentChapterTitleEl.textContent = '请选择章节';
-                    btnAddTask.disabled = true;
-                    taskListEl.innerHTML = `
-                        <div class="empty-state">
-                            <span class="empty-icon">📂</span>
-                            <p>请先选择左侧章节，然后添加任务点</p>
-                        </div>`;
-                    updateStats();
-                    renderProgress();
-                }
-            }
-
-            // ==================== 进度面板折叠 ====================
-            function toggleProgressPanel() {
-                progressPanelOpen = !progressPanelOpen;
-                if (progressPanelOpen) {
-                    progressBody.style.display = 'flex';
-                    collapseIcon.classList.add('open');
-                    collapseIcon.classList.remove('closed');
-                } else {
-                    progressBody.style.display = 'none';
-                    collapseIcon.classList.remove('open');
-                    collapseIcon.classList.add('closed');
-                }
-            }
-
-            // ==================== 事件绑定 ====================
-            btnAddTask.addEventListener('click', () => openTaskModal(null));
-            btnAddChapter.addEventListener('click', openChapterModal);
-            btnSaveTask.addEventListener('click', saveTask);
-            btnCancelTask.addEventListener('click', closeTaskModal);
-            btnDeleteTaskInModal.addEventListener('click', deleteTaskFromModal);
-            btnSaveChapter.addEventListener('click', saveChapter);
-            btnCancelChapter.addEventListener('click', closeChapterModal);
-            progressPanelHeader.addEventListener('click', toggleProgressPanel);
-
-            // 点击模态框背景关闭
-            taskModal.addEventListener('click', function(e) {
-                if (e.target === taskModal) closeTaskModal();
-            });
-            chapterModal.addEventListener('click', function(e) {
-                if (e.target === chapterModal) closeChapterModal();
+                const prerequisites = prerequisite !== 'none' ? [prerequisite] : [];
+                const unlockMet = prerequisites.length === 0 || prerequisites.every(preId => {
+                    const pt = tasksData.find(t => t.id === preId);
+                    return pt && pt.status === 'completed';
+                });
+                const newTask = {
+                    id: newId,
+                    name: name,
+                    icon: ['📗', '📙', '📕', '💡', '🎯', '🔮', '📐', '⚡'][Math.floor(Math.random() * 8)],
+                    status: unlockMet ? 'in-progress' : 'locked',
+                    progress: 0,
+                    date: new Date().toISOString().split('T')[0],
+                    duration: duration + '小时',
+                    type: pathType === '3d' ? '3D探索' : '地图导航',
+                    aiModule: aiModule === 'code_analysis' ? '智能代码分析' :
+                        aiModule === 'knowledge_graph' ? '知识图谱导航' :
+                        aiModule === 'adaptive_quiz' ? '自适应测验' : '智能辅导助手',
+                    desc: desc,
+                    standard: standard,
+                    prerequisites: prerequisites,
+                    unlockConditionsMet: unlockMet,
+                    pathPos: newPos,
+                };
+                tasksData.push(newTask);
+                renderTaskList(taskSearchInput.value);
+                updateMapView();
+                update3DView();
+                // 清空表单
+                document.getElementById('newTaskName').value = '';
+                document.getElementById('newTaskDesc').value = '';
+                document.getElementById('newTaskStandard').value = '70';
+                document.getElementById('newTaskDuration').value = '3';
+                document.getElementById('newTaskPrerequisite').value = 'none';
+                showToast('✅ 任务「' + name + '」发布成功！');
+                // 自动选中新任务
+                setTimeout(() => selectTask(newId), 300);
             });
 
-            // 键盘快捷键
-            document.addEventListener('keydown', function(e) {
+            // ============ 导航标签切换 ============
+            navTabs.addEventListener('click', (e) => {
+                const tab = e.target.closest('.nav-tab');
+                if (!tab) return;
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const tabType = tab.getAttribute('data-tab');
+                if (tabType === 'personal') {
+                    showToast('👤 已切换到个人空间视图');
+                    document.getElementById('sidebar').querySelector('.sidebar-header h3').innerHTML =
+                        '<span class="icon-dot"></span>个人任务列表';
+                } else {
+                    showToast('📚 已切换到课程页面视图');
+                    document.getElementById('sidebar').querySelector('.sidebar-header h3').innerHTML =
+                        '<span class="icon-dot"></span>课程任务列表';
+                }
+            });
+
+            // ============ 搜索过滤 ============
+            taskSearchInput.addEventListener('input', () => {
+                renderTaskList(taskSearchInput.value);
+            });
+
+            // ============ 模式切换按钮 ============
+            modeSwitchGroup.addEventListener('click', (e) => {
+                const btn = e.target.closest('.mode-switch-btn');
+                if (!btn) return;
+                const mode = btn.getAttribute('data-mode');
+                switchMode(mode);
+                showToast(mode === 'map' ? '🗺 已切换到地图模式' : '🌐 已切换到3D模式');
+            });
+
+            // ============ 键盘快捷键 ============
+            document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
-                    if (taskModal.style.display === 'flex') closeTaskModal();
-                    if (chapterModal.style.display === 'flex') closeChapterModal();
+                    if (isTeacherMode) closeTeacherPanel();
                 }
-                // Ctrl+N 添加任务点
-                if (e.ctrlKey && e.key === 'n' && currentChapterId) {
+                if (e.key === 'm' && e.ctrlKey) {
                     e.preventDefault();
-                    openTaskModal(null);
+                    switchMode(currentMode === 'map' ? '3d' : 'map');
+                }
+                if (e.key === 't' && e.ctrlKey && !isTeacherMode) {
+                    e.preventDefault();
+                    openTeacherPanel();
                 }
             });
 
-            // ==================== 初始化 ====================
+            // ============ 初始化 ============
             function init() {
-                renderChapters();
-                // 默认选中第一个章节
-                if (chapters.length > 0) {
-                    selectChapter(chapters[0].id);
-                } else {
-                    currentChapterTitleEl.textContent = '请选择章节';
-                    btnAddTask.disabled = true;
-                    updateStats();
-                    renderProgress();
-                }
-                progressBody.style.display = 'flex';
-                collapseIcon.classList.add('open');
-                console.log('✅ 学习任务点设计平台已就绪');
-                console.log('   📘 教师可管理章节与任务点（视频/图书/作业）');
-                console.log('   👨‍🎓 学生进度面板实时反映完成情况');
-                console.log('   ⌨️ 快捷键：Ctrl+N 快速添加任务点，Esc 关闭弹窗');
+                renderTaskList();
+                selectTask('task1');
+                switchMode('map');
+                mode3dContainer.style.cursor = 'grab';
+                updateMapView();
+                update3DView();
+                console.log('🚀 个性化学习平台已就绪');
+                console.log('   🗺 地图模式 - 查看2D学习路径');
+                console.log('   🌐 3D模式 - 拖拽旋转查看3D路径');
+                console.log('   ✏️ 点击"教师模式"发布新任务');
+                console.log('   ⌨ 快捷键：Ctrl+M 切换模式 | Ctrl+T 教师模式 | Esc 关闭面板');
             }
-
             init();
         })();
     </script>
