@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>重庆大学演示平台 · 内容安全</title>
+    <!-- ECharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f3effc 0%, #e9dfff 100%);
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            padding: 24px 20px;
+            min-height: 100vh;
+        }
+
+        /* 紫色主题主容器 */
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #6c2bd9, #9b4dff);
+            border-radius: 32px;
+            padding: 20px 28px;
+            margin-bottom: 28px;
+            color: white;
+            box-shadow: 0 12px 20px -8px rgba(91, 33, 182, 0.35);
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+        }
+        .header p {
+            opacity: 0.9;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+
+        /* 卡片通用样式 */
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(2px);
+            border-radius: 28px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9dcff;
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #4c1d95;
+            border-left: 5px solid #a855f7;
+            padding-left: 16px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 两列/三列布局 */
+        .grid-2cols {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+        .grid-3cols {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        @media (max-width: 1000px) {
+            .grid-2cols, .grid-3cols { grid-template-columns: 1fr; }
+        }
+
+        /* 表单元素 */
+        .input-group {
+            margin-bottom: 16px;
+        }
+        label {
+            font-weight: 600;
+            color: #4c1d95;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d9c9ff;
+            border-radius: 24px;
+            background: #fefbff;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #a855f7;
+            box-shadow: 0 0 0 2px rgba(168,85,247,0.2);
+        }
+        button {
+            background: #8b5cf6;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 20px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:active { transform: scale(0.96); }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #a855f7;
+            color: #a855f7;
+        }
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .tag {
+            background: #ede9fe;
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            color: #4c1d95;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tag i {
+            cursor: pointer;
+            color: #a855f7;
+        }
+        .result-box {
+            background: #f9f5ff;
+            border-radius: 24px;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 0.9rem;
+        }
+        .result-safe {
+            color: #22c55e;
+        }
+        .result-danger {
+            color: #f97316;
+        }
+        .file-upload {
+            border: 2px dashed #d9c9ff;
+            border-radius: 28px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .file-upload:hover {
+            border-color: #a855f7;
+            background: #faf5ff;
+        }
+
+        /* 统计图表 */
+        .stat-chart {
+            height: 280px;
+            width: 100%;
+        }
+
+        /* 在线审核布局 */
+        .audit-layout {
+            display: grid;
+            grid-template-columns: 45% 55%;
+            gap: 24px;
+            height: 600px;
+        }
+        @media (max-width: 1000px) {
+            .audit-layout {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+
+        /* 资源列表 */
+        .resource-list-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: #faf8ff;
+            border-radius: 24px;
+            padding: 20px;
+        }
+        .resource-filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 1px solid #d9c9ff;
+            background: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #4c1d95;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+        .filter-tab:hover {
+            border-color: #a855f7;
+            background: #fefbff;
+            box-shadow: 0 4px 8px rgba(139, 92, 246, 0.1);
+        }
+        .filter-tab.active {
+            background: #8b5cf6;
+            color: white;
+            border-color: #8b5cf6;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+        .resource-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding-right: 4px;
+        }
+        .resource-item {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        .resource-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #d9c9ff;
+            transition: background 0.25s ease;
+        }
+        .resource-item:hover {
+            background: #fefbff;
+            border-color: #d9c9ff;
+            transform: translateX(4px);
+            box-shadow: 0 6px 16px rgba(139, 92, 246, 0.08);
+        }
+        .resource-item.selected {
+            background: #ede9fe;
+            border-color: #a855f7;
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.15);
+        }
+        .resource-item.selected::before {
+            background: #a855f7;
+        }
+        .resource-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .resource-name {
+            font-weight: 600;
+            color: #4c1d95;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            flex: 1;
+            margin-right: 12px;
+        }
+        .resource-type-badge {
+            font-size: 0.65rem;
+            padding: 4px 12px;
+            border-radius: 40px;
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .resource-meta {
+            font-size: 0.75rem;
+            color: #a78bfa;
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .resource-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .resource-status {
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+        }
+        .status-pending {
+            background: rgba(249, 115, 22, 0.1);
+            color: #f97316;
+        }
+        .status-approved {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        .status-ignored {
+            background: rgba(156, 163, 175, 0.1);
+            color: #6b7280;
+        }
+        .risk-level {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 40px;
+        }
+        .risk-high {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            font-weight: 600;
+        }
+        .risk-medium {
+            background: rgba(249, 115, 22, 0.1);
+            color: #f97316;
+            font-weight: 600;
+        }
+        .risk-low {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            font-weight: 600;
+        }
+
+        /* 审核面板 */
+        .audit-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: #faf8ff;
+            border-radius: 24px;
+            padding: 24px;
+        }
+        .audit-panel-header {
+            padding-bottom: 16px;
+            border-bottom: 1px solid #ede9fe;
+            margin-bottom: 16px;
+        }
+        .audit-panel-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #4c1d95;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .audit-panel-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #a78bfa;
+            text-align: center;
+        }
+        .audit-panel-empty i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        .audit-detail {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .detail-section {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+        }
+        .detail-section h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4c1d95;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .detail-info {
+            font-size: 0.85rem;
+            color: #6b21a5;
+            line-height: 1.6;
+        }
+        .detail-info p {
+            margin-bottom: 6px;
+        }
+        .detail-info strong {
+            color: #4c1d95;
+        }
+        .violation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .violation-item {
+            background: rgba(249, 115, 22, 0.05);
+            border-left: 4px solid #f97316;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .violation-item.safe {
+            background: rgba(34, 197, 94, 0.05);
+            border-left-color: #22c55e;
+        }
+        .violation-text {
+            font-size: 0.85rem;
+            color: #f97316;
+        }
+        .violation-item.safe .violation-text {
+            color: #22c55e;
+        }
+        .violation-location {
+            font-size: 0.75rem;
+            color: #a78bfa;
+            margin-top: 4px;
+        }
+        .preview-box {
+            background: #f9f5ff;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.85rem;
+            color: #4c1d95;
+            line-height: 1.6;
+            max-height: 150px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .preview-box img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        /* 审核操作按钮 */
+        .audit-actions {
+            display: flex;
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid #ede9fe;
+            flex-wrap: wrap;
+        }
+        .audit-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 16px;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .audit-btn:hover {
+            transform: translateY(-1px);
+        }
+        .audit-btn.approve {
+            background: #22c55e;
+            color: white;
+        }
+        .audit-btn.reject {
+            background: #ef4444;
+            color: white;
+        }
+        .audit-btn.ignore {
+            background: #9ca3af;
+            color: white;
+        }
+        .audit-btn.false-positive {
+            background: #f59e0b;
+            color: white;
+        }
+
+        /* 分页控件 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 16px;
+            border-top: 1px solid #ede9fe;
+            margin-top: auto;
+        }
+        .pagination-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #d9c9ff;
+            background: #fefbff;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #4c1d95;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            background: #ede9fe;
+            border-color: #a855f7;
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .pagination-btn.active {
+            background: #8b5cf6;
+            color: white;
+            border-color: #8b5cf6;
+        }
+        .pagination-info {
+            font-size: 0.85rem;
+            color: #a78bfa;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* 风险统计摘要栏 */
+        .risk-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .summary-item {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4c1d95;
+        }
+        .summary-label {
+            font-size: 0.75rem;
+            color: #a78bfa;
+            margin-top: 4px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #a78bfa;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <h1><i class="fas fa-shield-alt"></i> 内容安全</h1>
+        <p>敏感文本·图片·文档检测 | 自定义词库 | 在线审核</p>
+    </div>
+
+    <!-- 第一行：自定义配置区（敏感词/忽略词/黑白名单） -->
+    <div class="grid-2cols">
+        <!-- 敏感关键词配置 -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-ban"></i> 敏感关键词</div>
+            <div class="input-group">
+                <label>添加敏感词</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="newSensitiveWord" placeholder="输入敏感词">
+                    <button id="addSensitiveBtn">添加</button>
+                </div>
+            </div>
+            <div>
+                <label>当前敏感词列表</label>
+                <div id="sensitiveWordsList" class="tag-list"></div>
+            </div>
+        </div>
+        <!-- 敏感忽略词配置 -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-eye-slash"></i> 敏感忽略词</div>
+            <div class="input-group">
+                <label>添加忽略词（检测时豁免）</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="newIgnoreWord" placeholder="输入忽略词">
+                    <button id="addIgnoreBtn">添加</button>
+                </div>
+            </div>
+            <div>
+                <label>忽略词列表</label>
+                <div id="ignoreWordsList" class="tag-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-2cols">
+        <!-- 用户黑白名单 -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-users"></i> 用户黑白名单</div>
+            <div class="input-group">
+                <label>用户ID / 账号</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" id="userIdInput" placeholder="例如 user123">
+                    <select id="userListType">
+                        <option value="white">白名单</option>
+                        <option value="black">黑名单</option>
+                    </select>
+                    <button id="addUserBtn">添加</button>
+                </div>
+            </div>
+            <div class="grid-2cols" style="gap: 16px;">
+                <div>
+                    <label>白名单</label>
+                    <div id="whiteList" class="tag-list"></div>
+                </div>
+                <div>
+                    <label>黑名单</label>
+                    <div id="blackList" class="tag-list"></div>
+                </div>
+            </div>
+        </div>
+        <!-- 图片名单（图片哈希/名称模拟） -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-image"></i> 图片名单</div>
+            <div class="input-group">
+                <label>图片标识（文件名/MD5模拟）</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="newImageName" placeholder="例如: illegal.jpg">
+                    <button id="addImageBtn">添加至黑名单</button>
+                </div>
+            </div>
+            <div>
+                <label>黑名单图片列表</label>
+                <div id="imageBlacklist" class="tag-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 在线检测区域：文本、图片、文档 -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-search"></i> 在线检测</div>
+        <div class="grid-3cols">
+            <!-- 文本检测 -->
+            <div>
+                <h3 style="font-size: 1rem; margin-bottom: 12px;"><i class="fas fa-file-alt"></i> 文本检测</h3>
+                <textarea id="textInput" rows="4" placeholder="输入待检测文本..."></textarea>
+                <button id="detectTextBtn" style="margin-top: 12px; width: 100%;">检测文本</button>
+                <div id="textResult" class="result-box">等待检测</div>
+            </div>
+            <!-- 图片检测 -->
+            <div>
+                <h3 style="font-size: 1rem; margin-bottom: 12px;"><i class="fas fa-image"></i> 图片检测</h3>
+                <div class="file-upload" id="imageUploadArea">
+                    <i class="fas fa-cloud-upload-alt fa-2x" style="color:#a855f7;"></i>
+                    <p>点击或拖拽上传图片</p>
+                    <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+                </div>
+                <button id="detectImageBtn" style="margin-top: 12px; width: 100%;">模拟检测当前图片</button>
+                <div id="imageResult" class="result-box">未上传图片</div>
+            </div>
+            <!-- 文档检测 -->
+            <div>
+                <h3 style="font-size: 1rem; margin-bottom: 12px;"><i class="fas fa-file-pdf"></i> 文档检测</h3>
+                <div class="file-upload" id="docUploadArea">
+                    <i class="fas fa-file-upload fa-2x" style="color:#a855f7;"></i>
+                    <p>上传文档（txt/pdf/docx模拟）</p>
+                    <input type="file" id="docFileInput" accept=".txt,.pdf,.docx" style="display: none;">
+                </div>
+                <button id="detectDocBtn" style="margin-top: 12px; width: 100%;">模拟检测文档</button>
+                <div id="docResult" class="result-box">未上传文档</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 在线审核模块 -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-shield-alt"></i> 在线审核</div>
+        
+        <!-- 风险统计摘要栏 -->
+        <div class="risk-summary">
+            <div class="summary-item">
+                <div class="summary-value" id="summaryTotal">0</div>
+                <div class="summary-label">待审核资源</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="summaryHigh">0</div>
+                <div class="summary-label">高危风险</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="summaryMedium">0</div>
+                <div class="summary-label">中危风险</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="summaryToday">0</div>
+                <div class="summary-label">今日已审核</div>
+            </div>
+        </div>
+
+        <div class="audit-layout">
+            <!-- 左侧：资源列表 -->
+            <div class="resource-list-container">
+                <div class="resource-filter-tabs">
+                    <button class="filter-tab active" onclick="filterResources('all', event)"><i class="fas fa-list"></i> 全部</button>
+                    <button class="filter-tab" onclick="filterResources('text', event)"><i class="fas fa-file-alt"></i> 文本</button>
+                    <button class="filter-tab" onclick="filterResources('image', event)"><i class="fas fa-image"></i> 图片</button>
+                    <button class="filter-tab" onclick="filterResources('document', event)"><i class="fas fa-file-pdf"></i> 文档</button>
+                    <button class="filter-tab" onclick="filterResources('course', event)"><i class="fas fa-graduation-cap"></i> 课程</button>
+                </div>
+                <div id="resourceList" class="resource-list"></div>
+                <div id="pagination" class="pagination">
+                    <button class="pagination-btn" id="prevPageBtn" onclick="changePage(-1)" disabled><i class="fas fa-chevron-left"></i> 上一页</button>
+                    <span class="pagination-info" id="pageInfo">1 / 1</span>
+                    <button class="pagination-btn" id="nextPageBtn" onclick="changePage(1)" disabled><i class="fas fa-chevron-right"></i> 下一页</button>
+                </div>
+            </div>
+
+            <!-- 右侧：审核面板 -->
+            <div class="audit-panel">
+                <div class="audit-panel-header">
+                    <div class="audit-panel-title"><i class="fas fa-search"></i> 资源详情与审核</div>
+                </div>
+                <div id="auditContent" class="audit-panel-empty">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <p>请从左侧选择一个资源进行审核</p>
+                </div>
+                <div id="auditActions" class="audit-actions" style="display: none;">
+                    <button class="audit-btn approve" onclick="auditAction('approve')"><i class="fas fa-check"></i> 通过审核</button>
+                    <button class="audit-btn reject" onclick="auditAction('reject')"><i class="fas fa-times"></i> 驳回</button>
+                    <button class="audit-btn ignore" onclick="auditAction('ignore')"><i class="fas fa-eye-slash"></i> 忽略</button>
+                    <button class="audit-btn false-positive" onclick="auditAction('falsePositive')"><i class="fas fa-bell-slash"></i> 标记误报</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>基于自定义词库与规则引擎 | 集成AI视觉/文档解析服务</footer>
+</div>
+
+<script>
+    // ---------- 全局配置数据 ----------
+    let sensitiveWords = ["色情", "暴力", "恐怖主义", "赌博", "毒品"];   // 默认敏感词
+    let ignoreWords = ["暴力美学"];   // 忽略词
+    let whiteListUsers = ["admin", "teacher_li"];
+    let blackListUsers = ["spammer01", "baduser"];
+    let imageBlacklist = ["badpic.jpg", "illegal.png"];
+
+    // 辅助函数：渲染标签列表
+    function renderSensitiveWords() {
+        const container = document.getElementById('sensitiveWordsList');
+        container.innerHTML = sensitiveWords.map(w => `<span class="tag">${w} <i class="fas fa-times-circle" data-word="${w}" data-type="sensitive"></i></span>`).join('');
+        document.querySelectorAll('#sensitiveWordsList .fa-times-circle').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                const word = icon.getAttribute('data-word');
+                sensitiveWords = sensitiveWords.filter(w => w !== word);
+                renderSensitiveWords();
+            });
+        });
+    }
+    function renderIgnoreWords() {
+        const container = document.getElementById('ignoreWordsList');
+        container.innerHTML = ignoreWords.map(w => `<span class="tag">${w} <i class="fas fa-times-circle" data-word="${w}" data-type="ignore"></i></span>`).join('');
+        document.querySelectorAll('#ignoreWordsList .fa-times-circle').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                const word = icon.getAttribute('data-word');
+                ignoreWords = ignoreWords.filter(w => w !== word);
+                renderIgnoreWords();
+            });
+        });
+    }
+    function renderUserLists() {
+        const whiteContainer = document.getElementById('whiteList');
+        const blackContainer = document.getElementById('blackList');
+        whiteContainer.innerHTML = whiteListUsers.map(u => `<span class="tag">${u} <i class="fas fa-times-circle" data-user="${u}" data-type="white"></i></span>`).join('');
+        blackContainer.innerHTML = blackListUsers.map(u => `<span class="tag">${u} <i class="fas fa-times-circle" data-user="${u}" data-type="black"></i></span>`).join('');
+        document.querySelectorAll('#whiteList .fa-times-circle').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                const user = icon.getAttribute('data-user');
+                whiteListUsers = whiteListUsers.filter(u => u !== user);
+                renderUserLists();
+            });
+        });
+        document.querySelectorAll('#blackList .fa-times-circle').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                const user = icon.getAttribute('data-user');
+                blackListUsers = blackListUsers.filter(u => u !== user);
+                renderUserLists();
+            });
+        });
+    }
+    function renderImageBlacklist() {
+        const container = document.getElementById('imageBlacklist');
+        container.innerHTML = imageBlacklist.map(img => `<span class="tag">${img} <i class="fas fa-times-circle" data-img="${img}"></i></span>`).join('');
+        document.querySelectorAll('#imageBlacklist .fa-times-circle').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                const imgName = icon.getAttribute('data-img');
+                imageBlacklist = imageBlacklist.filter(i => i !== imgName);
+                renderImageBlacklist();
+            });
+        });
+    }
+
+    // 文本检测核心逻辑（基于敏感词和忽略词）
+    function detectText(content) {
+        if (!content.trim()) return { safe: true, message: "内容为空", matched: [] };
+        let lowerContent = content.toLowerCase();
+        let matched = [];
+        // 检测敏感词，排除忽略词
+        for (let word of sensitiveWords) {
+            // 检查忽略词是否出现在内容中影响？实际忽略词如果包含在敏感词中，需要排除
+            let shouldIgnore = false;
+            for (let ignore of ignoreWords) {
+                if (lowerContent.includes(ignore.toLowerCase())) {
+                    // 简单处理：如果忽略词存在且敏感词是忽略词的一部分则豁免，但通常忽略词单独处理
+                    // 这里简化：如果内容包含忽略词，且忽略词完全匹配敏感词则不计入
+                    if (ignore.toLowerCase() === word.toLowerCase()) {
+                        shouldIgnore = true;
+                        break;
+                    }
+                }
+            }
+            if (!shouldIgnore && lowerContent.includes(word.toLowerCase())) {
+                matched.push(word);
+            }
+        }
+        if (matched.length > 0) {
+            return { safe: false, message: `检测到敏感词: ${matched.join(', ')}`, matched };
+        }
+        return { safe: true, message: "文本内容安全", matched: [] };
+    }
+
+    // 模拟图片检测：检查文件名是否在黑名单中，或者内容哈希模拟（这里用文件名模拟）
+    let currentUploadedImageName = null;
+    function detectImage(file) {
+        if (!file) return { safe: true, message: "未上传图片", isDanger: false };
+        const fileName = file.name;
+        currentUploadedImageName = fileName;
+        if (imageBlacklist.includes(fileName)) {
+            return { safe: false, message: `图片 "${fileName}" 位于黑名单中，违规`, isDanger: true };
+        }
+        // 随机模拟（为演示，不真正做视觉检测，但提供可配置性）
+        return { safe: true, message: `图片 "${fileName}" 安全`, isDanger: false };
+    }
+
+    // 文档检测模拟（基于内容文本或文件名）
+    let currentUploadedDocName = null;
+    function detectDocument(file) {
+        if (!file) return { safe: true, message: "未上传文档", isDanger: false };
+        const fileName = file.name;
+        currentUploadedDocName = fileName;
+        // 简单模拟：如果文档名包含敏感词，则警告
+        let lowerName = fileName.toLowerCase();
+        for (let word of sensitiveWords) {
+            if (lowerName.includes(word.toLowerCase())) {
+                return { safe: false, message: `文档名包含敏感词 "${word}"`, isDanger: true };
+            }
+        }
+        return { safe: true, message: `文档 "${fileName}" 安全`, isDanger: false };
+    }
+
+    // 审核资源数据集（模拟）
+    let auditResources = [
+        {
+            id: 1,
+            type: 'text',
+            name: '课程讨论帖：关于暴力游戏的讨论',
+            uploader: 'student_001',
+            uploadTime: '2026-07-27 10:15',
+            status: 'pending',
+            riskLevel: 'high',
+            violations: ['暴力'],
+            preview: '我认为暴力游戏对青少年有很大影响，应该禁止所有暴力内容的游戏发行...',
+            source: '课程讨论区'
+        },
+        {
+            id: 2,
+            type: 'image',
+            name: '课程配图_001.jpg',
+            uploader: 'teacher_wang',
+            uploadTime: '2026-07-27 09:30',
+            status: 'pending',
+            riskLevel: 'medium',
+            violations: ['疑似违规图片'],
+            preview: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=abstract%20art%20pattern&image_size=square',
+            source: '课程资料'
+        },
+        {
+            id: 3,
+            type: 'document',
+            name: '期末论文_赌博行为分析.docx',
+            uploader: 'student_002',
+            uploadTime: '2026-07-27 08:45',
+            status: 'pending',
+            riskLevel: 'high',
+            violations: ['赌博'],
+            preview: '本文通过分析赌博行为的心理机制，探讨赌博成瘾的成因和预防措施...',
+            source: '作业提交'
+        },
+        {
+            id: 4,
+            type: 'course',
+            name: '网络安全与防护',
+            uploader: 'teacher_li',
+            uploadTime: '2026-07-26 16:20',
+            status: 'approved',
+            riskLevel: 'low',
+            violations: [],
+            preview: '课程介绍：本课程介绍网络安全的基本概念、常见攻击手段和防护方法...',
+            source: '课程中心'
+        },
+        {
+            id: 5,
+            type: 'text',
+            name: '评论：色情内容应该被严格管控',
+            uploader: 'student_003',
+            uploadTime: '2026-07-27 11:00',
+            status: 'pending',
+            riskLevel: 'medium',
+            violations: ['色情'],
+            preview: '支持对所有色情内容进行严格审查和管控，保护未成年人健康成长...',
+            source: '社区评论'
+        },
+        {
+            id: 6,
+            type: 'image',
+            name: '实验图片_002.png',
+            uploader: 'student_004',
+            uploadTime: '2026-07-27 10:30',
+            status: 'pending',
+            riskLevel: 'low',
+            violations: [],
+            preview: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=scientific%20experiment%20setup&image_size=square',
+            source: '实验报告'
+        },
+        {
+            id: 7,
+            type: 'document',
+            name: '课程讲义_恐怖主义历史.pdf',
+            uploader: 'teacher_zhang',
+            uploadTime: '2026-07-26 14:15',
+            status: 'ignored',
+            riskLevel: 'medium',
+            violations: ['恐怖主义'],
+            preview: '本讲义介绍恐怖主义的历史演变、组织形式和应对策略...',
+            source: '课程资料'
+        },
+        {
+            id: 8,
+            type: 'course',
+            name: '影视鉴赏与分析',
+            uploader: 'teacher_chen',
+            uploadTime: '2026-07-26 11:00',
+            status: 'pending',
+            riskLevel: 'medium',
+            violations: ['暴力美学'],
+            preview: '课程介绍：分析经典影视作品中的暴力美学表现手法...',
+            source: '课程中心'
+        },
+        {
+            id: 9,
+            type: 'text',
+            name: '作业答案分享',
+            uploader: 'student_005',
+            uploadTime: '2026-07-27 07:30',
+            status: 'rejected',
+            riskLevel: 'high',
+            violations: ['违规内容'],
+            preview: '以下是本次作业的完整答案，请大家参考...',
+            source: '课程讨论区'
+        },
+        {
+            id: 10,
+            type: 'image',
+            name: '课程封面图.jpg',
+            uploader: 'teacher_liu',
+            uploadTime: '2026-07-27 09:00',
+            status: 'pending',
+            riskLevel: 'low',
+            violations: [],
+            preview: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=education%20course%20cover%20design&image_size=landscape_16_9',
+            source: '课程中心'
+        },
+        {
+            id: 11,
+            type: 'document',
+            name: '读书报告_毒品与社会.docx',
+            uploader: 'student_006',
+            uploadTime: '2026-07-27 11:30',
+            status: 'pending',
+            riskLevel: 'high',
+            violations: ['毒品'],
+            preview: '本文分析毒品对社会的危害以及禁毒工作的重要性...',
+            source: '作业提交'
+        },
+        {
+            id: 12,
+            type: 'course',
+            name: '心理学导论',
+            uploader: 'teacher_wu',
+            uploadTime: '2026-07-25 15:00',
+            status: 'approved',
+            riskLevel: 'low',
+            violations: [],
+            preview: '课程介绍：介绍心理学的基本概念、研究方法和主要理论...',
+            source: '课程中心'
+        },
+        {
+            id: 13,
+            type: 'text',
+            name: '讨论：校园暴力问题',
+            uploader: 'student_007',
+            uploadTime: '2026-07-27 12:00',
+            status: 'pending',
+            riskLevel: 'medium',
+            violations: ['暴力'],
+            preview: '最近校园暴力事件频发，我们应该如何预防和应对...',
+            source: '校园论坛'
+        },
+        {
+            id: 14,
+            type: 'image',
+            name: '违规图片_test.png',
+            uploader: 'test_user',
+            uploadTime: '2026-07-27 06:00',
+            status: 'rejected',
+            riskLevel: 'high',
+            violations: ['黑名单图片'],
+            preview: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=warning%20sign%20danger&image_size=square',
+            source: '测试数据'
+        },
+        {
+            id: 15,
+            type: 'document',
+            name: '安全手册.pdf',
+            uploader: 'admin',
+            uploadTime: '2026-07-24 10:00',
+            status: 'approved',
+            riskLevel: 'low',
+            violations: [],
+            preview: '校园安全手册，包含各种安全注意事项和应急处理方法...',
+            source: '公告栏'
+        }
+    ];
+
+    let currentFilter = 'all';
+    let selectedResource = null;
+    let todayAuditedCount = 0;
+    let currentPage = 1;
+    let pageSize = 5;
+
+    // 获取状态标签样式
+    function getStatusClass(status) {
+        const classes = {
+            'pending': 'status-pending',
+            'approved': 'status-approved',
+            'rejected': 'status-rejected',
+            'ignored': 'status-ignored'
+        };
+        return classes[status] || 'status-pending';
+    }
+
+    function getStatusText(status) {
+        const texts = {
+            'pending': '待审核',
+            'approved': '已通过',
+            'rejected': '已驳回',
+            'ignored': '已忽略'
+        };
+        return texts[status] || '待审核';
+    }
+
+    function getRiskClass(riskLevel) {
+        const classes = {
+            'high': 'risk-high',
+            'medium': 'risk-medium',
+            'low': 'risk-low'
+        };
+        return classes[riskLevel] || 'risk-low';
+    }
+
+    function getRiskText(riskLevel) {
+        const texts = {
+            'high': '高危',
+            'medium': '中危',
+            'low': '低危'
+        };
+        return texts[riskLevel] || '低危';
+    }
+
+    function getTypeText(type) {
+        const texts = {
+            'text': '文本',
+            'image': '图片',
+            'document': '文档',
+            'course': '课程'
+        };
+        return texts[type] || '未知';
+    }
+
+    // 渲染资源列表
+    function renderResourceList() {
+        const container = document.getElementById('resourceList');
+        const filtered = currentFilter === 'all' 
+            ? auditResources 
+            : auditResources.filter(r => r.type === currentFilter);
+        
+        // 计算分页
+        const totalItems = filtered.length;
+        const totalPages = Math.ceil(totalItems / pageSize);
+        
+        // 确保当前页在有效范围内
+        if (currentPage > totalPages) {
+            currentPage = totalPages || 1;
+        }
+        
+        // 切片获取当前页数据
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const paginatedResources = filtered.slice(startIndex, endIndex);
+        
+        // 更新分页控件
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        const pageInfo = document.getElementById('pageInfo');
+        
+        prevBtn.disabled = currentPage <= 1;
+        nextBtn.disabled = currentPage >= totalPages;
+        pageInfo.innerText = `${currentPage} / ${totalPages}`;
+        
+        if (filtered.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:40px; color:#a78bfa;">暂无此类资源</div>';
+            return;
+        }
+
+        container.innerHTML = paginatedResources.map(resource => `
+            <div class="resource-item ${selectedResource && selectedResource.id === resource.id ? 'selected' : ''}" onclick="selectResource(${resource.id})">
+                <div class="resource-header">
+                    <span class="resource-name">${escapeHtml(resource.name)}</span>
+                    <span class="resource-type-badge">${getTypeText(resource.type)}</span>
+                </div>
+                <div class="resource-meta">
+                    <span><i class="fas fa-user"></i> ${resource.uploader}</span>
+                    <span><i class="fas fa-clock"></i> ${resource.uploadTime}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="resource-status ${getStatusClass(resource.status)}">${getStatusText(resource.status)}</span>
+                    <span class="risk-level ${getRiskClass(resource.riskLevel)}">${getRiskText(resource.riskLevel)}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // 切换分页
+    function changePage(direction) {
+        const filtered = currentFilter === 'all' 
+            ? auditResources 
+            : auditResources.filter(r => r.type === currentFilter);
+        const totalPages = Math.ceil(filtered.length / pageSize);
+        
+        if (direction === -1 && currentPage > 1) {
+            currentPage--;
+        } else if (direction === 1 && currentPage < totalPages) {
+            currentPage++;
+        }
+        
+        renderResourceList();
+    }
+
+    // 筛选资源
+    function filterResources(type, event) {
+        currentFilter = type;
+        currentPage = 1; // 切换筛选时重置页码
+        document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+        if (event && event.target) {
+            event.target.classList.add('active');
+        }
+        renderResourceList();
+    }
+
+    // 选择资源
+    function selectResource(id) {
+        selectedResource = auditResources.find(r => r.id === id);
+        if (selectedResource) {
+            renderResourceList();
+            renderAuditPanel();
+            document.getElementById('auditActions').style.display = 'flex';
+        }
+    }
+
+    // 渲染审核面板
+    function renderAuditPanel() {
+        if (!selectedResource) return;
+        
+        const resource = selectedResource;
+        const content = document.getElementById('auditContent');
+        
+        // 生成预览内容
+        let previewHtml = '';
+        if (resource.type === 'image') {
+            previewHtml = `<div class="preview-box"><img src="${resource.preview}" alt="图片预览" /></div>`;
+        } else {
+            previewHtml = `<div class="preview-box">${escapeHtml(resource.preview)}</div>`;
+        }
+
+        // 生成违规列表
+        let violationsHtml = '';
+        if (resource.violations.length > 0) {
+            violationsHtml = resource.violations.map(v => `
+                <div class="violation-item">
+                    <div class="violation-text"><i class="fas fa-exclamation-triangle"></i> 检测到敏感内容：${escapeHtml(v)}</div>
+                    <div class="violation-location">来源：${escapeHtml(resource.source)}</div>
+                </div>
+            `).join('');
+        } else {
+            violationsHtml = `
+                <div class="violation-item safe">
+                    <div class="violation-text"><i class="fas fa-check-circle"></i> 未检测到敏感内容</div>
+                </div>
+            `;
+        }
+
+        content.innerHTML = `
+            <div class="audit-detail">
+                <div class="detail-section">
+                    <h4><i class="fas fa-info-circle"></i> 基本信息</h4>
+                    <div class="detail-info">
+                        <p><strong>资源名称：</strong>${escapeHtml(resource.name)}</p>
+                        <p><strong>资源类型：</strong>${getTypeText(resource.type)}</p>
+                        <p><strong>上传者：</strong>${resource.uploader}</p>
+                        <p><strong>上传时间：</strong>${resource.uploadTime}</p>
+                        <p><strong>来源：</strong>${resource.source}</p>
+                        <p><strong>当前状态：</strong><span class="resource-status ${getStatusClass(resource.status)}">${getStatusText(resource.status)}</span></p>
+                        <p><strong>风险等级：</strong><span class="risk-level ${getRiskClass(resource.riskLevel)}">${getRiskText(resource.riskLevel)}</span></p>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4><i class="fas fa-eye"></i> 内容预览</h4>
+                    ${previewHtml}
+                </div>
+
+                <div class="detail-section">
+                    <h4><i class="fas fa-shield-alt"></i> 违规检测结果</h4>
+                    <div class="violation-list">
+                        ${violationsHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // 审核操作
+    function auditAction(action) {
+        if (!selectedResource) return;
+
+        let newStatus = '';
+        let message = '';
+
+        switch(action) {
+            case 'approve':
+                newStatus = 'approved';
+                message = '资源已通过审核';
+                break;
+            case 'reject':
+                newStatus = 'rejected';
+                message = '资源已驳回';
+                break;
+            case 'ignore':
+                newStatus = 'ignored';
+                message = '资源已忽略';
+                break;
+            case 'falsePositive':
+                newStatus = 'approved';
+                message = '已标记为误报并通过';
+                // 添加到忽略词
+                selectedResource.violations.forEach(v => {
+                    if (!ignoreWords.includes(v)) {
+                        ignoreWords.push(v);
+                        renderIgnoreWords();
+                    }
+                });
+                break;
+        }
+
+        selectedResource.status = newStatus;
+        todayAuditedCount++;
+        updateSummary();
+        renderResourceList();
+        renderAuditPanel();
+        alert(message);
+    }
+
+    // 更新摘要统计
+    function updateSummary() {
+        const pending = auditResources.filter(r => r.status === 'pending').length;
+        const highRisk = auditResources.filter(r => r.riskLevel === 'high' && r.status === 'pending').length;
+        const mediumRisk = auditResources.filter(r => r.riskLevel === 'medium' && r.status === 'pending').length;
+
+        document.getElementById('summaryTotal').innerText = pending;
+        document.getElementById('summaryHigh').innerText = highRisk;
+        document.getElementById('summaryMedium').innerText = mediumRisk;
+        document.getElementById('summaryToday').innerText = todayAuditedCount;
+    }
+
+    // 用户风险统计数据（保留用于图表）
+    let riskStats = [
+        { userId: "user001", totalPosts: 120, spamCount: 8, spamRate: 6.7 },
+        { userId: "spammer01", totalPosts: 45, spamCount: 32, spamRate: 71.1 },
+        { userId: "user002", totalPosts: 98, spamCount: 2, spamRate: 2.0 },
+        { userId: "baduser", totalPosts: 33, spamCount: 28, spamRate: 84.8 },
+        { userId: "teacher_li", totalPosts: 210, spamCount: 0, spamRate: 0 },
+        { userId: "user003", totalPosts: 67, spamCount: 5, spamRate: 7.5 }
+    ];
+
+    // 更新风险统计数据（保留作为背景数据）
+    function updateRiskStats() {
+        // 保留空实现，如需显示图表可在此添加
+    }
+
+    // 渲染用户风险图表（保留作为背景数据）
+    let riskChart = null;
+    function renderRiskChart() {
+        // 图表移至摘要区域或移除，这里保留但不显示
+    }
+
+    // HTML转义辅助函数
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/&/g, '&amp;')
+                   .replace(/</g, '&lt;')
+                   .replace(/>/g, '&gt;')
+                   .replace(/"/g, '&quot;')
+                   .replace(/'/g, '&#039;');
+    }
+
+    // 初始化所有事件绑定
+    function bindEvents() {
+        // 添加敏感词
+        document.getElementById('addSensitiveBtn').addEventListener('click', () => {
+            const val = document.getElementById('newSensitiveWord').value.trim();
+            if (val && !sensitiveWords.includes(val)) {
+                sensitiveWords.push(val);
+                renderSensitiveWords();
+                document.getElementById('newSensitiveWord').value = '';
+            }
+        });
+        document.getElementById('addIgnoreBtn').addEventListener('click', () => {
+            const val = document.getElementById('newIgnoreWord').value.trim();
+            if (val && !ignoreWords.includes(val)) {
+                ignoreWords.push(val);
+                renderIgnoreWords();
+                document.getElementById('newIgnoreWord').value = '';
+            }
+        });
+        document.getElementById('addUserBtn').addEventListener('click', () => {
+            const userId = document.getElementById('userIdInput').value.trim();
+            const type = document.getElementById('userListType').value;
+            if (!userId) return;
+            if (type === 'white' && !whiteListUsers.includes(userId)) {
+                whiteListUsers.push(userId);
+                renderUserLists();
+            } else if (type === 'black' && !blackListUsers.includes(userId)) {
+                blackListUsers.push(userId);
+                renderUserLists();
+            }
+            document.getElementById('userIdInput').value = '';
+        });
+        document.getElementById('addImageBtn').addEventListener('click', () => {
+            const imgName = document.getElementById('newImageName').value.trim();
+            if (imgName && !imageBlacklist.includes(imgName)) {
+                imageBlacklist.push(imgName);
+                renderImageBlacklist();
+                document.getElementById('newImageName').value = '';
+            }
+        });
+        // 文本检测
+        document.getElementById('detectTextBtn').addEventListener('click', () => {
+            const text = document.getElementById('textInput').value;
+            const result = detectText(text);
+            const resultDiv = document.getElementById('textResult');
+            if (result.safe) {
+                resultDiv.innerHTML = `<i class="fas fa-check-circle result-safe"></i> ${result.message}`;
+                resultDiv.classList.add('result-safe');
+            } else {
+                resultDiv.innerHTML = `<i class="fas fa-exclamation-triangle result-danger"></i> ${result.message}`;
+                resultDiv.classList.remove('result-safe');
+            }
+        });
+        // 图片上传与检测
+        const imgUpload = document.getElementById('imageUploadArea');
+        const imgInput = document.getElementById('imageFileInput');
+        imgUpload.addEventListener('click', () => imgInput.click());
+        imgInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                const file = e.target.files[0];
+                const result = detectImage(file);
+                document.getElementById('imageResult').innerHTML = result.safe ? `<i class="fas fa-check-circle result-safe"></i> ${result.message}` : `<i class="fas fa-exclamation-triangle result-danger"></i> ${result.message}`;
+            }
+        });
+        document.getElementById('detectImageBtn').addEventListener('click', () => {
+            if (imgInput.files.length) {
+                const file = imgInput.files[0];
+                const result = detectImage(file);
+                document.getElementById('imageResult').innerHTML = result.safe ? `<i class="fas fa-check-circle result-safe"></i> ${result.message}` : `<i class="fas fa-exclamation-triangle result-danger"></i> ${result.message}`;
+            } else {
+                document.getElementById('imageResult').innerHTML = "请先上传图片";
+            }
+        });
+        // 文档上传与检测
+        const docUpload = document.getElementById('docUploadArea');
+        const docInput = document.getElementById('docFileInput');
+        docUpload.addEventListener('click', () => docInput.click());
+        docInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                const file = e.target.files[0];
+                const result = detectDocument(file);
+                document.getElementById('docResult').innerHTML = result.safe ? `<i class="fas fa-check-circle result-safe"></i> ${result.message}` : `<i class="fas fa-exclamation-triangle result-danger"></i> ${result.message}`;
+            }
+        });
+        document.getElementById('detectDocBtn').addEventListener('click', () => {
+            if (docInput.files.length) {
+                const file = docInput.files[0];
+                const result = detectDocument(file);
+                document.getElementById('docResult').innerHTML = result.safe ? `<i class="fas fa-check-circle result-safe"></i> ${result.message}` : `<i class="fas fa-exclamation-triangle result-danger"></i> ${result.message}`;
+            } else {
+                document.getElementById('docResult').innerHTML = "请先上传文档";
+            }
+        });
+    }
+
+    // 初始化页面
+    function init() {
+        renderSensitiveWords();
+        renderIgnoreWords();
+        renderUserLists();
+        renderImageBlacklist();
+        updateRiskStats();
+        renderRiskChart();
+        bindEvents();
+        
+        // 初始化在线审核模块
+        renderResourceList();
+        updateSummary();
+        
+        // 定期更新统计（模拟）
+        setInterval(() => {
+            // 模拟垃圾发布量变化（演示）
+            riskStats = riskStats.map(u => ({
+                ...u,
+                spamCount: Math.max(0, u.spamCount + (Math.random() > 0.7 ? Math.floor(Math.random() * 3) - 1 : 0)),
+                spamRate: u.totalPosts ? ((u.spamCount / u.totalPosts) * 100).toFixed(1) : 0
+            }));
+            updateRiskStats();
+            renderRiskChart();
+        }, 8000);
+    }
+    init();
+</script>
+</body>
+</html>
