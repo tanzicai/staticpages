@@ -1,0 +1,1921 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>慕课制作与教学</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #f5f0ff 0%, #ede7fe 100%);
+            color: #3b0764;
+            height: 100vh;
+            overflow: hidden;
+        }
+        :root {
+            --primary: #a855f7;
+            --primary-light: #ede9fe;
+            --primary-dark: #7c3aed;
+            --primary-gradient: linear-gradient(135deg, #7c3aed, #a855f7);
+            --success: #22c55e;
+            --warning: #f97316;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --gray-50: #faf8ff;
+            --gray-100: #f3eaff;
+            --gray-200: #e9d5ff;
+            --gray-300: #d9c9ff;
+            --gray-400: #a78bfa;
+            --gray-500: #7c4d9e;
+            --gray-600: #4c1d95;
+            --gray-700: #3b0764;
+            --shadow: 0 4px 15px rgba(168, 85, 247, 0.1);
+            --shadow-lg: 0 8px 30px rgba(168, 85, 247, 0.15);
+            --shadow-xl: 0 15px 40px rgba(168, 85, 247, 0.2);
+            --radius: 16px;
+            --radius-lg: 24px;
+            --radius-sm: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+
+        /* ========== 布局 ========== */
+        .app-container { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+
+        /* ========== 左侧导航 ========== */
+        .sidebar {
+            width: 72px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--gray-200);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0 16px;
+            flex-shrink: 0;
+            z-index: 10;
+            border-radius: 0 32px 32px 0;
+            box-shadow: 4px 0 20px rgba(168, 85, 247, 0.08);
+        }
+        .sidebar-logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: var(--primary-light);
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+        }
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            width: 100%;
+            padding: 0 10px;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 0;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--gray-500);
+            font-size: 11px;
+            gap: 6px;
+            border: none;
+            background: transparent;
+            width: 100%;
+            position: relative;
+        }
+        .nav-item i { font-size: 22px; transition: var(--transition); }
+        .nav-item span { font-size: 10px; font-weight: 600; letter-spacing: 0.3px; }
+        .nav-item:hover { background: var(--gray-100); color: var(--gray-700); transform: translateX(4px); }
+        .nav-item.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.15);
+        }
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 0 6px 6px 0;
+        }
+        .nav-item .badge {
+            background: var(--danger);
+            color: #fff;
+            font-size: 9px;
+            border-radius: 50%;
+            padding: 1px 6px;
+            position: absolute;
+            top: 6px;
+            right: 12px;
+            font-weight: 600;
+        }
+        .nav-item .badge.orange { background: var(--warning); }
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid var(--gray-200);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ========== 主内容 ========== */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* ========== 顶部栏 ========== */
+        .topbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 14px 32px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            min-height: 72px;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 16px; }
+        .topbar-left h1 {
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+        .topbar-left .subtitle { font-size: 13px; color: var(--gray-500); font-weight: 400; margin-left: 4px; }
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
+        .topbar-right .date-display {
+            font-size: 13px;
+            color: var(--gray-500);
+            background: var(--gray-100);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 500;
+        }
+        .topbar-right .icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: var(--gray-100);
+            color: var(--gray-600);
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .topbar-right .icon-btn:hover { background: var(--primary-light); color: var(--primary); transform: scale(1.05); }
+        .topbar-right .icon-btn .dot {
+            position: absolute; top: 8px; right: 8px;
+            width: 8px; height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+        .topbar-right .tencent-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 20px;
+            border-radius: 40px;
+            border: 1px solid #0b6bcb;
+            background: #e8f5fe;
+            color: #0b6bcb;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .topbar-right .tencent-btn:hover {
+            background: #0b6bcb;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(11, 107, 203, 0.3);
+        }
+        .topbar-right .avatar {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 16px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+        .topbar-right .avatar:hover { border-color: var(--primary); transform: scale(1.05); }
+
+        /* ========== 页面内容容器 ========== */
+        .page-content { flex: 1; overflow-y: auto; padding: 24px 32px 40px; }
+
+        /* ========== 页面模块 ========== */
+        .page-module { display: none; animation: fadeUp 0.35s ease; }
+        .page-module.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ========== 通用卡片 ========== */
+        .card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            border: 1px solid var(--gray-200);
+            transition: var(--transition);
+            margin-bottom: 20px;
+        }
+        .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .card-header h3 {
+            font-size: 17px; font-weight: 700; color: var(--gray-700);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .card-header h3 i { color: var(--primary); font-size: 18px; }
+        .card-header .action-btn {
+            padding: 8px 18px; border-radius: 40px; border: none;
+            background: var(--primary-light); color: var(--primary);
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: var(--transition);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .card-header .action-btn:hover {
+            background: var(--primary); color: #fff;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+
+        /* ========== 网格布局 ========== */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+        /* ========== 统计卡片 ========== */
+        .stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card {
+            background: #fff; border-radius: var(--radius-lg); padding: 20px;
+            border: 1px solid var(--gray-200); box-shadow: var(--shadow);
+            display: flex; align-items: center; gap: 16px;
+            transition: var(--transition);
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+        .stat-card .icon-circle {
+            width: 48px; height: 48px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0;
+        }
+        .stat-card .icon-circle.purple { background: var(--primary-light); color: var(--primary); }
+        .stat-card .icon-circle.green { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+        .stat-card .icon-circle.orange { background: rgba(249, 115, 22, 0.1); color: var(--warning); }
+        .stat-card .icon-circle.blue { background: rgba(59, 130, 246, 0.1); color: var(--info); }
+        .stat-card .info .number { font-size: 26px; font-weight: 700; color: var(--gray-700); line-height: 1.2; }
+        .stat-card .info .label { font-size: 13px; color: var(--gray-500); margin-top: 4px; }
+
+        /* ========== 快速入口 ========== */
+        .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .quick-action-btn {
+            padding: 18px 16px; border-radius: var(--radius); border: none;
+            cursor: pointer; transition: var(--transition);
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            text-align: center; font-weight: 600; font-size: 13px;
+        }
+        .quick-action-btn.purple { background: var(--primary-light); color: var(--primary); }
+        .quick-action-btn.green { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+        .quick-action-btn.orange { background: rgba(249, 115, 22, 0.1); color: var(--warning); }
+        .quick-action-btn.blue { background: rgba(59, 130, 246, 0.1); color: var(--info); }
+        .quick-action-btn:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+        .quick-action-btn i { font-size: 24px; }
+
+        /* ========== 课表 ========== */
+        .schedule-grid {
+            display: grid; grid-template-columns: 70px repeat(7, 1fr); gap: 2px;
+            background: var(--gray-200); border-radius: var(--radius);
+            overflow: hidden; border: 1px solid var(--gray-200);
+        }
+        .schedule-cell {
+            background: #fff; padding: 8px 4px; min-height: 75px;
+            text-align: center; font-size: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            gap: 4px; transition: var(--transition); position: relative;
+        }
+        .schedule-cell.header {
+            background: var(--gray-100); font-weight: 700;
+            color: var(--gray-600); font-size: 12px; padding: 10px 4px; min-height: 44px;
+        }
+        .schedule-cell.time {
+            background: var(--gray-50); font-weight: 600;
+            color: var(--gray-500); font-size: 11px; min-height: 75px; justify-content: center;
+        }
+        .schedule-cell .course-block {
+            background: var(--primary-light); color: var(--primary);
+            border-radius: 10px; padding: 6px 8px; width: 100%;
+            font-size: 11px; font-weight: 600; cursor: pointer;
+            transition: var(--transition); border: 1px solid transparent;
+            line-height: 1.3; position: relative;
+        }
+        .schedule-cell .course-block:hover {
+            background: var(--primary); color: #fff;
+            transform: scale(1.02); box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+        .schedule-cell .course-block.online { background: rgba(59, 130, 246, 0.1); color: var(--info); }
+        .schedule-cell .course-block.online:hover { background: var(--info); color: #fff; }
+        .schedule-cell .course-block .location { font-size: 9px; opacity: 0.8; font-weight: 400; margin-top: 2px; }
+        .schedule-cell .course-block .live-badge {
+            font-size: 8px; background: var(--danger); color: #fff;
+            border-radius: 10px; padding: 1px 6px; margin-top: 4px;
+            display: inline-block; font-weight: 600; cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+        .schedule-cell .course-block .live-badge:hover { background: #dc2626; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+        /* ========== 慕课制作布局 ========== */
+        .mooc-layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; height: 100%; min-height: 600px; }
+        .mooc-sidebar {
+            background: #fff; border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200); padding: 20px;
+            overflow-y: auto; max-height: 700px;
+        }
+        .mooc-sidebar .unit-item {
+            padding: 14px 16px; border-radius: var(--radius);
+            cursor: pointer; transition: var(--transition);
+            border-left: 4px solid transparent;
+            margin-bottom: 6px; display: flex;
+            align-items: center; justify-content: space-between;
+        }
+        .mooc-sidebar .unit-item:hover { background: var(--gray-50); }
+        .mooc-sidebar .unit-item.active {
+            background: var(--primary-light); border-left-color: var(--primary);
+            color: var(--primary); box-shadow: 0 4px 10px rgba(168, 85, 247, 0.1);
+        }
+        .mooc-sidebar .unit-item .unit-title { font-size: 14px; font-weight: 600; }
+        .mooc-sidebar .unit-item .unit-badge {
+            font-size: 10px; color: var(--gray-400);
+            background: var(--gray-100); padding: 3px 10px; border-radius: 16px;
+        }
+        .mooc-editor {
+            background: #fff; border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200); padding: 24px;
+            display: flex; flex-direction: column;
+        }
+        .mooc-editor .editor-tabs {
+            display: flex; gap: 6px;
+            border-bottom: 2px solid var(--gray-200);
+            padding-bottom: 12px; margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .mooc-editor .editor-tabs .tab-btn {
+            padding: 8px 22px; border: none; background: transparent;
+            font-size: 14px; font-weight: 600; color: var(--gray-500);
+            cursor: pointer; border-radius: 40px;
+            transition: var(--transition);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .mooc-editor .editor-tabs .tab-btn:hover { background: var(--gray-100); color: var(--gray-700); }
+        .mooc-editor .editor-tabs .tab-btn.active {
+            background: var(--primary-light); color: var(--primary);
+            box-shadow: 0 2px 8px rgba(168, 85, 247, 0.15);
+        }
+        .mooc-editor .editor-area {
+            flex: 1; min-height: 350px;
+            border: 1px dashed var(--gray-300);
+            border-radius: var(--radius);
+            padding: 24px; background: var(--gray-50);
+            position: relative; transition: var(--transition);
+            cursor: text;
+        }
+        .mooc-editor .editor-area:focus-within {
+            border-color: var(--primary); background: #fff;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+        }
+        .mooc-editor .editor-toolbar {
+            display: flex; gap: 8px; flex-wrap: wrap;
+            padding: 14px 16px; border-bottom: 1px solid var(--gray-200);
+            margin-bottom: 16px; background: var(--gray-50);
+            border-radius: var(--radius);
+        }
+        .mooc-editor .editor-toolbar .tool-btn {
+            padding: 8px 16px; border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm); background: #fff;
+            font-size: 13px; color: var(--gray-600);
+            cursor: pointer; transition: var(--transition);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .mooc-editor .editor-toolbar .tool-btn:hover {
+            background: var(--primary-light); border-color: var(--primary);
+            color: var(--primary); transform: translateY(-1px);
+        }
+        .mooc-editor .editor-toolbar .tool-btn i { font-size: 15px; }
+
+        /* ========== 课程列表 ========== */
+        .course-list-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px; border-bottom: 1px solid var(--gray-100);
+            transition: var(--transition); border-radius: var(--radius);
+        }
+        .course-list-item:hover { background: var(--gray-50); transform: translateX(4px); }
+        .course-list-item:last-child { border-bottom: none; }
+        .course-list-item .course-info { display: flex; align-items: center; gap: 16px; }
+        .course-list-item .course-info .course-color {
+            width: 14px; height: 44px; border-radius: 8px; flex-shrink: 0;
+        }
+        .course-list-item .course-info .course-name { font-weight: 600; font-size: 15px; color: var(--gray-700); }
+        .course-list-item .course-info .course-meta {
+            font-size: 12px; color: var(--gray-500);
+            display: flex; gap: 14px; margin-top: 4px;
+        }
+        .course-list-item .course-actions { display: flex; gap: 8px; }
+        .course-list-item .course-actions .btn-sm {
+            padding: 6px 14px; border-radius: 20px; border: none;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-sm.primary { background: var(--primary-light); color: var(--primary); }
+        .btn-sm.primary:hover { background: var(--primary); color: #fff; }
+        .btn-sm.success { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+        .btn-sm.success:hover { background: var(--success); color: #fff; }
+        .btn-sm.warning { background: rgba(249, 115, 22, 0.1); color: var(--warning); }
+        .btn-sm.warning:hover { background: var(--warning); color: #fff; }
+        .btn-sm.danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .btn-sm.danger:hover { background: var(--danger); color: #fff; }
+
+        /* ========== 直播卡片 ========== */
+        .live-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .live-card {
+            background: #fff; border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200); padding: 20px;
+            transition: var(--transition); cursor: pointer;
+            overflow: hidden; position: relative;
+        }
+        .live-card:hover { box-shadow: var(--shadow-xl); transform: translateY(-5px); }
+        .live-card .live-thumb {
+            height: 150px; background: var(--primary-gradient);
+            border-radius: var(--radius);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 44px; color: #fff; margin-bottom: 16px;
+            position: relative;
+        }
+        .live-card .live-thumb .live-status {
+            position: absolute; top: 12px; left: 12px;
+            background: var(--danger); color: #fff;
+            font-size: 11px; font-weight: 600;
+            padding: 4px 12px; border-radius: 16px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .live-card .live-thumb .live-status .pulse-dot {
+            width: 8px; height: 8px; background: #fff;
+            border-radius: 50%; animation: pulse 1.5s infinite;
+        }
+        .live-card .live-title { font-weight: 700; font-size: 15px; margin-bottom: 6px; color: var(--gray-700); }
+        .live-card .live-meta {
+            font-size: 12px; color: var(--gray-500);
+            display: flex; gap: 14px; margin-bottom: 12px;
+        }
+        .live-card .live-actions { display: flex; gap: 10px; }
+        .live-card .live-actions .btn-live {
+            padding: 8px 20px; border-radius: 24px; border: none;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: var(--transition); flex: 1;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .btn-live.start { background: var(--primary); color: #fff; }
+        .btn-live.start:hover { background: var(--primary-dark); box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3); }
+        .btn-live.join { background: var(--gray-100); color: var(--gray-600); }
+        .btn-live.join:hover { background: var(--gray-200); }
+
+        /* ========== 模态框 ========== */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(8px);
+            z-index: 1000; align-items: center; justify-content: center;
+            animation: fadeIn 0.25s ease;
+        }
+        .modal-overlay.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-box {
+            background: #fff; border-radius: var(--radius-lg);
+            max-width: 650px; width: 92%; max-height: 85vh;
+            overflow-y: auto; padding: 32px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+            border: 1px solid var(--gray-200);
+        }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-box .modal-title {
+            font-size: 22px; font-weight: 700; margin-bottom: 24px;
+            display: flex; align-items: center; gap: 12px;
+            color: var(--gray-700);
+        }
+        .modal-box .modal-title i { color: var(--primary); font-size: 22px; }
+        .modal-box .form-group { margin-bottom: 18px; }
+        .modal-box .form-group label {
+            display: block; font-size: 14px; font-weight: 600;
+            color: var(--gray-600); margin-bottom: 6px;
+        }
+        .modal-box .form-group input,
+        .modal-box .form-group select,
+        .modal-box .form-group textarea {
+            width: 100%; padding: 12px 16px;
+            border: 1px solid var(--gray-200); border-radius: var(--radius);
+            font-size: 14px; transition: var(--transition);
+            background: #fff; font-family: inherit; color: var(--gray-700);
+        }
+        .modal-box .form-group input:focus,
+        .modal-box .form-group select:focus,
+        .modal-box .form-group textarea:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+        }
+        .modal-box .form-group textarea { resize: vertical; min-height: 80px; }
+        .modal-box .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .modal-box .modal-actions {
+            display: flex; gap: 12px; justify-content: flex-end;
+            margin-top: 24px; padding-top: 20px;
+            border-top: 1px solid var(--gray-200);
+        }
+        .modal-box .modal-actions .btn {
+            padding: 10px 28px; border-radius: 24px; border: none;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: var(--transition);
+        }
+        .modal-box .modal-actions .btn-primary { background: var(--primary); color: #fff; }
+        .modal-box .modal-actions .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+        .modal-box .modal-actions .btn-secondary { background: var(--gray-100); color: var(--gray-600); }
+        .modal-box .modal-actions .btn-secondary:hover { background: var(--gray-200); }
+
+        /* ========== 资源中心 ========== */
+        .resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+        .resource-item {
+            background: #fff; border-radius: var(--radius);
+            border: 1px solid var(--gray-200); padding: 20px;
+            text-align: center; transition: var(--transition);
+            cursor: pointer;
+        }
+        .resource-item:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+        .resource-item .res-icon { font-size: 44px; color: var(--primary); margin-bottom: 12px; }
+        .resource-item .res-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--gray-700); }
+        .resource-item .res-size { font-size: 12px; color: var(--gray-400); }
+        .resource-item .res-status {
+            margin-top: 10px; font-size: 11px; padding: 3px 12px;
+            border-radius: 12px; display: inline-block;
+        }
+        .resource-item .res-status.transcoded { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+        .resource-item .res-status.transcoding { background: rgba(249, 115, 22, 0.1); color: var(--warning); }
+
+        /* ========== Toast 通知 ========== */
+        .toast-container {
+            position: fixed; top: 24px; right: 24px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 12px;
+            max-width: 400px;
+        }
+        .toast {
+            background: var(--gray-700); color: #fff;
+            padding: 16px 20px; border-radius: var(--radius);
+            box-shadow: var(--shadow-xl); font-size: 14px;
+            display: flex; align-items: center; gap: 12px;
+            animation: slideInRight 0.4s ease;
+            transform-origin: right;
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .toast.warning { background: var(--warning); }
+        .toast.info { background: var(--primary); }
+        .toast i { font-size: 18px; }
+        @keyframes slideInRight { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast .toast-close {
+            margin-left: auto; cursor: pointer; opacity: 0.7;
+            transition: var(--transition); background: none;
+            border: none; color: #fff; font-size: 18px;
+        }
+        .toast .toast-close:hover { opacity: 1; }
+
+        /* ========== 上传区 ========== */
+        .upload-zone {
+            border: 2px dashed var(--gray-300); border-radius: var(--radius);
+            padding: 48px 20px; text-align: center;
+            transition: var(--transition); cursor: pointer;
+            background: var(--gray-50);
+        }
+        .upload-zone:hover { border-color: var(--primary); background: var(--primary-light); }
+        .upload-zone i {
+            font-size: 52px; color: var(--gray-400);
+            margin-bottom: 14px; transition: var(--transition);
+        }
+        .upload-zone:hover i { color: var(--primary); transform: scale(1.1); }
+        .upload-zone p { color: var(--gray-600); font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+        .upload-zone .hint { font-size: 13px; color: var(--gray-400); }
+
+        /* ========== 富媒体组件展示 ========== */
+        .editor-content { min-height: 250px; padding: 16px; }
+        .editor-content .media-block {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--primary-light); padding: 8px 20px;
+            border-radius: 24px; font-size: 13px; color: var(--primary);
+            margin: 8px 8px 8px 0;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            cursor: pointer; transition: var(--transition);
+        }
+        .editor-content .media-block:hover {
+            background: var(--primary); color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+        .editor-content .media-block i { font-size: 15px; }
+
+        /* ========== 周次选择 ========== */
+        .week-selector { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+        .week-selector button {
+            padding: 10px 20px; border: 1px solid var(--gray-200);
+            border-radius: 24px; background: #fff; cursor: pointer;
+            font-size: 14px; font-weight: 500;
+            transition: var(--transition); color: var(--gray-600);
+        }
+        .week-selector button:hover {
+            background: var(--primary-light); border-color: var(--primary);
+            color: var(--primary);
+        }
+        .week-selector .week-label { font-weight: 600; font-size: 16px; color: var(--gray-700); }
+
+        /* ========== 腾讯会议标识 ========== */
+        .tencent-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #e8f5fe; color: #0b6bcb;
+            padding: 4px 14px; border-radius: 16px;
+            font-size: 12px; font-weight: 600;
+        }
+        .tencent-badge i { font-size: 14px; }
+
+        /* ========== 进度条 ========== */
+        .progress-bar {
+            height: 6px; background: var(--gray-200);
+            border-radius: 3px; overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-bar .progress-fill {
+            height: 100%; background: var(--primary-gradient);
+            border-radius: 3px; transition: width 0.5s ease;
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 1200px) {
+            .stat-cards { grid-template-columns: repeat(2, 1fr); }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .mooc-layout { grid-template-columns: 1fr; }
+            .live-grid { grid-template-columns: 1fr 1fr; }
+            .quick-actions { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; padding: 12px 0; border-radius: 0 24px 24px 0; }
+            .sidebar .nav-item span { display: none; }
+            .topbar { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+            .topbar-left h1 { font-size: 16px; }
+            .topbar-left .subtitle { display: none; }
+            .topbar-right .date-display { display: none; }
+            .topbar-right .tencent-btn span { display: none; }
+            .page-content { padding: 16px; }
+            .stat-cards { grid-template-columns: 1fr 1fr; }
+            .live-grid { grid-template-columns: 1fr; }
+            .schedule-grid { font-size: 10px; overflow-x: auto; }
+            .schedule-cell { min-height: 55px; padding: 4px 2px; }
+            .schedule-cell .course-block { font-size: 9px; padding: 4px 6px; }
+            .modal-box { padding: 20px; margin: 12px; }
+            .modal-box .form-row { grid-template-columns: 1fr; }
+            .resource-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+            .quick-actions { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .stat-cards { grid-template-columns: 1fr; }
+            .quick-actions { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- ===== 左侧导航 ===== -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-page="dashboard" title="工作台">
+                    <i class="fas fa-th-large"></i>
+                    <span>工作台</span>
+                </button>
+                <button class="nav-item" data-page="mooc" title="慕课制作">
+                    <i class="fas fa-book-open"></i>
+                    <span>慕课制作</span>
+                    <span class="badge">3</span>
+                </button>
+                <button class="nav-item" data-page="courses" title="课程管理">
+                    <i class="fas fa-layer-group"></i>
+                    <span>课程管理</span>
+                </button>
+                <button class="nav-item" data-page="schedule" title="我的课表">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>我的课表</span>
+                </button>
+                <button class="nav-item" data-page="live" title="直播中心">
+                    <i class="fas fa-broadcast"></i>
+                    <span>直播中心</span>
+                    <span class="badge orange">1</span>
+                </button>
+                <button class="nav-item" data-page="resources" title="资源中心">
+                    <i class="fas fa-folder-open"></i>
+                    <span>资源中心</span>
+                </button>
+            </nav>
+            <div class="sidebar-bottom">
+                <button class="nav-item" data-page="settings" title="设置">
+                    <i class="fas fa-cog"></i>
+                    <span>设置</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ===== 主内容 ===== -->
+        <div class="main-content">
+            <!-- ===== 顶部栏 ===== -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1 id="pageTitle">工作台 <span class="subtitle">教师 · 王老师</span></h1>
+                </div>
+                <div class="topbar-right">
+                    <span class="date-display" id="dateDisplay"></span>
+                    <button class="icon-btn" title="通知" onclick="showToast('info', '📬 您有3条未读通知')">
+                        <i class="fas fa-bell"></i>
+                        <span class="dot"></span>
+                    </button>
+                    <button class="tencent-btn" onclick="showToast('success', '✅ 已连接腾讯会议平台')">
+                        <i class="fas fa-video"></i>
+                        <span>腾讯会议</span>
+                    </button>
+                    <div class="avatar" title="王老师">王</div>
+                </div>
+            </header>
+
+            <!-- ===== 页面内容 ===== -->
+            <div class="page-content">
+
+                <!-- =========================== -->
+                <!-- 模块：工作台 (Dashboard)     -->
+                <!-- =========================== -->
+                <section class="page-module active" id="page-dashboard">
+                    <!-- 统计卡片 -->
+                    <div class="stat-cards">
+                        <div class="stat-card">
+                            <div class="icon-circle purple"><i class="fas fa-chalkboard-teacher"></i></div>
+                            <div class="info"><div class="number">6</div><div class="label">我的课程</div></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon-circle green"><i class="fas fa-users"></i></div>
+                            <div class="info"><div class="number">128</div><div class="label">学生总数</div></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon-circle orange"><i class="fas fa-clock"></i></div>
+                            <div class="info"><div class="number">4</div><div class="label">待办事项</div></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon-circle blue"><i class="fas fa-video"></i></div>
+                            <div class="info"><div class="number">2</div><div class="label">今日直播</div></div>
+                        </div>
+                    </div>
+
+                    <!-- 快速入口 & 最近课程 -->
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-bolt"></i> 快速入口</h3>
+                            </div>
+                            <div class="quick-actions">
+                                <button class="quick-action-btn purple" onclick="navigateTo('mooc')">
+                                    <i class="fas fa-pen-fancy"></i> 制作慕课
+                                </button>
+                                <button class="quick-action-btn green" onclick="navigateTo('schedule')">
+                                    <i class="fas fa-calendar-plus"></i> 查看课表
+                                </button>
+                                <button class="quick-action-btn orange" onclick="navigateTo('live')">
+                                    <i class="fas fa-broadcast"></i> 发起直播
+                                </button>
+                                <button class="quick-action-btn blue" onclick="navigateTo('resources')">
+                                    <i class="fas fa-upload"></i> 上传资源
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-clock"></i> 今日课程</h3>
+                                <button class="action-btn" onclick="navigateTo('schedule')">查看全部 →</button>
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:12px;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--gray-50);border-radius:var(--radius);">
+                                    <div>
+                                        <span style="font-weight:600;font-size:14px;">数据结构与算法</span>
+                                        <span style="font-size:12px;color:var(--gray-500);margin-left:12px;">周一 10:00-11:40</span>
+                                    </div>
+                                    <span class="tencent-badge"><i class="fas fa-video"></i> 腾讯会议</span>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--gray-50);border-radius:var(--radius);">
+                                    <div>
+                                        <span style="font-weight:600;font-size:14px;">计算机网络</span>
+                                        <span style="font-size:12px;color:var(--gray-500);margin-left:12px;">周二 14:00-15:40</span>
+                                    </div>
+                                    <span style="font-size:12px;color:var(--gray-500);"><i class="fas fa-map-marker-alt"></i> 教学楼A301</span>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--gray-50);border-radius:var(--radius);">
+                                    <div>
+                                        <span style="font-weight:600;font-size:14px;">数据库系统</span>
+                                        <span style="font-size:12px;color:var(--gray-500);margin-left:12px;">周三 09:00-10:40</span>
+                                    </div>
+                                    <span class="tencent-badge"><i class="fas fa-video"></i> 腾讯会议</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 最近直播 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-video"></i> 最近直播</h3>
+                            <button class="action-btn" onclick="navigateTo('live')">管理直播 →</button>
+                        </div>
+                        <div class="live-grid">
+                            <div class="live-card" onclick="startLive(1)">
+                                <div class="live-thumb">
+                                    <i class="fas fa-video"></i>
+                                    <div class="live-status"><span class="pulse-dot"></span> 直播中</div>
+                                </div>
+                                <div class="live-title">数据结构 · 算法精讲</div>
+                                <div class="live-meta">
+                                    <span>📚 数据结构与算法</span>
+                                    <span>📅 今日 10:00</span>
+                                </div>
+                                <div class="live-actions">
+                                    <button class="btn-live start"><i class="fas fa-play"></i> 加入直播</button>
+                                    <button class="btn-live join"><i class="fas fa-users"></i> 128人</button>
+                                </div>
+                            </div>
+                            <div class="live-card" onclick="openCreateLiveModal()">
+                                <div class="live-thumb">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div class="live-title">创建新直播</div>
+                                <div class="live-meta">
+                                    <span>📚 选择课程</span>
+                                    <span>📅 设置时间</span>
+                                </div>
+                                <div class="live-actions">
+                                    <button class="btn-live start"><i class="fas fa-plus"></i> 创建直播</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- =========================== -->
+                <!-- 模块：慕课制作 (MOOC)        -->
+                <!-- =========================== -->
+                <section class="page-module" id="page-mooc">
+                    <div class="mooc-layout">
+                        <!-- 左侧单元列表 -->
+                        <div class="mooc-sidebar">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                                <h4 style="font-size:16px;font-weight:700;color:var(--gray-700);"><i class="fas fa-list-ul" style="color:var(--primary);margin-right:8px;"></i> 课程单元</h4>
+                                <button class="action-btn" style="padding:6px 14px;font-size:12px;" onclick="showToast('success','✅ 新单元已创建')">
+                                    <i class="fas fa-plus"></i> 添加
+                                </button>
+                            </div>
+                            <div class="unit-item active" data-unit="1" onclick="selectUnit(this)">
+                                <span class="unit-title">📖 第1章 · 基础概念</span>
+                                <span class="unit-badge">3个资源</span>
+                            </div>
+                            <div class="unit-item" data-unit="2" onclick="selectUnit(this)">
+                                <span class="unit-title">📖 第2章 · 核心算法</span>
+                                <span class="unit-badge">5个资源</span>
+                            </div>
+                            <div class="unit-item" data-unit="3" onclick="selectUnit(this)">
+                                <span class="unit-title">📖 第3章 · 高级应用</span>
+                                <span class="unit-badge">2个资源</span>
+                            </div>
+                            <div class="unit-item" data-unit="4" onclick="selectUnit(this)">
+                                <span class="unit-title">📖 第4章 · 项目实战</span>
+                                <span class="unit-badge">4个资源</span>
+                            </div>
+                            <div style="margin-top:16px;padding:16px;background:var(--gray-50);border-radius:var(--radius);border:2px dashed var(--gray-300);text-align:center;font-size:13px;color:var(--gray-500);cursor:pointer;transition:var(--transition);" onclick="showToast('info','📚 拖拽或点击添加新单元')">
+                                <i class="fas fa-plus-circle" style="font-size:24px;margin-bottom:8px;"></i>
+                                <br>拖拽添加单元
+                            </div>
+                        </div>
+
+                        <!-- 右侧编辑器 -->
+                        <div class="mooc-editor">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                                <h4 style="font-size:16px;font-weight:700;color:var(--gray-700);" id="unitTitleDisplay">第1章 · 基础概念</h4>
+                                <div style="display:flex;gap:12px;">
+                                    <span class="tencent-badge"><i class="fas fa-cloud-upload-alt"></i> 自动转码已开启</span>
+                                    <span class="tencent-badge"><i class="fas fa-sync-alt"></i> 云端同步中</span>
+                                </div>
+                            </div>
+
+                            <!-- 多标签页 -->
+                            <div class="editor-tabs" id="editorTabs">
+                                <button class="tab-btn active" data-tab="content" onclick="switchTab(this, 'content')">
+                                    <i class="fas fa-edit"></i> 内容编辑
+                                </button>
+                                <button class="tab-btn" data-tab="video" onclick="switchTab(this, 'video')">
+                                    <i class="fas fa-video"></i> 视频管理
+                                </button>
+                                <button class="tab-btn" data-tab="docs" onclick="switchTab(this, 'docs')">
+                                    <i class="fas fa-file-alt"></i> 文档管理
+                                </button>
+                                <button class="tab-btn" data-tab="preview" onclick="switchTab(this, 'preview')">
+                                    <i class="fas fa-eye"></i> 预览
+                                </button>
+                            </div>
+
+                            <!-- 标签内容 -->
+                            <div id="tabContent">
+                                <!-- 内容编辑 -->
+                                <div class="tab-panel active" id="panel-content">
+                                    <!-- 富媒体工具栏 -->
+                                    <div class="editor-toolbar">
+                                        <button class="tool-btn" onclick="insertMedia('video')"><i class="fas fa-video"></i> 视频</button>
+                                        <button class="tool-btn" onclick="insertMedia('audio')"><i class="fas fa-music"></i> 音频</button>
+                                        <button class="tool-btn" onclick="insertMedia('formula')"><i class="fas fa-square-root-alt"></i> 公式</button>
+                                        <button class="tool-btn" onclick="insertMedia('animation')"><i class="fas fa-play-circle"></i> 动画</button>
+                                        <button class="tool-btn" onclick="insertMedia('image')"><i class="fas fa-image"></i> 图片</button>
+                                        <button class="tool-btn" onclick="insertMedia('code')"><i class="fas fa-code"></i> 代码</button>
+                                        <button class="tool-btn" onclick="showToast('success','✅ 内容已保存')"><i class="fas fa-save"></i> 保存</button>
+                                    </div>
+                                    <!-- 编辑区 -->
+                                    <div class="editor-area" id="richEditor" contenteditable="true">
+                                        <div class="editor-content" id="editorContent">
+                                            <p style="color:var(--gray-500);font-size:14px;">点击编辑内容，或使用工具栏插入富媒体组件...</p>
+                                            <p style="color:var(--gray-500);font-size:13px;margin-top:10px;">
+                                                <span class="media-block"><i class="fas fa-video"></i> 视频：导论</span>
+                                                <span class="media-block"><i class="fas fa-file-alt"></i> 文档：课程大纲</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;">
+                                        <span style="font-size:12px;color:var(--gray-400);"><i class="fas fa-check-circle" style="color:var(--success);"></i> 自动保存已开启</span>
+                                        <span style="font-size:12px;color:var(--gray-400);"><i class="fas fa-clock"></i> 最后编辑: 10:32</span>
+                                        <span style="font-size:12px;color:var(--gray-400);"><i class="fas fa-users"></i> 128名学生已学习</span>
+                                    </div>
+                                </div>
+
+                                <!-- 视频管理 -->
+                                <div class="tab-panel" id="panel-video" style="display:none;">
+                                    <div style="margin-bottom:16px;">
+                                        <div class="upload-zone" onclick="document.getElementById('videoUpload').click();">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <p>点击上传视频</p>
+                                            <div class="hint">支持 MP4, AVI, MOV · 上传后自动转码，支持在线播放</div>
+                                            <input type="file" id="videoUpload" accept="video/*" style="display:none;" onchange="handleUpload(this, 'video')">
+                                        </div>
+                                    </div>
+                                    <div style="display:flex;flex-direction:column;gap:12px;">
+                                        <div style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--gray-50);border-radius:var(--radius);border:1px solid var(--gray-200);">
+                                            <div style="width:100px;height:56px;background:var(--primary-gradient);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;cursor:pointer;transition:var(--transition);" onclick="showToast('success','▶️ 视频开始播放')">
+                                                <i class="fas fa-play-circle"></i>
+                                            </div>
+                                            <div style="flex:1;">
+                                                <div style="font-weight:600;font-size:14px;">导论-课程概述.mp4</div>
+                                                <div style="font-size:12px;color:var(--gray-400);">128 MB · 已转码 · 支持在线播放</div>
+                                                <div class="progress-bar"><div class="progress-fill" style="width:100%;"></div></div>
+                                            </div>
+                                            <button class="btn-sm primary" onclick="showToast('success','▶️ 视频开始播放')"><i class="fas fa-play"></i> 播放</button>
+                                            <button class="btn-sm" style="background:var(--gray-200);color:var(--gray-600);border:none;" onclick="showToast('info','✏️ 视频编辑模式')"><i class="fas fa-edit"></i></button>
+                                        </div>
+                                        <div style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--gray-50);border-radius:var(--radius);border:1px solid var(--gray-200);">
+                                            <div style="width:100px;height:56px;background:rgba(249,115,22,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--warning);font-size:24px;">
+                                                <i class="fas fa-file-video"></i>
+                                            </div>
+                                            <div style="flex:1;">
+                                                <div style="font-weight:600;font-size:14px;">第2章-算法演示.mp4</div>
+                                                <div style="font-size:12px;color:var(--gray-400);">256 MB · 转码中... (68%)</div>
+                                                <div class="progress-bar"><div class="progress-fill" style="width:68%;"></div></div>
+                                            </div>
+                                            <span style="font-size:12px;color:var(--warning);"><i class="fas fa-spinner fa-spin"></i> 转码中</span>
+                                        </div>
+                                        <div style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--gray-50);border-radius:var(--radius);border:1px solid var(--gray-200);">
+                                            <div style="width:100px;height:56px;background:rgba(168,85,247,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:24px;">
+                                                <i class="fas fa-video"></i>
+                                            </div>
+                                            <div style="flex:1;">
+                                                <div style="font-weight:600;font-size:14px;">第3章-案例分析.mp4</div>
+                                                <div style="font-size:12px;color:var(--gray-400);">192 MB · 已转码 · 支持在线播放</div>
+                                                <div class="progress-bar"><div class="progress-fill" style="width:100%;"></div></div>
+                                            </div>
+                                            <button class="btn-sm primary" onclick="showToast('success','▶️ 视频开始播放')"><i class="fas fa-play"></i> 播放</button>
+                                            <button class="btn-sm" style="background:var(--gray-200);color:var(--gray-600);border:none;" onclick="showToast('info','✏️ 视频编辑模式')"><i class="fas fa-edit"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 文档管理 -->
+                                <div class="tab-panel" id="panel-docs" style="display:none;">
+                                    <div style="margin-bottom:16px;">
+                                        <div class="upload-zone" onclick="document.getElementById('docUpload').click();">
+                                            <i class="fas fa-file-upload"></i>
+                                            <p>点击上传文档</p>
+                                            <div class="hint">支持 PDF, Word, PPT, Excel · 上传后自动转码为在线预览格式</div>
+                                            <input type="file" id="docUpload" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" style="display:none;" onchange="handleUpload(this, 'doc')">
+                                        </div>
+                                    </div>
+                                    <div style="display:flex;flex-direction:column;gap:12px;">
+                                        <div style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--gray-50);border-radius:var(--radius);border:1px solid var(--gray-200);">
+                                            <div style="width:100px;height:56px;background:rgba(231,76,60,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#e74c3c;font-size:24px;">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </div>
+                                            <div style="flex:1;">
+                                                <div style="font-weight:600;font-size:14px;">课程大纲.pdf</div>
+                                                <div style="font-size:12px;color:var(--gray-400);">已转码 · 支持在线预览</div>
+                                                <div class="progress-bar"><div class="progress-fill" style="width:100%;"></div></div>
+                                            </div>
+                                            <button class="btn-sm primary" onclick="showToast('success','📄 文档已打开')"><i class="fas fa-eye"></i> 预览</button>
+                                            <button class="btn-sm" style="background:var(--gray-200);color:var(--gray-600);border:none;" onclick="showToast('info','✏️ 文档编辑模式')"><i class="fas fa-edit"></i></button>
+                                        </div>
+                                        <div style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--gray-50);border-radius:var(--radius);border:1px solid var(--gray-200);">
+                                            <div style="width:100px;height:56px;background:rgba(43,87,151,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#2b5797;font-size:24px;">
+                                                <i class="fas fa-file-word"></i>
+                                            </div>
+                                            <div style="flex:1;">
+                                                <div style="font-weight:600;font-size:14px;">第2章-习题.docx</div>
+                                                <div style="font-size:12px;color:var(--gray-400);">已转码 · 支持在线预览</div>
+                                                <div class="progress-bar"><div class="progress-fill" style="width:100%;"></div></div>
+                                            </div>
+                                            <button class="btn-sm primary" onclick="showToast('success','📄 文档已打开')"><i class="fas fa-eye"></i> 预览</button>
+                                            <button class="btn-sm" style="background:var(--gray-200);color:var(--gray-600);border:none;" onclick="showToast('info','✏️ 文档编辑模式')"><i class="fas fa-edit"></i></button>
+                                        </div>
+                                        <div style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--gray-50);border-radius:var(--radius);border:1px solid var(--gray-200);">
+                                            <div style="width:100px;height:56px;background:rgba(34,197,94,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--success);font-size:24px;">
+                                                <i class="fas fa-file-powerpoint"></i>
+                                            </div>
+                                            <div style="flex:1;">
+                                                <div style="font-weight:600;font-size:14px;">第3章-课件.pptx</div>
+                                                <div style="font-size:12px;color:var(--gray-400);">已转码 · 支持在线预览</div>
+                                                <div class="progress-bar"><div class="progress-fill" style="width:100%;"></div></div>
+                                            </div>
+                                            <button class="btn-sm primary" onclick="showToast('success','📄 文档已打开')"><i class="fas fa-eye"></i> 预览</button>
+                                            <button class="btn-sm" style="background:var(--gray-200);color:var(--gray-600);border:none;" onclick="showToast('info','✏️ 文档编辑模式')"><i class="fas fa-edit"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 预览 -->
+                                <div class="tab-panel" id="panel-preview" style="display:none;">
+                                    <div style="background:var(--gray-50);border-radius:var(--radius);padding:24px;min-height:350px;border:1px solid var(--gray-200);">
+                                        <h4 style="margin-bottom:14px;font-weight:700;color:var(--gray-700);">📖 第1章 · 基础概念</h4>
+                                        <p style="color:var(--gray-600);line-height:1.6;font-size:14px;">课程内容预览：本章节包含视频讲解、文档讲义、富文本组件等多种教学资源。学生可以通过在线播放器观看视频课程，查看相关文档资料，并参与互动讨论。</p>
+                                        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;">
+                                            <span class="media-block"><i class="fas fa-video"></i> 视频：导论</span>
+                                            <span class="media-block"><i class="fas fa-file-alt"></i> 文档：课程大纲</span>
+                                            <span class="media-block"><i class="fas fa-square-root-alt"></i> 公式：E=mc²</span>
+                                            <span class="media-block"><i class="fas fa-play-circle"></i> 动画：排序演示</span>
+                                        </div>
+                                        <div style="margin-top:24px;padding:20px;background:#fff;border-radius:var(--radius);border:1px solid var(--gray-200);">
+                                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                                                <span style="font-size:13px;color:var(--gray-500);"><i class="fas fa-check-circle" style="color:var(--success);"></i> 预览模式 · 共 3 个视频，5 个文档</span>
+                                                <span class="tencent-badge"><i class="fas fa-cloud"></i> 云端同步</span>
+                                            </div>
+                                            <div style="display:flex;gap:16px;flex-wrap:wrap;">
+                                                <div style="flex:1;min-width:200px;">
+                                                    <div style="font-size:12px;color:var(--gray-500);margin-bottom:8px;">学习进度</div>
+                                                    <div class="progress-bar"><div class="progress-fill" style="width:68%;"></div></div>
+                                                    <div style="font-size:11px;color:var(--gray-400);margin-top:4px;">68% · 128名学生已学习</div>
+                                                </div>
+                                                <div style="flex:1;min-width:200px;">
+                                                    <div style="font-size:12px;color:var(--gray-500);margin-bottom:8px;">完成率</div>
+                                                    <div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--success);"></div></div>
+                                                    <div style="font-size:11px;color:var(--gray-400);margin-top:4px;">85% · 作业已提交</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- =========================== -->
+                <!-- 模块：课程管理               -->
+                <!-- =========================== -->
+                <section class="page-module" id="page-courses">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+                        <h3 style="font-size:18px;font-weight:700;color:var(--gray-700);"><i class="fas fa-layer-group" style="color:var(--primary);margin-right:8px;"></i> 我的课程</h3>
+                        <button class="action-btn" style="padding:8px 20px;font-size:14px;" onclick="openAddCourseModal()">
+                            <i class="fas fa-plus"></i> 添加课程
+                        </button>
+                    </div>
+
+                    <div class="card" style="padding:0;overflow:hidden;">
+                        <div style="padding:16px 20px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);display:flex;gap:16px;flex-wrap:wrap;">
+                            <span style="font-size:13px;font-weight:600;color:var(--gray-600);"><i class="fas fa-filter"></i> 筛选：</span>
+                            <button class="btn-sm primary" style="background:var(--primary);color:#fff;" onclick="showToast('info','📋 显示全部课程')">全部</button>
+                            <button class="btn-sm" style="background:var(--gray-200);color:var(--gray-600);border:none;" onclick="showToast('info','📋 显示线上课程')">线上</button>
+                            <button class="btn-sm" style="background:var(--gray-200);color:var(--gray-600);border:none;" onclick="showToast('info','📋 显示线下课程')">线下</button>
+                        </div>
+                        <div id="courseList">
+                            <!-- 课程列表由 JS 动态渲染 -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- =========================== -->
+                <!-- 模块：我的课表               -->
+                <!-- =========================== -->
+                <section class="page-module" id="page-schedule">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+                        <h3 style="font-size:18px;font-weight:700;color:var(--gray-700);"><i class="fas fa-calendar-alt" style="color:var(--primary);margin-right:8px;"></i> 个人课表</h3>
+                        <div style="display:flex;gap:10px;align-items:center;">
+                            <span style="font-size:13px;color:var(--gray-500);"><i class="fas fa-sync-alt"></i> 已同步教务数据</span>
+                            <button class="action-btn" onclick="openAddCourseModal()"><i class="fas fa-plus"></i> 手动添加</button>
+                            <button class="action-btn" onclick="showToast('success','✅ 课表已刷新')"><i class="fas fa-redo"></i> 刷新</button>
+                        </div>
+                    </div>
+
+                    <!-- 周次选择 -->
+                    <div class="week-selector">
+                        <button onclick="changeWeek(-1)"><i class="fas fa-chevron-left"></i></button>
+                        <span class="week-label" id="weekLabel">第 5 周 (10月24日 - 10月30日)</span>
+                        <button onclick="changeWeek(1)"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+
+                    <!-- 课表网格 -->
+                    <div class="schedule-grid" id="scheduleGrid">
+                        <!-- 由 JS 动态渲染 -->
+                    </div>
+
+                    <div style="margin-top:16px;display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--gray-500);">
+                        <span><span style="display:inline-block;width:12px;height:12px;background:var(--primary-light);border-radius:4px;vertical-align:middle;margin-right:4px;"></span> 已排课</span>
+                        <span><span style="display:inline-block;width:12px;height:12px;background:var(--danger);border-radius:4px;vertical-align:middle;margin-right:4px;"></span> 直播中</span>
+                        <span><i class="fas fa-map-marker-alt" style="color:var(--gray-400);"></i> 线下 · 教学楼</span>
+                        <span><i class="fas fa-video" style="color:#0b6bcb;"></i> 线上 · 腾讯会议</span>
+                        <span style="cursor:pointer;color:var(--primary);" onclick="showToast('info','🔗 已关联腾讯会议平台')"><i class="fas fa-link"></i> 直连腾讯会议</span>
+                    </div>
+                </section>
+
+                <!-- =========================== -->
+                <!-- 模块：直播中心               -->
+                <!-- =========================== -->
+                <section class="page-module" id="page-live">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+                        <h3 style="font-size:18px;font-weight:700;color:var(--gray-700);"><i class="fas fa-broadcast" style="color:var(--primary);margin-right:8px;"></i> 直播中心</h3>
+                        <div style="display:flex;gap:10px;">
+                            <button class="action-btn" onclick="openCreateLiveModal()"><i class="fas fa-plus"></i> 创建直播</button>
+                            <button class="action-btn" onclick="showToast('success','🔗 已连接腾讯会议')"><i class="fas fa-video"></i> 腾讯会议</button>
+                        </div>
+                    </div>
+
+                    <div class="live-grid" id="liveGrid">
+                        <!-- 由 JS 动态渲染 -->
+                    </div>
+                </section>
+
+                <!-- =========================== -->
+                <!-- 模块：资源中心               -->
+                <!-- =========================== -->
+                <section class="page-module" id="page-resources">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+                        <h3 style="font-size:18px;font-weight:700;color:var(--gray-700);"><i class="fas fa-folder-open" style="color:var(--primary);margin-right:8px;"></i> 资源中心</h3>
+                        <button class="action-btn" onclick="document.getElementById('resUpload').click();"><i class="fas fa-upload"></i> 上传资源</button>
+                        <input type="file" id="resUpload" style="display:none;" multiple onchange="handleUpload(this, 'resource')">
+                    </div>
+
+                    <div class="resource-grid" id="resourceGrid">
+                        <!-- 由 JS 动态渲染 -->
+                    </div>
+                </section>
+
+                <!-- =========================== -->
+                <!-- 模块：设置                   -->
+                <!-- =========================== -->
+                <section class="page-module" id="page-settings">
+                    <div class="card">
+                        <h3 style="font-size:18px;font-weight:700;margin-bottom:16px;color:var(--gray-700);"><i class="fas fa-cog" style="color:var(--primary);margin-right:8px;"></i> 系统设置</h3>
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--gray-100);">
+                                <div><div style="font-weight:600;">自动转码</div><div style="font-size:13px;color:var(--gray-500);">上传视频/文档自动转码为在线播放格式</div></div>
+                                <label style="position:relative;width:48px;height:26px;background:var(--primary);border-radius:13px;cursor:pointer;">
+                                    <input type="checkbox" checked style="opacity:0;width:0;height:0;">
+                                    <span style="position:absolute;top:2px;left:2px;width:22px;height:22px;background:#fff;border-radius:50%;transition:0.3s;"></span>
+                                </label>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--gray-100);">
+                                <div><div style="font-weight:600;">腾讯会议集成</div><div style="font-size:13px;color:var(--gray-500);">直连腾讯会议，一键发起直播</div></div>
+                                <label style="position:relative;width:48px;height:26px;background:var(--primary);border-radius:13px;cursor:pointer;">
+                                    <input type="checkbox" checked style="opacity:0;width:0;height:0;">
+                                    <span style="position:absolute;top:2px;left:2px;width:22px;height:22px;background:#fff;border-radius:50%;transition:0.3s;"></span>
+                                </label>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--gray-100);">
+                                <div><div style="font-weight:600;">教务数据同步</div><div style="font-size:13px;color:var(--gray-500);">自动对接教务系统，展示个人课表</div></div>
+                                <label style="position:relative;width:48px;height:26px;background:var(--primary);border-radius:13px;cursor:pointer;">
+                                    <input type="checkbox" checked style="opacity:0;width:0;height:0;">
+                                    <span style="position:absolute;top:2px;left:2px;width:22px;height:22px;background:#fff;border-radius:50%;transition:0.3s;"></span>
+                                </label>
+                            </div>
+                            <div style="display:flex;gap:12px;padding-top:8px;">
+                                <button class="btn-sm primary" style="padding:10px 28px;background:var(--primary);color:#fff;border:none;border-radius:24px;font-weight:600;cursor:pointer;" onclick="showToast('success','✅ 设置已保存')">保存设置</button>
+                                <button class="btn-sm" style="padding:10px 28px;background:var(--gray-100);color:var(--gray-600);border:none;border-radius:24px;cursor:pointer;" onclick="showToast('info','🔄 正在同步教务数据...')">同步教务</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div><!-- /page-content -->
+        </div><!-- /main-content -->
+    </div><!-- /app-container -->
+
+    <!-- ===== 模态框：添加课程 ===== -->
+    <div class="modal-overlay" id="addCourseModal">
+        <div class="modal-box">
+            <div class="modal-title"><i class="fas fa-plus-circle"></i> 添加课程</div>
+            <div class="form-group">
+                <label>课程名称 *</label>
+                <input type="text" id="courseNameInput" placeholder="输入课程名称" value="新课程">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>授课教师</label>
+                    <input type="text" id="courseTeacherInput" placeholder="教师姓名" value="王老师">
+                </div>
+                <div class="form-group">
+                    <label>课程类型</label>
+                    <select id="courseTypeInput">
+                        <option value="线上">线上 (腾讯会议)</option>
+                        <option value="线下">线下 (教室)</option>
+                        <option value="混合">混合式</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>周次</label>
+                    <select id="courseWeekInput">
+                        <option value="1">第1周</option>
+                        <option value="2">第2周</option>
+                        <option value="3">第3周</option>
+                        <option value="4">第4周</option>
+                        <option value="5" selected>第5周</option>
+                        <option value="6">第6周</option>
+                        <option value="7">第7周</option>
+                        <option value="8">第8周</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>星期</label>
+                    <select id="courseDayInput">
+                        <option value="1">周一</option>
+                        <option value="2">周二</option>
+                        <option value="3">周三</option>
+                        <option value="4">周四</option>
+                        <option value="5">周五</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>开始时间</label>
+                    <input type="time" id="courseStartInput" value="10:00">
+                </div>
+                <div class="form-group">
+                    <label>结束时间</label>
+                    <input type="time" id="courseEndInput" value="11:40">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>地点 / 会议链接</label>
+                <input type="text" id="courseLocationInput" placeholder="教学楼A301 或 腾讯会议链接" value="教学楼A301">
+            </div>
+            <div class="form-group">
+                <label>关联线上课程 (可选)</label>
+                <input type="text" id="courseOnlineInput" placeholder="输入线上课程名称或链接" value="数据结构与算法 (线上)">
+            </div>
+            <div class="form-group">
+                <label>教案备注</label>
+                <textarea id="courseNoteInput" placeholder="输入教案、周次安排等">第5周 · 讲解核心算法</textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('addCourseModal')">取消</button>
+                <button class="btn btn-primary" onclick="confirmAddCourse()"><i class="fas fa-check"></i> 确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 模态框：创建直播 ===== -->
+    <div class="modal-overlay" id="createLiveModal">
+        <div class="modal-box">
+            <div class="modal-title"><i class="fas fa-broadcast"></i> 创建直播</div>
+            <div class="form-group">
+                <label>直播标题 *</label>
+                <input type="text" id="liveTitleInput" placeholder="输入直播标题" value="数据结构与算法 · 直播课">
+            </div>
+            <div class="form-group">
+                <label>关联课程</label>
+                <select id="liveCourseInput">
+                    <option>数据结构与算法</option>
+                    <option>计算机网络</option>
+                    <option>数据库系统</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" id="liveDateInput">
+                </div>
+                <div class="form-group">
+                    <label>时间</label>
+                    <input type="time" id="liveTimeInput" value="14:00">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>平台</label>
+                <select id="livePlatformInput">
+                    <option value="tencent">腾讯会议 (已连接)</option>
+                    <option value="zoom">Zoom</option>
+                    <option value="other">其他</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>直播描述</label>
+                <textarea id="liveDescInput" placeholder="输入直播内容简介">本节课将讲解核心算法，请同学们提前预习。</textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('createLiveModal')">取消</button>
+                <button class="btn btn-primary" onclick="confirmCreateLive()"><i class="fas fa-video"></i> 创建并开启</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Toast 容器 ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ================================================================
+        //  数据
+        // ================================================================
+
+        // 课程数据
+        let courses = [
+            { id: 1, name: '数据结构与算法', teacher: '王老师', type: '线上', week: 5, day: 1, start: '10:00', end: '11:40',
+                location: '腾讯会议 (线上)', online: '数据结构与算法 (线上)', note: '第5周 · 讲解核心算法' },
+            { id: 2, name: '计算机网络', teacher: '王老师', type: '线下', week: 5, day: 2, start: '14:00', end: '15:40',
+                location: '教学楼A301', online: '', note: '第5周 · 网络层协议' },
+            { id: 3, name: '数据库系统', teacher: '王老师', type: '线上', week: 5, day: 3, start: '09:00', end: '10:40',
+                location: '腾讯会议 (线上)', online: '数据库系统 (线上)', note: '第5周 · SQL优化' },
+            { id: 4, name: '操作系统', teacher: '王老师', type: '线下', week: 5, day: 4, start: '08:00', end: '09:40',
+                location: '教学楼B201', online: '', note: '第5周 · 进程管理' },
+            { id: 5, name: '软件工程', teacher: '王老师', type: '混合', week: 5, day: 5, start: '13:00', end: '14:40',
+                location: '教学楼C101 + 腾讯会议', online: '软件工程 (线上)', note: '第5周 · 敏捷开发' },
+        ];
+
+        let courseIdCounter = 6;
+
+        // 直播数据
+        let lives = [
+            { id: 1, title: '数据结构 · 算法精讲', course: '数据结构与算法', date: '2026-10-24', time: '10:00', platform: '腾讯会议',
+                status: 'live', desc: '深入讲解核心算法' },
+            { id: 2, title: '计算机网络 · 网络层', course: '计算机网络', date: '2026-10-25', time: '14:00', platform: '腾讯会议',
+                status: 'upcoming', desc: '网络层协议详解' },
+            { id: 3, title: '数据库 · SQL优化', course: '数据库系统', date: '2026-10-26', time: '09:00', platform: '腾讯会议',
+                status: 'upcoming', desc: 'SQL查询优化技巧' },
+        ];
+
+        // 资源数据
+        let resources = [
+            { id: 1, name: '课程导论.mp4', type: 'video', size: '128 MB', icon: 'fa-video', status: 'transcoded' },
+            { id: 2, name: '课程大纲.pdf', type: 'pdf', size: '2.4 MB', icon: 'fa-file-pdf', status: 'transcoded' },
+            { id: 3, name: '第2章-习题.docx', type: 'doc', size: '1.2 MB', icon: 'fa-file-word', status: 'transcoded' },
+            { id: 4, name: '算法演示.mp4', type: 'video', size: '256 MB', icon: 'fa-video', status: 'transcoding' },
+            { id: 5, name: '实验手册.pdf', type: 'pdf', size: '3.8 MB', icon: 'fa-file-pdf', status: 'transcoded' },
+            { id: 6, name: '课堂PPT.pptx', type: 'ppt', size: '5.6 MB', icon: 'fa-file-powerpoint', status: 'transcoded' },
+            { id: 7, name: '第3章-案例.mp4', type: 'video', size: '192 MB', icon: 'fa-video', status: 'transcoded' },
+            { id: 8, name: '期末复习.pdf', type: 'pdf', size: '4.2 MB', icon: 'fa-file-pdf', status: 'transcoded' },
+        ];
+
+        // ================================================================
+        //  工具函数
+        // ================================================================
+
+        function getWeekDates(weekOffset) {
+            const base = new Date(2026, 9, 24);
+            base.setDate(base.getDate() + (weekOffset * 7));
+            const start = new Date(base);
+            start.setDate(start.getDate() - start.getDay() + 1);
+            const end = new Date(start);
+            end.setDate(end.getDate() + 6);
+            const fmt = (d) => `${d.getMonth()+1}月${d.getDate()}日`;
+            return { start: fmt(start), end: fmt(end), startDate: start };
+        }
+
+        let currentWeekOffset = 0;
+
+        function getDayName(day) {
+            return ['周一', '周二', '周三', '周四', '周五', '周六', '周日'][day - 1] || '';
+        }
+
+        // ================================================================
+        //  导航切换
+        // ================================================================
+
+        const navItems = document.querySelectorAll('.nav-item[data-page]');
+        const modules = {
+            dashboard: document.getElementById('page-dashboard'),
+            mooc: document.getElementById('page-mooc'),
+            courses: document.getElementById('page-courses'),
+            schedule: document.getElementById('page-schedule'),
+            live: document.getElementById('page-live'),
+            resources: document.getElementById('page-resources'),
+            settings: document.getElementById('page-settings'),
+        };
+        const pageTitles = {
+            dashboard: '工作台',
+            mooc: '慕课制作',
+            courses: '课程管理',
+            schedule: '我的课表',
+            live: '直播中心',
+            resources: '资源中心',
+            settings: '系统设置',
+        };
+
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const page = this.dataset.page;
+                navigateTo(page);
+            });
+        });
+
+        function navigateTo(page) {
+            navItems.forEach(n => n.classList.remove('active'));
+            document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
+
+            Object.keys(modules).forEach(key => {
+                modules[key].classList.toggle('active', key === page);
+            });
+
+            document.getElementById('pageTitle').innerHTML =
+                `${pageTitles[page] || page} <span class="subtitle">教师 · 王老师</span>`;
+
+            if (page === 'schedule') renderSchedule();
+            if (page === 'courses') renderCourses();
+            if (page === 'live') renderLives();
+            if (page === 'resources') renderResources();
+
+            document.querySelector('.page-content').scrollTop = 0;
+        }
+
+        // ================================================================
+        //  渲染：课程列表
+        // ================================================================
+
+        function renderCourses() {
+            const container = document.getElementById('courseList');
+            const colors = ['#a855f7', '#22c55e', '#f97316', '#3b82f6', '#ef4444', '#0b6bcb'];
+            container.innerHTML = courses.map((c, i) => `
+                <div class="course-list-item">
+                    <div class="course-info">
+                        <div class="course-color" style="background:${colors[i % colors.length]};"></div>
+                        <div>
+                            <div class="course-name">${c.name}</div>
+                            <div class="course-meta">
+                                <span>👨‍🏫 ${c.teacher}</span>
+                                <span>${c.type}</span>
+                                <span>📍 ${c.location}</span>
+                                <span>📅 第${c.week}周 ${getDayName(c.day)} ${c.start}-${c.end}</span>
+                                ${c.online ? `<span class="tencent-badge"><i class="fas fa-video"></i> 关联: ${c.online}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="course-actions">
+                        <button class="btn-sm primary" onclick="editCourse(${c.id})"><i class="fas fa-edit"></i> 编辑</button>
+                        <button class="btn-sm success" onclick="showToast('success','✅ 已关联线上课程: ${c.online || c.name}')"><i class="fas fa-link"></i> 关联</button>
+                        <button class="btn-sm warning" onclick="showToast('info','📋 教案编辑: ${c.note}')"><i class="fas fa-book"></i> 教案</button>
+                        <button class="btn-sm danger" onclick="deleteCourse(${c.id})"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editCourse(id) {
+            const c = courses.find(x => x.id === id);
+            if (!c) return;
+            document.getElementById('courseNameInput').value = c.name;
+            document.getElementById('courseTeacherInput').value = c.teacher;
+            document.getElementById('courseTypeInput').value = c.type;
+            document.getElementById('courseWeekInput').value = c.week;
+            document.getElementById('courseDayInput').value = c.day;
+            document.getElementById('courseStartInput').value = c.start;
+            document.getElementById('courseEndInput').value = c.end;
+            document.getElementById('courseLocationInput').value = c.location;
+            document.getElementById('courseOnlineInput').value = c.online || '';
+            document.getElementById('courseNoteInput').value = c.note || '';
+            courses = courses.filter(x => x.id !== id);
+            openAddCourseModal();
+            showToast('info', '✏️ 编辑课程: ' + c.name);
+        }
+
+        function deleteCourse(id) {
+            if (confirm('确定要删除该课程吗？')) {
+                courses = courses.filter(c => c.id !== id);
+                renderCourses();
+                renderSchedule();
+                showToast('success', '🗑️ 课程已删除');
+            }
+        }
+
+        // ================================================================
+        //  渲染：课表
+        // ================================================================
+
+        function renderSchedule() {
+            const grid = document.getElementById('scheduleGrid');
+            const weekData = getWeekDates(currentWeekOffset);
+            document.getElementById('weekLabel').textContent =
+                `第 ${5 + currentWeekOffset} 周 (${weekData.start} - ${weekData.end})`;
+
+            const weekNum = 5 + currentWeekOffset;
+            const weekCourses = courses.filter(c => c.week === weekNum);
+
+            let html = `<div class="schedule-cell header">时间</div>`;
+            for (let d = 1; d <= 5; d++) {
+                html += `<div class="schedule-cell header">${getDayName(d)}</div>`;
+            }
+
+            const timeSlots = [
+                '08:00-09:40',
+                '10:00-11:40',
+                '13:00-14:40',
+                '15:00-16:40',
+            ];
+
+            timeSlots.forEach(slot => {
+                const [start, end] = slot.split('-');
+                html += `<div class="schedule-cell time">${slot}</div>`;
+                for (let d = 1; d <= 5; d++) {
+                    const course = weekCourses.find(c => c.day === d && c.start === start && c.end === end);
+                    if (course) {
+                        const isOnline = course.type === '线上' || course.location.includes('腾讯会议');
+                        html += `
+                            <div class="schedule-cell">
+                                <div class="course-block ${isOnline ? 'online' : ''}">
+                                    ${course.name}
+                                    <div class="location">${isOnline ? '💻 线上' : '🏫 线下'} · ${course.location}</div>
+                                    ${isOnline ? `<div class="live-badge" onclick="event.stopPropagation();startLiveFromSchedule('${course.name}')"><i class="fas fa-broadcast"></i> 发起直播</div>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `<div class="schedule-cell"></div>`;
+                    }
+                }
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function changeWeek(delta) {
+            currentWeekOffset += delta;
+            renderSchedule();
+        }
+
+        function startLiveFromSchedule(courseName) {
+            showToast('success', `🎥 已从课表发起直播: ${courseName} (腾讯会议已连接)`);
+            setTimeout(() => navigateTo('live'), 600);
+        }
+
+        // ================================================================
+        //  渲染：直播列表
+        // ================================================================
+
+        function renderLives() {
+            const container = document.getElementById('liveGrid');
+            container.innerHTML = lives.map(l => `
+                <div class="live-card">
+                    <div class="live-thumb">
+                        <i class="fas fa-video"></i>
+                        ${l.status === 'live' ? `<div class="live-status"><span class="pulse-dot"></span> 直播中</div>` : ''}
+                    </div>
+                    <div class="live-title">${l.title}</div>
+                    <div class="live-meta">
+                        <span>📚 ${l.course}</span>
+                        <span>📅 ${l.date} ${l.time}</span>
+                        <span class="tencent-badge"><i class="fas fa-video"></i> ${l.platform}</span>
+                    </div>
+                    <div class="live-actions">
+                        ${l.status === 'live'
+                            ? `<button class="btn-live start" onclick="joinLive(${l.id})"><i class="fas fa-play"></i> 加入直播</button>`
+                            : `<button class="btn-live start" onclick="startLive(${l.id})"><i class="fas fa-broadcast"></i> 发起直播</button>`
+                        }
+                        <button class="btn-live join" onclick="showToast('info','📋 ${l.desc}')"><i class="fas fa-info-circle"></i> 详情</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function startLive(id) {
+            const l = lives.find(x => x.id === id);
+            if (l) {
+                l.status = 'live';
+                showToast('success', `🎥 直播已开启: ${l.title} (腾讯会议已连接)`);
+                renderLives();
+            }
+        }
+
+        function joinLive(id) {
+            const l = lives.find(x => x.id === id);
+            showToast('success', `🔗 正在加入直播: ${l.title} (腾讯会议)`);
+        }
+
+        // ================================================================
+        //  渲染：资源中心
+        // ================================================================
+
+        function renderResources() {
+            const container = document.getElementById('resourceGrid');
+            container.innerHTML = resources.map(r => `
+                <div class="resource-item" onclick="showToast('success','📂 打开: ${r.name}')">
+                    <div class="res-icon"><i class="fas ${r.icon}"></i></div>
+                    <div class="res-name">${r.name}</div>
+                    <div class="res-size">${r.size}</div>
+                    <div class="res-status ${r.status}">${r.status === 'transcoded' ? '✓ 已转码' : '<i class="fas fa-spinner fa-spin"></i> 转码中'}</div>
+                </div>
+            `).join('');
+        }
+
+        // ================================================================
+        //  慕课制作 - 交互
+        // ================================================================
+
+        function selectUnit(el) {
+            document.querySelectorAll('.mooc-sidebar .unit-item').forEach(u => u.classList.remove('active'));
+            el.classList.add('active');
+            const title = el.querySelector('.unit-title')?.textContent || '单元';
+            document.getElementById('unitTitleDisplay').textContent = title;
+            showToast('info', `📖 切换到: ${title}`);
+            document.getElementById('editorContent').innerHTML = `
+                <p style="color:var(--gray-500);font-size:14px;">正在编辑: ${title}</p>
+                <p style="color:var(--gray-500);font-size:13px;margin-top:10px;">
+                    <span class="media-block"><i class="fas fa-video"></i> 视频：${title} 导论</span>
+                    <span class="media-block"><i class="fas fa-file-alt"></i> 文档：${title} 讲义</span>
+                </p>
+            `;
+        }
+
+        function switchTab(btn, tab) {
+            document.querySelectorAll('.editor-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const panels = {
+                content: document.getElementById('panel-content'),
+                video: document.getElementById('panel-video'),
+                docs: document.getElementById('panel-docs'),
+                preview: document.getElementById('panel-preview'),
+            };
+
+            Object.keys(panels).forEach(key => {
+                panels[key].style.display = key === tab ? 'block' : 'none';
+            });
+
+            if (tab === 'video') showToast('info', '🎬 视频上传区 · 支持自动转码');
+            if (tab === 'docs') showToast('info', '📄 文档上传区 · 支持在线预览');
+            if (tab === 'preview') showToast('info', '👀 预览模式');
+        }
+
+        function insertMedia(type) {
+            const editor = document.getElementById('editorContent');
+            const labels = {
+                video: '<span class="media-block"><i class="fas fa-video"></i> 视频组件</span>',
+                audio: '<span class="media-block"><i class="fas fa-music"></i> 音频组件</span>',
+                formula: '<span class="media-block"><i class="fas fa-square-root-alt"></i> 公式: x²+y²=z²</span>',
+                animation: '<span class="media-block"><i class="fas fa-play-circle"></i> 动画组件</span>',
+                image: '<span class="media-block"><i class="fas fa-image"></i> 图片组件</span>',
+                code: '<span class="media-block"><i class="fas fa-code"></i> 代码块</span>',
+            };
+            const placeholder = labels[type] || `<span class="media-block">📎 组件: ${type}</span>`;
+            const current = editor.innerHTML;
+            if (current.includes('点击编辑内容') || current.includes('正在编辑')) {
+                editor.innerHTML = placeholder;
+            } else {
+                editor.innerHTML += ' ' + placeholder;
+            }
+            const names = { video: '视频', audio: '音频', formula: '公式', animation: '动画', image: '图片', code: '代码' };
+            showToast('success', `✅ 已插入 ${names[type] || type} 组件`);
+        }
+
+        function handleUpload(input, type) {
+            if (input.files && input.files.length > 0) {
+                const names = Array.from(input.files).map(f => f.name).join(', ');
+                const typeMap = { video: '🎬 视频', doc: '📄 文档', resource: '📁 资源' };
+                showToast('success', `✅ ${typeMap[type] || '文件'} 上传成功: ${names} (自动转码中)`);
+                if (type === 'resource') {
+                    Array.from(input.files).forEach(f => {
+                        const ext = f.name.split('.').pop().toLowerCase();
+                        const iconMap = {
+                            mp4: 'fa-video', mov: 'fa-video', avi: 'fa-video',
+                            pdf: 'fa-file-pdf', doc: 'fa-file-word', docx: 'fa-file-word',
+                            ppt: 'fa-file-powerpoint', pptx: 'fa-file-powerpoint',
+                            xls: 'fa-file-excel', xlsx: 'fa-file-excel',
+                        };
+                        resources.push({
+                            id: Date.now() + Math.random(),
+                            name: f.name,
+                            type: ext,
+                            size: (f.size / 1024 / 1024).toFixed(1) + ' MB',
+                            icon: iconMap[ext] || 'fa-file',
+                            status: 'transcoding'
+                        });
+                    });
+                    renderResources();
+                }
+                input.value = '';
+            }
+        }
+
+        // ================================================================
+        //  模态框
+        // ================================================================
+
+        function openAddCourseModal() {
+            document.getElementById('addCourseModal').classList.add('active');
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('courseStartInput').value = `${h}:${m}`;
+            document.getElementById('courseEndInput').value = `${String(Number(h)+2).padStart(2,'0')}:${m}`;
+        }
+
+        function openCreateLiveModal() {
+            document.getElementById('createLiveModal').classList.add('active');
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('liveDateInput').value = today;
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        function confirmAddCourse() {
+            const name = document.getElementById('courseNameInput').value.trim() || '未命名课程';
+            const teacher = document.getElementById('courseTeacherInput').value.trim() || '教师';
+            const type = document.getElementById('courseTypeInput').value;
+            const week = parseInt(document.getElementById('courseWeekInput').value);
+            const day = parseInt(document.getElementById('courseDayInput').value);
+            const start = document.getElementById('courseStartInput').value;
+            const end = document.getElementById('courseEndInput').value;
+            const location = document.getElementById('courseLocationInput').value.trim() || '未指定';
+            const online = document.getElementById('courseOnlineInput').value.trim();
+            const note = document.getElementById('courseNoteInput').value.trim() || '';
+
+            const newCourse = {
+                id: courseIdCounter++,
+                name, teacher, type, week, day, start, end, location, online, note
+            };
+
+            courses.push(newCourse);
+            closeModal('addCourseModal');
+            renderCourses();
+            renderSchedule();
+            showToast('success', `✅ 课程 "${name}" 已添加`);
+            document.getElementById('courseNameInput').value = '新课程';
+            document.getElementById('courseNoteInput').value = '';
+        }
+
+        function confirmCreateLive() {
+            const title = document.getElementById('liveTitleInput').value.trim() || '新直播';
+            const course = document.getElementById('liveCourseInput').value;
+            const date = document.getElementById('liveDateInput').value;
+            const time = document.getElementById('liveTimeInput').value || '14:00';
+            const platform = document.getElementById('livePlatformInput').value === 'tencent' ? '腾讯会议' : '其他';
+            const desc = document.getElementById('liveDescInput').value.trim() || '';
+
+            lives.push({
+                id: Date.now(), title, course, date, time, platform, status: 'upcoming', desc
+            });
+
+            closeModal('createLiveModal');
+            renderLives();
+            showToast('success', `🎥 直播 "${title}" 已创建，即将跳转腾讯会议`);
+        }
+
+        // ================================================================
+        //  Toast 通知系统
+        // ================================================================
+
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle',
+            };
+            toast.innerHTML = `
+                <i class="fas ${icons[type] || 'fa-info-circle'}"></i>
+                <span>${message}</span>
+                <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 4500);
+        }
+
+        // ================================================================
+        //  日期显示
+        // ================================================================
+
+        function updateDateDisplay() {
+            const now = new Date();
+            const opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' };
+            document.getElementById('dateDisplay').textContent = now.toLocaleDateString('zh-CN', opts);
+        }
+
+        // ================================================================
+        //  初始化
+        // ================================================================
+
+        function init() {
+            updateDateDisplay();
+            renderCourses();
+            renderSchedule();
+            renderLives();
+            renderResources();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('liveDateInput').value = today;
+            navigateTo('dashboard');
+            console.log('📚 慕课制作与教学平台已加载');
+            console.log('💡 所有功能均可交互，点击试试！');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
+            }
+        });
+
+        window.navigateTo = navigateTo;
+        window.selectUnit = selectUnit;
+        window.switchTab = switchTab;
+        window.insertMedia = insertMedia;
+        window.handleUpload = handleUpload;
+        window.openAddCourseModal = openAddCourseModal;
+        window.openCreateLiveModal = openCreateLiveModal;
+        window.closeModal = closeModal;
+        window.confirmAddCourse = confirmAddCourse;
+        window.confirmCreateLive = confirmCreateLive;
+        window.showToast = showToast;
+        window.changeWeek = changeWeek;
+        window.startLiveFromSchedule = startLiveFromSchedule;
+        window.startLive = startLive;
+        window.joinLive = joinLive;
+        window.editCourse = editCourse;
+        window.deleteCourse = deleteCourse;
+        window.renderCourses = renderCourses;
+        window.renderSchedule = renderSchedule;
+        window.renderLives = renderLives;
+        window.renderResources = renderResources;
+    </script>
+</body>
+</html>
