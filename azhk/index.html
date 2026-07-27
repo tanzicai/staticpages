@@ -1,0 +1,2345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>AI知识库</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f3effc 0%, #e9dfff 100%);
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6c2bd9, #9b4dff);
+            border-radius: 32px;
+            padding: 24px 32px;
+            margin-bottom: 28px;
+            color: white;
+            box-shadow: 0 12px 20px -8px rgba(91, 33, 182, 0.35);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .header h1 {
+            font-size: 1.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+        }
+        .header p {
+            opacity: 0.9;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+        .header-actions {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .header-btn {
+            padding: 10px 24px;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .header-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header-btn.train {
+            background: #f97316;
+            color: white;
+        }
+        .header-btn.slice {
+            background: #4f46e5;
+            color: white;
+        }
+        .header-btn.upload {
+            background: #22c55e;
+            color: white;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(2px);
+            border-radius: 28px;
+            padding: 24px 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9dcff;
+        }
+        .card-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #4c1d95;
+            border-left: 5px solid #a855f7;
+            padding-left: 16px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+        .filter-bar select, .filter-bar input {
+            padding: 10px 20px;
+            border-radius: 40px;
+            border: 1px solid #d9c9ff;
+            background: #fefbff;
+            font-size: 0.9rem;
+        }
+        .filter-bar input {
+            flex: 1;
+            min-width: 200px;
+        }
+        .filter-bar button {
+            background: #8b5cf6;
+            border: none;
+            border-radius: 40px;
+            padding: 10px 24px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .filter-bar .btn-outline {
+            background: transparent;
+            border: 1px solid #a855f7;
+            color: #a855f7;
+            font-weight: 600;
+        }
+        .filter-bar .btn-outline.active {
+            background: #a855f7;
+            color: white;
+        }
+
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 22px;
+            margin-bottom: 24px;
+        }
+        .knowledge-card {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #ede6ff;
+            transition: all 0.25s;
+            position: relative;
+        }
+        .knowledge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        .knowledge-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #4c1d95;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .trained-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.65rem;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            padding: 3px 10px;
+            border-radius: 40px;
+            font-weight: 600;
+        }
+        .knowledge-desc {
+            font-size: 0.8rem;
+            color: #6b21a5;
+            margin-bottom: 14px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .knowledge-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            color: #a78bfa;
+            margin-top: 14px;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .knowledge-meta span {
+            background: #f5f0ff;
+            padding: 4px 10px;
+            border-radius: 40px;
+        }
+        .knowledge-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 40px;
+            border: none;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+        .action-btn.subscribe {
+            background: transparent;
+            border: 1px solid #a855f7;
+            color: #a855f7;
+        }
+        .action-btn.subscribe.subscribed {
+            background: #a855f7;
+            color: white;
+            border: none;
+        }
+        .action-btn.chat {
+            background: #8b5cf6;
+            color: white;
+        }
+        .action-btn.train {
+            background: #f97316;
+            color: white;
+        }
+        .action-btn.slice {
+            background: #4f46e5;
+            color: white;
+        }
+        .action-btn.slice.disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            background: #ede9fe;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 16px;
+            cursor: pointer;
+            color: #4c1d95;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .page-btn:hover {
+            background: #ddd6fe;
+        }
+        .page-btn.active {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #ede9fe;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9f5ff;
+            flex-shrink: 0;
+        }
+        .modal-header h3 {
+            color: #4c1d95;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #ede9fe;
+            display: flex;
+            justify-content: flex-end;
+            gap: 14px;
+            flex-shrink: 0;
+            background: #faf8ff;
+        }
+        .modal-footer .btn {
+            padding: 10px 24px;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .modal-footer .btn:hover {
+            transform: translateY(-1px);
+        }
+        .modal-footer .btn-primary {
+            background: #8b5cf6;
+            color: white;
+        }
+        .modal-footer .btn-secondary {
+            background: #ede9fe;
+            color: #4c1d95;
+        }
+        .modal-footer .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+        .modal-footer .btn-warning {
+            background: #f97316;
+            color: white;
+        }
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a78bfa;
+            padding: 4px 8px;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .close-modal:hover {
+            background: #ede9fe;
+        }
+
+        /* Training Modal - Synced Courses & Literature */
+        .source-tabs {
+            display: flex;
+            background: #f5f0ff;
+            border-radius: 16px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+        .source-tab {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6b21a5;
+            background: transparent;
+            transition: all 0.2s;
+        }
+        .source-tab.active {
+            background: white;
+            color: #8b5cf6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .source-list {
+            max-height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .source-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px;
+            background: #faf8ff;
+            border-radius: 16px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .source-item:hover {
+            background: #f5f0ff;
+        }
+        .source-item.selected {
+            border-color: #a855f7;
+            background: #f5f0ff;
+        }
+        .source-item input[type="checkbox"] {
+            margin-top: 4px;
+            width: 18px;
+            height: 18px;
+            accent-color: #8b5cf6;
+        }
+        .source-info {
+            flex: 1;
+        }
+        .source-title {
+            font-weight: 600;
+            color: #4c1d95;
+            margin-bottom: 4px;
+        }
+        .source-meta {
+            font-size: 0.75rem;
+            color: #a78bfa;
+            display: flex;
+            gap: 12px;
+        }
+        .source-progress {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 40px;
+            margin-top: 8px;
+        }
+        .source-progress.synced {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+        .source-progress.pending {
+            background: rgba(249, 115, 22, 0.1);
+            color: #f97316;
+        }
+
+        /* KB Select */
+        .kb-select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #d9c9ff;
+            background: #fefbff;
+            font-size: 0.9rem;
+            color: #4c1d95;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 10px;
+            background: #ede9fe;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #a855f7);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Training Log */
+        .training-log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 14px;
+            border-radius: 12px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        /* Upload & Slice Modal */
+        .upload-section {
+            background: #faf8ff;
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .upload-area {
+            border: 2px dashed #d9c9ff;
+            border-radius: 16px;
+            padding: 36px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            margin-bottom: 16px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #a855f7;
+            background: #f5f0ff;
+        }
+        .upload-area i {
+            font-size: 3rem;
+            color: #a855f7;
+            margin-bottom: 14px;
+        }
+        .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .file-tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: #ede9fe;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            color: #4c1d95;
+        }
+        .file-tag .remove-file {
+            cursor: pointer;
+            color: #ef4444;
+            font-size: 0.75rem;
+        }
+
+        .slice-rules-section {
+            background: #faf8ff;
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .rule-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .rule-item label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4c1d95;
+        }
+        .rule-item select, .rule-item input {
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid #d9c9ff;
+            background: white;
+            font-size: 0.85rem;
+        }
+        .rule-item input[type="number"] {
+            width: 100%;
+        }
+
+        .preview-section {
+            background: #faf8ff;
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .preview-header h4 {
+            color: #4c1d95;
+            font-size: 1rem;
+        }
+        .preview-slices {
+            max-height: 300px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .preview-slice {
+            background: white;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #ede9fe;
+        }
+        .preview-slice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .preview-slice-index {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #a78bfa;
+            background: #f5f0ff;
+            padding: 3px 10px;
+            border-radius: 40px;
+        }
+        .preview-slice-tags {
+            display: flex;
+            gap: 6px;
+        }
+        .preview-slice-content {
+            font-size: 0.85rem;
+            color: #4c1d95;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Slice Modal - Enlarged */
+        .slice-modal-content {
+            max-width: 1200px;
+            max-height: 92vh;
+        }
+        .slice-modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .slice-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .slice-toolbar-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .slice-toolbar-btn {
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .slice-toolbar-btn:hover {
+            transform: translateY(-1px);
+        }
+        .slice-toolbar-btn.edit-all {
+            background: #f97316;
+            color: white;
+        }
+        .slice-toolbar-btn.export {
+            background: #4f46e5;
+            color: white;
+        }
+        .slice-toolbar-btn.refresh {
+            background: #22c55e;
+            color: white;
+        }
+
+        .slice-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        .stat-item {
+            background: #f9f5ff;
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .stat-item .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4c1d95;
+        }
+        .stat-item .stat-label {
+            font-size: 0.8rem;
+            color: #a78bfa;
+            margin-top: 4px;
+        }
+
+        .slice-search {
+            padding: 12px 20px;
+            border-radius: 40px;
+            border: 1px solid #d9c9ff;
+            background: #fefbff;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        .slice-list-large {
+            max-height: 500px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .slice-item-large {
+            background: #faf8ff;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid #ede9fe;
+            transition: all 0.2s;
+        }
+        .slice-item-large:hover {
+            background: #f5f0ff;
+        }
+        .slice-item-large.editing {
+            background: #f0fdf4;
+            border-color: #86efac;
+        }
+        .slice-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .slice-position {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #a78bfa;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 40px;
+        }
+        .slice-source {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+        .slice-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .slice-action-btn {
+            padding: 6px 12px;
+            border-radius: 40px;
+            border: none;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .slice-action-btn.edit {
+            background: #f97316;
+            color: white;
+        }
+        .slice-action-btn.save {
+            background: #22c55e;
+            color: white;
+        }
+        .slice-action-btn.cancel {
+            background: #ede9fe;
+            color: #4c1d95;
+        }
+        .slice-action-btn.delete {
+            background: #ef4444;
+            color: white;
+        }
+        .slice-content {
+            font-size: 0.9rem;
+            color: #4c1d95;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .slice-content.expanded {
+            display: block;
+            -webkit-line-clamp: unset;
+        }
+        .slice-content-edit {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #d9c9ff;
+            background: white;
+            font-size: 0.9rem;
+            color: #4c1d95;
+            line-height: 1.6;
+            resize: vertical;
+        }
+        .slice-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .slice-tag {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+            border-radius: 40px;
+            font-weight: 500;
+        }
+        .tag-input {
+            padding: 4px 10px;
+            border-radius: 40px;
+            border: 1px solid #d9c9ff;
+            background: white;
+            font-size: 0.75rem;
+            width: 120px;
+        }
+        .add-tag-btn {
+            padding: 4px 10px;
+            border-radius: 40px;
+            border: 1px solid #a855f7;
+            background: transparent;
+            color: #a855f7;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .view-full-btn {
+            font-size: 0.8rem;
+            color: #a855f7;
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        /* Chat Modal */
+        .chat-message {
+            padding: 10px 14px;
+            border-radius: 24px;
+            max-width: 85%;
+            margin-bottom: 12px;
+        }
+        .user-message {
+            background: #8b5cf6;
+            color: white;
+            align-self: flex-end;
+        }
+        .ai-message {
+            background: #ede9fe;
+            color: #4c1d95;
+            align-self: flex-start;
+        }
+        .chat-input-area {
+            display: flex;
+            gap: 14px;
+            padding: 20px;
+            border-top: 1px solid #ede9fe;
+        }
+        .chat-input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 40px;
+            border: 1px solid #d9c9ff;
+            font-size: 0.95rem;
+        }
+        .chat-input-area button {
+            padding: 12px 24px;
+            border-radius: 40px;
+            border: none;
+            background: #8b5cf6;
+            color: white;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .knowledge-grid {
+                grid-template-columns: 1fr;
+            }
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .slice-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .rules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #a78bfa;
+            margin-top: 30px;
+            padding-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <div>
+            <h1><i class="fas fa-database"></i> 公共AI知识库</h1>
+            <p>覆盖多学科领域 · 150+知识库 · 支持订阅、训练与AI对话</p>
+        </div>
+        <div class="header-actions">
+            <button class="header-btn train" onclick="openTrainModal()"><i class="fas fa-sparkles"></i> 训练知识库</button>
+            <button class="header-btn upload" onclick="openUploadSliceModal()"><i class="fas fa-upload"></i> 上传生成切片</button>
+            <button class="header-btn slice" onclick="openSliceModal()"><i class="fas fa-layer-group"></i> 查看切片</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title"><i class="fas fa-filter"></i> 筛选与订阅管理</div>
+        <div class="filter-bar">
+            <select id="disciplineFilter">
+                <option value="all">全部学科</option>
+                <option value="艺术">艺术学科</option>
+                <option value="计算机">计算机科学</option>
+                <option value="数学">数学</option>
+                <option value="物理">物理学</option>
+                <option value="生物">生物学</option>
+                <option value="经济">经济学</option>
+                <option value="教育">教育学</option>
+                <option value="法律">法学</option>
+            </select>
+            <input type="text" id="searchInput" placeholder="搜索知识库名称..." style="flex:1;">
+            <button id="searchBtn"><i class="fas fa-search"></i> 搜索</button>
+            <button id="showSubscribedBtn" class="btn-outline">只显示已订阅</button>
+            <button id="showTrainedBtn" class="btn-outline">只显示已训练</button>
+        </div>
+    </div>
+
+    <div id="knowledgeGrid" class="knowledge-grid"></div>
+    <div id="pagination" class="pagination"></div>
+
+    <footer>共 <span id="totalCount">0</span> 个知识库 | 支持订阅、训练和AI对话</footer>
+</div>
+
+<!-- AI对话模态框 -->
+<div id="chatModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="chatTitle"><i class="fas fa-robot"></i> 与知识库对话</h3>
+            <button class="close-modal" id="closeChatBtn">&times;</button>
+        </div>
+        <div id="chatMessages" class="modal-body"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="输入您的问题...">
+            <button id="sendChatBtn">发送</button>
+        </div>
+    </div>
+</div>
+
+<!-- 训练模态框 -->
+<div id="trainModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-sparkles"></i> 训练知识库</h3>
+            <button class="close-modal" onclick="closeTrainModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div>
+                <label style="font-weight: 600; color: #4c1d95; margin-bottom: 10px; display: block;">选择目标知识库</label>
+                <select id="trainKBSelect" class="kb-select"></select>
+            </div>
+            
+            <div>
+                <label style="font-weight: 600; color: #4c1d95; margin-bottom: 10px; display: block;">选择训练数据源</label>
+                <div class="source-tabs">
+                    <button class="source-tab active" onclick="switchSourceTab('course', event)"><i class="fas fa-book-open"></i> 同步在线课程</button>
+                    <button class="source-tab" onclick="switchSourceTab('literature', event)"><i class="fas fa-library"></i> 对接文献库</button>
+                </div>
+                
+                <div id="courseSourceList" class="source-list"></div>
+                <div id="literatureSourceList" class="source-list" style="display: none;"></div>
+                
+                <div style="margin-top: 16px; font-size: 0.8rem; color: #a78bfa;">
+                    <i class="fas fa-info-circle"></i> 已选择 <span id="selectedSourceCount">0</span> 个数据源
+                </div>
+            </div>
+            
+            <div class="progress-container" id="progressContainer" style="display: none;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="font-size: 0.9rem; font-weight: 600; color: #4c1d95;">训练进度</span>
+                    <span id="progressPercent" style="font-size: 0.9rem; font-weight: 600; color: #8b5cf6;">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div style="margin-top: 14px;">
+                    <label style="font-size: 0.9rem; font-weight: 600; color: #4c1d95; margin-bottom: 8px; display: block;">训练日志</label>
+                    <div id="trainingLog" class="training-log"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="resetTraining()">重置</button>
+            <button class="btn btn-success" id="startTrainBtn" onclick="startTraining()" disabled>开始训练</button>
+        </div>
+    </div>
+</div>
+
+<!-- 文档上传与切片生成模态框 -->
+<div id="uploadSliceModal" class="modal">
+    <div class="modal-content" style="max-width: 900px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-upload"></i> 上传文档生成知识切片</h3>
+            <button class="close-modal" onclick="closeUploadSliceModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="upload-section">
+                <h4 style="font-size: 1rem; color: #4c1d95; margin-bottom: 16px; font-weight: 600;"><i class="fas fa-file-upload"></i> 上传文档</h4>
+                <div class="upload-area" id="uploadArea2" onclick="document.getElementById('fileInput2').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <div style="font-weight: 600; color: #4c1d95; font-size: 1rem;">点击或拖拽上传文件</div>
+                    <div style="font-size: 0.8rem; color: #a78bfa; margin-top: 6px;">支持 .txt、.md、.pdf、.docx 等格式，可多选</div>
+                </div>
+                <input type="file" id="fileInput2" multiple style="display: none;">
+                <div id="fileList2" class="file-list">
+                    <div style="color: #a78bfa;">暂无文件，请上传</div>
+                </div>
+            </div>
+
+            <div class="slice-rules-section">
+                <h4 style="font-size: 1rem; color: #4c1d95; margin-bottom: 16px; font-weight: 600;"><i class="fas fa-sliders-h"></i> 切片规则设置</h4>
+                <div class="rules-grid">
+                    <div class="rule-item">
+                        <label>分片标识符</label>
+                        <select id="sliceDelimiter">
+                            <option value="paragraph">按段落分割</option>
+                            <option value="sentence">按句子分割</option>
+                            <option value="fixed">固定长度</option>
+                            <option value="heading">按标题分割</option>
+                        </select>
+                    </div>
+                    <div class="rule-item">
+                        <label>分片大小（字符）</label>
+                        <input type="number" id="sliceSize" value="300" min="50" max="2000">
+                    </div>
+                    <div class="rule-item">
+                        <label>重叠长度（字符）</label>
+                        <input type="number" id="sliceOverlap" value="50" min="0" max="200">
+                    </div>
+                    <div class="rule-item">
+                        <label>最小切片长度</label>
+                        <input type="number" id="minSliceLength" value="100" min="20" max="500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-header">
+                    <h4><i class="fas fa-eye"></i> 切片预览</h4>
+                    <button class="btn btn-primary" id="generatePreviewBtn" onclick="generatePreview()" disabled>生成预览</button>
+                </div>
+                <div id="previewSlices" class="preview-slices">
+                    <div style="text-align: center; padding: 30px; color: #a78bfa;">上传文件后可预览切片效果</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="resetUpload()">重置</button>
+            <button class="btn btn-primary" id="confirmUploadBtn" onclick="confirmUploadAndSlice()" disabled>确认生成切片</button>
+        </div>
+    </div>
+</div>
+
+<!-- 切片模态框 -->
+<div id="sliceModal" class="modal">
+    <div class="modal-content slice-modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-layer-group"></i> 知识切片 - <span id="sliceKBName"></span></h3>
+            <button class="close-modal" onclick="closeSliceModal()">&times;</button>
+        </div>
+        <div class="modal-body slice-modal-body">
+            <div class="slice-toolbar">
+                <div class="slice-toolbar-left">
+                    <button class="slice-toolbar-btn edit-all" onclick="enterBatchEditMode()"><i class="fas fa-pencil-alt"></i> 批量编辑</button>
+                    <button class="slice-toolbar-btn export" onclick="exportSlices()"><i class="fas fa-download"></i> 导出切片</button>
+                    <button class="slice-toolbar-btn refresh" onclick="refreshSlices()"><i class="fas fa-sync-alt"></i> 刷新</button>
+                </div>
+                <select id="sliceKBSelect" class="kb-select" style="width: auto;" onchange="changeSliceKB()"></select>
+            </div>
+            
+            <div class="slice-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="sliceCount">0</div>
+                    <div class="stat-label">切片总数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="tagCount">0</div>
+                    <div class="stat-label">标签种类</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgLength">0</div>
+                    <div class="stat-label">平均长度</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="editCount">0</div>
+                    <div class="stat-label">已编辑数</div>
+                </div>
+            </div>
+            
+            <input type="text" id="sliceSearchInput" class="slice-search" placeholder="搜索切片内容或标签...">
+            
+            <div id="sliceList" class="slice-list-large">
+                <div style="text-align: center; padding: 60px; color: #a78bfa;">暂无切片，请先训练知识库或上传文档生成切片</div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeSliceModal()">关闭</button>
+            <button class="btn btn-primary" id="saveAllEditsBtn" onclick="saveAllEdits()" style="display: none;">保存所有编辑</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==================== 生成知识库数据 ====================
+    const disciplines = ["艺术", "计算机", "数学", "物理", "生物", "经济", "教育", "法律"];
+    
+    // 更新后的知识库名称 - 更丰富的内容
+    const artNames = [
+        "西方美术史", "中国画技法", "油画创作", "素描基础", "水彩画教程", "书法艺术", "雕塑艺术", 
+        "现代艺术", "后现代艺术", "艺术策展", "数字艺术", "摄影艺术", "动漫设计", "艺术管理",
+        "艺术心理学", "美学原理", "艺术批评", "版画艺术", "陶瓷艺术", "服装设计", "建筑美学",
+        "当代艺术", "艺术治疗", "艺术市场", "艺术传播", "古典艺术", "印象派绘画", "抽象艺术",
+        "表现主义", "装置艺术", "行为艺术", "新媒体艺术", "艺术哲学", "色彩学", "构图原理"
+    ];
+    const computerNames = [
+        "机器学习实战", "深度学习", "自然语言处理", "计算机视觉", "数据结构与算法", 
+        "人工智能导论", "Python编程", "Java核心技术", "前端开发", "云计算", "大数据技术",
+        "区块链技术", "信息安全", "软件工程", "系统架构", "网络编程", "数据库系统",
+        "物联网技术", "边缘计算", "量子计算", "增强现实", "虚拟现实", "人机交互", "软件工程",
+        "程序设计", "软件测试", "代码优化", "分布式系统", "微服务架构", "DevOps"
+    ];
+    const mathNames = [
+        "高等数学", "线性代数", "概率论", "离散数学", "数学分析", "解析几何", "微分方程",
+        "数值分析", "运筹学", "拓扑学", "抽象代数", "泛函分析", "复变函数", "实变函数",
+        "微分几何", "数论", "组合数学", "博弈论", "优化理论", "统计学习", "数学建模",
+        "计算数学", "随机过程", "动力系统", "代数几何", "调和分析", "编码理论", "图论",
+        "数学物理", "应用数学"
+    ];
+    const physicsNames = [
+        "经典力学", "电动力学", "量子力学", "热力学", "固体物理", "原子物理", "核物理",
+        "粒子物理", "宇宙学", "相对论", "光学", "声学", "凝聚态物理", "计算物理",
+        "生物物理", "等离子体物理", "非线性物理", "量子信息", "材料物理", "天体物理",
+        "统计物理", "理论物理", "实验物理", "流体力学", "力学基础", "热学", "电磁学",
+        "近代物理", "物理实验"
+    ];
+    const bioNames = [
+        "分子生物学", "细胞生物学", "遗传学", "进化生物学", "生态学", "生理学", "发育生物学",
+        "神经生物学", "微生物学", "生物化学", "生物信息学", "结构生物学", "系统生物学",
+        "合成生物学", "植物学", "动物学", "免疫学", "癌症生物学", "生物统计学", "生物物理学",
+        "基因组学", "蛋白质组学", "代谢组学", "生物工程", "生物技术", "生物医学", "分子遗传学",
+        "细胞遗传学", "生态系统", "生物多样性"
+    ];
+    const econNames = [
+        "微观经济学", "宏观经济学", "计量经济学", "国际经济学", "发展经济学", "劳动经济学",
+        "公共经济学", "产业组织", "行为经济学", "金融学", "货币银行学", "财政学", "博弈论",
+        "制度经济学", "环境经济学", "能源经济学", "农业经济学", "城市经济学", "区域经济学",
+        "经济思想史", "国际贸易", "投资学", "风险管理", "经济增长", "经济周期", "数理经济学",
+        "经济政策", "金融市场", "公司金融", "经济计量"
+    ];
+    const eduNames = [
+        "教育心理学", "课程与教学论", "教育管理学", "学前教育", "特殊教育", "高等教育学",
+        "教育技术学", "教育评价", "教育政策", "比较教育", "教育史", "德育原理", "教育哲学",
+        "教育社会学", "教师教育", "学习科学", "教育测量", "教育统计学", "教育法学", "学校管理",
+        "教育信息化", "教育领导力", "教育研究方法", "教育公平", "教育改革", "素质教育", "终身教育",
+        "教育人类学", "教育经济学", "教育生态学"
+    ];
+    const lawNames = [
+        "宪法学", "民法学", "刑法学", "行政法学", "经济法学", "国际法", "诉讼法学", "知识产权法",
+        "商法", "劳动法", "环境法", "税法", "公司法", "合同法", "侵权责任法", "婚姻家庭法",
+        "继承法", "刑法分论", "刑事诉讼法", "民事诉讼法", "行政诉讼法", "法律史", "法理学",
+        "法律社会学", "法律经济学", "国际私法", "国际经济法", "海商法", "保险法", "证券法"
+    ];
+
+    function getIntroduction(name, discipline) {
+        const intros = {
+            "艺术": `${name}是艺术领域的重要分支，涵盖${name}的历史发展、核心技法、经典作品与当代创新。通过学习，您可以掌握${name}的基本原理，提升审美能力与创作水平。`,
+            "计算机": `${name}是计算机科学的核心内容，涉及${name}的基本概念、算法实现、应用场景与前沿趋势。本知识库提供从入门到精通的系统化学习路径。`,
+            "数学": `${name}是数学的基础分支，包含${name}的公理体系、定理证明、计算方法与实际应用。适合数学专业学生及科研人员深入学习。`,
+            "物理": `${name}是物理学的关键领域，讲述${name}的基本定律、实验现象、数学描述与工程应用。帮助学习者建立物理思维。`,
+            "生物": `${name}是生命科学的重要部分，介绍${name}的细胞机制、遗传规律、生态关系与现代生物技术进展。`,
+            "经济": `${name}是经济学的经典理论，分析${name}的基本原理、市场机制、政策效应与经济模型。`,
+            "教育": `${name}是教育学的核心内容，探讨${name}的理论基础、实践方法、政策研究与教育创新。`,
+            "法律": `${name}是法学的重要领域，涵盖${name}的法律体系、条文解析、案例分析与司法实践。`
+        };
+        return intros[discipline] || `${name}是${discipline}领域的重要知识内容。`;
+    }
+
+    // 生成模拟切片数据
+    function generateMockSlices(kbName, discipline) {
+        const slices = [];
+        const sliceCount = Math.floor(Math.random() * 4) + 4; // 4-7个切片
+        
+        for (let i = 0; i < sliceCount; i++) {
+            let content = "";
+            let tags = [];
+            
+            const intros = {
+                "艺术": `${kbName}的第${i+1}章内容：艺术创作的核心要素包括色彩、构图、线条和质感。色彩是表达情感的重要手段，不同的色彩组合可以传达不同的情绪。构图则决定了画面的平衡与美感，常见的构图方式有对称式、三角形、对角线等。线条作为绘画的基础，既能勾勒轮廓，也能表现物体的质感和动态。艺术创作需要不断练习和探索，通过分析经典作品可以提升创作能力。`,
+                "计算机": `${kbName}的第${i+1}章内容：${kbName}是计算机科学领域的核心技术之一。其基本原理是通过构建算法模型，让计算机能够从数据中学习规律并做出预测。关键概念包括数据预处理、特征提取、模型训练和评估。常用的方法有监督学习、无监督学习和强化学习。`,
+                "数学": `${kbName}的第${i+1}章内容：${kbName}研究的是数学领域的基本理论和方法。核心概念包括基础定义、定理证明、计算方法和实际应用。这些概念是数学建模和科学计算的基础，对于理解自然现象和解决实际问题具有重要意义。`,
+                "物理": `${kbName}的第${i+1}章内容：${kbName}是物理学的重要分支，研究物质的基本性质和运动规律。核心理论包括基本定律、实验验证和数学描述。物理学的发展推动了现代科技的进步，从量子计算到宇宙探索都离不开物理学的支撑。`,
+                "生物": `${kbName}的第${i+1}章内容：${kbName}研究生命的基本结构和功能。核心概念包括细胞机制、遗传规律、生态关系和进化过程。现代生物技术的发展为疾病治疗、农业改良和环境保护提供了新的方法。`,
+                "经济": `${kbName}的第${i+1}章内容：${kbName}分析经济现象和市场行为。核心理论包括供需关系、市场结构、政策效应和经济增长。理解经济学原理对于制定商业决策和公共政策具有重要指导意义。`,
+                "教育": `${kbName}的第${i+1}章内容：${kbName}探讨教育现象和教学规律。核心概念包括学习理论、教学方法、教育评价和教育管理。教育研究致力于提升教育质量和促进教育公平。`,
+                "法律": `${kbName}的第${i+1}章内容：${kbName}研究法律规范和法律实践。核心概念包括法律体系、权利义务、法律责任和司法程序。法律知识对于维护社会秩序和保障公民权利至关重要。`
+            };
+            
+            content = intros[discipline] || `${kbName}的第${i+1}章内容：${kbName}是${discipline}领域的重要知识内容。`;
+            
+            const tagSets = {
+                "艺术": ["艺术理论", "创作技法", "色彩学", "构图", "艺术史", "经典作品"],
+                "计算机": ["人工智能", "算法", "编程", "数据科学", "软件开发", "技术原理"],
+                "数学": ["数学基础", "理论", "计算方法", "应用", "证明", "模型"],
+                "物理": ["物理学", "定律", "公式", "实验", "理论", "应用"],
+                "生物": ["生命科学", "细胞", "基因", "实验技术", "进化", "生态"],
+                "经济": ["经济学", "市场", "政策", "理论", "模型", "数据分析"],
+                "教育": ["教育学", "教学", "学习", "教育管理", "课程", "评估"],
+                "法律": ["法学", "法规", "案例", "司法", "权利", "责任"]
+            };
+            
+            const availableTags = tagSets[discipline] || ["知识", "理论", "应用", "实践"];
+            tags = availableTags.slice(0, Math.floor(Math.random() * 3) + 2);
+            
+            slices.push({
+                id: Date.now() + i,
+                content: content,
+                position: `第${i+1}章`,
+                tags: tags,
+                length: content.length,
+                source: `${kbName}_教材_第${i+1}章.pdf`,
+                sourceType: "course",
+                edited: false
+            });
+        }
+        
+        return slices;
+    }
+
+    let knowledgeBases = [];
+    let idCounter = 1;
+
+    // 生成各学科知识库（每个学科约20个，总计约160个）
+    const namePools = {
+        "艺术": artNames, "计算机": computerNames, "数学": mathNames, "物理": physicsNames,
+        "生物": bioNames, "经济": econNames, "教育": eduNames, "法律": lawNames
+    };
+
+    disciplines.forEach(disc => {
+        const pool = namePools[disc];
+        const count = Math.min(pool.length, 20);
+        for (let i = 0; i < count; i++) {
+            const name = pool[i];
+            const trained = i < 6; // 前6个预置为已训练
+            knowledgeBases.push({
+                id: idCounter++,
+                name: name,
+                discipline: disc,
+                description: `深入讲解${name}的理论与实践，包含经典案例和前沿动态。`,
+                subscribed: false,
+                introduction: getIntroduction(name, disc),
+                trained: trained,
+                slices: trained ? generateMockSlices(name, disc) : [],
+                sliceConfig: {
+                    delimiter: "paragraph",
+                    chunkSize: 300,
+                    overlap: 50,
+                    minLength: 100
+                }
+            });
+        }
+    });
+
+    console.log(`最终知识库数量: ${knowledgeBases.length}, 已训练: ${knowledgeBases.filter(k => k.trained).length}`);
+
+    // ==================== 同步课程数据（25本课程相关书籍）====================
+    const courseBooks = [
+        { id: 1, name: "艺术概论", author: "王宏建", type: "艺术", progress: "已同步", chapters: 12 },
+        { id: 2, name: "西方美术史", author: "贡布里希", type: "艺术", progress: "已同步", chapters: 18 },
+        { id: 3, name: "中国美术史", author: "中央美院", type: "艺术", progress: "已同步", chapters: 15 },
+        { id: 4, name: "设计心理学", author: "唐纳德·诺曼", type: "艺术", progress: "已同步", chapters: 8 },
+        { id: 5, name: "色彩构成", author: "伊顿", type: "艺术", progress: "已同步", chapters: 10 },
+        { id: 6, name: "机器学习", author: "周志华", type: "计算机", progress: "已同步", chapters: 16 },
+        { id: 7, name: "深度学习", author: "Goodfellow", type: "计算机", progress: "已同步", chapters: 20 },
+        { id: 8, name: "算法导论", author: "CLRS", type: "计算机", progress: "已同步", chapters: 28 },
+        { id: 9, name: "数据结构", author: "严蔚敏", type: "计算机", progress: "已同步", chapters: 12 },
+        { id: 10, name: "操作系统", author: "汤小丹", type: "计算机", progress: "已同步", chapters: 10 },
+        { id: 11, name: "高等数学", author: "同济大学", type: "数学", progress: "已同步", chapters: 12 },
+        { id: 12, name: "线性代数", author: "同济大学", type: "数学", progress: "已同步", chapters: 6 },
+        { id: 13, name: "概率论", author: "浙大", type: "数学", progress: "已同步", chapters: 8 },
+        { id: 14, name: "数学分析", author: "华东师大", type: "数学", progress: "已同步", chapters: 20 },
+        { id: 15, name: "量子力学", author: "曾谨言", type: "物理", progress: "已同步", chapters: 16 },
+        { id: 16, name: "经典力学", author: "Goldstein", type: "物理", progress: "已同步", chapters: 13 },
+        { id: 17, name: "电动力学", author: "郭硕鸿", type: "物理", progress: "已同步", chapters: 10 },
+        { id: 18, name: "热力学", author: "汪志诚", type: "物理", progress: "已同步", chapters: 10 },
+        { id: 19, name: "分子生物学", author: "Watson", type: "生物", progress: "已同步", chapters: 20 },
+        { id: 20, name: "细胞生物学", author: "翟中和", type: "生物", progress: "已同步", chapters: 16 },
+        { id: 21, name: "微观经济学", author: "曼昆", type: "经济", progress: "已同步", chapters: 18 },
+        { id: 22, name: "宏观经济学", author: "曼昆", type: "经济", progress: "已同步", chapters: 12 },
+        { id: 23, name: "计量经济学", author: "李子奈", type: "经济", progress: "已同步", chapters: 14 },
+        { id: 24, name: "教育心理学", author: "陈琦", type: "教育", progress: "已同步", chapters: 15 },
+        { id: 25, name: "宪法学", author: "周叶中", type: "法律", progress: "已同步", chapters: 12 }
+    ];
+
+    // 对接文献库数据
+    const literatureDocs = [
+        { id: 101, title: "深度学习在图像识别中的应用研究", authors: "张明等", journal: "计算机学报", year: "2024", type: "计算机", cited: 125 },
+        { id: 102, title: "Transformer架构的演进与优化", authors: "李华等", journal: "人工智能学报", year: "2024", cited: 98 },
+        { id: 103, title: "艺术治疗对心理健康的影响研究", authors: "王芳等", journal: "心理学报", year: "2024", cited: 67 },
+        { id: 104, title: "量子计算的前沿进展与应用前景", authors: "陈强等", journal: "物理学报", year: "2024", cited: 156 },
+        { id: 105, title: "基因编辑技术CRISPR的最新研究", authors: "刘洋等", journal: "自然科学进展", year: "2024", cited: 234 },
+        { id: 106, title: "数字经济时代的金融创新", authors: "赵伟等", journal: "经济研究", year: "2024", cited: 178 },
+        { id: 107, title: "人工智能教育应用的现状与展望", authors: "孙丽等", journal: "教育研究", year: "2024", cited: 112 },
+        { id: 108, title: "数据隐私保护法律框架研究", authors: "周明等", journal: "法学研究", year: "2024", cited: 89 },
+        { id: 109, title: "机器学习算法的可解释性研究", authors: "吴刚等", journal: "软件学报", year: "2023", cited: 167 },
+        { id: 110, title: "艺术与科技融合的创新路径", authors: "郑艺等", journal: "艺术评论", year: "2023", cited: 76 },
+        { id: 111, title: "新型冠状病毒的分子机制", authors: "王磊等", journal: "科学通报", year: "2023", cited: 312 },
+        { id: 112, title: "碳中和背景下的经济转型", authors: "钱进等", journal: "管理世界", year: "2023", cited: 198 },
+        { id: 113, title: "教育数字化转型的理论与实践", authors: "林静等", journal: "中国教育学刊", year: "2023", cited: 145 },
+        { id: 114, title: "区块链技术在司法领域的应用", authors: "黄勇等", journal: "政法论坛", year: "2023", cited: 123 },
+        { id: 115, title: "大语言模型的技术原理与应用", authors: "周伟等", journal: "计算机研究与发展", year: "2023", cited: 256 }
+    ];
+
+    // ==================== 数据持久化 ====================
+    function loadData() {
+        const stored = localStorage.getItem("knowledgeBases_data");
+        if (stored) {
+            const storedData = JSON.parse(stored);
+            storedData.forEach(storedKB => {
+                const kb = knowledgeBases.find(k => k.id === storedKB.id);
+                if (kb) {
+                    kb.subscribed = storedKB.subscribed;
+                    kb.trained = storedKB.trained;
+                    kb.slices = storedKB.slices || [];
+                    kb.sliceConfig = storedKB.sliceConfig || kb.sliceConfig;
+                }
+            });
+        }
+    }
+
+    function saveData() {
+        const dataToSave = knowledgeBases.map(kb => ({
+            id: kb.id,
+            subscribed: kb.subscribed,
+            trained: kb.trained,
+            slices: kb.slices,
+            sliceConfig: kb.sliceConfig
+        }));
+        localStorage.setItem("knowledgeBases_data", JSON.stringify(dataToSave));
+    }
+
+    loadData();
+
+    // ==================== 筛选与分页 ====================
+    let currentFilter = { discipline: "all", keyword: "", onlySubscribed: false, onlyTrained: false };
+    let currentPage = 1;
+    const itemsPerPage = 24;
+    let filteredList = [...knowledgeBases];
+
+    function updateFilteredList() {
+        let result = [...knowledgeBases];
+        if (currentFilter.discipline !== "all") {
+            result = result.filter(kb => kb.discipline === currentFilter.discipline);
+        }
+        if (currentFilter.keyword.trim()) {
+            const kw = currentFilter.keyword.trim().toLowerCase();
+            result = result.filter(kb => kb.name.toLowerCase().includes(kw));
+        }
+        if (currentFilter.onlySubscribed) {
+            result = result.filter(kb => kb.subscribed);
+        }
+        if (currentFilter.onlyTrained) {
+            result = result.filter(kb => kb.trained);
+        }
+        filteredList = result;
+        currentPage = 1;
+        renderGrid();
+        renderPagination();
+        document.getElementById('totalCount').innerText = filteredList.length;
+    }
+
+    function renderGrid() {
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageItems = filteredList.slice(start, end);
+        const grid = document.getElementById('knowledgeGrid');
+        if (pageItems.length === 0) {
+            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px; color:#a78bfa;">暂无知识库，请调整筛选条件</div>';
+            return;
+        }
+        grid.innerHTML = '';
+        pageItems.forEach(kb => {
+            const card = document.createElement('div');
+            card.className = 'knowledge-card';
+            card.innerHTML = `
+                <div class="knowledge-title">
+                    <span>${escapeHtml(kb.name)}</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        ${kb.trained ? '<span class="trained-badge"><i class="fas fa-check-circle"></i>已训练</span>' : ''}
+                        <span style="font-size:0.7rem; background:#ede9fe; padding:3px 10px; border-radius:40px; color:#6b21a5;">${kb.discipline}</span>
+                    </div>
+                </div>
+                <div class="knowledge-desc">${escapeHtml(kb.description)}</div>
+                <div class="knowledge-meta">
+                    <span><i class="fas fa-file-alt"></i> ${kb.slices.length} 切片</span>
+                    <span><i class="fas fa-calendar"></i> 最新更新</span>
+                </div>
+                <div class="knowledge-actions">
+                    <button class="action-btn subscribe ${kb.subscribed ? 'subscribed' : ''}" data-id="${kb.id}">${kb.subscribed ? '已订阅' : '+ 订阅'}</button>
+                    <button class="action-btn chat" data-id="${kb.id}" data-name="${escapeAttr(kb.name)}"><i class="fas fa-comment-dots"></i> AI对话</button>
+                    <button class="action-btn train" data-id="${kb.id}" data-name="${escapeAttr(kb.name)}"><i class="fas fa-sparkles"></i> 训练</button>
+                    <button class="action-btn slice ${kb.trained ? '' : 'disabled'}" data-id="${kb.id}" data-name="${escapeAttr(kb.name)}" ${!kb.trained ? 'disabled' : ''}><i class="fas fa-layer-group"></i> 切片</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+        // 绑定订阅按钮事件
+        document.querySelectorAll('.action-btn.subscribe').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                const kb = knowledgeBases.find(k => k.id === id);
+                if (kb) {
+                    kb.subscribed = !kb.subscribed;
+                    saveData();
+                    updateFilteredList();
+                }
+            });
+        });
+        // 绑定AI对话按钮事件
+        document.querySelectorAll('.action-btn.chat').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                const name = btn.getAttribute('data-name');
+                openChat(id, name);
+            });
+        });
+        // 绑定训练按钮事件
+        document.querySelectorAll('.action-btn.train').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                openTrainModal(id);
+            });
+        });
+        // 绑定切片按钮事件
+        document.querySelectorAll('.action-btn.slice').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                openSliceModal(id);
+            });
+        });
+    }
+
+    function renderPagination() {
+        const totalPages = Math.ceil(filteredList.length / itemsPerPage);
+        const paginationDiv = document.getElementById('pagination');
+        if (totalPages <= 1) {
+            paginationDiv.innerHTML = '';
+            return;
+        }
+        let html = '';
+        if (currentPage > 1) html += `<button class="page-btn" data-page="${currentPage-1}"><i class="fas fa-chevron-left"></i></button>`;
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+        for (let i = startPage; i <= endPage; i++) {
+            html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+        }
+        if (currentPage < totalPages) html += `<button class="page-btn" data-page="${currentPage+1}"><i class="fas fa-chevron-right"></i></button>`;
+        paginationDiv.innerHTML = html;
+        document.querySelectorAll('.page-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const page = parseInt(btn.getAttribute('data-page'));
+                if (!isNaN(page)) {
+                    currentPage = page;
+                    renderGrid();
+                    renderPagination();
+                }
+            });
+        });
+    }
+
+    // ==================== AI对话功能 ====================
+    let currentChatKB = null;
+    let chatMessages = [];
+    function openChat(kbId, kbName) {
+        currentChatKB = knowledgeBases.find(k => k.id === kbId);
+        if (!currentChatKB) return;
+        document.getElementById('chatTitle').innerHTML = `<i class="fas fa-robot"></i> 与「${escapeHtml(currentChatKB.name)}」对话`;
+        chatMessages = [];
+        renderChatMessages();
+        document.getElementById('chatModal').style.display = 'flex';
+        addAIMessage(`您好！我是「${currentChatKB.name}」的AI助手。您可以向我提问关于${currentChatKB.discipline}领域的问题，例如"什么是${currentChatKB.name}？"我会为您详细解答。`);
+    }
+    function renderChatMessages() {
+        const container = document.getElementById('chatMessages');
+        container.innerHTML = '';
+        chatMessages.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = `chat-message ${msg.role === 'user' ? 'user-message' : 'ai-message'}`;
+            div.innerHTML = msg.content;
+            container.appendChild(div);
+        });
+        container.scrollTop = container.scrollHeight;
+    }
+    function addUserMessage(content) {
+        chatMessages.push({ role: 'user', content: content });
+        renderChatMessages();
+    }
+    function addAIMessage(content) {
+        chatMessages.push({ role: 'ai', content: content });
+        renderChatMessages();
+    }
+    function getAIResponse(userMsg) {
+        if (!currentChatKB) return "请先选择一个知识库。";
+        const kb = currentChatKB;
+        const lowerMsg = userMsg.toLowerCase();
+        const conceptKeywords = ["是什么", "什么是", "定义", "概念", "含义", "介绍", "简介", "基本概念", "介绍一下"];
+        if (conceptKeywords.some(kw => lowerMsg.includes(kw))) {
+            return `「${kb.name}」的基本概念：\n\n${kb.introduction}`;
+        }
+        if (kb.discipline === "艺术") {
+            return `关于「${kb.name}」的更多内容，您可以查看知识库中的"技法详解"、"经典作品"、"创作指导"等模块。您也可以询问具体技法或艺术家。`;
+        } else if (kb.discipline === "计算机") {
+            return `「${kb.name}」在计算机领域非常重要。知识库中包含基础理论、算法实现、应用案例。需要我详细讲解某个算法吗？`;
+        } else if (kb.discipline === "数学") {
+            return `「${kb.name}」是数学的重要分支。知识库从公理体系到高级应用均有系统讲解。您可以追问具体定理或证明过程。`;
+        } else {
+            return `「${kb.name}」知识库为您整理了该领域的核心知识体系。您可以询问具体的研究方法或应用场景。`;
+        }
+    }
+    function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if (!msg) return;
+        addUserMessage(msg);
+        input.value = '';
+        setTimeout(() => {
+            const reply = getAIResponse(msg);
+            addAIMessage(reply);
+        }, 400);
+    }
+    function closeChatModal() {
+        document.getElementById('chatModal').style.display = 'none';
+        currentChatKB = null;
+        chatMessages = [];
+    }
+
+    // ==================== 训练功能 ====================
+    let selectedSources = [];
+    let currentTrainKB = null;
+    let currentSourceTab = 'course';
+
+    function openTrainModal(kbId) {
+        const select = document.getElementById('trainKBSelect');
+        select.innerHTML = '';
+        knowledgeBases.forEach(kb => {
+            const option = document.createElement('option');
+            option.value = kb.id;
+            option.textContent = kb.name;
+            select.appendChild(option);
+        });
+        
+        if (kbId) {
+            select.value = kbId;
+            currentTrainKB = knowledgeBases.find(k => k.id === kbId);
+        } else {
+            currentTrainKB = knowledgeBases[0];
+        }
+        
+        resetTraining();
+        renderSourceLists();
+        document.getElementById('trainModal').style.display = 'flex';
+    }
+
+    function closeTrainModal() {
+        document.getElementById('trainModal').style.display = 'none';
+        selectedSources = [];
+        currentTrainKB = null;
+    }
+
+    function resetTraining() {
+        selectedSources = [];
+        document.getElementById('progressContainer').style.display = 'none';
+        document.getElementById('startTrainBtn').disabled = true;
+        document.getElementById('startTrainBtn').textContent = '开始训练';
+        document.getElementById('progressFill').style.width = '0%';
+        document.getElementById('progressPercent').textContent = '0%';
+        document.getElementById('trainingLog').textContent = '';
+        document.getElementById('selectedSourceCount').textContent = '0';
+        renderSourceLists();
+    }
+
+    function switchSourceTab(tab, event) {
+        currentSourceTab = tab;
+        document.querySelectorAll('.source-tab').forEach(t => t.classList.remove('active'));
+        if (event && event.target) {
+            event.target.classList.add('active');
+        } else {
+            document.querySelector(`.source-tab[onclick*="${tab}"]`)?.classList.add('active');
+        }
+        document.getElementById('courseSourceList').style.display = tab === 'course' ? 'flex' : 'none';
+        document.getElementById('literatureSourceList').style.display = tab === 'literature' ? 'flex' : 'none';
+    }
+
+    function renderSourceLists() {
+        renderCourseSourceList();
+        renderLiteratureSourceList();
+    }
+
+    function renderCourseSourceList() {
+        const list = document.getElementById('courseSourceList');
+        list.innerHTML = '';
+        courseBooks.forEach(book => {
+            const isSelected = selectedSources.some(s => s.id === book.id && s.type === 'course');
+            const item = document.createElement('div');
+            item.className = `source-item ${isSelected ? 'selected' : ''}`;
+            item.innerHTML = `
+                <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleSourceSelection('course', ${book.id})">
+                <div class="source-info">
+                    <div class="source-title">${escapeHtml(book.name)}</div>
+                    <div class="source-meta">
+                        <span><i class="fas fa-user"></i> ${escapeHtml(book.author)}</span>
+                        <span><i class="fas fa-book-open"></i> ${book.chapters}章</span>
+                        <span><i class="fas fa-tag"></i> ${book.type}</span>
+                    </div>
+                    <div class="source-progress ${book.progress === '已同步' ? 'synced' : 'pending'}">${book.progress}</div>
+                </div>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    function renderLiteratureSourceList() {
+        const list = document.getElementById('literatureSourceList');
+        list.innerHTML = '';
+        literatureDocs.forEach(doc => {
+            const isSelected = selectedSources.some(s => s.id === doc.id && s.type === 'literature');
+            const item = document.createElement('div');
+            item.className = `source-item ${isSelected ? 'selected' : ''}`;
+            item.innerHTML = `
+                <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleSourceSelection('literature', ${doc.id})">
+                <div class="source-info">
+                    <div class="source-title">${escapeHtml(doc.title)}</div>
+                    <div class="source-meta">
+                        <span><i class="fas fa-user"></i> ${escapeHtml(doc.authors)}</span>
+                        <span><i class="fas fa-newspaper"></i> ${escapeHtml(doc.journal)}</span>
+                        <span><i class="fas fa-calendar"></i> ${doc.year}</span>
+                    </div>
+                    <div class="source-progress synced">引用 ${doc.cited} 次</div>
+                </div>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    function toggleSourceSelection(type, id) {
+        const index = selectedSources.findIndex(s => s.id === id && s.type === type);
+        if (index >= 0) {
+            selectedSources.splice(index, 1);
+        } else {
+            if (type === 'course') {
+                const book = courseBooks.find(b => b.id === id);
+                if (book) selectedSources.push({ id, type, data: book });
+            } else {
+                const doc = literatureDocs.find(d => d.id === id);
+                if (doc) selectedSources.push({ id, type, data: doc });
+            }
+        }
+        document.getElementById('selectedSourceCount').textContent = selectedSources.length;
+        document.getElementById('startTrainBtn').disabled = selectedSources.length === 0;
+        renderSourceLists();
+    }
+
+    function startTraining() {
+        const kbId = parseInt(document.getElementById('trainKBSelect').value);
+        currentTrainKB = knowledgeBases.find(k => k.id === kbId);
+        if (!currentTrainKB || selectedSources.length === 0) return;
+
+        document.getElementById('startTrainBtn').disabled = true;
+        document.getElementById('startTrainBtn').textContent = '训练中...';
+        document.getElementById('progressContainer').style.display = 'block';
+        
+        const log = document.getElementById('trainingLog');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        
+        log.textContent = '';
+        progressFill.style.width = '0%';
+        progressPercent.textContent = '0%';
+
+        let totalProgress = 0;
+        const sourceProgress = 100 / selectedSources.length;
+
+        function logMessage(msg) {
+            log.textContent += msg + '\n';
+            log.scrollTop = log.scrollHeight;
+        }
+
+        logMessage('开始训练知识库：' + currentTrainKB.name);
+        logMessage('待处理数据源数：' + selectedSources.length);
+        logMessage('='.repeat(50));
+
+        currentTrainKB.slices = [];
+
+        function processSource(index) {
+            if (index >= selectedSources.length) {
+                currentTrainKB.trained = true;
+                saveData();
+                logMessage('');
+                logMessage('训练完成！');
+                logMessage('生成切片数：' + currentTrainKB.slices.length);
+                logMessage('='.repeat(50));
+                progressFill.style.width = '100%';
+                progressPercent.textContent = '100%';
+                document.getElementById('startTrainBtn').textContent = '训练完成';
+                updateFilteredList();
+                return;
+            }
+
+            const source = selectedSources[index];
+            logMessage('');
+            logMessage('[' + (index + 1) + '/' + selectedSources.length + '] 正在处理：' + (source.type === 'course' ? source.data.name : source.data.title));
+
+            setTimeout(() => {
+                const slices = generateSlicesFromSource(source, currentTrainKB.discipline);
+                currentTrainKB.slices = [...currentTrainKB.slices, ...slices];
+                
+                logMessage('  生成切片数：' + slices.length);
+                logMessage('  处理完成');
+
+                totalProgress += sourceProgress;
+                progressFill.style.width = totalProgress + '%';
+                progressPercent.textContent = Math.round(totalProgress) + '%';
+
+                processSource(index + 1);
+            }, 500);
+        }
+
+        processSource(0);
+    }
+
+    function generateSlicesFromSource(source, discipline) {
+        const slices = [];
+        const sliceCount = Math.floor(Math.random() * 3) + 3;
+        const sourceName = source.type === 'course' ? source.data.name : source.data.title;
+        
+        for (let i = 0; i < sliceCount; i++) {
+            const content = `${sourceName}的第${i+1}部分内容：这是从${source.type === 'course' ? '同步在线课程' : '对接文献库'}获取的知识内容。${discipline}领域的核心知识包括理论基础、实践应用和前沿研究。通过学习这些内容，可以深入理解${discipline}领域的关键概念和方法论。`;
+            
+            const tagSets = {
+                "艺术": ["艺术理论", "创作技法", "艺术史", "经典作品"],
+                "计算机": ["人工智能", "算法", "编程", "数据科学"],
+                "数学": ["数学基础", "理论", "计算方法", "应用"],
+                "物理": ["物理学", "定律", "公式", "实验"],
+                "生物": ["生命科学", "细胞", "基因", "实验技术"],
+                "经济": ["经济学", "市场", "政策", "理论"],
+                "教育": ["教育学", "教学", "学习", "教育管理"],
+                "法律": ["法学", "法规", "案例", "司法"]
+            };
+            
+            const availableTags = tagSets[discipline] || ["知识", "理论", "应用"];
+            const tags = availableTags.slice(0, Math.floor(Math.random() * 2) + 2);
+            
+            slices.push({
+                id: Date.now() + i,
+                content: content,
+                position: `第${i+1}部分`,
+                tags: tags,
+                length: content.length,
+                source: `${sourceName}_${i+1}.pdf`,
+                sourceType: source.type,
+                edited: false
+            });
+        }
+        
+        return slices;
+    }
+
+    // ==================== 文档上传与切片生成功能 ====================
+    let uploadFiles = [];
+    let previewSlices = [];
+    let pendingKBForUpload = null;
+
+    function openUploadSliceModal() {
+        resetUpload();
+        document.getElementById('uploadSliceModal').style.display = 'flex';
+    }
+
+    function closeUploadSliceModal() {
+        document.getElementById('uploadSliceModal').style.display = 'none';
+        uploadFiles = [];
+        previewSlices = [];
+    }
+
+    function resetUpload() {
+        uploadFiles = [];
+        previewSlices = [];
+        document.getElementById('fileList2').innerHTML = '<div style="color: #a78bfa;">暂无文件，请上传</div>';
+        document.getElementById('previewSlices').innerHTML = '<div style="text-align: center; padding: 30px; color: #a78bfa;">上传文件后可预览切片效果</div>';
+        document.getElementById('generatePreviewBtn').disabled = true;
+        document.getElementById('confirmUploadBtn').disabled = true;
+    }
+
+    // 文件上传处理
+    const uploadArea2 = document.getElementById('uploadArea2');
+    const fileInput2 = document.getElementById('fileInput2');
+
+    uploadArea2.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea2.classList.add('dragover');
+    });
+
+    uploadArea2.addEventListener('dragleave', () => {
+        uploadArea2.classList.remove('dragover');
+    });
+
+    uploadArea2.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea2.classList.remove('dragover');
+        const files = Array.from(e.dataTransfer.files);
+        uploadFiles = [...uploadFiles, ...files];
+        renderUploadFileList();
+    });
+
+    fileInput2.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        uploadFiles = [...uploadFiles, ...files];
+        renderUploadFileList();
+        e.target.value = '';
+    });
+
+    function renderUploadFileList() {
+        const list = document.getElementById('fileList2');
+        if (uploadFiles.length === 0) {
+            list.innerHTML = '<div style="color: #a78bfa;">暂无文件，请上传</div>';
+            return;
+        }
+        list.innerHTML = '';
+        uploadFiles.forEach((file, index) => {
+            const tag = document.createElement('div');
+            tag.className = 'file-tag';
+            tag.innerHTML = `
+                <span>${file.name}</span>
+                <span class="remove-file" onclick="removeUploadFile(${index})"><i class="fas fa-times"></i></span>
+            `;
+            list.appendChild(tag);
+        });
+        document.getElementById('generatePreviewBtn').disabled = false;
+    }
+
+    function removeUploadFile(index) {
+        uploadFiles.splice(index, 1);
+        renderUploadFileList();
+        if (uploadFiles.length === 0) {
+            document.getElementById('confirmUploadBtn').disabled = true;
+        }
+    }
+
+    function generatePreview() {
+        const delimiter = document.getElementById('sliceDelimiter').value;
+        const sliceSize = parseInt(document.getElementById('sliceSize').value);
+        const overlap = parseInt(document.getElementById('sliceOverlap').value);
+        const minLength = parseInt(document.getElementById('minSliceLength').value);
+
+        previewSlices = [];
+        
+        uploadFiles.forEach((file, fileIndex) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                const slices = generateSlicesWithRules(content, file.name, fileIndex, delimiter, sliceSize, overlap, minLength);
+                previewSlices = [...previewSlices, ...slices];
+                renderPreview();
+                document.getElementById('confirmUploadBtn').disabled = previewSlices.length === 0;
+            };
+            reader.readAsText(file);
+        });
+    }
+
+    function generateSlicesWithRules(text, filename, fileIndex, delimiter, chunkSize, overlap, minLength) {
+        const slices = [];
+        const tags = ["核心概念", "理论基础", "应用实践", "案例分析", "关键公式", "实验方法"];
+        
+        let chunks = [];
+        
+        if (delimiter === 'paragraph') {
+            chunks = text.split(/\n\n+/).filter(p => p.trim().length > minLength);
+        } else if (delimiter === 'sentence') {
+            chunks = text.split(/[。！？.!?]+/).filter(s => s.trim().length > minLength);
+        } else if (delimiter === 'fixed') {
+            for (let i = 0; i < text.length; i += chunkSize - overlap) {
+                const chunk = text.substring(i, i + chunkSize).trim();
+                if (chunk.length > minLength) {
+                    chunks.push(chunk);
+                }
+            }
+        } else {
+            chunks = text.split(/\n(?=[#一二三四五六七八九十])/).filter(p => p.trim().length > minLength);
+        }
+
+        chunks.forEach((chunk, index) => {
+            slices.push({
+                id: Date.now() + fileIndex * 100 + index,
+                content: chunk,
+                position: `文件${fileIndex + 1} - 第${index + 1}节`,
+                tags: tags.slice(0, Math.floor(Math.random() * 2) + 2),
+                length: chunk.length,
+                source: filename,
+                sourceType: "upload",
+                edited: false
+            });
+        });
+
+        return slices;
+    }
+
+    function renderPreview() {
+        const list = document.getElementById('previewSlices');
+        if (previewSlices.length === 0) {
+            list.innerHTML = '<div style="text-align: center; padding: 30px; color: #a78bfa;">暂无切片预览</div>';
+            return;
+        }
+        list.innerHTML = '';
+        previewSlices.forEach((slice, index) => {
+            const item = document.createElement('div');
+            item.className = 'preview-slice';
+            item.innerHTML = `
+                <div class="preview-slice-header">
+                    <span class="preview-slice-index">切片 ${index + 1}</span>
+                    <div class="preview-slice-tags">
+                        ${slice.tags.map(tag => `<span class="slice-tag">${escapeHtml(tag)}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="preview-slice-content">${escapeHtml(slice.content)}</div>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    let uploadTargetModal = null;
+
+    function confirmUploadAndSlice() {
+        if (previewSlices.length === 0) return;
+
+        uploadTargetModal = document.createElement('div');
+        uploadTargetModal.id = 'uploadTargetModal';
+        uploadTargetModal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.5); display: flex; align-items: center; 
+            justify-content: center; z-index: 2000; padding: 20px;
+        `;
+        uploadTargetModal.innerHTML = `
+            <div style="background: white; border-radius: 24px; padding: 24px; width: 90%; max-width: 500px;">
+                <h3 style="color: #4c1d95; margin-bottom: 16px;">选择目标知识库</h3>
+                <select id="uploadTargetKB" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid #d9c9ff; margin-bottom: 20px;">
+                    ${knowledgeBases.map(kb => `<option value="${kb.id}">${kb.name} (${kb.discipline})</option>`).join('')}
+                </select>
+                <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button onclick="closeUploadTargetModal()" style="padding: 8px 20px; border-radius: 40px; border: 1px solid #a855f7; color: #a855f7; cursor: pointer;">取消</button>
+                    <button onclick="confirmKBAndSave()" style="padding: 8px 20px; border-radius: 40px; background: #8b5cf6; color: white; border: none; cursor: pointer;">确认</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(uploadTargetModal);
+    }
+
+    function closeUploadTargetModal() {
+        if (uploadTargetModal) {
+            uploadTargetModal.remove();
+            uploadTargetModal = null;
+        }
+    }
+
+    function confirmKBAndSave() {
+        const kbId = parseInt(document.getElementById('uploadTargetKB').value);
+        const kb = knowledgeBases.find(k => k.id === kbId);
+        if (kb) {
+            kb.slices = [...kb.slices, ...previewSlices];
+            kb.trained = true;
+            kb.sliceConfig = {
+                delimiter: document.getElementById('sliceDelimiter').value,
+                chunkSize: parseInt(document.getElementById('sliceSize').value),
+                overlap: parseInt(document.getElementById('sliceOverlap').value),
+                minLength: parseInt(document.getElementById('minSliceLength').value)
+            };
+            saveData();
+            updateFilteredList();
+            alert('切片生成并保存成功！');
+        }
+        closeUploadTargetModal();
+        closeUploadSliceModal();
+    }
+
+    // ==================== 切片模态框功能 ====================
+    let currentSliceKB = null;
+    let editingSliceId = null;
+    let isBatchEditMode = false;
+    let editedSlices = {};
+
+    function openSliceModal(kbId) {
+        let targetKB = null;
+        
+        if (kbId) {
+            targetKB = knowledgeBases.find(k => k.id === kbId);
+        } else {
+            targetKB = knowledgeBases.find(k => k.trained && k.slices.length > 0);
+        }
+
+        if (!targetKB) {
+            alert('请先选择一个已训练且有切片数据的知识库');
+            return;
+        }
+
+        currentSliceKB = targetKB;
+        renderSliceKBSelect();
+        document.getElementById('sliceKBName').textContent = targetKB.name;
+        
+        renderSliceStats();
+        renderSliceList(targetKB.slices);
+        
+        document.getElementById('sliceModal').style.display = 'flex';
+    }
+
+    function closeSliceModal() {
+        document.getElementById('sliceModal').style.display = 'none';
+        currentSliceKB = null;
+        editingSliceId = null;
+        isBatchEditMode = false;
+        editedSlices = {};
+        document.getElementById('saveAllEditsBtn').style.display = 'none';
+    }
+
+    function renderSliceKBSelect() {
+        const select = document.getElementById('sliceKBSelect');
+        select.innerHTML = '';
+        knowledgeBases.filter(k => k.trained && k.slices.length > 0).forEach(kb => {
+            const option = document.createElement('option');
+            option.value = kb.id;
+            option.textContent = kb.name;
+            if (kb.id === currentSliceKB.id) option.selected = true;
+            select.appendChild(option);
+        });
+    }
+
+    function changeSliceKB() {
+        const kbId = parseInt(document.getElementById('sliceKBSelect').value);
+        currentSliceKB = knowledgeBases.find(k => k.id === kbId);
+        if (currentSliceKB) {
+            document.getElementById('sliceKBName').textContent = currentSliceKB.name;
+            renderSliceStats();
+            renderSliceList(currentSliceKB.slices);
+        }
+    }
+
+    function renderSliceStats() {
+        if (!currentSliceKB) return;
+        
+        const slices = currentSliceKB.slices;
+        const tagSet = new Set();
+        let totalLength = 0;
+        let editedCount = 0;
+        
+        slices.forEach(slice => {
+            slice.tags.forEach(tag => tagSet.add(tag));
+            totalLength += slice.length;
+            if (slice.edited) editedCount++;
+        });
+
+        document.getElementById('sliceCount').textContent = slices.length;
+        document.getElementById('tagCount').textContent = tagSet.size;
+        document.getElementById('avgLength').textContent = slices.length > 0 ? Math.round(totalLength / slices.length) : 0;
+        document.getElementById('editCount').textContent = editedCount;
+    }
+
+    function renderSliceList(slices) {
+        const list = document.getElementById('sliceList');
+        
+        if (slices.length === 0) {
+            list.innerHTML = '<div style="text-align: center; padding: 60px; color: #a78bfa;">暂无切片数据</div>';
+            return;
+        }
+
+        list.innerHTML = '';
+        slices.forEach(slice => {
+            const isEditing = editingSliceId === slice.id || isBatchEditMode;
+            const item = document.createElement('div');
+            item.className = `slice-item-large ${isEditing ? 'editing' : ''}`;
+            item.innerHTML = `
+                <div class="slice-item-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="slice-position">${escapeHtml(slice.position)}</span>
+                        <span class="slice-source">${escapeHtml(slice.source)}</span>
+                    </div>
+                    <div class="slice-actions">
+                        ${isEditing ? `
+                            <button class="slice-action-btn save" onclick="saveSliceEdit(${slice.id})"><i class="fas fa-check"></i> 保存</button>
+                            <button class="slice-action-btn cancel" onclick="cancelSliceEdit(${slice.id})"><i class="fas fa-times"></i> 取消</button>
+                        ` : `
+                            <button class="slice-action-btn edit" onclick="editSlice(${slice.id})"><i class="fas fa-pencil-alt"></i> 编辑</button>
+                            <button class="slice-action-btn delete" onclick="deleteSlice(${slice.id})"><i class="fas fa-trash"></i> 删除</button>
+                        `}
+                    </div>
+                </div>
+                ${isEditing ? `
+                    <textarea class="slice-content-edit" id="edit-content-${slice.id}">${escapeHtml(slice.content)}</textarea>
+                    <div class="slice-tags">
+                        ${slice.tags.map((tag, idx) => `<span class="slice-tag">${escapeHtml(tag)} <span onclick="removeTag(${slice.id}, ${idx})" style="cursor: pointer;">×</span></span>`).join('')}
+                        <input type="text" class="tag-input" id="tag-input-${slice.id}" placeholder="添加标签">
+                        <button class="add-tag-btn" onclick="addTag(${slice.id})">+</button>
+                    </div>
+                ` : `
+                    <div class="slice-content" id="slice-content-${slice.id}">${escapeHtml(slice.content)}</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="slice-tags">
+                            ${slice.tags.map(tag => `<span class="slice-tag">${escapeHtml(tag)}</span>`).join('')}
+                        </div>
+                        <span class="view-full-btn" onclick="toggleSliceContent(${slice.id})">${slice.content.length > 200 ? '查看完整内容' : ''}</span>
+                    </div>
+                `}
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    function editSlice(sliceId) {
+        editingSliceId = sliceId;
+        renderSliceList(currentSliceKB.slices);
+    }
+
+    function saveSliceEdit(sliceId) {
+        const slice = currentSliceKB.slices.find(s => s.id === sliceId);
+        if (slice) {
+            const newContent = document.getElementById(`edit-content-${sliceId}`).value;
+            slice.content = newContent;
+            slice.length = newContent.length;
+            slice.edited = true;
+        }
+        editingSliceId = null;
+        saveData();
+        renderSliceStats();
+        renderSliceList(currentSliceKB.slices);
+    }
+
+    function cancelSliceEdit(sliceId) {
+        editingSliceId = null;
+        renderSliceList(currentSliceKB.slices);
+    }
+
+    function deleteSlice(sliceId) {
+        if (confirm('确定要删除这个切片吗？')) {
+            currentSliceKB.slices = currentSliceKB.slices.filter(s => s.id !== sliceId);
+            saveData();
+            renderSliceStats();
+            renderSliceList(currentSliceKB.slices);
+        }
+    }
+
+    function addTag(sliceId) {
+        const slice = currentSliceKB.slices.find(s => s.id === sliceId);
+        const input = document.getElementById(`tag-input-${sliceId}`);
+        const tag = input.value.trim();
+        if (tag && !slice.tags.includes(tag)) {
+            slice.tags.push(tag);
+            input.value = '';
+            renderSliceList(currentSliceKB.slices);
+        }
+    }
+
+    function removeTag(sliceId, tagIndex) {
+        const slice = currentSliceKB.slices.find(s => s.id === sliceId);
+        if (slice) {
+            slice.tags.splice(tagIndex, 1);
+            renderSliceList(currentSliceKB.slices);
+        }
+    }
+
+    function toggleSliceContent(sliceId) {
+        const content = document.getElementById(`slice-content-${sliceId}`);
+        if (content) {
+            content.classList.toggle('expanded');
+        }
+    }
+
+    function enterBatchEditMode() {
+        isBatchEditMode = !isBatchEditMode;
+        if (isBatchEditMode) {
+            document.getElementById('saveAllEditsBtn').style.display = 'inline-block';
+        } else {
+            document.getElementById('saveAllEditsBtn').style.display = 'none';
+        }
+        renderSliceList(currentSliceKB.slices);
+    }
+
+    function saveAllEdits() {
+        currentSliceKB.slices.forEach(slice => {
+            const editContent = document.getElementById(`edit-content-${slice.id}`);
+            if (editContent) {
+                const newContent = editContent.value;
+                if (newContent !== slice.content) {
+                    slice.content = newContent;
+                    slice.length = newContent.length;
+                    slice.edited = true;
+                }
+            }
+        });
+        saveData();
+        isBatchEditMode = false;
+        document.getElementById('saveAllEditsBtn').style.display = 'none';
+        renderSliceStats();
+        renderSliceList(currentSliceKB.slices);
+        alert('所有编辑已保存！');
+    }
+
+    function exportSlices() {
+        if (!currentSliceKB || currentSliceKB.slices.length === 0) {
+            alert('暂无切片数据可导出');
+            return;
+        }
+        const data = JSON.stringify(currentSliceKB.slices, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${currentSliceKB.name}_slices.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function refreshSlices() {
+        loadData();
+        renderSliceStats();
+        renderSliceList(currentSliceKB.slices);
+        alert('切片数据已刷新');
+    }
+
+    // 切片搜索
+    document.getElementById('sliceSearchInput').addEventListener('input', (e) => {
+        if (!currentSliceKB) return;
+        
+        const keyword = e.target.value.trim().toLowerCase();
+        const filtered = keyword 
+            ? currentSliceKB.slices.filter(s => s.content.toLowerCase().includes(keyword) || s.tags.some(t => t.toLowerCase().includes(keyword)))
+            : currentSliceKB.slices;
+        
+        renderSliceList(filtered);
+    });
+
+    // ==================== 辅助函数 ====================
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    function escapeAttr(str) {
+        return str.replace(/['"]/g, '&quot;');
+    }
+
+    // ==================== 事件绑定 ====================
+    document.getElementById('searchBtn').addEventListener('click', () => {
+        currentFilter.keyword = document.getElementById('searchInput').value;
+        updateFilteredList();
+    });
+    document.getElementById('disciplineFilter').addEventListener('change', (e) => {
+        currentFilter.discipline = e.target.value;
+        updateFilteredList();
+    });
+    document.getElementById('showSubscribedBtn').addEventListener('click', () => {
+        currentFilter.onlySubscribed = !currentFilter.onlySubscribed;
+        const btn = document.getElementById('showSubscribedBtn');
+        btn.classList.toggle('active');
+        updateFilteredList();
+    });
+    document.getElementById('showTrainedBtn').addEventListener('click', () => {
+        currentFilter.onlyTrained = !currentFilter.onlyTrained;
+        const btn = document.getElementById('showTrainedBtn');
+        btn.classList.toggle('active');
+        updateFilteredList();
+    });
+    document.getElementById('closeChatBtn').addEventListener('click', closeChatModal);
+    document.getElementById('sendChatBtn').addEventListener('click', sendMessage);
+    document.getElementById('chatInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+    
+    window.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('chatModal')) closeChatModal();
+        if (e.target === document.getElementById('trainModal')) closeTrainModal();
+        if (e.target === document.getElementById('uploadSliceModal')) closeUploadSliceModal();
+        if (e.target === document.getElementById('sliceModal')) closeSliceModal();
+    });
+
+    updateFilteredList();
+</script>
+</body>
+</html>
