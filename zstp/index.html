@@ -1,0 +1,2396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title> 知识图谱</title>
+    <!-- ECharts 核心库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- WordCloud2.js -->
+    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f5f0ff 0%, #ede7fe 100%);
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', system-ui, -apple-system, sans-serif;
+            padding: 16px 12px 32px 12px;
+            min-height: 100vh;
+        }
+
+        /* 主容器 - 移动优先卡片风格 */
+        .app-container {
+            max-width: 550px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(2px);
+            border-radius: 40px;
+            box-shadow: 0 20px 35px -12px rgba(91, 33, 182, 0.25);
+            overflow: hidden;
+            padding: 20px 18px 28px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        /* 课程选择界面 */
+        .course-selector {
+            text-align: center;
+            padding: 10px 0 8px;
+        }
+        .course-selector h2 {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #7c3aed, #c084fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+        .course-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .course-card {
+            background: white;
+            border-radius: 32px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            border: 1px solid #e9d5ff;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .course-card:active { transform: scale(0.98); background: #faf5ff; border-color: #c084fc; }
+        .course-icon {
+            width: 56px;
+            height: 56px;
+            background: #ede9fe;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #7c3aed;
+        }
+        .course-info h3 { font-size: 1.2rem; color: #3b0764; margin-bottom: 6px; }
+        .course-info p { font-size: 0.75rem; color: #7c4d9e; }
+        .enter-badge {
+            margin-left: auto;
+            background: #a855f7;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* 知识图谱主界面 (初始隐藏) */
+        .kg-main {
+            display: none;
+        }
+        .kg-main.active {
+            display: block;
+        }
+
+        /* 头部紫色氛围 */
+        .header {
+            text-align: left;
+            margin-bottom: 24px;
+            padding-bottom: 8px;
+            border-left: 5px solid #a855f7;
+            padding-left: 16px;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7c3aed, #c084fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .header p { font-size: 0.8rem; color: #6b21a5; margin-top: 6px; }
+        .back-btn {
+            background: #ede9fe;
+            border: none;
+            border-radius: 40px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            color: #6d28d9;
+            margin-bottom: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        /* 模式切换 */
+        .mode-tabs {
+            display: flex;
+            background: #f3eaff;
+            border-radius: 60px;
+            padding: 4px;
+            margin-bottom: 24px;
+            gap: 6px;
+        }
+        .mode-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            background: transparent;
+            border: none;
+            color: #6d28d9;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .mode-btn.active {
+            background: #8b5cf6;
+            color: white;
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+        }
+        .view-pane { display: none; animation: fadeSlide 0.2s ease-out; }
+        .view-pane.active-pane { display: block; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: translateY(0);} }
+
+        #graphChart { width: 100%; height: 380px; background: rgba(255,255,240,0.4); border-radius: 28px; }
+        .knowledge-list { display: flex; flex-direction: column; gap: 12px; }
+        .list-item {
+            background: white; border-radius: 28px; padding: 14px 18px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 5px 12px rgba(124, 58, 237, 0.08); border: 1px solid #e9d5ff;
+            cursor: pointer;
+        }
+        .list-item:active { background: #f5f0ff; transform: scale(0.98); }
+        .list-item .left { display: flex; align-items: center; gap: 14px; }
+        .list-item .icon { width: 42px; height: 42px; background: #ede9fe; border-radius: 30px; display: flex; align-items: center; justify-content: center; color: #7c3aed; }
+        .list-item .info h4 { font-size: 1rem; font-weight: 700; color: #3b0764; }
+        .learn-badge { background: #a855f7; color: white; border-radius: 40px; padding: 4px 12px; font-size: 0.7rem; }
+
+        .map-timeline { display: flex; flex-direction: column; padding-left: 18px; }
+        .map-node {
+            position: relative; margin-bottom: 20px; background: white; border-radius: 28px;
+            padding: 12px 16px 12px 48px; border-left: 4px solid #a855f7; cursor: pointer;
+        }
+        .map-node .step-num {
+            position: absolute; left: -8px; top: 16px; width: 32px; height: 32px;
+            background: #c084fc; color: white; border-radius: 40px; display: flex;
+            align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;
+        }
+        .map-node h4 { font-size: 1rem; color: #4c1d95; }
+        .map-learn-tag { margin-top: 6px; display: inline-block; background: #ede9fe; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; }
+
+        /* 微课面板 */
+        .micro-course-panel {
+            background: linear-gradient(135deg, #ffffff, #faf5ff);
+            border-radius: 36px; margin-top: 16px; padding: 6px 4px 12px;
+            box-shadow: 0 8px 24px rgba(91, 33, 182, 0.15); border: 1px solid rgba(168,85,247,0.3);
+        }
+        .micro-header {
+            padding: 12px 20px 6px; display: flex; justify-content: space-between;
+            border-bottom: 2px solid #e9d4ff;
+        }
+        .micro-header h3 { font-size: 1.2rem; font-weight: 800; color: #6b21a5; display: flex; gap: 8px; align-items: center; }
+        .micro-tabs {
+            display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 16px 0; border-bottom: 1px solid #e9d4ff;
+        }
+        .tab-btn {
+            background: transparent; border: none; padding: 6px 14px; font-size: 0.7rem;
+            font-weight: 600; border-radius: 40px; color: #5b21b6; cursor: pointer;
+        }
+        .tab-btn.active-tab { background: #a855f7; color: white; }
+        .tab-content { padding: 16px 18px 20px; min-height: 240px; max-height: 360px; overflow-y: auto; }
+        .tab-pane { display: none; }
+        .tab-pane.active-pane { display: block; animation: fade 0.2s; }
+        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+        .quiz-option {
+            background: white; padding: 10px 15px; border-radius: 50px; border: 1px solid #d9c9ff;
+            margin-bottom: 10px; cursor: pointer;
+        }
+        .material-link {
+            display: flex; align-items: center; justify-content: space-between;
+            text-decoration: none; color: inherit; background: #f3eaff; padding: 12px 16px;
+            border-radius: 24px; margin-bottom: 8px;
+        }
+        .wrong-list li, .material-list li { list-style: none; }
+        .btn-small { background: #e9d4ff; color: #6d28d9; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; }
+        .empty-tip { text-align: center; color: #a78bfa; padding: 20px; }
+        i, .fas { pointer-events: none; }
+
+        /* ================= AI文献解析模块 ================= */
+        /* 主模式切换 */
+        .main-mode-tabs {
+            display: flex;
+            background: #f3eaff;
+            border-radius: 60px;
+            padding: 4px;
+            margin-bottom: 20px;
+            gap: 4px;
+        }
+        .main-mode-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            background: transparent;
+            border: none;
+            color: #6d28d9;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .main-mode-btn.active {
+            background: #8b5cf6;
+            color: white;
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+        }
+
+        /* AI文献解析区域 */
+        .ai-literature {
+            display: none;
+        }
+        .ai-literature.active {
+            display: block;
+        }
+
+        /* 上传区域 */
+        .upload-section {
+            background: linear-gradient(135deg, #faf8ff, #f3eaff);
+            border-radius: 32px;
+            padding: 28px 20px;
+            text-align: center;
+            border: 2px dashed #d9c9ff;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            background: #ede9fe;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 2rem;
+            color: #a855f7;
+        }
+        .upload-section h3 {
+            font-size: 1.1rem;
+            color: #4c1d95;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .upload-section p {
+            font-size: 0.75rem;
+            color: #7c4d9e;
+            margin-bottom: 14px;
+        }
+        .upload-formats {
+            display: inline-flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .format-tag {
+            background: white;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            color: #6d28d9;
+            border: 1px solid #d9c9ff;
+        }
+        #fileInput {
+            display: none;
+        }
+
+        /* 分析结果区域 */
+        .analysis-section {
+            display: none;
+        }
+        .analysis-section.active {
+            display: block;
+        }
+
+        /* 文献信息 */
+        .doc-info {
+            background: #faf8ff;
+            border-radius: 24px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .doc-icon {
+            width: 44px;
+            height: 44px;
+            background: #ede9fe;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: #a855f7;
+        }
+        .doc-meta h4 {
+            font-size: 0.9rem;
+            color: #4c1d95;
+            margin-bottom: 2px;
+        }
+        .doc-meta p {
+            font-size: 0.65rem;
+            color: #7c4d9e;
+        }
+        .doc-action {
+            margin-left: auto;
+        }
+        .doc-action button {
+            background: transparent;
+            border: 1px solid #d9c9ff;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            color: #6d28d9;
+            cursor: pointer;
+        }
+
+        /* 分析进度 */
+        .analysis-progress {
+            background: white;
+            border-radius: 28px;
+            padding: 28px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+        }
+        .progress-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #ede9fe;
+            border-top-color: #a855f7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .progress-text {
+            font-size: 0.9rem;
+            color: #6d28d9;
+            font-weight: 500;
+        }
+        .progress-step {
+            font-size: 0.75rem;
+            color: #a78bfa;
+            margin-top: 6px;
+        }
+
+        /* 结果Tab切换 */
+        .result-tabs {
+            display: none;
+            flex-wrap: wrap;
+            background: #f3eaff;
+            border-radius: 60px;
+            padding: 4px;
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+        .result-tab {
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            background: transparent;
+            border: none;
+            color: #5b21b6;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .result-tab.active {
+            background: #8b5cf6;
+            color: white;
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+        }
+
+        /* 结果内容区域 */
+        .result-content {
+            display: none;
+            background: white;
+            border-radius: 28px;
+            padding: 20px;
+            min-height: 400px;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+        }
+        .result-pane {
+            display: none;
+        }
+        .result-pane.active {
+            display: block;
+        }
+
+        /* 词云容器 */
+        .wordcloud-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 320px;
+        }
+        #wordcloudCanvas {
+            width: 100%;
+            height: 280px;
+            border-radius: 20px;
+            background: #faf8ff;
+        }
+
+        /* 摘要样式 */
+        .summary-content {
+            font-size: 0.8rem;
+            line-height: 1.7;
+            color: #4c1d95;
+            text-align: justify;
+        }
+        .summary-content p {
+            margin-bottom: 12px;
+        }
+        .summary-highlight {
+            background: rgba(139, 92, 246, 0.1);
+            padding: 1px 4px;
+            border-radius: 3px;
+            color: #6d28d9;
+        }
+
+        /* 脑图容器 */
+        #mindmapChart {
+            width: 100%;
+            height: 350px;
+        }
+
+        /* 试题样式 */
+        .quiz-container {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .quiz-item {
+            background: #faf8ff;
+            border-radius: 20px;
+            padding: 16px;
+            border-left: 4px solid #a855f7;
+        }
+        .quiz-item h4 {
+            font-size: 0.85rem;
+            color: #4c1d95;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .quiz-option {
+            background: white;
+            padding: 10px 14px;
+            border-radius: 40px;
+            border: 1px solid #d9c9ff;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        .quiz-feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        .quiz-feedback.correct {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+        .quiz-feedback.wrong {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        /* 问答样式 */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 380px;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 6px;
+        }
+        .chat-message {
+            display: flex;
+            gap: 10px;
+            max-width: 85%;
+        }
+        .chat-message.user {
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+        .chat-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .chat-avatar.user {
+            background: #a855f7;
+            color: white;
+        }
+        .chat-avatar.ai {
+            background: #ede9fe;
+            color: #6d28d9;
+        }
+        .chat-bubble {
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            line-height: 1.5;
+        }
+        .chat-bubble.user {
+            background: #8b5cf6;
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+        .chat-bubble.ai {
+            background: #f3eaff;
+            color: #4c1d95;
+            border-bottom-left-radius: 6px;
+        }
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            padding-top: 12px;
+            border-top: 1px solid #e9d4ff;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 40px;
+            border: 1px solid #d9c9ff;
+            background: #faf8ff;
+            font-size: 0.8rem;
+            color: #4c1d95;
+            outline: none;
+        }
+        .chat-send-btn {
+            background: #8b5cf6;
+            border: none;
+            border-radius: 40px;
+            padding: 10px 18px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+        }
+
+        /* ================= 教师学情分析模块 ================= */
+        .teacher-dashboard {
+            display: none;
+        }
+        .teacher-dashboard.active {
+            display: block;
+        }
+
+        /* 班级选择 */
+        .class-select-container {
+            margin-top: 8px;
+        }
+        .class-select {
+            width: 100%;
+            padding: 10px 16px;
+            border-radius: 40px;
+            border: 1px solid #d9c9ff;
+            background: #faf8ff;
+            font-size: 0.85rem;
+            color: #4c1d95;
+            font-weight: 500;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237c4d9e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+        }
+        .class-select:focus {
+            outline: none;
+            border-color: #a855f7;
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.1);
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #6c2bd9, #9b4dff);
+            border-radius: 28px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .stat-info {
+            flex: 1;
+        }
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        /* 学生列表区域 */
+        .student-section {
+            margin-top: 8px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            padding: 0 4px;
+        }
+        .section-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #4c1d95;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .student-count {
+            font-size: 0.75rem;
+            color: #7c4d9e;
+            background: #f3eaff;
+            padding: 4px 12px;
+            border-radius: 40px;
+        }
+        .student-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .student-card {
+            background: white;
+            border-radius: 24px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid #e9d5ff;
+            box-shadow: 0 4px 10px rgba(124, 58, 237, 0.06);
+            cursor: pointer;
+        }
+        .student-card:active {
+            background: #faf5ff;
+            transform: scale(0.98);
+        }
+        .student-avatar {
+            width: 44px;
+            height: 44px;
+            background: #ede9fe;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #7c3aed;
+            font-weight: 600;
+        }
+        .student-info {
+            flex: 1;
+        }
+        .student-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #3b0764;
+            margin-bottom: 4px;
+        }
+        .student-info p {
+            font-size: 0.7rem;
+            color: #7c4d9e;
+        }
+        .student-progress {
+            text-align: right;
+        }
+        .student-progress-value {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #6d28d9;
+        }
+        .student-progress-label {
+            font-size: 0.65rem;
+            color: #a78bfa;
+        }
+
+        /* 学生统计概览 */
+        .student-stats {
+            display: flex;
+            justify-content: space-around;
+            background: linear-gradient(135deg, #faf8ff, #f3eaff);
+            border-radius: 28px;
+            padding: 20px 16px;
+            margin-bottom: 20px;
+            border: 1px solid #e9d5ff;
+        }
+        .student-stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        .student-stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #6d28d9;
+            margin-bottom: 4px;
+        }
+        .student-stat-label {
+            font-size: 0.7rem;
+            color: #7c4d9e;
+        }
+        .student-stat-divider {
+            width: 1px;
+            background: #d9c9ff;
+        }
+
+        /* 内容列表 */
+        .content-section {
+            margin-bottom: 20px;
+        }
+        .content-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .content-item {
+            background: white;
+            border-radius: 20px;
+            padding: 14px 16px;
+            border: 1px solid #e9d5ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .content-item-info {
+            flex: 1;
+        }
+        .content-item-info h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4c1d95;
+            margin-bottom: 6px;
+        }
+        .content-progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ede9fe;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .content-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a855f7, #c084fc);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .content-status {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 40px;
+            margin-left: 12px;
+            flex-shrink: 0;
+        }
+        .content-status.completed {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+        .content-status.incomplete {
+            background: rgba(234, 179, 8, 0.1);
+            color: #eab308;
+        }
+        .content-status.in-progress {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        /* 作业列表 */
+        .assignment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .assignment-item {
+            background: white;
+            border-radius: 20px;
+            padding: 14px 16px;
+            border: 1px solid #e9d5ff;
+        }
+        .assignment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .assignment-header h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4c1d95;
+        }
+        .assignment-type {
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 40px;
+            background: #ede9fe;
+            color: #6d28d9;
+        }
+        .assignment-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #7c4d9e;
+        }
+        .assignment-score {
+            font-weight: 600;
+            color: #6d28d9;
+        }
+        .assignment-status {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 40px;
+        }
+        .assignment-status.submitted {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+        .assignment-status.unsubmitted {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        .assignment-status.graded {
+            background: rgba(168, 85, 247, 0.1);
+            color: #a855f7;
+        }
+
+        /* 知识点资源统计 */
+        .knowledge-resources {
+            margin-bottom: 20px;
+        }
+        .knowledge-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .knowledge-item {
+            background: white;
+            border-radius: 20px;
+            padding: 14px 16px;
+            border: 1px solid #e9d5ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .knowledge-info {
+            flex: 1;
+        }
+        .knowledge-info h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4c1d95;
+            margin-bottom: 4px;
+        }
+        .knowledge-info p {
+            font-size: 0.7rem;
+            color: #7c4d9e;
+        }
+        .knowledge-resource-count {
+            background: #ede9fe;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #6d28d9;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container" id="appContainer">
+    <!-- 课程选择界面 -->
+    <div id="courseSelector" class="course-selector">
+        <div class="main-mode-tabs">
+            <button class="main-mode-btn active" id="kgModeBtn" onclick="switchMainMode('kg')">
+                <i class="fas fa-project-diagram"></i> 知识图谱
+            </button>
+            <button class="main-mode-btn" id="literatureModeBtn" onclick="switchMainMode('literature')">
+                <i class="fas fa-file-alt"></i> AI文献解析
+            </button>
+            <button class="main-mode-btn" id="teacherModeBtn" onclick="switchMainMode('teacher')">
+                <i class="fas fa-chart-bar"></i> 学情分析
+            </button>
+        </div>
+        <h2><i class="fas fa-graduation-cap"></i> 选择您的课程</h2>
+        <div class="course-grid">
+            <div class="course-card" data-course="computer">
+                <div class="course-icon"><i class="fas fa-laptop-code"></i></div>
+                <div class="course-info">
+                    <h3>大学计算机基础Ⅰ</h3>
+                    <p>屈宜丽 副教授团队 · 兰州城市学院</p>
+                </div>
+                <div class="enter-badge">进入学习 <i class="fas fa-arrow-right"></i></div>
+            </div>
+            <div class="course-card" data-course="other1">
+                <div class="course-icon"><i class="fas fa-database"></i></div>
+                <div class="course-info"><h3>数据结构与算法</h3><p>敬请期待</p></div>
+                <div class="enter-badge" style="background:#c4b5fd;">即将开放</div>
+            </div>
+            <div class="course-card" data-course="other2">
+                <div class="course-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                <div class="course-info"><h3>云计算导论</h3><p>敬请期待</p></div>
+                <div class="enter-badge" style="background:#c4b5fd;">即将开放</div>
+            </div>
+            <div class="course-card" data-course="other3">
+                <div class="course-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="course-info"><h3>Python数据分析</h3><p>敬请期待</p></div>
+                <div class="enter-badge" style="background:#c4b5fd;">即将开放</div>
+            </div>
+            <div class="course-card" data-course="other4">
+                <div class="course-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="course-info"><h3>网络信息安全</h3><p>敬请期待</p></div>
+                <div class="enter-badge" style="background:#c4b5fd;">即将开放</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI文献解析模块 -->
+    <div id="aiLiterature" class="ai-literature">
+        <!-- 上传区域 -->
+        <div id="uploadSection" class="upload-section" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h3>上传文献进行AI分析</h3>
+            <p>支持上传文本、PDF、Word等格式文献，AI将自动生成词云、摘要、脑图、试题</p>
+            <div class="upload-formats">
+                <span class="format-tag"><i class="fas fa-file-alt"></i> .txt</span>
+                <span class="format-tag"><i class="fas fa-file-pdf"></i> .pdf</span>
+                <span class="format-tag"><i class="fas fa-file-word"></i> .docx</span>
+                <span class="format-tag"><i class="fas fa-file-text"></i> .doc</span>
+            </div>
+            <input type="file" id="fileInput" accept=".txt,.pdf,.doc,.docx" onchange="handleFileUpload(event)">
+        </div>
+
+        <!-- 分析结果区域 -->
+        <div id="analysisSection" class="analysis-section">
+            <!-- 文献信息 -->
+            <div class="doc-info">
+                <div class="doc-icon"><i class="fas fa-file-alt"></i></div>
+                <div class="doc-meta">
+                    <h4 id="docName">未选择文件</h4>
+                    <p id="docMeta">请上传文献文件</p>
+                </div>
+                <div class="doc-action">
+                    <button onclick="resetUpload()"><i class="fas fa-redo"></i> 重新上传</button>
+                </div>
+            </div>
+
+            <!-- 分析进度 -->
+            <div id="analysisProgress" class="analysis-progress">
+                <div class="progress-spinner"></div>
+                <div class="progress-text">AI正在分析文献...</div>
+                <div class="progress-step" id="progressStep">正在读取文件内容...</div>
+            </div>
+
+            <!-- 结果Tab -->
+            <div id="resultTabs" class="result-tabs">
+                <button class="result-tab active" data-result="wordcloud"><i class="fas fa-cloud"></i> 词云</button>
+                <button class="result-tab" data-result="summary"><i class="fas fa-file-alt"></i> 摘要</button>
+                <button class="result-tab" data-result="mindmap"><i class="fas fa-sitemap"></i> 脑图</button>
+                <button class="result-tab" data-result="quiz"><i class="fas fa-puzzle-piece"></i> 试题</button>
+                <button class="result-tab" data-result="chat"><i class="fas fa-comments"></i> 问答</button>
+            </div>
+
+            <!-- 结果内容 -->
+            <div id="resultContent" class="result-content">
+                <!-- 词云 -->
+                <div id="result-wordcloud" class="result-pane active">
+                    <div class="wordcloud-container">
+                        <canvas id="wordcloudCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- 摘要 -->
+                <div id="result-summary" class="result-pane">
+                    <div class="summary-content" id="summaryText"></div>
+                </div>
+
+                <!-- 脑图 -->
+                <div id="result-mindmap" class="result-pane">
+                    <div id="mindmapChart"></div>
+                </div>
+
+                <!-- 试题 -->
+                <div id="result-quiz" class="result-pane">
+                    <div class="quiz-container" id="quizContainer"></div>
+                </div>
+
+                <!-- 问答 -->
+                <div id="result-chat" class="result-pane">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="chat-message ai">
+                                <div class="chat-avatar ai"><i class="fas fa-robot"></i></div>
+                                <div class="chat-bubble ai">您好！我已经分析了您上传的文献，请问有什么问题我可以帮您解答？</div>
+                            </div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" class="chat-input" id="chatInput" placeholder="输入您的问题..." onkeypress="handleChatKey(event)">
+                            <button class="chat-send-btn" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i> 发送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 教师学情分析模块 -->
+    <div id="teacherDashboard" class="teacher-dashboard">
+        <!-- 班级概览 -->
+        <div id="classOverview">
+            <div class="header">
+                <h1><i class="fas fa-chart-bar"></i> 学情分析</h1>
+                <div class="class-select-container">
+                    <select id="classSelector" class="class-select" onchange="switchClass(this.value)">
+                        <option value="class1">2024级计科1班</option>
+                        <option value="class2">2024级计科2班</option>
+                        <option value="class3">2024级软件工程班</option>
+                        <option value="class4">2024级网络工程班</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="resourceCount">24</div>
+                        <div class="stat-label">教学资源总数</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="avgCompletion">86%</div>
+                        <div class="stat-label">平均完成率</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-brain"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="avgMastery">78%</div>
+                        <div class="stat-label">平均掌握率</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 知识点资源统计 -->
+            <div class="knowledge-resources">
+                <div class="section-header">
+                    <h3><i class="fas fa-book"></i> 知识点资源统计</h3>
+                </div>
+                <div class="knowledge-list-container" id="knowledgeResourcesList"></div>
+            </div>
+
+            <!-- 学生列表 -->
+            <div class="student-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-users"></i> 学生列表</h3>
+                    <span class="student-count" id="studentCount">共 10 人</span>
+                </div>
+                <div class="student-list" id="studentList"></div>
+            </div>
+        </div>
+
+        <!-- 学生详情 -->
+        <div id="studentDetail" style="display: none;">
+            <button class="back-btn" onclick="backToClassOverview()"><i class="fas fa-arrow-left"></i> 返回班级</button>
+            <div class="header">
+                <h1><i class="fas fa-user"></i> <span id="studentName">学生详情</span></h1>
+                <p id="studentClass">2024级计科1班</p>
+            </div>
+
+            <!-- 学生统计概览 -->
+            <div class="student-stats">
+                <div class="student-stat-item">
+                    <div class="student-stat-value" id="studentCompletion">86%</div>
+                    <div class="student-stat-label">学习完成率</div>
+                </div>
+                <div class="student-stat-divider"></div>
+                <div class="student-stat-item">
+                    <div class="student-stat-value" id="studentMastery">78%</div>
+                    <div class="student-stat-label">知识掌握率</div>
+                </div>
+                <div class="student-stat-divider"></div>
+                <div class="student-stat-item">
+                    <div class="student-stat-value" id="studentScore">82</div>
+                    <div class="student-stat-label">综合评分</div>
+                </div>
+            </div>
+
+            <!-- 学习内容完成情况 -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-book-open"></i> 学习内容完成情况</h3>
+                </div>
+                <div class="content-list" id="contentList"></div>
+            </div>
+
+            <!-- 作业考试完成情况 -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-file-alt"></i> 作业考试完成情况</h3>
+                </div>
+                <div class="assignment-list" id="assignmentList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 知识图谱主界面 (计算机基础课程专用) -->
+    <div id="kgMain" class="kg-main">
+        <button class="back-btn" id="backToCourses"><i class="fas fa-arrow-left"></i> 返回课程列表</button>
+        <div class="header">
+            <h1><i class="fas fa-brain"></i> 大学计算机基础Ⅰ</h1>
+            <p>图谱模式 | 知识列表 | 学习地图 · 点击知识点跳转微课</p>
+        </div>
+        <div class="mode-tabs">
+            <button class="mode-btn active" data-mode="graph"><i class="fas fa-project-diagram"></i> 图谱模式</button>
+            <button class="mode-btn" data-mode="list"><i class="fas fa-list-ul"></i> 知识列表</button>
+            <button class="mode-btn" data-mode="map"><i class="fas fa-map-signs"></i> 学习地图</button>
+        </div>
+        <div class="view-container">
+            <div id="graph-view" class="view-pane active-pane"><div id="graphChart"></div></div>
+            <div id="list-view" class="view-pane"><div class="knowledge-list" id="knowledgeListContainer"></div></div>
+            <div id="map-view" class="view-pane"><div class="map-timeline" id="mapContainer"></div></div>
+        </div>
+        <!-- 微课面板 -->
+        <div class="micro-course-panel">
+            <div class="micro-header">
+                <h3><i class="fas fa-graduation-cap"></i> <span id="currentKpName">计算机基础</span></h3>
+                <span>微课·随学随练</span>
+            </div>
+            <div class="micro-tabs" id="microTabs">
+                <button class="tab-btn active-tab" data-tab="analysis"><i class="fas fa-chart-line"></i> 分析</button>
+                <button class="tab-btn" data-tab="content"><i class="fas fa-book-open"></i> 学习内容</button>
+                <button class="tab-btn" data-tab="quiz"><i class="fas fa-puzzle-piece"></i> 自测</button>
+                <button class="tab-btn" data-tab="materials"><i class="fas fa-folder-open"></i> 资料</button>
+                <button class="tab-btn" data-tab="wrong"><i class="fas fa-times-circle"></i> 错题集</button>
+            </div>
+            <div class="tab-content" id="tabContentContainer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ------------------- 基于《大学计算机基础Ⅰ》课程内容的知识点数据 (与超星链接内容一致) -------------------
+    const computerCourseNodes = [
+        { id: "kp_base", name: "计算机基础知识", desc: "计算机发展、信息表示、数制转换",
+          analysis: "重点掌握计算机发展历程、冯·诺依曼体系结构、数制转换(二/八/十/十六进制)、数据单位(bit/Byte)。理解0和1的奇妙之处，为后续课程奠基。",
+          content: "计算机硬件由运算器、控制器、存储器、输入/输出设备组成。信息在计算机中以二进制表示，包括整数、浮点数、字符编码(ASCII/Unicode)。",
+          quiz: { q: "计算机中，1KB等于多少字节？", opts: ["1000", "1024", "512", "2048"], ans: 1, exp: "1KB=1024B，采用二进制2^10。" },
+          materials: [
+            { title: "📘 大学计算机基础(第五版) 电子资源", url: "https://xueyinonline.com/detail/261057109", type:"教材" },
+            { title: "🎥 计算机发展史微课", url: "https://www.bilibili.com/video/BV1EW411u7th", type:"视频" },
+            { title: "🔢 进制转换在线练习", url: "https://tool.oschina.net/hexconvert", type:"工具" }
+          ],
+          wrongNotes: ["错题：1MB=1024KB，误记为1000KB","易错：二进制前缀混淆"]
+        },
+        { id: "kp_win", name: "Windows操作系统", desc: "定制工作环境、资源管理",
+          analysis: "个性化定制操作系统，文件管理，控制面板使用。掌握文件目录结构、相对路径绝对路径，快捷方式与系统优化。",
+          content: "Windows图形界面，文件资源管理器操作，库的概念，磁盘管理，环境变量设置。",
+          quiz: { q: "在Windows中，用于管理计算机硬件和软件资源的系统软件是？", opts: ["操作系统","数据库","办公软件","编译系统"], ans:0, exp:"操作系统负责资源管理。" },
+          materials: [
+            { title: "🖥️ Windows10 官方使用技巧", url: "https://support.microsoft.com/zh-cn/windows", type:"官方" },
+            { title: "📁 文件管理项目实践", url: "https://xueyinonline.com/detail/261057109", type:"课程项目" }
+          ],
+          wrongNotes: ["错题：回收站清空后无法直接恢复","易错：库与实际文件夹混淆"]
+        },
+        { id: "kp_word", name: "文字处理 Word", desc: "制作论文、批量通知书、电子简报",
+          analysis: "重点掌握样式与排版、邮件合并、长文档目录生成、表格制作。",
+          content: "字体段落格式，页眉页脚，分节符，邮件合并实现批量制作，图文混排。",
+          quiz: { q: "Word中邮件合并功能常用于？", opts: ["批量打印信封","制作表格","数据排序","插入图片"], ans:0, exp:"邮件合并批量生成通知书/信件。" },
+          materials: [
+            { title: "📄 Word论文排版精讲", url: "https://www.icourse163.org/learn/CQU-1001901001", type:"MOOC" },
+            { title: "✉️ 邮件合并案例", url: "https://xueyinonline.com/detail/261057109", type:"课程项目" }
+          ],
+          wrongNotes: ["错题：分节符与分页符区别","易错：样式更新导致格式错乱"]
+        },
+        { id: "kp_excel", name: "数据处理 Excel", desc: "学生信息表、数据分析、图表透视表",
+          analysis: "公式与函数、数据排序筛选、分类汇总、数据透视表、图表制作。重点掌握VLOOKUP、IF函数。",
+          content: "单元格引用，常用函数(SUM/AVERAGE/COUNTIF)，数据透视表动态汇总，图表展示。",
+          quiz: { q: "Excel中VLOOKUP函数的作用是？", opts: ["垂直查找","水平查找","数据求和","条件判断"], ans:0, exp:"垂直查找匹配数据。" },
+          materials: [
+            { title: "📊 Excel函数大全", url: "https://support.microsoft.com/zh-cn/excel", type:"官方文档" },
+            { title: "📈 数据图表应用", url: "https://xueyinonline.com/detail/261057109", type:"项目案例" }
+          ],
+          wrongNotes: ["错题：相对引用绝对引用混淆","易错：透视表值字段设置"]
+        },
+        { id: "kp_ppt", name: "文稿展示 PowerPoint", desc: "动画方案、高级动画、多媒体应用",
+          analysis: "母版设计，动画触发器，切换效果，插入音视频，演示技巧。",
+          content: "幻灯片设计原则，自定义动画路径，SmartArt图形，演示者视图。",
+          quiz: { q: "PPT中用于统一所有幻灯片样式的工具是？", opts: ["母版","模板","主题","动画"], ans:0, exp:"幻灯片母版控制全局样式。" },
+          materials: [
+            { title: "🎬 PPT高级动画教程", url: "https://www.bilibili.com/video/BV1sJ411u7tQ", type:"视频" },
+            { title: "📑 精美模板资源", url: "https://xueyinonline.com/detail/261057109", type:"课程资料" }
+          ],
+          wrongNotes: ["错题：动画顺序调整","易错：母版与版式关系"]
+        },
+        { id: "kp_internet", name: "Internet应用", desc: "网络基础、信息检索、信息安全",
+          analysis: "OSI模型、TCP/IP协议、IP地址、域名系统。信息检索技巧，个人隐私保护。",
+          content: "万维网，搜索引擎语法，电子邮箱，网络安全防范，无痕上网真相。",
+          quiz: { q: "以下哪个是用于网页传输的协议？", opts: ["HTTP","FTP","SMTP","POP3"], ans:0, exp:"HTTP超文本传输协议。" },
+          materials: [
+            { title: "🌐 计算机网络基础", url: "https://www.icourse163.org/learn/HIT-154005", type:"MOOC" },
+            { title: "🔐 信息安全与隐私保护", url: "https://www.bilibili.com/video/BV1Vt411S7sV", type:"科普" }
+          ],
+          wrongNotes: ["错题：IP地址分类","易错：子网掩码计算"]
+        }
+    ];
+
+    let currentKnowledge = computerCourseNodes[0];
+    let myChart = null;
+
+    // 渲染图谱
+    function initGraph() {
+        if(myChart) myChart.dispose();
+        const dom = document.getElementById('graphChart');
+        if(!dom) return;
+        myChart = echarts.init(dom);
+        const nodes = computerCourseNodes.map((item,idx) => ({
+            id: item.id, name: item.name, symbolSize: 34,
+            itemStyle: { color: '#a855f7', borderColor: '#c084fc' }
+        }));
+        const edges = [
+            { source: "kp_base", target: "kp_win" }, { source: "kp_base", target: "kp_word" },
+            { source: "kp_win", target: "kp_excel" }, { source: "kp_word", target: "kp_ppt" },
+            { source: "kp_excel", target: "kp_ppt" }, { source: "kp_ppt", target: "kp_internet" },
+            { source: "kp_base", target: "kp_internet" }
+        ];
+        myChart.setOption({
+            tooltip: { formatter: '{b}' },
+            series: [{
+                type: 'graph', layout: 'force', force: { repulsion: 500, edgeLength: 120 },
+                roam: true, draggable: true, data: nodes, links: edges,
+                label: { show: true, position: 'bottom', fontSize: 11, color: '#4c1d95' },
+                lineStyle: { color: '#c084fc', width: 2 }
+            }]
+        });
+        myChart.on('click', (params) => { if(params.dataType === 'node') openNodeById(params.data.id); });
+        window.addEventListener('resize', () => myChart && myChart.resize());
+    }
+
+    function openNodeById(id) {
+        const found = computerCourseNodes.find(n => n.id === id);
+        if(found) updateMicroCourse(found);
+    }
+
+    function updateMicroCourse(kp) {
+        currentKnowledge = kp;
+        document.getElementById('currentKpName').innerText = kp.name;
+        renderAnalysis(kp); renderContent(kp); renderQuiz(kp); renderMaterials(kp); renderWrong(kp);
+        const activeBtn = document.querySelector('.micro-tabs .tab-btn.active-tab');
+        const tabId = activeBtn ? activeBtn.getAttribute('data-tab') : 'analysis';
+        switchTab(tabId);
+    }
+
+    function renderAnalysis(kp) { document.getElementById('tab-analysis').innerHTML = `<div><i class="fas fa-chart-simple"></i> <strong>📌 重难点分析</strong><br><br>${kp.analysis}</div>`; }
+    function renderContent(kp) { document.getElementById('tab-content').innerHTML = `<div><i class="fas fa-file-alt"></i> <strong>📖 学习内容</strong><br><br>${kp.content}</div>`; }
+    function renderQuiz(kp) {
+        const quiz = kp.quiz;
+        let html = `<div class="quiz-question"><strong>❓ 自测题：</strong> ${quiz.q}</div><div class="quiz-options">`;
+        quiz.opts.forEach((opt, idx) => { html += `<div class="quiz-option" data-opt="${idx}">${String.fromCharCode(65+idx)}. ${opt}</div>`; });
+        html += `</div><div id="quizFeedback" class="quiz-feedback"></div>`;
+        document.getElementById('tab-quiz').innerHTML = html;
+        document.querySelectorAll('.quiz-option').forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                const selected = parseInt(opt.getAttribute('data-opt'));
+                const correct = (selected === quiz.ans);
+                const fb = document.getElementById('quizFeedback');
+                if(correct) fb.innerHTML = `<span style="color:#22c55e;">✅ 正确！ ${quiz.exp}</span>`;
+                else fb.innerHTML = `<span style="color:#f97316;">❌ 错误。正确答案是 ${String.fromCharCode(65+quiz.ans)}. ${quiz.opts[quiz.ans]}<br>解析：${quiz.exp}</span>`;
+            });
+        });
+    }
+    function renderMaterials(kp) {
+        let html = `<ul class="material-list">`;
+        kp.materials.forEach(mat => {
+            html += `<li><a href="${mat.url}" target="_blank" rel="noopener noreferrer" class="material-link" style="text-decoration:none;"><span><i class="fas fa-external-link-alt"></i> ${mat.title}</span><span class="btn-small">前往学习 →</span></a></li>`;
+        });
+        html += `</ul><div class="empty-tip">💡 点击资料卡片跳转至官方课程或优质学习平台</div>`;
+        document.getElementById('tab-materials').innerHTML = html;
+    }
+    function renderWrong(kp) {
+        let html = `<ul class="wrong-list">`;
+        kp.wrongNotes.forEach(w => { html += `<li><i class="fas fa-exclamation-triangle"></i> <strong>${w}</strong><br><span style="font-size:0.7rem;">📌 及时复习避免再次出错</span></li>`; });
+        html += `</ul><div class="empty-tip">📚 定期回顾错题，强化薄弱点</div>`;
+        document.getElementById('tab-wrong').innerHTML = html;
+    }
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active-pane'));
+        document.getElementById(`tab-${tabId}`).classList.add('active-pane');
+        document.querySelectorAll('.micro-tabs .tab-btn').forEach(btn => btn.classList.remove('active-tab'));
+        document.querySelector(`.micro-tabs .tab-btn[data-tab="${tabId}"]`).classList.add('active-tab');
+    }
+
+    function buildListView() {
+        const container = document.getElementById('knowledgeListContainer');
+        container.innerHTML = '';
+        computerCourseNodes.forEach(kp => {
+            const div = document.createElement('div'); div.className = 'list-item';
+            div.innerHTML = `<div class="left"><div class="icon"><i class="fas fa-database"></i></div><div class="info"><h4>${kp.name}</h4><p>${kp.desc}</p></div></div><div class="learn-badge">去学习</div>`;
+            div.addEventListener('click', () => updateMicroCourse(kp));
+            container.appendChild(div);
+        });
+    }
+    function buildMapView() {
+        const container = document.getElementById('mapContainer');
+        container.innerHTML = '';
+        const seq = ["计算机基础知识","Windows操作系统","文字处理 Word","数据处理 Excel","文稿展示 PowerPoint","Internet应用"];
+        seq.forEach((name, idx) => {
+            const kp = computerCourseNodes.find(k => k.name === name);
+            if(kp) {
+                const node = document.createElement('div'); node.className = 'map-node';
+                node.innerHTML = `<div class="step-num">${idx+1}</div><h4>${kp.name}</h4><p>${kp.desc}</p><div class="map-learn-tag">点击开始微课</div>`;
+                node.addEventListener('click', () => updateMicroCourse(kp));
+                container.appendChild(node);
+            }
+        });
+    }
+
+    function initTabsContainer() {
+        const container = document.getElementById('tabContentContainer');
+        container.innerHTML = `<div id="tab-analysis" class="tab-pane active-pane"></div><div id="tab-content" class="tab-pane"></div><div id="tab-quiz" class="tab-pane"></div><div id="tab-materials" class="tab-pane"></div><div id="tab-wrong" class="tab-pane"></div>`;
+        document.querySelectorAll('.micro-tabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => { switchTab(btn.getAttribute('data-tab')); });
+        });
+        updateMicroCourse(computerCourseNodes[0]);
+    }
+
+    function switchView(mode) {
+        document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active-pane'));
+        if(mode === 'graph') { document.getElementById('graph-view').classList.add('active-pane'); setTimeout(() => myChart && myChart.resize(), 50); }
+        else if(mode === 'list') { document.getElementById('list-view').classList.add('active-pane'); if(document.getElementById('knowledgeListContainer').children.length===0) buildListView(); }
+        else if(mode === 'map') { document.getElementById('map-view').classList.add('active-pane'); if(document.getElementById('mapContainer').children.length===0) buildMapView(); }
+    }
+
+    // 课程选择逻辑
+    const courseSelectorDiv = document.getElementById('courseSelector');
+    const kgMainDiv = document.getElementById('kgMain');
+    const backBtn = document.getElementById('backToCourses');
+
+    function enterComputerCourse() {
+        courseSelectorDiv.style.display = 'none';
+        kgMainDiv.classList.add('active');
+        // 初始化图谱主界面所有组件
+        if(!window._kgInitialized) {
+            initTabsContainer();
+            initGraph();
+            buildListView();
+            buildMapView();
+            // 绑定模式切换
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    switchView(btn.getAttribute('data-mode'));
+                });
+            });
+            switchView('graph');
+            window._kgInitialized = true;
+        } else {
+            // 重新确保图表resize
+            if(myChart) myChart.resize();
+        }
+    }
+    function backToCourses() {
+        courseSelectorDiv.style.display = 'block';
+        kgMainDiv.classList.remove('active');
+    }
+    document.querySelectorAll('.course-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if(card.getAttribute('data-course') === 'computer') {
+                enterComputerCourse();
+            } else {
+                alert('其他课程暂未开放，敬请期待。');
+            }
+        });
+    });
+    backBtn.addEventListener('click', backToCourses);
+    // 初始显示课程选择界面
+    courseSelectorDiv.style.display = 'block';
+    kgMainDiv.classList.remove('active');
+    // 预置部分以防万一
+    window.addEventListener('load', () => { if(myChart) myChart.resize(); });
+
+    // ================= AI文献解析功能 =================
+    let mindmapChart = null;
+
+    // 模拟文献数据
+    const mockLiteratureData = {
+        wordcloud: [
+            ['计算机', 100], ['数据', 85], ['信息', 80], ['网络', 75], ['操作系统', 70],
+            ['软件', 65], ['硬件', 60], ['程序', 55], ['算法', 50], ['数据库', 45],
+            ['安全', 40], ['系统', 38], ['应用', 35], ['开发', 32], ['技术', 30],
+            ['互联网', 28], ['编程', 25], ['文件', 22], ['管理', 20], ['分析', 18]
+        ],
+        summary: `本文主要介绍了计算机科学的基础知识体系，包括计算机系统的组成结构、操作系统原理、数据处理技术以及网络应用等核心内容。<br><br>
+
+<strong>核心要点：</strong><br>
+1. <span class="summary-highlight">计算机系统结构</span>：详细阐述了冯·诺依曼体系结构，包括运算器、控制器、存储器、输入输出设备五大部件的功能与协作机制。<br><br>
+
+2. <span class="summary-highlight">操作系统</span>：介绍了Windows、Linux等主流操作系统的基本原理，包括进程管理、内存管理、文件系统和用户界面设计。<br><br>
+
+3. <span class="summary-highlight">数据处理</span>：讲解了Excel等工具在数据处理中的应用，包括公式函数、数据透视表、图表制作等实用技能。<br><br>
+
+4. <span class="summary-highlight">网络技术</span>：涵盖了互联网基础、TCP/IP协议、网络安全等内容，帮助读者建立完整的网络知识框架。<br><br>
+
+文章强调了理论与实践相结合的重要性，通过大量实例和练习帮助读者巩固所学知识，培养解决实际问题的能力。`,
+        mindmap: {
+            name: '计算机基础',
+            children: [
+                {
+                    name: '计算机系统',
+                    children: [
+                        { name: '硬件组成' },
+                        { name: '软件系统' },
+                        { name: '冯·诺依曼结构' }
+                    ]
+                },
+                {
+                    name: '操作系统',
+                    children: [
+                        { name: 'Windows' },
+                        { name: 'Linux' },
+                        { name: '进程管理' },
+                        { name: '文件系统' }
+                    ]
+                },
+                {
+                    name: '办公软件',
+                    children: [
+                        { name: 'Word文字处理' },
+                        { name: 'Excel数据处理' },
+                        { name: 'PowerPoint演示' }
+                    ]
+                },
+                {
+                    name: '网络技术',
+                    children: [
+                        { name: '网络基础' },
+                        { name: 'TCP/IP协议' },
+                        { name: '信息安全' }
+                    ]
+                }
+            ]
+        },
+        quizzes: [
+            {
+                q: '计算机系统由哪两大部分组成？',
+                opts: ['硬件和软件', '主机和外设', 'CPU和内存', '输入和输出'],
+                ans: 0,
+                exp: '计算机系统由硬件系统和软件系统两大部分组成，硬件是物理基础，软件是灵魂。'
+            },
+            {
+                q: '冯·诺依曼体系结构的核心思想是什么？',
+                opts: ['程序存储', '并行计算', '分布式处理', '人工智能'],
+                ans: 0,
+                exp: '冯·诺依曼体系结构的核心思想是"程序存储"，即将程序和数据一起存储在计算机中。'
+            },
+            {
+                q: '以下哪个不是操作系统的基本功能？',
+                opts: ['文字编辑', '进程管理', '内存管理', '文件管理'],
+                ans: 0,
+                exp: '文字编辑是应用软件的功能，操作系统的基本功能包括进程管理、内存管理、文件管理和设备管理等。'
+            },
+            {
+                q: 'HTTP协议工作在OSI模型的哪一层？',
+                opts: ['应用层', '传输层', '网络层', '数据链路层'],
+                ans: 0,
+                exp: 'HTTP是超文本传输协议，工作在OSI模型的应用层，用于Web浏览器和服务器之间的通信。'
+            }
+        ],
+        chatResponses: {
+            '计算机组成': '计算机主要由运算器、控制器、存储器、输入设备和输出设备五大部分组成。运算器负责数据运算，控制器指挥协调各部件工作，存储器存储数据和程序，输入设备接收外部信息，输出设备展示处理结果。',
+            '操作系统': '操作系统是管理计算机硬件和软件资源的系统软件，它负责进程管理、内存管理、文件系统管理和用户界面交互，常见的操作系统有Windows、Linux、macOS等。',
+            '网络安全': '网络安全涉及保护网络系统和数据的机密性、完整性和可用性，主要包括防火墙技术、加密技术、入侵检测、访问控制等方面，同时也需要用户提高安全意识，避免泄露个人信息。',
+            '数据处理': '数据处理是指对数据进行收集、存储、整理、分析、计算、可视化等操作的过程，常用工具包括Excel、Python、SQL等，核心技能包括数据清洗、统计分析和图表展示。',
+            '人工智能': '人工智能是研究使计算机模拟人类智能的技术领域，包括机器学习、深度学习、自然语言处理、计算机视觉等分支，应用于图像识别、语音助手、智能推荐等场景。'
+        }
+    };
+
+    // 主模式切换
+    function switchMainMode(mode) {
+        const kgBtn = document.getElementById('kgModeBtn');
+        const litBtn = document.getElementById('literatureModeBtn');
+        const teacherBtn = document.getElementById('teacherModeBtn');
+        const courseSelector = document.getElementById('courseSelector');
+        const aiLiterature = document.getElementById('aiLiterature');
+        const teacherDashboard = document.getElementById('teacherDashboard');
+        const kgMain = document.getElementById('kgMain');
+
+        // 先清除所有激活状态
+        kgBtn.classList.remove('active');
+        litBtn.classList.remove('active');
+        teacherBtn.classList.remove('active');
+        aiLiterature.classList.remove('active');
+        teacherDashboard.classList.remove('active');
+        kgMain.classList.remove('active');
+
+        if (mode === 'kg') {
+            kgBtn.classList.add('active');
+            courseSelector.style.display = 'block';
+        } else if (mode === 'literature') {
+            litBtn.classList.add('active');
+            courseSelector.style.display = 'none';
+            aiLiterature.classList.add('active');
+        } else if (mode === 'teacher') {
+            teacherBtn.classList.add('active');
+            courseSelector.style.display = 'none';
+            teacherDashboard.classList.add('active');
+            renderClassOverview();
+        }
+    }
+
+    // 文件上传处理
+    function handleFileUpload(event) {
+        console.log('[AI文献解析] handleFileUpload 函数开始执行');
+        const target = event.target;
+        console.log('[AI文献解析] event.target:', target);
+        
+        if (!target || !target.files) {
+            console.error('[AI文献解析] 错误：event.target或event.target.files为空');
+            return;
+        }
+        
+        const file = target.files[0];
+        console.log('[AI文献解析] 获取到的文件:', file);
+        
+        if (!file) {
+            console.warn('[AI文献解析] 警告：未选择文件');
+            return;
+        }
+
+        console.log('[AI文献解析] 文件信息 - 名称:', file.name, ', 大小:', file.size, '字节, 类型:', file.type);
+
+        // 隐藏上传区域
+        const uploadSection = document.getElementById('uploadSection');
+        console.log('[AI文献解析] 上传区域元素:', uploadSection);
+        if (uploadSection) {
+            uploadSection.style.display = 'none';
+            console.log('[AI文献解析] 已隐藏上传区域');
+        } else {
+            console.error('[AI文献解析] 错误：未找到uploadSection元素');
+        }
+
+        // 显示分析区域
+        const analysisSection = document.getElementById('analysisSection');
+        console.log('[AI文献解析] 分析区域元素:', analysisSection);
+        if (analysisSection) {
+            analysisSection.classList.add('active');
+            console.log('[AI文献解析] 已显示分析区域');
+        } else {
+            console.error('[AI文献解析] 错误：未找到analysisSection元素');
+        }
+
+        // 更新文件信息
+        const docName = document.getElementById('docName');
+        const docMeta = document.getElementById('docMeta');
+        console.log('[AI文献解析] docName元素:', docName, ', docMeta元素:', docMeta);
+        
+        if (docName) {
+            docName.innerText = file.name;
+            console.log('[AI文献解析] 已更新文件名称:', file.name);
+        }
+        
+        if (docMeta) {
+            const formattedSize = formatFileSize(file.size);
+            docMeta.innerText = formattedSize + ' · ' + file.type;
+            console.log('[AI文献解析] 已更新文件元信息:', formattedSize, ',', file.type);
+        }
+
+        // 开始模拟分析过程
+        console.log('[AI文献解析] 准备调用startAnalysis()函数');
+        startAnalysis();
+    }
+
+    function formatFileSize(bytes) {
+        console.log('[AI文献解析] formatFileSize 调用，输入:', bytes);
+        let result;
+        if (bytes < 1024) {
+            result = bytes + ' B';
+        } else if (bytes < 1024 * 1024) {
+            result = (bytes / 1024).toFixed(1) + ' KB';
+        } else {
+            result = (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+        console.log('[AI文献解析] formatFileSize 返回:', result);
+        return result;
+    }
+
+    // 模拟分析过程
+    function startAnalysis() {
+        console.log('[AI文献解析] startAnalysis 函数开始执行');
+        
+        const progressStep = document.getElementById('progressStep');
+        console.log('[AI文献解析] progressStep元素:', progressStep);
+        
+        if (!progressStep) {
+            console.error('[AI文献解析] 错误：未找到progressStep元素');
+            return;
+        }
+
+        const steps = [
+            '正在读取文件内容...',
+            '正在提取关键信息...',
+            '正在生成词云数据...',
+            '正在生成摘要...',
+            '正在构建知识脑图...',
+            '正在生成试题...',
+            '分析完成！'
+        ];
+
+        console.log('[AI文献解析] 分析步骤总数:', steps.length);
+
+        let currentStep = 0;
+        const startTime = Date.now();
+        
+        const interval = setInterval(() => {
+            if (currentStep < steps.length) {
+                const stepName = steps[currentStep];
+                progressStep.innerText = stepName;
+                console.log('[AI文献解析] 分析进度:', currentStep + 1, '/', steps.length, '-', stepName, '耗时:', Date.now() - startTime, 'ms');
+                currentStep++;
+            } else {
+                clearInterval(interval);
+                console.log('[AI文献解析] 分析步骤完成，总耗时:', Date.now() - startTime, 'ms');
+                showResults();
+            }
+        }, 500);
+    }
+
+    // 显示分析结果
+    function showResults() {
+        console.log('[AI文献解析] showResults 函数开始执行');
+
+        // 隐藏进度区域
+        const analysisProgress = document.getElementById('analysisProgress');
+        console.log('[AI文献解析] analysisProgress元素:', analysisProgress);
+        if (analysisProgress) {
+            analysisProgress.style.display = 'none';
+            console.log('[AI文献解析] 已隐藏分析进度区域');
+        }
+
+        // 显示结果Tab
+        const resultTabs = document.getElementById('resultTabs');
+        console.log('[AI文献解析] resultTabs元素:', resultTabs);
+        if (resultTabs) {
+            resultTabs.style.display = 'flex';
+            console.log('[AI文献解析] 已显示结果Tab');
+        }
+
+        // 显示结果内容区域
+        const resultContent = document.getElementById('resultContent');
+        console.log('[AI文献解析] resultContent元素:', resultContent);
+        if (resultContent) {
+            resultContent.style.display = 'block';
+            console.log('[AI文献解析] 已显示结果内容区域');
+        }
+
+        // 渲染所有结果
+        console.log('[AI文献解析] 准备调用renderAllResults()函数');
+        renderAllResults();
+    }
+
+    // 渲染所有结果
+    function renderAllResults() {
+        renderWordcloud();
+        renderSummary();
+        renderMindmap();
+        renderQuizzes();
+    }
+
+    // 词云颜色主题方案
+    const wordcloudThemes = [
+        {
+            name: '紫色渐变',
+            colors: ['#6c2bd9', '#8b5cf6', '#a78bfa', '#c4b5fd', '#d8b4fe', '#a855f7', '#9333ea', '#7c3aed', '#6d28d9', '#5b21b6'],
+            bgColor: '#faf8ff'
+        },
+        {
+            name: '蓝色渐变',
+            colors: ['#1e40af', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a', '#1e3a8a'],
+            bgColor: '#f0f9ff'
+        },
+        {
+            name: '绿色渐变',
+            colors: ['#166534', '#22c55e', '#4ade80', '#86efac', '#bbf7d0', '#15803d', '#166534', '#14532d', '#22c55e', '#4ade80'],
+            bgColor: '#f0fdf4'
+        },
+        {
+            name: '橙色渐变',
+            colors: ['#9a3412', '#f97316', '#fb923c', '#fdba74', '#fed7aa', '#ea580c', '#c2410c', '#9a3412', '#f97316', '#fb923c'],
+            bgColor: '#fff7ed'
+        },
+        {
+            name: '粉色渐变',
+            colors: ['#9d174d', '#ec4899', '#f472b6', '#f9a8d4', '#fbcfe8', '#db2777', '#be185d', '#9d174d', '#ec4899', '#f472b6'],
+            bgColor: '#fff0f6'
+        },
+        {
+            name: '青色渐变',
+            colors: ['#0891b2', '#06b6d4', '#22d3ee', '#67e8f9', '#a5f3fc', '#0891b2', '#0e7490', '#06b6d4', '#22d3ee', '#67e8f9'],
+            bgColor: '#ecfeff'
+        }
+    ];
+
+    let wordcloudInterval = null;
+    let currentThemeIndex = 0;
+
+    // 渲染词云
+    function renderWordcloud() {
+        console.log('[AI文献解析] renderWordcloud 函数开始执行');
+        
+        const canvas = document.getElementById('wordcloudCanvas');
+        console.log('[AI文献解析] wordcloudCanvas元素:', canvas);
+        
+        if (!canvas) {
+            console.error('[AI文献解析] 错误：未找到wordcloudCanvas元素');
+            return;
+        }
+
+        // 设置canvas尺寸
+        const container = canvas.parentElement;
+        if (container) {
+            canvas.width = container.clientWidth;
+            canvas.height = 280;
+            console.log('[AI文献解析] canvas尺寸设置为:', canvas.width, 'x', canvas.height);
+        }
+
+        // 停止之前的循环
+        if (wordcloudInterval) {
+            clearInterval(wordcloudInterval);
+            wordcloudInterval = null;
+            console.log('[AI文献解析] 已清除之前的词云循环');
+        }
+
+        // 立即渲染第一个词云
+        drawWordcloud(currentThemeIndex);
+        
+        // 启动循环切换
+        wordcloudInterval = setInterval(() => {
+            currentThemeIndex = (currentThemeIndex + 1) % wordcloudThemes.length;
+            drawWordcloud(currentThemeIndex);
+        }, 5000);
+
+        console.log('[AI文献解析] 词云循环已启动，每5秒切换一次主题');
+    }
+
+    // 绘制单个词云
+    function drawWordcloud(themeIndex) {
+        const canvas = document.getElementById('wordcloudCanvas');
+        const ctx = canvas.getContext('2d');
+        const theme = wordcloudThemes[themeIndex];
+        
+        console.log('[AI文献解析] 绘制词云，主题:', theme.name, ', 索引:', themeIndex);
+
+        // 清除画布并设置背景
+        ctx.fillStyle = theme.bgColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 颜色函数 - 根据权重返回不同颜色
+        function getColor(word, weight) {
+            const colors = theme.colors;
+            const index = Math.floor((weight / 100) * (colors.length - 1));
+            return colors[Math.min(index, colors.length - 1)];
+        }
+
+        // 随机排列词云数据，增加变化
+        const shuffledList = [...mockLiteratureData.wordcloud].sort(() => Math.random() - 0.5);
+
+        WordCloud(canvas, {
+            list: shuffledList,
+            gridSize: Math.round(16 * canvas.width / 1024),
+            weightFactor: (size) => {
+                // 根据画布宽度动态调整词大小
+                const baseFactor = canvas.width / 300;
+                return size * baseFactor * 0.8;
+            },
+            fontFamily: 'Microsoft YaHei, SimHei, Arial',
+            color: getColor,
+            rotateRatio: 0.3,
+            rotationSteps: 3,
+            backgroundColor: 'transparent',
+            shuffle: true,
+            wait: 50,
+            minSize: 12,
+            shape: 'circle',
+            drawOutOfBound: false,
+            shrinkToFit: true,
+            fontFamily: 'Microsoft YaHei'
+        });
+
+        console.log('[AI文献解析] 词云绘制完成，主题:', theme.name);
+    }
+
+    // 停止词云循环（用于切换Tab时）
+    function stopWordcloudLoop() {
+        if (wordcloudInterval) {
+            clearInterval(wordcloudInterval);
+            wordcloudInterval = null;
+            console.log('[AI文献解析] 词云循环已停止');
+        }
+    }
+
+    // 渲染摘要
+    function renderSummary() {
+        document.getElementById('summaryText').innerHTML = mockLiteratureData.summary;
+    }
+
+    // 渲染脑图
+    function renderMindmap() {
+        if (mindmapChart) mindmapChart.dispose();
+        const dom = document.getElementById('mindmapChart');
+        if (!dom) return;
+        
+        mindmapChart = echarts.init(dom);
+        mindmapChart.setOption({
+            tooltip: { trigger: 'item', triggerOn: 'mousemove' },
+            series: [{
+                type: 'tree',
+                data: [mockLiteratureData.mindmap],
+                top: '5%',
+                bottom: '5%',
+                left: '15%',
+                right: '15%',
+                symbolSize: 8,
+                label: {
+                    position: 'left',
+                    verticalAlign: 'middle',
+                    align: 'right',
+                    fontSize: 11,
+                    color: '#4c1d95'
+                },
+                leaves: {
+                    label: {
+                        position: 'right',
+                        verticalAlign: 'middle',
+                        align: 'left',
+                        color: '#6d28d9'
+                    }
+                },
+                emphasis: {
+                    focus: 'descendant'
+                },
+                expandAndCollapse: true,
+                animationDuration: 550,
+                animationDurationUpdate: 750,
+                lineStyle: {
+                    color: '#c084fc',
+                    width: 1.5
+                },
+                itemStyle: {
+                    color: '#a855f7',
+                    borderColor: '#c084fc'
+                }
+            }]
+        });
+        
+        window.addEventListener('resize', () => mindmapChart && mindmapChart.resize());
+    }
+
+    // 渲染试题
+    function renderQuizzes() {
+        const container = document.getElementById('quizContainer');
+        let html = '';
+        
+        mockLiteratureData.quizzes.forEach((quiz, index) => {
+            html += `
+                <div class="quiz-item">
+                    <h4><span style="color:#a855f7;">${index + 1}.</span> ${quiz.q}</h4>
+                    <div class="quiz-options">
+                        ${quiz.opts.map((opt, idx) => `
+                            <div class="quiz-option" onclick="checkQuiz(${index}, ${idx})">
+                                ${String.fromCharCode(65 + idx)}. ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div id="quiz-feedback-${index}" class="quiz-feedback"></div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+
+    // 检查试题答案
+    function checkQuiz(quizIndex, optIndex) {
+        const quiz = mockLiteratureData.quizzes[quizIndex];
+        const feedback = document.getElementById(`quiz-feedback-${quizIndex}`);
+        
+        if (optIndex === quiz.ans) {
+            feedback.innerHTML = `<span style="color:#22c55e;"><i class="fas fa-check-circle"></i> 正确！${quiz.exp}</span>`;
+            feedback.className = 'quiz-feedback correct';
+        } else {
+            feedback.innerHTML = `<span style="color:#ef4444;"><i class="fas fa-times-circle"></i> 错误。正确答案是 ${String.fromCharCode(65 + quiz.ans)}。${quiz.exp}</span>`;
+            feedback.className = 'quiz-feedback wrong';
+        }
+    }
+
+    // 问答功能
+    function sendChatMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (!message) return;
+        
+        // 添加用户消息
+        addChatMessage('user', message);
+        input.value = '';
+        
+        // 模拟AI回复
+        setTimeout(() => {
+            const response = getChatResponse(message);
+            addChatMessage('ai', response);
+        }, 700);
+    }
+
+    function handleChatKey(event) {
+        if (event.key === 'Enter') {
+            sendChatMessage();
+        }
+    }
+
+    function addChatMessage(type, content) {
+        const container = document.getElementById('chatMessages');
+        const div = document.createElement('div');
+        div.className = `chat-message ${type}`;
+        div.innerHTML = `
+            <div class="chat-avatar ${type}">
+                <i class="fas fa-${type === 'user' ? 'user' : 'robot'}"></i>
+            </div>
+            <div class="chat-bubble ${type}">${content}</div>
+        `;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function getChatResponse(message) {
+        // 简单匹配关键词
+        for (const [key, response] of Object.entries(mockLiteratureData.chatResponses)) {
+            if (message.includes(key)) {
+                return response;
+            }
+        }
+        return '抱歉，我暂时无法回答这个问题。您可以尝试询问关于计算机组成、操作系统、网络安全、数据处理或人工智能方面的问题。';
+    }
+
+    // 切换结果Tab
+    document.querySelectorAll('.result-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.result-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            const resultType = tab.getAttribute('data-result');
+            document.querySelectorAll('.result-pane').forEach(p => p.classList.remove('active'));
+            document.getElementById(`result-${resultType}`).classList.add('active');
+            
+            // 如果切换到脑图，确保它正确渲染
+            if (resultType === 'mindmap') {
+                setTimeout(() => mindmapChart && mindmapChart.resize(), 100);
+            }
+            
+            // 如果切换到词云Tab，重新启动词云渲染
+            if (resultType === 'wordcloud') {
+                console.log('[AI文献解析] 切换到词云Tab，重新启动词云渲染');
+                renderWordcloud();
+            } else {
+                // 切换到其他Tab时停止词云循环，节省资源
+                stopWordcloudLoop();
+            }
+        });
+    });
+
+    // 重新上传
+    function resetUpload() {
+        console.log('[AI文献解析] resetUpload 函数开始执行');
+        
+        // 停止词云循环
+        stopWordcloudLoop();
+        currentThemeIndex = 0;
+        console.log('[AI文献解析] 已重置词云主题索引为0');
+        
+        document.getElementById('analysisSection').classList.remove('active');
+        document.getElementById('uploadSection').style.display = 'block';
+        document.getElementById('analysisProgress').style.display = 'block';
+        document.getElementById('resultTabs').style.display = 'none';
+        document.getElementById('resultContent').style.display = 'none';
+        document.getElementById('fileInput').value = '';
+        document.getElementById('progressStep').innerText = '正在读取文件内容...';
+        
+        console.log('[AI文献解析] 重新上传完成，已重置所有状态');
+    }
+
+    // ================= 教师学情分析功能 =================
+
+    // 知识点资源统计数据
+    const knowledgeResources = [
+        { id: 'kp1', name: '计算机基础知识', desc: '计算机发展、信息表示', resources: 4 },
+        { id: 'kp2', name: 'Windows操作系统', desc: '定制工作环境、资源管理', resources: 3 },
+        { id: 'kp3', name: '文字处理 Word', desc: '制作论文、批量通知书', resources: 5 },
+        { id: 'kp4', name: '数据处理 Excel', desc: '数据分析、图表透视表', resources: 4 },
+        { id: 'kp5', name: '文稿展示 PowerPoint', desc: '动画方案、多媒体应用', resources: 4 },
+        { id: 'kp6', name: 'Internet应用', desc: '网络基础、信息安全', resources: 4 }
+    ];
+
+    // 计算总资源数
+    function getTotalResources() {
+        return knowledgeResources.reduce((sum, kp) => sum + kp.resources, 0);
+    }
+
+    // 渲染知识点资源统计
+    function renderKnowledgeResources() {
+        console.log('[学情分析] renderKnowledgeResources 函数开始执行');
+
+        const container = document.getElementById('knowledgeResourcesList');
+        let html = '';
+
+        knowledgeResources.forEach(kp => {
+            html += `
+                <div class="knowledge-item">
+                    <div class="knowledge-info">
+                        <h4>${kp.name}</h4>
+                        <p>${kp.desc}</p>
+                    </div>
+                    <div class="knowledge-resource-count">${kp.resources}个资源</div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+        console.log('[学情分析] 知识点资源统计渲染完成，共', knowledgeResources.length, '个知识点');
+    }
+
+    // 当前选中的班级
+    let currentClassId = 'class1';
+
+    // 模拟多班级数据
+    const classData = {
+        class1: {
+            name: '2024级计科1班',
+            students: [
+                { id: 1, name: '张小明', className: '2024级计科1班', completionRate: 95, masteryRate: 92, score: 94, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:100,status:'completed'},{name:'文字处理 Word',progress:100,status:'completed'},{name:'数据处理 Excel',progress:90,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:80,status:'in-progress'},{name:'Internet应用',progress:100,status:'completed'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:95,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:92,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:94,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 2, name: '李芳芳', className: '2024级计科1班', completionRate: 88, masteryRate: 85, score: 87, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:95,status:'in-progress'},{name:'文字处理 Word',progress:85,status:'in-progress'},{name:'数据处理 Excel',progress:80,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:70,status:'incomplete'},{name:'Internet应用',progress:90,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:88,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:85,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:87,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 3, name: '王浩然', className: '2024级计科1班', completionRate: 75, masteryRate: 68, score: 72, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:80,status:'in-progress'},{name:'文字处理 Word',progress:70,status:'incomplete'},{name:'数据处理 Excel',progress:60,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:50,status:'incomplete'},{name:'Internet应用',progress:85,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:76,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:70,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:72,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'unsubmitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 4, name: '陈雨婷', className: '2024级计科1班', completionRate: 92, masteryRate: 88, score: 90, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:100,status:'completed'},{name:'文字处理 Word',progress:95,status:'in-progress'},{name:'数据处理 Excel',progress:90,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:85,status:'in-progress'},{name:'Internet应用',progress:100,status:'completed'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:92,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:88,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:90,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 5, name: '刘子轩', className: '2024级计科1班', completionRate: 68, masteryRate: 60, score: 65, contents: [{name:'计算机基础知识',progress:80,status:'in-progress'},{name:'Windows操作系统',progress:70,status:'incomplete'},{name:'文字处理 Word',progress:60,status:'incomplete'},{name:'数据处理 Excel',progress:50,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:45,status:'incomplete'},{name:'Internet应用',progress:75,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:68,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:62,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:65,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'unsubmitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 6, name: '赵雅琪', className: '2024级计科1班', completionRate: 98, masteryRate: 95, score: 96, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:100,status:'completed'},{name:'文字处理 Word',progress:100,status:'completed'},{name:'数据处理 Excel',progress:100,status:'completed'},{name:'文稿展示 PowerPoint',progress:100,status:'completed'},{name:'Internet应用',progress:100,status:'completed'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:98,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:96,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:96,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 7, name: '孙博文', className: '2024级计科1班', completionRate: 82, masteryRate: 76, score: 80, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:90,status:'in-progress'},{name:'文字处理 Word',progress:80,status:'in-progress'},{name:'数据处理 Excel',progress:70,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:75,status:'incomplete'},{name:'Internet应用',progress:85,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:84,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:78,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:80,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 8, name: '周雨涵', className: '2024级计科1班', completionRate: 78, masteryRate: 72, score: 75, contents: [{name:'计算机基础知识',progress:95,status:'in-progress'},{name:'Windows操作系统',progress:85,status:'in-progress'},{name:'文字处理 Word',progress:75,status:'incomplete'},{name:'数据处理 Excel',progress:65,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:60,status:'incomplete'},{name:'Internet应用',progress:80,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:80,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:72,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:75,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'unsubmitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 9, name: '吴俊杰', className: '2024级计科1班', completionRate: 90, masteryRate: 86, score: 88, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:100,status:'completed'},{name:'文字处理 Word',progress:90,status:'in-progress'},{name:'数据处理 Excel',progress:85,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:80,status:'in-progress'},{name:'Internet应用',progress:95,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:90,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:86,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:88,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 10, name: '郑欣怡', className: '2024级计科1班', completionRate: 85, masteryRate: 79, score: 83, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:90,status:'in-progress'},{name:'文字处理 Word',progress:85,status:'in-progress'},{name:'数据处理 Excel',progress:75,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:80,status:'in-progress'},{name:'Internet应用',progress:85,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:86,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:82,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:83,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] }
+            ]
+        },
+        class2: {
+            name: '2024级计科2班',
+            students: [
+                { id: 11, name: '刘建华', className: '2024级计科2班', completionRate: 93, masteryRate: 89, score: 91, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:100,status:'completed'},{name:'文字处理 Word',progress:95,status:'in-progress'},{name:'数据处理 Excel',progress:85,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:88,status:'in-progress'},{name:'Internet应用',progress:100,status:'completed'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:93,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:89,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:91,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 12, name: '张晓燕', className: '2024级计科2班', completionRate: 85, masteryRate: 82, score: 84, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:90,status:'in-progress'},{name:'文字处理 Word',progress:80,status:'in-progress'},{name:'数据处理 Excel',progress:75,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:78,status:'in-progress'},{name:'Internet应用',progress:90,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:86,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:82,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:84,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 13, name: '王思远', className: '2024级计科2班', completionRate: 72, masteryRate: 65, score: 69, contents: [{name:'计算机基础知识',progress:90,status:'in-progress'},{name:'Windows操作系统',progress:75,status:'in-progress'},{name:'文字处理 Word',progress:65,status:'incomplete'},{name:'数据处理 Excel',progress:55,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:50,status:'incomplete'},{name:'Internet应用',progress:70,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:74,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:66,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:69,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'unsubmitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 14, name: '李婷婷', className: '2024级计科2班', completionRate: 96, masteryRate: 93, score: 95, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:100,status:'completed'},{name:'文字处理 Word',progress:100,status:'completed'},{name:'数据处理 Excel',progress:95,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:92,status:'in-progress'},{name:'Internet应用',progress:100,status:'completed'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:96,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:94,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:95,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 15, name: '陈志强', className: '2024级计科2班', completionRate: 78, masteryRate: 73, score: 76, contents: [{name:'计算机基础知识',progress:95,status:'in-progress'},{name:'Windows操作系统',progress:85,status:'in-progress'},{name:'文字处理 Word',progress:75,status:'in-progress'},{name:'数据处理 Excel',progress:68,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:65,status:'incomplete'},{name:'Internet应用',progress:82,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:80,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:74,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:76,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 16, name: '刘雨萱', className: '2024级计科2班', completionRate: 88, masteryRate: 84, score: 86, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:95,status:'in-progress'},{name:'文字处理 Word',progress:88,status:'in-progress'},{name:'数据处理 Excel',progress:82,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:80,status:'in-progress'},{name:'Internet应用',progress:92,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:89,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:85,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:86,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 17, name: '王博文', className: '2024级计科2班', completionRate: 80, masteryRate: 75, score: 78, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:88,status:'in-progress'},{name:'文字处理 Word',progress:78,status:'in-progress'},{name:'数据处理 Excel',progress:72,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:70,status:'incomplete'},{name:'Internet应用',progress:85,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:82,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:76,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:78,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 18, name: '赵雨涵', className: '2024级计科2班', completionRate: 91, masteryRate: 87, score: 89, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:100,status:'completed'},{name:'文字处理 Word',progress:92,status:'in-progress'},{name:'数据处理 Excel',progress:88,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:85,status:'in-progress'},{name:'Internet应用',progress:96,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:91,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:88,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:89,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] }
+            ]
+        },
+        class3: {
+            name: '2024级软件工程班',
+            students: [
+                { id: 19, name: '孙浩宇', className: '2024级软件工程班', completionRate: 94, masteryRate: 91, score: 93, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:100,status:'completed'},{name:'文字处理 Word',progress:98,status:'in-progress'},{name:'数据处理 Excel',progress:92,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:88,status:'in-progress'},{name:'Internet应用',progress:100,status:'completed'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:94,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:92,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:93,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 20, name: '周欣怡', className: '2024级软件工程班', completionRate: 86, masteryRate: 83, score: 85, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:92,status:'in-progress'},{name:'文字处理 Word',progress:84,status:'in-progress'},{name:'数据处理 Excel',progress:78,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:75,status:'incomplete'},{name:'Internet应用',progress:88,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:87,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:84,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:85,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 21, name: '吴志强', className: '2024级软件工程班', completionRate: 74, masteryRate: 68, score: 71, contents: [{name:'计算机基础知识',progress:88,status:'in-progress'},{name:'Windows操作系统',progress:72,status:'in-progress'},{name:'文字处理 Word',progress:62,status:'incomplete'},{name:'数据处理 Excel',progress:58,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:52,status:'incomplete'},{name:'Internet应用',progress:74,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:75,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:68,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:71,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'unsubmitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 22, name: '郑婷婷', className: '2024级软件工程班', completionRate: 97, masteryRate: 94, score: 96, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:100,status:'completed'},{name:'文字处理 Word',progress:100,status:'completed'},{name:'数据处理 Excel',progress:98,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:95,status:'in-progress'},{name:'Internet应用',progress:100,status:'completed'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:98,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:95,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:96,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 23, name: '黄博文', className: '2024级软件工程班', completionRate: 82, masteryRate: 78, score: 80, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:88,status:'in-progress'},{name:'文字处理 Word',progress:80,status:'in-progress'},{name:'数据处理 Excel',progress:74,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:72,status:'incomplete'},{name:'Internet应用',progress:84,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:83,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:78,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:80,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 24, name: '林雨萱', className: '2024级软件工程班', completionRate: 89, masteryRate: 85, score: 87, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:94,status:'in-progress'},{name:'文字处理 Word',progress:86,status:'in-progress'},{name:'数据处理 Excel',progress:84,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:82,status:'in-progress'},{name:'Internet应用',progress:90,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:90,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:86,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:87,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] }
+            ]
+        },
+        class4: {
+            name: '2024级网络工程班',
+            students: [
+                { id: 25, name: '何浩宇', className: '2024级网络工程班', completionRate: 92, masteryRate: 88, score: 90, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:100,status:'completed'},{name:'文字处理 Word',progress:94,status:'in-progress'},{name:'数据处理 Excel',progress:88,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:86,status:'in-progress'},{name:'Internet应用',progress:98,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:92,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:89,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:90,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 26, name: '罗欣怡', className: '2024级网络工程班', completionRate: 84, masteryRate: 80, score: 82, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:88,status:'in-progress'},{name:'文字处理 Word',progress:82,status:'in-progress'},{name:'数据处理 Excel',progress:76,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:72,status:'incomplete'},{name:'Internet应用',progress:86,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:85,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:81,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:82,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 27, name: '郭志强', className: '2024级网络工程班', completionRate: 76, masteryRate: 71, score: 74, contents: [{name:'计算机基础知识',progress:92,status:'in-progress'},{name:'Windows操作系统',progress:78,status:'in-progress'},{name:'文字处理 Word',progress:68,status:'incomplete'},{name:'数据处理 Excel',progress:62,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:58,status:'incomplete'},{name:'Internet应用',progress:78,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:77,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:72,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:74,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'unsubmitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 28, name: '梁婷婷', className: '2024级网络工程班', completionRate: 95, masteryRate: 92, score: 94, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:100,status:'completed'},{name:'文字处理 Word',progress:98,status:'in-progress'},{name:'数据处理 Excel',progress:94,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:90,status:'in-progress'},{name:'Internet应用',progress:100,status:'completed'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:95,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:93,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:94,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 29, name: '谢博文', className: '2024级网络工程班', completionRate: 80, masteryRate: 75, score: 78, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:86,status:'in-progress'},{name:'文字处理 Word',progress:78,status:'in-progress'},{name:'数据处理 Excel',progress:70,status:'incomplete'},{name:'文稿展示 PowerPoint',progress:68,status:'incomplete'},{name:'Internet应用',progress:82,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:81,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:76,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:78,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] },
+                { id: 30, name: '韩雨萱', className: '2024级网络工程班', completionRate: 87, masteryRate: 83, score: 85, contents: [{name:'计算机基础知识',progress:100,status:'completed'},{name:'Windows操作系统',progress:90,status:'in-progress'},{name:'文字处理 Word',progress:84,status:'in-progress'},{name:'数据处理 Excel',progress:80,status:'in-progress'},{name:'文稿展示 PowerPoint',progress:78,status:'in-progress'},{name:'Internet应用',progress:88,status:'in-progress'}], assignments: [{name:'第一章作业',type:'作业',status:'graded',score:88,deadline:'2024-09-15'},{name:'第二章作业',type:'作业',status:'graded',score:84,deadline:'2024-09-22'},{name:'期中考试',type:'考试',status:'graded',score:85,deadline:'2024-10-08'},{name:'第三章作业',type:'作业',status:'submitted',score:'-',deadline:'2024-10-13'}] }
+            ]
+        }
+    };
+
+    // 获取当前班级学生列表
+    function getCurrentStudents() {
+        return classData[currentClassId]?.students || [];
+    }
+
+    // 获取当前班级信息
+    function getCurrentClassInfo() {
+        return classData[currentClassId] || { name: '', students: [] };
+    }
+
+    // 切换班级
+    function switchClass(classId) {
+        console.log('[学情分析] switchClass 函数开始执行，班级ID:', classId);
+        
+        currentClassId = classId;
+        const classInfo = getCurrentClassInfo();
+        
+        console.log('[学情分析] 切换到班级:', classInfo.name, ', 学生数量:', classInfo.students.length);
+        
+        // 返回班级概览
+        backToClassOverview();
+    }
+
+    // 渲染班级概览
+    function renderClassOverview() {
+        console.log('[学情分析] renderClassOverview 函数开始执行');
+
+        const classInfo = getCurrentClassInfo();
+        const students = getCurrentStudents();
+
+        // 计算统计数据
+        const totalResources = getTotalResources();
+        const avgCompletion = students.length > 0 ? Math.round(students.reduce((sum, s) => sum + s.completionRate, 0) / students.length) : 0;
+        const avgMastery = students.length > 0 ? Math.round(students.reduce((sum, s) => sum + s.masteryRate, 0) / students.length) : 0;
+
+        // 更新统计卡片
+        document.getElementById('resourceCount').innerText = totalResources;
+        document.getElementById('avgCompletion').innerText = avgCompletion + '%';
+        document.getElementById('avgMastery').innerText = avgMastery + '%';
+        document.getElementById('studentCount').innerText = '共 ' + students.length + ' 人';
+
+        console.log('[学情分析] 统计数据 - 资源总数:', totalResources, ', 平均完成率:', avgCompletion, '%, 平均掌握率:', avgMastery, '%');
+
+        // 渲染知识点资源统计
+        renderKnowledgeResources();
+
+        // 渲染学生列表
+        const studentList = document.getElementById('studentList');
+        let html = '';
+
+        students.forEach(student => {
+            html += `
+                <div class="student-card" onclick="openStudentDetail(${student.id})">
+                    <div class="student-avatar">${student.name.charAt(0)}</div>
+                    <div class="student-info">
+                        <h4>${student.name}</h4>
+                        <p>掌握率: ${student.masteryRate}%</p>
+                    </div>
+                    <div class="student-progress">
+                        <div class="student-progress-value">${student.completionRate}%</div>
+                        <div class="student-progress-label">完成率</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        studentList.innerHTML = html;
+        console.log('[学情分析] 学生列表渲染完成，共', students.length, '名学生');
+    }
+
+    // 打开学生详情
+    function openStudentDetail(studentId) {
+        console.log('[学情分析] openStudentDetail 函数开始执行，学生ID:', studentId);
+
+        // 在所有班级中查找学生
+        let student = null;
+        for (const classId of Object.keys(classData)) {
+            student = classData[classId].students.find(s => s.id === studentId);
+            if (student) break;
+        }
+        
+        if (!student) {
+            console.error('[学情分析] 错误：未找到学生ID:', studentId);
+            return;
+        }
+
+        // 更新学生信息
+        document.getElementById('studentName').innerText = student.name;
+        document.getElementById('studentClass').innerText = student.className;
+        document.getElementById('studentCompletion').innerText = student.completionRate + '%';
+        document.getElementById('studentMastery').innerText = student.masteryRate + '%';
+        document.getElementById('studentScore').innerText = student.score;
+
+        console.log('[学情分析] 学生信息 - 姓名:', student.name, ', 完成率:', student.completionRate, '%, 掌握率:', student.masteryRate, '%, 综合评分:', student.score);
+
+        // 渲染学习内容完成情况
+        renderContentList(student.contents);
+
+        // 渲染作业考试完成情况
+        renderAssignmentList(student.assignments);
+
+        // 切换视图
+        document.getElementById('classOverview').style.display = 'none';
+        document.getElementById('studentDetail').style.display = 'block';
+
+        console.log('[学情分析] 已切换到学生详情视图');
+    }
+
+    // 渲染学习内容列表
+    function renderContentList(contents) {
+        console.log('[学情分析] renderContentList 函数开始执行');
+
+        const contentList = document.getElementById('contentList');
+        let html = '';
+
+        contents.forEach(content => {
+            let statusClass = '';
+            let statusText = '';
+            switch (content.status) {
+                case 'completed':
+                    statusClass = 'completed';
+                    statusText = '已完成';
+                    break;
+                case 'in-progress':
+                    statusClass = 'in-progress';
+                    statusText = '进行中';
+                    break;
+                case 'incomplete':
+                    statusClass = 'incomplete';
+                    statusText = '未完成';
+                    break;
+            }
+
+            html += `
+                <div class="content-item">
+                    <div class="content-item-info">
+                        <h4>${content.name}</h4>
+                        <div class="content-progress-bar">
+                            <div class="content-progress-fill" style="width: ${content.progress}%"></div>
+                        </div>
+                    </div>
+                    <div class="content-status ${statusClass}">${statusText}</div>
+                </div>
+            `;
+        });
+
+        contentList.innerHTML = html;
+        console.log('[学情分析] 学习内容列表渲染完成，共', contents.length, '项');
+    }
+
+    // 渲染作业列表
+    function renderAssignmentList(assignments) {
+        console.log('[学情分析] renderAssignmentList 函数开始执行');
+
+        const assignmentList = document.getElementById('assignmentList');
+        let html = '';
+
+        assignments.forEach(assignment => {
+            let statusClass = '';
+            let statusText = '';
+            switch (assignment.status) {
+                case 'graded':
+                    statusClass = 'graded';
+                    statusText = '已批改';
+                    break;
+                case 'submitted':
+                    statusClass = 'submitted';
+                    statusText = '已提交';
+                    break;
+                case 'unsubmitted':
+                    statusClass = 'unsubmitted';
+                    statusText = '未提交';
+                    break;
+            }
+
+            html += `
+                <div class="assignment-item">
+                    <div class="assignment-header">
+                        <h4>${assignment.name}</h4>
+                        <span class="assignment-type">${assignment.type}</span>
+                    </div>
+                    <div class="assignment-info">
+                        <span>截止: ${assignment.deadline}</span>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span class="assignment-score">${assignment.score}分</span>
+                            <span class="assignment-status ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        assignmentList.innerHTML = html;
+        console.log('[学情分析] 作业列表渲染完成，共', assignments.length, '项');
+    }
+
+    // 返回班级概览
+    function backToClassOverview() {
+        console.log('[学情分析] backToClassOverview 函数开始执行');
+
+        document.getElementById('studentDetail').style.display = 'none';
+        document.getElementById('classOverview').style.display = 'block';
+
+        console.log('[学情分析] 已切换回班级概览视图');
+    }
+</script>
+</body>
+</html>
