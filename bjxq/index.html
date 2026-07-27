@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>学情分析</title>
+    <!-- ECharts & Font Awesome -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f3effc;
+            font-family: 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+            padding: 24px 20px;
+        }
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        /* 紫色主题头部 */
+        .header {
+            background: linear-gradient(135deg, #6c2bd9, #9b4dff);
+            border-radius: 32px;
+            padding: 20px 28px;
+            margin-bottom: 28px;
+            color: white;
+            box-shadow: 0 12px 20px -8px rgba(91, 33, 182, 0.35);
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+        }
+        .header p {
+            opacity: 0.9;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+        /* 班级选择器卡片 */
+        .class-selector-card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 32px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9dcff;
+        }
+        .class-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .class-btn {
+            background: #f5f0ff;
+            border: 1px solid #d9c9ff;
+            border-radius: 60px;
+            padding: 12px 28px;
+            font-weight: 600;
+            color: #4c1d95;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+        .class-btn.active {
+            background: #8b5cf6;
+            color: white;
+            border-color: #8b5cf6;
+            box-shadow: 0 6px 14px rgba(139, 92, 246, 0.3);
+        }
+        .class-btn:hover {
+            transform: translateY(-2px);
+        }
+        /* 卡片通用样式 */
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(2px);
+            border-radius: 28px;
+            padding: 20px 22px;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9dcff;
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #4c1d95;
+            border-left: 5px solid #a855f7;
+            padding-left: 16px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .grid-2cols {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+        .grid-3cols {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .kpi-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+        .kpi-item {
+            flex: 1;
+            background: white;
+            border-radius: 28px;
+            padding: 18px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border: 1px solid #ede6ff;
+        }
+        .kpi-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #7c3aed;
+        }
+        .student-rank {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        .rank-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0eaff;
+            font-weight: 500;
+        }
+        .rank-name { color: #2d1967; }
+        .rank-score { color: #a855f7; font-weight: 700; }
+        .badge {
+            background: #ede9fe;
+            border-radius: 40px;
+            padding: 2px 12px;
+            font-size: 0.7rem;
+            color: #6d28d9;
+        }
+        .class-compare-select {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        select {
+            background: #f9f5ff;
+            border: 1px solid #d9c9ff;
+            border-radius: 40px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            color: #4c1d95;
+            font-weight: 500;
+        }
+        button {
+            background: #8b5cf6;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 20px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:active { transform: scale(0.96); }
+        .chart-box {
+            width: 100%;
+            height: 280px;
+        }
+        .graph-container {
+            width: 100%;
+            height: 420px;
+            background: #fefbff;
+            border-radius: 24px;
+        }
+        .resource-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .resource-item {
+            background: #f5efff;
+            border-radius: 24px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.1s;
+        }
+        .resource-item i {
+            font-size: 1.4rem;
+            color: #a855f7;
+        }
+        .resource-item a {
+            text-decoration: none;
+            color: #4c1d95;
+            font-weight: 500;
+            flex: 1;
+        }
+        .tag {
+            background: white;
+            border-radius: 30px;
+            padding: 2px 12px;
+            font-size: 0.7rem;
+            color: #7c3aed;
+        }
+        .knowledge-insight {
+            background: #f9f5ff;
+            border-radius: 24px;
+            padding: 14px;
+            margin-top: 12px;
+        }
+        hr {
+            margin: 12px 0;
+            border-color: #ede6ff;
+        }
+        @media (max-width: 1000px) {
+            .grid-2cols, .grid-3cols { grid-template-columns: 1fr; }
+            body { padding: 16px; }
+        }
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #a78bfa;
+            margin-top: 20px;
+        }
+        .current-class-badge {
+            background: #ede9fe;
+            border-radius: 60px;
+            padding: 6px 18px;
+            display: inline-block;
+            margin-bottom: 16px;
+            font-weight: 600;
+            color: #6d28d9;
+        }
+
+        /* 教学预警模块样式 */
+        .warning-module {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(2px);
+            border-radius: 28px;
+            padding: 20px 22px;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9dcff;
+        }
+        .warning-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .warning-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #4c1d95;
+            border-left: 5px solid #f97316;
+            padding-left: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .warning-settings {
+            background: #fef7ed;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #fed7aa;
+        }
+        .warning-form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            align-items: end;
+        }
+        .warning-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .warning-form-group label {
+            font-weight: 600;
+            color: #7c3aed;
+            font-size: 0.85rem;
+        }
+        .warning-form-group select,
+        .warning-form-group input {
+            background: white;
+            border: 1px solid #d9c9ff;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            color: #4c1d95;
+            font-weight: 500;
+        }
+        .warning-form-group input::placeholder {
+            color: #a78bfa;
+        }
+        .warning-hint {
+            font-size: 0.75rem;
+            color: #f97316;
+        }
+        .warning-btn {
+            background: linear-gradient(135deg, #f97316, #fb923c);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .warning-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(249, 115, 22, 0.3);
+        }
+        .warning-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* 预警学生列表 */
+        .warning-results {
+            margin-bottom: 20px;
+        }
+        .warning-result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .warning-result-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #4c1d95;
+        }
+        .warning-count {
+            background: #fef2f2;
+            color: #ef4444;
+            border-radius: 60px;
+            padding: 4px 14px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .warning-filter-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .warning-filter-btn {
+            background: #f5f0ff;
+            border: 1px solid #d9c9ff;
+            border-radius: 12px;
+            padding: 8px 16px;
+            color: #6d28d9;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .warning-filter-btn:hover {
+            background: #ede9fe;
+        }
+        .warning-student-list {
+            max-height: 320px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .warning-student-item {
+            background: #fff7ed;
+            border-radius: 16px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #fed7aa;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .warning-student-item:hover {
+            background: #ffedd5;
+            transform: translateX(4px);
+        }
+        .warning-student-item.selected {
+            background: #fef2f2;
+            border-color: #fca5a5;
+        }
+        .warning-student-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .warning-student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f97316, #fb923c);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .warning-student-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .warning-student-name {
+            font-weight: 600;
+            color: #4c1d95;
+        }
+        .warning-student-reason {
+            font-size: 0.8rem;
+            color: #f97316;
+        }
+        .warning-student-score {
+            font-weight: 700;
+            color: #ef4444;
+            font-size: 1.1rem;
+        }
+        .warning-student-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: #f97316;
+        }
+
+        /* 督学记录 */
+        .supervision-section {
+            margin-top: 20px;
+        }
+        .supervision-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .supervision-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #4c1d95;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .supervision-list {
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .supervision-item {
+            background: #f9f5ff;
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        .supervision-content {
+            color: #4c1d95;
+        }
+        .supervision-time {
+            color: #a78bfa;
+            font-size: 0.75rem;
+        }
+        .supervision-status {
+            background: #dcfce7;
+            color: #22c55e;
+            border-radius: 40px;
+            padding: 2px 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* 通知发送模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #4c1d95;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-form-group {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .modal-form-group label {
+            font-weight: 600;
+            color: #7c3aed;
+            font-size: 0.9rem;
+        }
+        .modal-form-group select,
+        .modal-form-group textarea {
+            background: #f9f5ff;
+            border: 1px solid #d9c9ff;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.9rem;
+            color: #4c1d95;
+        }
+        .modal-form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #a855f7;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .modal-btn-secondary {
+            background: #f5f0ff;
+            border: 1px solid #d9c9ff;
+            border-radius: 12px;
+            padding: 10px 24px;
+            color: #6d28d9;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .modal-btn-secondary:hover {
+            background: #ede9fe;
+        }
+        .modal-btn-primary {
+            background: linear-gradient(135deg, #a855f7, #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            padding: 10px 24px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(168, 85, 247, 0.3);
+        }
+
+        /* 通知统计 */
+        .notification-stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #ede6ff;
+        }
+        .notification-stat-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background: #f9f5ff;
+            border-radius: 12px;
+        }
+        .notification-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #a855f7;
+        }
+        .notification-stat-label {
+            font-size: 0.75rem;
+            color: #7c3aed;
+            margin-top: 4px;
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 16px;
+            padding: 14px 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+            animation: toastSlideIn 0.3s ease;
+            border-left: 4px solid #22c55e;
+        }
+        .toast.error {
+            border-left-color: #ef4444;
+        }
+        .toast.warning {
+            border-left-color: #f97316;
+        }
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <h1><i class="fas fa-chalkboard-teacher"></i> 学情分析</h1>
+        <p>教师学情驾驶舱 | 多班级对比 · 知识图谱 · 个性化学习分析</p>
+    </div>
+
+    <!-- 班级选择卡片 -->
+    <div class="class-selector-card">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: space-between;">
+            <div><i class="fas fa-users" style="color:#a855f7; font-size:1.4rem;"></i> <strong style="font-size:1.1rem;">选择班级</strong></div>
+            <div id="currentClassDisplay" class="current-class-badge"><i class="fas fa-check-circle"></i> 当前：2024级计算机1班</div>
+        </div>
+        <div class="class-buttons" id="classButtonContainer">
+            <button class="class-btn" data-class="计算机1班">2024级计算机1班</button>
+            <button class="class-btn" data-class="计算机2班">2024级计算机2班</button>
+            <button class="class-btn" data-class="软件工程1班">2024级软件工程1班</button>
+            <button class="class-btn" data-class="软件工程2班">2024级软件工程2班</button>
+        </div>
+    </div>
+
+    <!-- 学情监测主内容区（不同班级数据动态更新） -->
+    <div id="dashboardContent">
+        <!-- 关键指标 -->
+        <div class="kpi-row" id="kpiArea"></div>
+
+        <!-- 第一行：知识点完成率 & 掌握率 + 学生排行 & 分段统计 -->
+        <div class="grid-2cols">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-chart-simple"></i> 知识点完成率 & 掌握率</div>
+                <div id="kpChart" class="chart-box"></div>
+                <div class="knowledge-insight"><i class="fas fa-lightbulb"></i> 注：紫色为完成率，深紫色为掌握率，点击图谱可查看关联活动数据</div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-trophy"></i> 学生综合排行 & 分段统计</div>
+                <div class="grid-2cols" style="gap:16px;">
+                    <div class="student-rank">
+                        <div style="font-weight:700; margin-bottom:8px;">🏅 前5名学霸</div>
+                        <div id="rankList"></div>
+                    </div>
+                    <div>
+                        <div id="scoreSegmentChart" style="height:180px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第二行：多班级对比 + 知识点分类学习画像 -->
+        <div class="grid-2cols">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-chart-column"></i> 多班级对比 掌握率与完成率差异</div>
+                <div class="class-compare-select">
+                    <span>对比维度：</span>
+                    <select id="compareMetric">
+                        <option value="mastery">掌握率</option>
+                        <option value="complete">完成率</option>
+                    </select>
+                    <button id="refreshCompareBtn"><i class="fas fa-sync-alt"></i> 刷新对比</button>
+                </div>
+                <div id="classCompareChart" class="chart-box" style="height:260px;"></div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-chart-pie"></i> 知识点分类学习画像 雷达图</div>
+                <div id="radarChart" class="chart-box" style="height:260px;"></div>
+                <div class="knowledge-insight"><i class="fas fa-chart-line"></i> 各维度掌握度：算法/数据结构/数据库/网络/操作系统</div>
+            </div>
+        </div>
+
+        <!-- 第三行：知识图谱 -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-project-diagram"></i> 知识图谱 · 关联课堂活动 作业 考试数据</div>
+            <div id="knowledgeGraph" class="graph-container"></div>
+            <div id="graphDetailPanel" style="margin-top: 16px; background:#f9f3ff; border-radius: 24px; padding: 12px 16px; font-size:0.85rem;">
+                <i class="fas fa-info-circle"></i> 点击图谱中任意知识点节点，显示关联的课堂活动、作业及考试详情
+            </div>
+        </div>
+
+        <!-- 第四行：个性化学习分析 + 拓展资源推荐（真实链接） -->
+        <div class="grid-2cols">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-user-graduate"></i> 个性化学习分析 班级薄弱项</div>
+                <div id="weaknessAnalysis" style="margin-bottom: 12px;"></div>
+                <div id="personalChart" style="height:140px;"></div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-external-link-alt"></i> 拓展资源推荐 基于学情</div>
+                <div id="resourceRecommend" class="resource-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 教学预警模块 -->
+    <div class="warning-module">
+        <div class="warning-header">
+            <div class="warning-title"><i class="fas fa-exclamation-triangle"></i> 教学预警</div>
+            <span class="badge">支持多维度预警条件设置</span>
+        </div>
+
+        <!-- 预警条件设置 -->
+        <div class="warning-settings">
+            <div class="warning-form-row">
+                <div class="warning-form-group">
+                    <label>预警类型</label>
+                    <select id="warningType">
+                        <option value="task">任务点完成度</option>
+                        <option value="quiz">章节测验</option>
+                        <option value="assignment">作业</option>
+                        <option value="visit">访问次数</option>
+                        <option value="exam">考试</option>
+                        <option value="score">综合成绩</option>
+                    </select>
+                </div>
+                <div class="warning-form-group">
+                    <label>阈值设置</label>
+                    <input type="number" id="warningThreshold" placeholder="输入阈值" value="60">
+                    <div class="warning-hint">低于此值将触发预警</div>
+                </div>
+                <div class="warning-form-group">
+                    <label>预警范围</label>
+                    <select id="warningScope">
+                        <option value="class">当前班级</option>
+                        <option value="department">院系</option>
+                        <option value="school">全校</option>
+                    </select>
+                </div>
+                <div class="warning-form-group">
+                    <label></label>
+                    <button class="warning-btn" onclick="applyWarning()">
+                        <i class="fas fa-search"></i> 应用预警
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 预警结果 -->
+        <div class="warning-results">
+            <div class="warning-result-header">
+                <div class="warning-result-title">
+                    <i class="fas fa-users"></i> 预警学生列表
+                    <span class="warning-count" id="warningCount">0</span>
+                </div>
+                <div class="warning-filter-controls">
+                    <button class="warning-filter-btn" onclick="selectAllStudents()">
+                        <i class="fas fa-check-square"></i> 全选
+                    </button>
+                    <button class="warning-filter-btn" onclick="exportWarningList()">
+                        <i class="fas fa-file-export"></i> 导出列表
+                    </button>
+                    <button class="warning-filter-btn" onclick="sendNotification()">
+                        <i class="fas fa-bell"></i> 发送通知
+                    </button>
+                </div>
+            </div>
+            <div class="warning-student-list" id="warningStudentList"></div>
+        </div>
+
+        <!-- 督学记录 -->
+        <div class="supervision-section">
+            <div class="supervision-header">
+                <div class="supervision-title"><i class="fas fa-history"></i> 督学记录</div>
+                <button class="warning-filter-btn" onclick="viewAllRecords()">查看全部</button>
+            </div>
+            <div class="supervision-list" id="supervisionList"></div>
+        </div>
+    </div>
+
+    <!-- 通知发送模态框 -->
+    <div class="modal-overlay" id="notificationModal">
+        <div class="modal-box">
+            <div class="modal-title"><i class="fas fa-bell"></i> 发送通知</div>
+            
+            <div class="modal-form-group">
+                <label>通知范围</label>
+                <select id="notificationScope">
+                    <option value="selected">选中学生</option>
+                    <option value="class">当前班级</option>
+                    <option value="department">院系</option>
+                    <option value="school">全校</option>
+                </select>
+            </div>
+
+            <div class="modal-form-group">
+                <label>通知渠道</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" checked value="sms"> <i class="fas fa-mobile-alt"></i> 短信</label>
+                    <label><input type="checkbox" checked value="wechat"> <i class="fab fa-weixin"></i> 微信</label>
+                    <label><input type="checkbox" value="phone"> <i class="fas fa-phone"></i> 电话</label>
+                </div>
+            </div>
+
+            <div class="modal-form-group">
+                <label>通知内容</label>
+                <textarea id="notificationContent" placeholder="输入通知内容，例如：同学你好，你的作业完成度较低，请及时完成。"></textarea>
+            </div>
+
+            <div class="notification-stats">
+                <div class="notification-stat-item">
+                    <div class="notification-stat-value" id="statTotal">0</div>
+                    <div class="notification-stat-label">总人数</div>
+                </div>
+                <div class="notification-stat-item">
+                    <div class="notification-stat-value" id="statRead">0</div>
+                    <div class="notification-stat-label">已读</div>
+                </div>
+                <div class="notification-stat-item">
+                    <div class="notification-stat-value" id="statUnread">0</div>
+                    <div class="notification-stat-label">未读</div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn-secondary" onclick="closeModal('notificationModal')">取消</button>
+                <button class="modal-btn-primary" onclick="confirmSendNotification()">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>数据动态模拟 | 重庆大学演示平台 · 教师智能监测系统</footer>
+</div>
+
+<script>
+    // ---------- 班级数据集 (差异化学情) ----------
+    const classDataMap = {
+        "计算机1班": {
+            avgComplete: 86.5, avgMastery: 74.2, activeStudents: 38,
+            kpData: [
+                { id: "kp1", name: "算法基础", category: "算法", completeRate: 92, masteryRate: 78, activities: ["课堂讨论：排序优化", "作业：LeetCode入门"], exams: ["期中-算法部分均分82"], homeworks: ["算法小测正确率75%"] },
+                { id: "kp2", name: "数据结构", category: "数据结构", completeRate: 88, masteryRate: 71, activities: ["小组项目：链表实现", "随堂测验"], exams: ["期末数据结构模块均分68"], homeworks: ["二叉树遍历作业平均分79"] },
+                { id: "kp3", name: "数据库原理", category: "数据库", completeRate: 84, masteryRate: 69, activities: ["SQL实战工作坊", "课堂案例：索引优化"], exams: ["数据库期中均分73"], homeworks: ["SQL查询练习正确率70%"] },
+                { id: "kp4", name: "计算机网络", category: "网络", completeRate: 79, masteryRate: 64, activities: ["Wireshark抓包实验", "协议分析小组汇报"], exams: ["网络技术期末均分65"], homeworks: ["子网划分作业正确率62%"] },
+                { id: "kp5", name: "操作系统", category: "操作系统", completeRate: 81, masteryRate: 66, activities: ["进程调度模拟实验", "课堂辩论：分页与分段"], exams: ["操作系统概念测验均分70"], homeworks: ["同步互斥代码题正确率68%"] }
+            ],
+            studentRank: [{ name: "张逸飞", score: 96 },{ name: "李思琪", score: 94 },{ name: "王知行", score: 92 },{ name: "陈敏行", score: 91 },{ name: "周若彤", score: 89 },{ name: "赵立诚", score: 87 },{ name: "林清瑶", score: 85 }],
+            scoreSegments: [{ range: "90-100", count: 12 },{ range: "80-89", count: 14 },{ range: "70-79", count: 8 },{ range: "60-69", count: 3 },{ range: "<60", count: 1 }],
+            categoryMastery: { "算法": 78, "数据结构": 71, "数据库": 69, "计算机网络": 64, "操作系统": 66 }
+        },
+        "计算机2班": {
+            avgComplete: 90.2, avgMastery: 80.5, activeStudents: 42,
+            kpData: [
+                { id: "kp1", name: "算法基础", category: "算法", completeRate: 95, masteryRate: 85, activities: ["算法竞赛分享", "作业：动态规划"], exams: ["算法期末均分88"], homeworks: ["DP作业正确率82%"] },
+                { id: "kp2", name: "数据结构", category: "数据结构", completeRate: 92, masteryRate: 79, activities: ["红黑树研讨", "小组项目"], exams: ["数据结构均分76"], homeworks: ["树习题正确率78%"] },
+                { id: "kp3", name: "数据库原理", category: "数据库", completeRate: 89, masteryRate: 74, activities: ["SQL优化实战"], exams: ["数据库均分72"], homeworks: ["SQL练习正确率71%"] },
+                { id: "kp4", name: "计算机网络", category: "网络", completeRate: 86, masteryRate: 70, activities: ["HTTP协议分析"], exams: ["网络均分68"], homeworks: ["子网划分正确率67%"] },
+                { id: "kp5", name: "操作系统", category: "操作系统", completeRate: 88, masteryRate: 73, activities: ["内存管理模拟"], exams: ["OS均分71"], homeworks: ["同步代码正确率70%"] }
+            ],
+            studentRank: [{ name: "刘子轩", score: 98 },{ name: "赵雨桐", score: 96 },{ name: "高天宇", score: 94 },{ name: "宋佳怡", score: 93 },{ name: "吴明远", score: 91 }],
+            scoreSegments: [{ range: "90-100", count: 18 },{ range: "80-89", count: 16 },{ range: "70-79", count: 6 },{ range: "60-69", count: 2 },{ range: "<60", count: 0 }],
+            categoryMastery: { "算法": 85, "数据结构": 79, "数据库": 74, "计算机网络": 70, "操作系统": 73 }
+        },
+        "软件工程1班": {
+            avgComplete: 82.3, avgMastery: 70.1, activeStudents: 35,
+            kpData: [["算法基础",82,68],["数据结构",80,65],["数据库原理",78,63],["计算机网络",75,60],["操作系统",77,62]].map(([name,c,m],idx)=>({ id:`kp${idx+1}`, name, category: name.includes("算法")?"算法":name.includes("数据")?"数据结构":name.includes("数据库")?"数据库":name.includes("网络")?"网络":"操作系统", completeRate:c, masteryRate:m, activities:["项目实践"], exams:["平均分65"], homeworks:["正确率64"] })),
+            studentRank: [{ name: "郑子涵", score: 90 },{ name: "许若曦", score: 88 },{ name: "沈天翔", score: 86 },{ name: "苏婉清", score: 84 },{ name: "陆明轩", score: 82 }],
+            scoreSegments: [{ range: "90-100", count: 6 },{ range: "80-89", count: 10 },{ range: "70-79", count: 12 },{ range: "60-69", count: 5 },{ range: "<60", count: 2 }],
+            categoryMastery: { "算法": 68, "数据结构": 65, "数据库": 63, "计算机网络": 60, "操作系统": 62 }
+        },
+        "软件工程2班": {
+            avgComplete: 84.7, avgMastery: 72.8, activeStudents: 36,
+            kpData: [["算法基础",88,74],["数据结构",85,70],["数据库原理",82,68],["计算机网络",80,66],["操作系统",83,69]].map(([name,c,m],idx)=>({ id:`kp${idx+1}`, name, category: name.includes("算法")?"算法":name.includes("数据")?"数据结构":name.includes("数据库")?"数据库":name.includes("网络")?"网络":"操作系统", completeRate:c, masteryRate:m, activities:["团队项目"], exams:["模块均分70"], homeworks:["平均正确率69"] })),
+            studentRank: [{ name: "欧阳若曦", score: 93 },{ name: "慕容云海", score: 91 },{ name: "诸葛子瑜", score: 89 },{ name: "尉迟兰心", score: 87 },{ name: "公孙策", score: 85 }],
+            scoreSegments: [{ range: "90-100", count: 8 },{ range: "80-89", count: 12 },{ range: "70-79", count: 11 },{ range: "60-69", count: 4 },{ range: "<60", count: 1 }],
+            categoryMastery: { "算法": 74, "数据结构": 70, "数据库": 68, "计算机网络": 66, "操作系统": 69 }
+        }
+    };
+
+    // 全局班级变量
+    let currentClass = "计算机1班";
+    let currentData = classDataMap[currentClass];
+    let graphChart = null, kpChart = null, segmentChart = null, compareChart = null, radarChartInst = null, personalChartInst = null;
+
+    // 通用渲染函数
+    function renderAllCharts() {
+        renderKpChart();
+        renderRankAndSegment();
+        renderClassCompare();
+        renderRadar();
+        renderKnowledgeGraph();
+        renderPersonalAnalysisAndResources();
+        updateKPICards();
+    }
+
+    function updateKPICards() {
+        const kpiArea = document.getElementById('kpiArea');
+        kpiArea.innerHTML = `
+            <div class="kpi-item"><i class="fas fa-check-circle" style="color:#a855f7;"></i> <div class="kpi-number">${currentData.avgComplete}%</div><div>平均知识点完成率</div></div>
+            <div class="kpi-item"><i class="fas fa-graduation-cap"></i> <div class="kpi-number">${currentData.avgMastery}%</div><div>平均掌握率</div></div>
+            <div class="kpi-item"><i class="fas fa-users"></i> <div class="kpi-number">${currentData.activeStudents}</div><div>本学期活跃学生</div></div>
+            <div class="kpi-item"><i class="fas fa-chart-line"></i> <div class="kpi-number">4</div><div>关联班级数</div></div>
+        `;
+    }
+
+    function renderKpChart() {
+        if(kpChart) kpChart.dispose();
+        const chartDom = document.getElementById('kpChart');
+        kpChart = echarts.init(chartDom);
+        const names = currentData.kpData.map(k => k.name);
+        const completeRates = currentData.kpData.map(k => k.completeRate);
+        const masteryRates = currentData.kpData.map(k => k.masteryRate);
+        kpChart.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['完成率', '掌握率'], textStyle: { color: '#4c1d95' } },
+            xAxis: { type: 'category', data: names, axisLabel: { rotate: 20 } },
+            yAxis: { type: 'value', name: '百分比' },
+            series: [
+                { name: '完成率', type: 'bar', data: completeRates, itemStyle: { color: '#a855f7', borderRadius: [8,8,0,0] } },
+                { name: '掌握率', type: 'bar', data: masteryRates, itemStyle: { color: '#7c3aed', borderRadius: [8,8,0,0] } }
+            ]
+        });
+    }
+
+    function renderRankAndSegment() {
+        const rankDiv = document.getElementById('rankList');
+        rankDiv.innerHTML = currentData.studentRank.slice(0,5).map((s, idx) => `<div class="rank-item"><span class="rank-name">${idx+1}. ${s.name}</span><span class="rank-score">${s.score}分</span></div>`).join('');
+        if(segmentChart) segmentChart.dispose();
+        segmentChart = echarts.init(document.getElementById('scoreSegmentChart'));
+        segmentChart.setOption({
+            tooltip: { trigger: 'item' },
+            legend: { orient: 'vertical', left: 'left', textStyle: { color: '#4c1d95' } },
+            series: [{ type: 'pie', radius: '55%', data: currentData.scoreSegments.map(s => ({ name: s.range, value: s.count })), label: { show: true }, color: ['#c084fc','#a855f7','#8b5cf6','#7c3aed','#6d28d9'] }]
+        });
+    }
+
+    // 多班级对比 (固定使用全局班级对比数据集)
+    const allClassesForCompare = [
+        { name: "计算机1班", completeRate: 86.5, masteryRate: 74.2 },
+        { name: "计算机2班", completeRate: 90.2, masteryRate: 80.5 },
+        { name: "软件工程1班", completeRate: 82.3, masteryRate: 70.1 },
+        { name: "软件工程2班", completeRate: 84.7, masteryRate: 72.8 }
+    ];
+    let currentMetric = 'mastery';
+    function renderClassCompare() {
+        if(compareChart) compareChart.dispose();
+        compareChart = echarts.init(document.getElementById('classCompareChart'));
+        const metricKey = currentMetric === 'mastery' ? 'masteryRate' : 'completeRate';
+        const yName = currentMetric === 'mastery' ? '掌握率 %' : '完成率 %';
+        const data = allClassesForCompare.map(c => ({ name: c.name, value: c[metricKey] }));
+        compareChart.setOption({
+            tooltip: { trigger: 'axis' },
+            xAxis: { type: 'category', data: data.map(d => d.name), axisLabel: { rotate: 20 } },
+            yAxis: { type: 'value', name: yName },
+            series: [{ type: 'bar', data: data.map(d => d.value), itemStyle: { color: '#a855f7', borderRadius: [8,8,0,0] }, label: { show: true } }]
+        });
+    }
+
+    function renderRadar() {
+        if(radarChartInst) radarChartInst.dispose();
+        radarChartInst = echarts.init(document.getElementById('radarChart'));
+        const indicator = Object.keys(currentData.categoryMastery).map(k => ({ name: k, max: 100 }));
+        radarChartInst.setOption({
+            radar: { indicator, shape: 'circle', name: { textStyle: { color: '#6d28d9' } } },
+            series: [{ type: 'radar', data: [{ value: Object.values(currentData.categoryMastery), name: '当前班级掌握率' }], areaStyle: { color: 'rgba(139,92,246,0.2)' }, lineStyle: { color: '#8b5cf6' } }]
+        });
+    }
+
+    function renderKnowledgeGraph() {
+        const container = document.getElementById('knowledgeGraph');
+        if(graphChart) graphChart.dispose();
+        graphChart = echarts.init(container);
+        const nodes = currentData.kpData.map(kp => ({ id: kp.id, name: kp.name, category: kp.category, symbolSize: 42, itemStyle: { color: '#9b6df5' } }));
+        const edges = [
+            { source: "kp1", target: "kp2" }, { source: "kp2", target: "kp3" }, { source: "kp3", target: "kp4" },
+            { source: "kp4", target: "kp5" }, { source: "kp1", target: "kp5" }, { source: "kp2", target: "kp4" }
+        ];
+        graphChart.setOption({
+            tooltip: { trigger: 'item', formatter: (params) => params.dataType === 'node' ? `<b>${params.name}</b><br/>点击查看关联` : '' },
+            series: [{
+                type: 'graph', layout: 'force', force: { repulsion: 600, edgeLength: 150 }, roam: true, draggable: true,
+                data: nodes, links: edges, label: { show: true, position: 'bottom', fontSize: 11, color: '#3b0764' },
+                lineStyle: { color: '#b77eff', width: 2 }
+            }]
+        });
+        graphChart.on('click', (params) => {
+            if(params.dataType === 'node') {
+                const kp = currentData.kpData.find(k => k.id === params.data.id);
+                if(kp) {
+                    document.getElementById('graphDetailPanel').innerHTML = `<i class="fas fa-chalkboard-user"></i> <strong>${kp.name}</strong><br/>
+                        课堂活动：${kp.activities.join('；')}<br/>
+                        作业关联：${kp.homeworks.join('；')}<br/>
+                        考试数据：${kp.exams.join('；')}<br/>
+                        完成率 ${kp.completeRate}% &nbsp;| 掌握率 ${kp.masteryRate}%`;
+                }
+            }
+        });
+    }
+
+    function renderPersonalAnalysisAndResources() {
+        const sorted = [...currentData.kpData].sort((a,b) => a.masteryRate - b.masteryRate);
+        const weak = sorted.slice(0,2);
+        document.getElementById('weaknessAnalysis').innerHTML = `<div><i class="fas fa-chart-line"></i> <strong>班级薄弱环节：</strong> ${weak.map(w => `${w.name}掌握率${w.masteryRate}%`).join('、')}<br/><span class="badge">建议优先巩固「${weak[0].name}」与「${weak[1].name}」</span></div>`;
+        if(personalChartInst) personalChartInst.dispose();
+        personalChartInst = echarts.init(document.getElementById('personalChart'));
+        personalChartInst.setOption({
+            tooltip: { trigger: 'axis' }, xAxis: { type: 'category', data: currentData.kpData.map(k => k.name), axisLabel: { rotate: 30 } },
+            yAxis: { type: 'value', name: '掌握率' },
+            series: [{ type: 'bar', data: currentData.kpData.map(k => k.masteryRate), itemStyle: { color: '#c084fc' }, label: { show: true } }]
+        });
+        
+        // 拓展资源推荐：使用真实链接 https://xueyinonline.com/detail/261057109，并且根据薄弱知识点给出匹配推荐
+        const baseUrl = "https://xueyinonline.com/detail/261057109";
+        // 根据薄弱点名称定制推荐链接文本（保持内容对应）
+        const recommendItems = weak.map(w => {
+            let title = "";
+            if(w.name.includes("算法")) title = "算法基础专项提升";
+            else if(w.name.includes("数据")) title = "数据结构与算法强化";
+            else if(w.name.includes("数据库")) title = "数据库原理实战";
+            else if(w.name.includes("网络")) title = "计算机网络精讲";
+            else if(w.name.includes("操作")) title = "操作系统核心概念";
+            else title = `${w.name}专题学习`;
+            return { name: title, url: baseUrl, desc: "学银在线官方课程" };
+        });
+        // 添加通用拓展资源（确保与课程相关）
+        if(!recommendItems.find(i=>i.name.includes("计算机基础"))) {
+            recommendItems.push({ name: "大学计算机基础 完整课程资源", url: baseUrl, desc: "包含基础知识、办公软件、网络应用" });
+        }
+        const resourceDiv = document.getElementById('resourceRecommend');
+        resourceDiv.innerHTML = recommendItems.map(res => `
+            <div class="resource-item">
+                <i class="fas fa-external-link-alt"></i>
+                <a href="${res.url}" target="_blank" rel="noopener noreferrer">${res.name}</a>
+                <span class="tag">推荐</span>
+            </div>
+        `).join('');
+    }
+
+    // 班级切换逻辑
+    function switchClass(className) {
+        currentClass = className;
+        currentData = classDataMap[className];
+        document.getElementById('currentClassDisplay').innerHTML = `<i class="fas fa-check-circle"></i> 当前：2024级${className}`;
+        // 重新渲染所有图表
+        renderAllCharts();
+        // 激活按钮样式
+        document.querySelectorAll('.class-btn').forEach(btn => {
+            if(btn.getAttribute('data-class') === className) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+
+    // 事件绑定
+    document.getElementById('refreshCompareBtn').addEventListener('click', () => {
+        currentMetric = document.getElementById('compareMetric').value;
+        renderClassCompare();
+    });
+    document.getElementById('compareMetric').addEventListener('change', (e) => {
+        currentMetric = e.target.value;
+        renderClassCompare();
+    });
+    document.querySelectorAll('.class-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const cls = btn.getAttribute('data-class');
+            switchClass(cls);
+        });
+    });
+
+    // 初始化默认班级
+    switchClass("计算机1班");
+    window.addEventListener('resize', () => {
+        const charts = [kpChart, segmentChart, compareChart, radarChartInst, graphChart, personalChartInst];
+        charts.forEach(ch => ch && ch.resize());
+    });
+
+    // ---------- 教学预警模块数据与逻辑 ----------
+
+    // 学生详细数据（用于预警筛选）
+    const studentDetailData = {
+        "计算机1班": [
+            { id: 1, name: "张逸飞", taskCompletion: 98, quizScore: 95, assignmentScore: 96, visitCount: 45, examScore: 96, comprehensiveScore: 96 },
+            { id: 2, name: "李思琪", taskCompletion: 95, quizScore: 92, assignmentScore: 94, visitCount: 42, examScore: 94, comprehensiveScore: 94 },
+            { id: 3, name: "王知行", taskCompletion: 92, quizScore: 90, assignmentScore: 92, visitCount: 38, examScore: 92, comprehensiveScore: 92 },
+            { id: 4, name: "陈敏行", taskCompletion: 90, quizScore: 88, assignmentScore: 91, visitCount: 35, examScore: 91, comprehensiveScore: 91 },
+            { id: 5, name: "周若彤", taskCompletion: 88, quizScore: 86, assignmentScore: 89, visitCount: 32, examScore: 89, comprehensiveScore: 89 },
+            { id: 6, name: "赵立诚", taskCompletion: 85, quizScore: 84, assignmentScore: 87, visitCount: 30, examScore: 87, comprehensiveScore: 87 },
+            { id: 7, name: "林清瑶", taskCompletion: 82, quizScore: 81, assignmentScore: 84, visitCount: 28, examScore: 85, comprehensiveScore: 85 },
+            { id: 8, name: "吴雨桐", taskCompletion: 78, quizScore: 76, assignmentScore: 79, visitCount: 25, examScore: 82, comprehensiveScore: 80 },
+            { id: 9, name: "郑浩然", taskCompletion: 75, quizScore: 73, assignmentScore: 76, visitCount: 22, examScore: 78, comprehensiveScore: 76 },
+            { id: 10, name: "孙梦琪", taskCompletion: 70, quizScore: 68, assignmentScore: 71, visitCount: 20, examScore: 75, comprehensiveScore: 72 },
+            { id: 11, name: "马天宇", taskCompletion: 65, quizScore: 63, assignmentScore: 66, visitCount: 15, examScore: 68, comprehensiveScore: 66 },
+            { id: 12, name: "刘思涵", taskCompletion: 58, quizScore: 55, assignmentScore: 59, visitCount: 12, examScore: 62, comprehensiveScore: 59 },
+            { id: 13, name: "张艺萱", taskCompletion: 52, quizScore: 48, assignmentScore: 54, visitCount: 8, examScore: 55, comprehensiveScore: 53 },
+            { id: 14, name: "陈子轩", taskCompletion: 45, quizScore: 42, assignmentScore: 47, visitCount: 6, examScore: 48, comprehensiveScore: 46 }
+        ],
+        "计算机2班": [
+            { id: 1, name: "刘子轩", taskCompletion: 99, quizScore: 98, assignmentScore: 99, visitCount: 48, examScore: 98, comprehensiveScore: 98 },
+            { id: 2, name: "赵雨桐", taskCompletion: 96, quizScore: 95, assignmentScore: 96, visitCount: 45, examScore: 96, comprehensiveScore: 96 },
+            { id: 3, name: "高天宇", taskCompletion: 94, quizScore: 93, assignmentScore: 94, visitCount: 42, examScore: 94, comprehensiveScore: 94 },
+            { id: 4, name: "宋佳怡", taskCompletion: 92, quizScore: 91, assignmentScore: 93, visitCount: 40, examScore: 93, comprehensiveScore: 93 },
+            { id: 5, name: "吴明远", taskCompletion: 90, quizScore: 89, assignmentScore: 91, visitCount: 38, examScore: 91, comprehensiveScore: 91 },
+            { id: 6, name: "郑雨涵", taskCompletion: 88, quizScore: 87, assignmentScore: 89, visitCount: 35, examScore: 89, comprehensiveScore: 89 },
+            { id: 7, name: "孙浩然", taskCompletion: 85, quizScore: 84, assignmentScore: 86, visitCount: 32, examScore: 87, comprehensiveScore: 86 },
+            { id: 8, name: "马思琪", taskCompletion: 82, quizScore: 81, assignmentScore: 83, visitCount: 30, examScore: 85, comprehensiveScore: 83 },
+            { id: 9, name: "刘天宇", taskCompletion: 78, quizScore: 77, assignmentScore: 79, visitCount: 26, examScore: 80, comprehensiveScore: 79 },
+            { id: 10, name: "张梦涵", taskCompletion: 74, quizScore: 72, assignmentScore: 75, visitCount: 23, examScore: 76, comprehensiveScore: 75 },
+            { id: 11, name: "陈雨萱", taskCompletion: 68, quizScore: 66, assignmentScore: 69, visitCount: 18, examScore: 70, comprehensiveScore: 69 },
+            { id: 12, name: "王子轩", taskCompletion: 62, quizScore: 60, assignmentScore: 63, visitCount: 14, examScore: 65, comprehensiveScore: 63 }
+        ],
+        "软件工程1班": [
+            { id: 1, name: "郑子涵", taskCompletion: 90, quizScore: 88, assignmentScore: 91, visitCount: 35, examScore: 90, comprehensiveScore: 90 },
+            { id: 2, name: "许若曦", taskCompletion: 87, quizScore: 85, assignmentScore: 88, visitCount: 32, examScore: 88, comprehensiveScore: 88 },
+            { id: 3, name: "沈天翔", taskCompletion: 84, quizScore: 82, assignmentScore: 85, visitCount: 29, examScore: 86, comprehensiveScore: 86 },
+            { id: 4, name: "苏婉清", taskCompletion: 81, quizScore: 79, assignmentScore: 82, visitCount: 26, examScore: 84, comprehensiveScore: 84 },
+            { id: 5, name: "陆明轩", taskCompletion: 78, quizScore: 76, assignmentScore: 79, visitCount: 23, examScore: 80, comprehensiveScore: 82 },
+            { id: 6, name: "韩雨桐", taskCompletion: 75, quizScore: 73, assignmentScore: 76, visitCount: 20, examScore: 78, comprehensiveScore: 77 },
+            { id: 7, name: "唐思琪", taskCompletion: 70, quizScore: 68, assignmentScore: 71, visitCount: 17, examScore: 74, comprehensiveScore: 72 },
+            { id: 8, name: "曹浩然", taskCompletion: 65, quizScore: 63, assignmentScore: 66, visitCount: 14, examScore: 68, comprehensiveScore: 67 },
+            { id: 9, name: "蒋梦涵", taskCompletion: 60, quizScore: 58, assignmentScore: 61, visitCount: 11, examScore: 63, comprehensiveScore: 61 },
+            { id: 10, name: "蔡雨萱", taskCompletion: 55, quizScore: 52, assignmentScore: 56, visitCount: 8, examScore: 58, comprehensiveScore: 56 },
+            { id: 11, name: "戴子轩", taskCompletion: 48, quizScore: 45, assignmentScore: 49, visitCount: 5, examScore: 50, comprehensiveScore: 48 },
+            { id: 12, name: "魏思涵", taskCompletion: 42, quizScore: 38, assignmentScore: 43, visitCount: 3, examScore: 45, comprehensiveScore: 42 }
+        ],
+        "软件工程2班": [
+            { id: 1, name: "欧阳若曦", taskCompletion: 93, quizScore: 91, assignmentScore: 94, visitCount: 40, examScore: 93, comprehensiveScore: 93 },
+            { id: 2, name: "慕容云海", taskCompletion: 90, quizScore: 89, assignmentScore: 91, visitCount: 37, examScore: 91, comprehensiveScore: 91 },
+            { id: 3, name: "诸葛子瑜", taskCompletion: 88, quizScore: 87, assignmentScore: 89, visitCount: 35, examScore: 89, comprehensiveScore: 89 },
+            { id: 4, name: "尉迟兰心", taskCompletion: 85, quizScore: 84, assignmentScore: 86, visitCount: 32, examScore: 87, comprehensiveScore: 87 },
+            { id: 5, name: "公孙策", taskCompletion: 82, quizScore: 81, assignmentScore: 83, visitCount: 29, examScore: 85, comprehensiveScore: 85 },
+            { id: 6, name: "司马炎", taskCompletion: 79, quizScore: 78, assignmentScore: 80, visitCount: 26, examScore: 82, comprehensiveScore: 82 },
+            { id: 7, name: "上官婉儿", taskCompletion: 75, quizScore: 73, assignmentScore: 76, visitCount: 23, examScore: 78, comprehensiveScore: 77 },
+            { id: 8, name: "皇甫嵩", taskCompletion: 70, quizScore: 68, assignmentScore: 71, visitCount: 19, examScore: 74, comprehensiveScore: 72 },
+            { id: 9, name: "长孙无忌", taskCompletion: 65, quizScore: 63, assignmentScore: 66, visitCount: 15, examScore: 68, comprehensiveScore: 66 },
+            { id: 10, name: "宇文成都", taskCompletion: 58, quizScore: 55, assignmentScore: 59, visitCount: 11, examScore: 62, comprehensiveScore: 59 },
+            { id: 11, name: "令狐冲", taskCompletion: 52, quizScore: 48, assignmentScore: 53, visitCount: 7, examScore: 55, comprehensiveScore: 53 }
+        ]
+    };
+
+    // 督学记录数据
+    const supervisionRecords = [
+        { id: 1, content: "已向刘思涵发送作业提醒通知（微信+短信）", time: "2024-01-15 14:30", status: "已读" },
+        { id: 2, content: "已向张艺萱发送综合成绩预警通知", time: "2024-01-14 10:15", status: "已读" },
+        { id: 3, content: "已向陈子轩发起电话督学", time: "2024-01-13 16:45", status: "未读" },
+        { id: 4, content: "已向马天宇发送任务点完成度预警", time: "2024-01-12 09:20", status: "已读" },
+        { id: 5, content: "已向孙梦琪发送章节测验提醒", time: "2024-01-11 11:30", status: "已读" },
+        { id: 6, content: "已向戴子轩发送综合成绩预警通知（微信）", time: "2024-01-10 15:00", status: "未读" },
+        { id: 7, content: "已向魏思涵发起电话督学", time: "2024-01-09 14:20", status: "已读" },
+        { id: 8, content: "已向蔡雨萱发送访问次数预警", time: "2024-01-08 10:45", status: "已读" }
+    ];
+
+    // 全局预警变量
+    let warningStudents = [];
+    let selectedStudentIds = [];
+
+    // 预警类型中文映射
+    const warningTypeMap = {
+        'task': '任务点完成度',
+        'quiz': '章节测验',
+        'assignment': '作业',
+        'visit': '访问次数',
+        'exam': '考试',
+        'score': '综合成绩'
+    };
+
+    // 预警字段映射
+    const warningFieldMap = {
+        'task': 'taskCompletion',
+        'quiz': 'quizScore',
+        'assignment': 'assignmentScore',
+        'visit': 'visitCount',
+        'exam': 'examScore',
+        'score': 'comprehensiveScore'
+    };
+
+    // 应用预警条件
+    function applyWarning() {
+        const type = document.getElementById('warningType').value;
+        const threshold = parseInt(document.getElementById('warningThreshold').value);
+        const scope = document.getElementById('warningScope').value;
+
+        console.log('[教学预警] 应用预警条件 - 类型:', type, '阈值:', threshold, '范围:', scope);
+
+        // 获取学生数据
+        let students = [];
+        if (scope === 'class') {
+            students = studentDetailData[currentClass] || [];
+        } else if (scope === 'department') {
+            // 获取院系所有班级学生（模拟计算机学院）
+            students = [...(studentDetailData['计算机1班'] || []), ...(studentDetailData['计算机2班'] || [])];
+        } else {
+            // 获取全校学生
+            students = [...(studentDetailData['计算机1班'] || []), ...(studentDetailData['计算机2班'] || []),
+                        ...(studentDetailData['软件工程1班'] || []), ...(studentDetailData['软件工程2班'] || [])];
+        }
+
+        // 根据条件筛选学生
+        const field = warningFieldMap[type];
+        warningStudents = students.filter(student => student[field] < threshold);
+
+        // 更新预警数量
+        document.getElementById('warningCount').textContent = warningStudents.length;
+
+        // 渲染预警学生列表
+        renderWarningStudents();
+
+        // 重置选中状态
+        selectedStudentIds = [];
+
+        // 显示提示
+        if (warningStudents.length > 0) {
+            showToast('warning', `⚠️ 共筛选出 ${warningStudents.length} 名需要关注的学生`);
+        } else {
+            showToast('success', '✅ 当前条件下没有需要预警的学生');
+        }
+    }
+
+    // 渲染预警学生列表
+    function renderWarningStudents() {
+        const container = document.getElementById('warningStudentList');
+        const type = document.getElementById('warningType').value;
+        const threshold = document.getElementById('warningThreshold').value;
+        const typeName = warningTypeMap[type];
+
+        if (warningStudents.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #a78bfa;">
+                    <i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 12px;"></i>
+                    <p>没有符合条件的预警学生</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = warningStudents.map(student => {
+            const field = warningFieldMap[type];
+            const score = student[field];
+            const isSelected = selectedStudentIds.includes(student.id);
+
+            return `
+                <div class="warning-student-item ${isSelected ? 'selected' : ''}" onclick="toggleStudentSelection(${student.id})">
+                    <div class="warning-student-info">
+                        <input type="checkbox" class="warning-student-checkbox" ${isSelected ? 'checked' : ''} 
+                               onchange="toggleStudentSelection(${student.id}); event.stopPropagation();">
+                        <div class="warning-student-avatar">${student.name.charAt(0)}</div>
+                        <div class="warning-student-detail">
+                            <div class="warning-student-name">${student.name}</div>
+                            <div class="warning-student-reason">${typeName}低于${threshold}，当前${score}</div>
+                        </div>
+                    </div>
+                    <div class="warning-student-score">${score}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 切换学生选中状态
+    function toggleStudentSelection(studentId) {
+        const index = selectedStudentIds.indexOf(studentId);
+        if (index > -1) {
+            selectedStudentIds.splice(index, 1);
+        } else {
+            selectedStudentIds.push(studentId);
+        }
+        renderWarningStudents();
+    }
+
+    // 全选学生
+    function selectAllStudents() {
+        if (warningStudents.length === 0) return;
+
+        if (selectedStudentIds.length === warningStudents.length) {
+            // 取消全选
+            selectedStudentIds = [];
+        } else {
+            // 全选
+            selectedStudentIds = warningStudents.map(s => s.id);
+        }
+        renderWarningStudents();
+    }
+
+    // 导出预警列表
+    function exportWarningList() {
+        if (warningStudents.length === 0) {
+            showToast('error', '❌ 没有可导出的数据');
+            return;
+        }
+
+        const type = document.getElementById('warningType').value;
+        const typeName = warningTypeMap[type];
+        const field = warningFieldMap[type];
+
+        let content = `预警类型: ${typeName}\n`;
+        content += `预警阈值: 低于${document.getElementById('warningThreshold').value}\n`;
+        content += `预警范围: ${document.getElementById('warningScope').value === 'class' ? '当前班级' : 
+                      document.getElementById('warningScope').value === 'department' ? '院系' : '全校'}\n`;
+        content += `预警人数: ${warningStudents.length}\n\n`;
+        content += `序号\t姓名\t${typeName}\n`;
+        warningStudents.forEach((student, index) => {
+            content += `${index + 1}\t${student.name}\t${student[field]}\n`;
+        });
+
+        // 创建下载链接
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `教学预警列表_${new Date().toISOString().slice(0, 10)}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast('success', '✅ 预警列表已导出');
+    }
+
+    // 发送通知
+    function sendNotification() {
+        // 如果没有选中学生，且预警列表为空
+        if (selectedStudentIds.length === 0 && warningStudents.length === 0) {
+            showToast('error', '❌ 请先筛选预警学生或选择要通知的学生');
+            return;
+        }
+
+        // 更新通知统计
+        updateNotificationStats();
+
+        // 显示通知模态框
+        document.getElementById('notificationModal').classList.add('active');
+    }
+
+    // 更新通知统计
+    function updateNotificationStats() {
+        const scope = document.getElementById('notificationScope').value;
+        let total = 0;
+
+        if (scope === 'selected') {
+            total = selectedStudentIds.length;
+        } else if (scope === 'class') {
+            total = studentDetailData[currentClass]?.length || 0;
+        } else if (scope === 'department') {
+            total = (studentDetailData['计算机1班']?.length || 0) + (studentDetailData['计算机2班']?.length || 0);
+        } else {
+            total = Object.values(studentDetailData).reduce((sum, arr) => sum + arr.length, 0);
+        }
+
+        // 模拟已读/未读比例（70%已读）
+        const read = Math.round(total * 0.7);
+        const unread = total - read;
+
+        document.getElementById('statTotal').textContent = total;
+        document.getElementById('statRead').textContent = read;
+        document.getElementById('statUnread').textContent = unread;
+    }
+
+    // 确认发送通知
+    function confirmSendNotification() {
+        const scope = document.getElementById('notificationScope').value;
+        const channels = Array.from(document.querySelectorAll('#notificationModal input[type="checkbox"]:checked')).map(cb => cb.value);
+        const content = document.getElementById('notificationContent').value.trim();
+
+        if (!content) {
+            showToast('error', '❌ 请输入通知内容');
+            return;
+        }
+
+        if (channels.length === 0) {
+            showToast('error', '❌ 请选择至少一个通知渠道');
+            return;
+        }
+
+        let targetCount = 0;
+        let targetDesc = '';
+
+        if (scope === 'selected') {
+            targetCount = selectedStudentIds.length;
+            targetDesc = `${targetCount}名选中学生`;
+        } else if (scope === 'class') {
+            targetCount = studentDetailData[currentClass]?.length || 0;
+            targetDesc = `当前班级(${targetCount}人)`;
+        } else if (scope === 'department') {
+            targetCount = (studentDetailData['计算机1班']?.length || 0) + (studentDetailData['计算机2班']?.length || 0);
+            targetDesc = `院系(${targetCount}人)`;
+        } else {
+            targetCount = Object.values(studentDetailData).reduce((sum, arr) => sum + arr.length, 0);
+            targetDesc = `全校(${targetCount}人)`;
+        }
+
+        const channelNames = {
+            'sms': '短信',
+            'wechat': '微信',
+            'phone': '电话'
+        };
+        const channelDesc = channels.map(c => channelNames[c]).join('、');
+
+        // 添加督学记录
+        supervisionRecords.unshift({
+            id: Date.now(),
+            content: `已向${targetDesc}发送通知（${channelDesc}）：${content.substring(0, 30)}${content.length > 30 ? '...' : ''}`,
+            time: new Date().toLocaleString('zh-CN'),
+            status: '发送中'
+        });
+
+        renderSupervisionRecords();
+
+        // 关闭模态框
+        closeModal('notificationModal');
+
+        // 显示成功提示
+        showToast('success', `📢 通知已发送至 ${targetDesc}，渠道：${channelDesc}`);
+
+        // 清空通知内容
+        document.getElementById('notificationContent').value = '';
+    }
+
+    // 关闭模态框
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
+
+    // 渲染督学记录
+    function renderSupervisionRecords() {
+        const container = document.getElementById('supervisionList');
+        container.innerHTML = supervisionRecords.slice(0, 6).map(record => {
+            const statusColor = record.status === '已读' ? '#22c55e' : record.status === '发送中' ? '#f97316' : '#ef4444';
+            const statusBg = record.status === '已读' ? '#dcfce7' : record.status === '发送中' ? '#fef7ed' : '#fef2f2';
+            return `
+                <div class="supervision-item">
+                    <div>
+                        <div class="supervision-content">${record.content}</div>
+                        <div class="supervision-time">${record.time}</div>
+                    </div>
+                    <div class="supervision-status" style="background: ${statusBg}; color: ${statusColor};">${record.status}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 查看全部督学记录
+    function viewAllRecords() {
+        showToast('info', `📋 共 ${supervisionRecords.length} 条督学记录`);
+    }
+
+    // 显示Toast提示
+    function showToast(type, message) {
+        // 移除之前的toast
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) {
+            existingToast.remove();
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+
+        let icon = '';
+        switch (type) {
+            case 'success': icon = '<i class="fas fa-check-circle"></i>'; break;
+            case 'error': icon = '<i class="fas fa-times-circle"></i>'; break;
+            case 'warning': icon = '<i class="fas fa-exclamation-triangle"></i>'; break;
+            case 'info': icon = '<i class="fas fa-info-circle"></i>'; break;
+        }
+
+        toast.innerHTML = `${icon} <span>${message}</span>`;
+        document.body.appendChild(toast);
+
+        // 3秒后自动移除
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 3000);
+    }
+
+    // 监听通知范围变化，更新统计
+    document.getElementById('notificationScope').addEventListener('change', updateNotificationStats);
+
+    // 初始化督学记录
+    renderSupervisionRecords();
+
+    // 点击模态框外部关闭
+    document.getElementById('notificationModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('notificationModal')) {
+            closeModal('notificationModal');
+        }
+    });
+</script>
+</body>
+</html>
