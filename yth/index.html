@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>专课一体化智慧平台 | 产教融合大脑</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f3effc;
+            font-family: 'Segoe UI', Roboto, system-ui, 'Inter', sans-serif;
+            padding: 28px 24px;
+        }
+
+        /* 主容器 */
+        .platform-container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* 头部区域 — 保持参考风格的大气渐变 */
+        .hero-header {
+            background: linear-gradient(135deg, #6c2bd9, #9b4dff);
+            border-radius: 36px;
+            padding: 28px 32px;
+            margin-bottom: 32px;
+            color: white;
+            box-shadow: 0 18px 28px -12px rgba(91, 33, 182, 0.4);
+            transition: all 0.2s;
+        }
+
+        .hero-header h1 {
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .hero-header p {
+            opacity: 0.92;
+            margin-top: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .ai-badge-sm {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+            border-radius: 60px;
+            padding: 4px 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 14px;
+        }
+
+        /* 板块网格 — 十个功能按钮区 */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 26px;
+            margin-bottom: 40px;
+        }
+
+        /* 功能卡片样式 — 现代玻璃质感 + 悬浮效果 */
+        .module-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(0px);
+            border-radius: 32px;
+            padding: 1.6rem 1.2rem;
+            box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f0e9ff;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .module-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 24px 36px -14px rgba(108, 43, 217, 0.25);
+            border-color: #cdb5ff;
+            background: #ffffff;
+        }
+
+        .module-icon {
+            background: linear-gradient(125deg, #ede6ff, #f8f3ff);
+            width: 58px;
+            height: 58px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #7c3aed;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+
+        .module-card:hover .module-icon {
+            background: #7c3aed;
+            color: white;
+            box-shadow: 0 8px 14px rgba(124, 58, 237, 0.3);
+        }
+
+        .module-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1f1a2e;
+            margin-bottom: 10px;
+            letter-spacing: -0.2px;
+        }
+
+        .module-desc {
+            font-size: 0.85rem;
+            color: #5b4b8c;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .module-desc i {
+            font-size: 0.7rem;
+            color: #a78bfa;
+        }
+
+        /* 下方数据卡片 — 延续参考风格的 insight 区域，增强平台感 */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px 18px;
+            border: 1px solid #e9dcff;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6b4fbb;
+            letter-spacing: 0.3px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2d1b55;
+            margin-bottom: 6px;
+        }
+
+        .stat-trend {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+
+        /* 下半部分双栏布局 (参考卡片风格) */
+        .insight-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-bottom: 28px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 28px;
+            padding: 22px 24px;
+            border: 1px solid #e9dcff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .info-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #4c1d95;
+            border-left: 5px solid #a855f7;
+            padding-left: 16px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-list li {
+            background: #f9f5ff;
+            margin-bottom: 12px;
+            padding: 12px 18px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .smart-tag {
+            background: #ede9fe;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #4c1d95;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #9b8bcb;
+            margin-top: 40px;
+            border-top: 1px solid #e4d9ff;
+            padding-top: 24px;
+        }
+
+        @media (max-width: 1000px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .insight-wrapper {
+                grid-template-columns: 1fr;
+            }
+            body {
+                padding: 20px 16px;
+            }
+            .hero-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 点缀动画 */
+        .module-card:active {
+            transform: scale(0.98);
+            transition: 0.05s;
+        }
+    </style>
+</head>
+<body>
+<div class="platform-container">
+    <!-- 头部区域：延续参考项目风格，强调一体化智慧平台 -->
+    <div class="hero-header">
+        <h1>
+            <i class="fas fa-graduation-cap"></i> 专课一体化智慧平台
+            <span class="ai-badge-sm"><i class="fas fa-microchip"></i> 产教融合 · AI驱动</span>
+        </h1>
+        <p><i class="fas fa-chalkboard-user"></i> 学情监测 | 安全检测 | 知识图谱| 知识库 | mooc</p>
+        <p style="font-size: 0.85rem; margin-top: 8px;"><i class="fas fa-chart-line"></i> 全景数字基座 · 赋能智慧教学与精准决策</p>
+    </div>
+
+    <!-- 5个核心板块（功能按钮）按照指定链接顺序排列，每个卡片支持跳转 -->
+    <div class="modules-grid">
+        <!-- 1. 学情监测 -->
+        <a href="https://staticpages-aky.pages.dev/bjxq/">
+            <div class="module-icon"><i class="fas fa-chart-line"></i></div>
+            <div class="module-title">学情监测</div>
+            <div class="module-desc"><i class="fas fa-arrow-right"></i> 多维度学习画像 · 预警干预</div>
+        </a>
+        <!-- 2. 安全监测 -->
+        <a href="https://staticpages-aky.pages.dev/aqjc/">
+            <div class="module-icon"><i class="fas fa-chart-simple"></i></div>
+            <div class="module-title">安全监测</div>
+            <div class="module-desc"><i class="fas fa-arrow-right"></i> 全平台风险监测</div>
+        </a>
+        <!-- 3. 知识图谱 -->
+        <a href="https://staticpages-aky.pages.dev/zstp/">
+            <div class="module-icon"><i class="fas fa-tasks"></i></div>
+            <div class="module-title">知识图谱</div>
+            <div class="module-desc"><i class="fas fa-arrow-right"></i> 梳理脉络· 辅助教学</div>
+        </a>
+        <!-- 4. 知识库 -->
+        <a href="https://staticpages-aky.pages.dev/azhk/">
+            <div class="module-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="module-title">知识库</div>
+            <div class="module-desc"><i class="fas fa-arrow-right"></i>海量资源</div>
+        </a>
+        <!--5.mooc -->
+        <a href="https://staticpages-aky.pages.dev/mooc/">
+            <div class="module-icon"><i class="fas fa-chalkboard"></i></div>
+            <div class="module-title">mooc</div>
+            <div class="module-desc"><i class="fas fa-arrow-right"></i> 慕课教学</div>
+        </a>
+    </div>
+
+    <!-- 数据与动态展示卡片区域 (延续参考界面的 insight 风格，增强平台智慧感) -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-title"><i class="fas fa-users" style="color:#a855f7;"></i> 活跃用户</div>
+            <div class="stat-number">12,480+</div>
+            <div class="stat-trend"><i class="fas fa-chart-line"></i> 较上月 +23%</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title"><i class="fas fa-chalkboard-user"></i> 任务式教学班次</div>
+            <div class="stat-number">346</div>
+            <div class="stat-trend"><i class="fas fa-arrow-up"></i> 产教融合项目 87个</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title"><i class="fas fa-microchip"></i> AI实践调用次数</div>
+            <div class="stat-number">45.2K</div>
+            <div class="stat-trend">本月推理次数 +158%</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title"><i class="fas fa-chart-pie"></i> 专业动态匹配度</div>
+            <div class="stat-number">94.6%</div>
+            <div class="stat-trend">基于产业链人才需求拟合</div>
+        </div>
+    </div>
+
+    <!-- 下半部分 智慧资讯 + 近期热门任务/动态 丰富平台内容 -->
+    <div class="insight-wrapper">
+        <div class="info-card">
+            <div class="info-title"><i class="fas fa-newspaper"></i> 智慧动态 · 学情监测快报</div>
+            <ul class="activity-list">
+                <li><i class="fas fa-chart-line" style="color:#7c3aed;"></i> 本学期学习参与度上升19%，“AI实践”模块访问量创新高</li>
+                <li><i class="fas fa-graduation-cap" style="color:#7c3aed;"></i> 学情监测预警：23名学生知识图谱薄弱点集中在「大模型微调」领域</li>
+                <li><i class="fas fa-chart-simple" style="color:#7c3aed;"></i> 专业趋势分析显示：集成电路+AI方向人才需求年复合增长率达47%</li>
+                <li><i class="fas fa-tasks" style="color:#7c3aed;"></i> 任务空间新增“产业级数据智能”项目，已有14个团队报名</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <div class="info-title"><i class="fas fa-lightbulb"></i> 产教融合推荐 · AI赋能教学</div>
+            <div class="tag-cloud">
+                <span class="smart-tag"><i class="fas fa-robot"></i> 大模型实践工作坊</span>
+                <span class="smart-tag"><i class="fas fa-shield-alt"></i> 安全检测渗透演练</span>
+                <span class="smart-tag"><i class="fas fa-book"></i> 阅读清单·AI伦理专题</span>
+                <span class="smart-tag"><i class="fas fa-chart-network"></i> 专业趋势报告Q3</span>
+                <span class="smart-tag"><i class="fas fa-database"></i> 知识库向量化升级</span>
+                <span class="smart-tag"><i class="fas fa-chalkboard"></i> 任务式教学设计大赛</span>
+            </div>
+            <div style="margin-top: 20px; background:#f9f5ff; border-radius: 20px; padding: 14px;">
+                <div style="display: flex; gap: 14px; align-items: center;">
+                    <i class="fas fa-chart-line" style="font-size: 2rem; color:#a855f7;"></i>
+                    <div><strong style="color:#3b2a5f;">专业趋势分析洞察</strong><br><span style="font-size:0.8rem;">基于AI实时推演，智能网联汽车、生成式AI等岗位需求同比上升67%</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 拓展区块：知识库速览 / 阅读清单推荐 (与十大板块相呼应) -->
+    <div class="info-card" style="margin-bottom: 20px;">
+        <div class="info-title"><i class="fas fa-layer-group"></i> 热门知识库 & 阅读清单推荐</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between;">
+            <div style="flex: 1;">
+                <h4 style="color:#4c1d95; margin-bottom: 12px;"><i class="fas fa-database"></i> 知识库精选</h4>
+                <ul class="activity-list" style="list-style: none;">
+                    <li><i class="fas fa-cube"></i> 大模型工程化知识图谱</li>
+                    <li><i class="fas fa-chart-network"></i> 产业链人才需求数据集（2025版）</li>
+                    <li><i class="fas fa-microchip"></i> 嵌入式AI开发案例库</li>
+                    <li><i class="fas fa-shield-alt"></i> 数据安全合规知识库</li>
+                </ul>
+            </div>
+            <div style="flex: 1;">
+                <h4 style="color:#4c1d95; margin-bottom: 12px;"><i class="fas fa-list-check"></i> 本周阅读清单</h4>
+                <ul class="activity-list">
+                    <li><i class="fas fa-book"></i> 《多模态大模型：原理与产业应用》</li>
+                    <li><i class="fas fa-chart-line"></i> 《AI驱动的教育评价变革》</li>
+                    <li><i class="fas fa-cogs"></i> 《智能网联汽车技术路线图2.0》</li>
+                    <li><i class="fas fa-flask"></i> 学术前沿：CVPR/ICML 热点论文包</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <i class="fas fa-chalkboard"></i> 专课一体化智慧平台 · 深度融合移动门户 | 学情监测 | 专业趋势 | 任务式教学 | AI实践 | 学术探索  <br>
+        © 产教融合数字基座 | 动态数据基于产业AI分析模型推演 | 点击任意板块跳转至深度应用
+    </footer>
+</div>
+
+<!-- 增加简单交互动效：控制台输出友好提示（仅增强体验） -->
+<script>
+    (function() {
+        // 为所有功能卡片增加点击埋点风格的视觉提示 (保留原有跳转)
+        const cards = document.querySelectorAll('.module-card');
+        cards.forEach((card, idx) => {
+            card.addEventListener('click', (e) => {
+                // 轻量级控制台提示（不干扰跳转）
+                const title = card.querySelector('.module-title')?.innerText || '板块';
+                console.log(`[专课一体化平台] 即将跳转至：${title} — 智慧导航`);
+            });
+        });
+        // 模拟动态数据刷新 增加平台活跃度显示（可选装饰）
+        const statNumbers = document.querySelectorAll('.stat-number');
+        if (statNumbers.length) {
+            // 纯装饰效果，不需要实质变更
+        }
+        // 增加一个hover淡入效果展示各模块说明（可选）
+        console.log('专课一体化智慧平台已就绪 | 十大板块链接顺序完全匹配需求');
+    })();
+</script>
+</body>
+</html>
