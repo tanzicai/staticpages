@@ -1,0 +1,467 @@
+/* ============================================
+   答题区 + 弹窗 · 玻璃拟态
+   ============================================ */
+
+/* ===== 答题视图容器 ===== */
+.question-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ===== 题目进度条 + 小圆点 ===== */
+.question-progress-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  background: rgba(255,255,255,0.02);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--glass-border-light);
+}
+
+#questionProgressFill {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+#questionProgressFill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: var(--w, 0%);
+  background: linear-gradient(90deg, var(--accent-violet), var(--accent-blue));
+  border-radius: 2px;
+  transition: width 0.5s var(--ease);
+  box-shadow: 0 0 6px rgba(167,139,250,0.4);
+}
+
+#questionDots {
+  display: flex;
+  gap: 6px;
+}
+
+#questionDots .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  transition: all 0.3s var(--ease);
+}
+
+#questionDots .dot.done {
+  background: var(--accent-green);
+  box-shadow: 0 0 4px rgba(52,211,153,0.4);
+}
+
+#questionDots .dot.current {
+  background: var(--accent-violet);
+  box-shadow: 0 0 6px rgba(167,139,250,0.5);
+  transform: scale(1.2);
+}
+
+/* ===== 题目头部标签 ===== */
+.q-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.q-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(167,139,250,0.1);
+  color: var(--accent-violet);
+  border: 1px solid rgba(167,139,250,0.2);
+  letter-spacing: 0.5px;
+}
+
+.q-difficulty {
+  font-size: 12px;
+  color: var(--accent-gold);
+  letter-spacing: 1px;
+}
+
+.q-num {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(34,211,238,0.1);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(34,211,238,0.2);
+  margin-right: 6px;
+}
+
+/* ===== 题目卡片 ===== */
+.question-card {
+  border-radius: var(--r-xl);
+  padding: 28px 32px;
+  border: 1px solid var(--glass-border-light);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--dur) var(--ease);
+}
+
+.question-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-violet), var(--accent-blue), var(--accent-cyan));
+  opacity: 0.6;
+}
+
+.q-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-1);
+  line-height: 1.5;
+}
+
+.q-scene {
+  font-size: 13.5px;
+  color: var(--text-2);
+  line-height: 1.9;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.02);
+  border-radius: var(--r-md);
+  border-left: 3px solid rgba(167,139,250,0.3);
+}
+
+.q-body {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-1);
+  margin-bottom: 20px;
+  padding: 14px 0;
+}
+
+/* ===== 选项样式 ===== */
+.q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.option-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(167,139,250,0.08), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.option-item:hover {
+  border-color: rgba(167,139,250,0.3);
+  background: rgba(167,139,250,0.04);
+  transform: translateX(4px);
+}
+
+.option-item.selected {
+  border-color: var(--accent-violet);
+  background: rgba(167,139,250,0.1);
+  box-shadow: 0 0 0 1px rgba(167,139,250,0.2), 0 4px 12px rgba(167,139,250,0.1);
+}
+
+.option-item.selected::before { opacity: 1; }
+
+.option-item.correct {
+  border-color: var(--accent-green);
+  background: rgba(52,211,153,0.08);
+  box-shadow: 0 0 0 1px rgba(52,211,153,0.2);
+}
+
+.option-item.correct .option-label {
+  background: var(--accent-green);
+  color: #0a1a14;
+}
+
+.option-item.wrong {
+  border-color: var(--accent-red);
+  background: rgba(248,113,113,0.06);
+}
+
+.option-item.wrong .option-label {
+  background: var(--accent-red);
+  color: #1a0a0a;
+}
+
+.option-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(167,139,250,0.15);
+  color: var(--accent-violet);
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+  transition: all 0.25s;
+}
+
+.option-text {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+.option-item.selected .option-text { color: var(--text-1); }
+
+/* ===== 输入框 ===== */
+.input-wrap {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.answer-input {
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--glass-border);
+  color: var(--text-1);
+  font-size: 16px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  transition: all 0.25s var(--ease);
+  outline: none;
+}
+
+.answer-input::placeholder {
+  color: var(--text-4);
+}
+
+.answer-input:focus {
+  border-color: var(--accent-violet);
+  background: rgba(167,139,250,0.05);
+  box-shadow: 0 0 0 3px rgba(167,139,250,0.1);
+}
+
+/* ===== 提示框 ===== */
+.hint-box {
+  padding: 14px 18px;
+  border-radius: var(--r-md);
+  background: rgba(251,191,36,0.06);
+  border: 1px solid rgba(251,191,36,0.15);
+  color: var(--accent-gold);
+  font-size: 13px;
+  line-height: 1.7;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.hint-box::before {
+  content: '💡 ';
+  font-size: 14px;
+}
+
+/* ===== 按钮区 ===== */
+.q-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  font-family: inherit;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-violet), var(--accent-blue));
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(167,139,250,0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(167,139,250,0.45);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: rgba(255,255,255,0.03);
+  color: var(--text-3);
+  border: 1px solid var(--glass-border);
+}
+
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-2);
+  border-color: rgba(255,255,255,0.15);
+}
+
+/* ===== Toast 提示 ===== */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 12px 24px;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 500;
+  animation: toastIn 0.35s var(--ease), toastOut 0.35s var(--ease) 2.4s forwards;
+  backdrop-filter: blur(12px);
+  border: 1px solid;
+}
+
+.toast-success {
+  background: rgba(52,211,153,0.12);
+  border-color: rgba(52,211,153,0.3);
+  color: var(--accent-green);
+}
+
+.toast-error {
+  background: rgba(248,113,113,0.12);
+  border-color: rgba(248,113,113,0.3);
+  color: var(--accent-red);
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-12px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; }
+  to   { opacity: 0; transform: translateY(-6px); }
+}
+
+/* ===== 弹窗 ===== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5,5,20,0.6);
+  backdrop-filter: blur(8px);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s var(--ease);
+}
+
+.modal-panel {
+  width: 520px;
+  max-width: 92vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: var(--r-xl);
+  padding: 36px 32px 28px;
+  background: rgba(20,20,50,0.7);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5),
+              0 0 0 1px rgba(255,255,255,0.03) inset;
+  animation: modalPop 0.4s var(--ease);
+  position: relative;
+}
+
+@keyframes modalPop {
+  0%   { opacity: 0; transform: scale(0.92) translateY(20px); }
+  60%  { opacity: 1; transform: scale(1.02) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-icon {
+  font-size: 48px;
+  text-align: center;
+  margin-bottom: 12px;
+  animation: iconBounce 0.6s var(--ease) 0.2s both;
+}
+
+@keyframes iconBounce {
+  0%   { transform: scale(0); }
+  60%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.modal-eyebrow {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--accent-violet);
+  margin-bottom: 6px;
+}
+
+.modal-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 20px;
+}
+
+.modal-body {
+  margin-bottom: 24px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.modal-actions .btn {
+  padding: 10px 22px;
+  font-size: 13px;
+}
+
+/* ===== 隐藏辅助类 ===== */
+.hidden { display: none !important; }

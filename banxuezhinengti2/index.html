@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物流运筹学 · 智能学伴</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/map.css">
+<link rel="stylesheet" href="css/dialog.css">
+</head>
+<body>
+
+<!-- 动态背景 -->
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="grain"></div>
+</div>
+
+<!-- ========== 顶部栏 ========== -->
+<header class="top-bar glass">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 7h13l5 5v5h-2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>
+        <path d="M3 7v10h2"/><path d="M16 12H9"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <span class="logo-title">物流运筹学</span>
+      <span class="logo-sub">智能学伴</span>
+    </div>
+  </div>
+
+  <div class="progress-area">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+      <div class="progress-glow" id="progressGlow"></div>
+    </div>
+    <span class="progress-text" id="progressText">0 / 7 关</span>
+  </div>
+
+  <div class="user-area">
+    <div class="user-avatar">
+      <span>学</span>
+    </div>
+  </div>
+</header>
+
+<!-- ========== 主体 ========== -->
+<div class="main-container">
+
+  <!-- ===== 左侧：节点导航 ===== -->
+  <aside class="sidebar glass">
+    <div class="sidebar-header">
+      <div class="sidebar-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/>
+        </svg>
+        知识地图
+      </div>
+      <div class="sidebar-subtitle">Knowledge Map</div>
+    </div>
+
+    <div class="tree-scroll">
+      <ul class="knowledge-tree" id="knowledgeTree"></ul>
+    </div>
+
+    <!-- 诊断面板 -->
+    <div class="ai-panel glass-inner" id="aiPanel">
+      <div class="ai-panel-header">
+        <div class="ai-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m-11-7h6m10 0h6"/>
+          </svg>
+        </div>
+        <span>学习诊断</span>
+        <span class="ai-pulse"></span>
+      </div>
+      <div class="ai-panel-body" id="aiPanelBody">
+        <div class="ai-empty">
+          <div class="ai-empty-icon">✨</div>
+          <p>完成关卡后自动分析</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== 右侧：主内容区 ===== -->
+  <main class="content-area">
+
+    <!-- 视图切换 -->
+    <div class="view-tabs glass">
+      <button class="tab-btn active" data-view="map">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 20l-5-3V4l5 3 6-3 5 3v13l-5-3-6 3z"/><path d="M9 4v13m6-10v13"/>
+        </svg>
+        闯关地图
+      </button>
+      <button class="tab-btn" data-view="question">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6m-6 4h6"/>
+        </svg>
+        答题闯关
+      </button>
+      <button class="tab-btn" data-view="report">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 20V10m-6 10V4m-6 16v-6"/>
+        </svg>
+        AI 报告
+      </button>
+    </div>
+
+    <!-- ===== 视图1：闯关地图 ===== -->
+    <div class="view-panel" id="viewMap">
+      <div class="map-container glass">
+        <div class="map-bg-decoration"></div>
+        <svg class="map-svg" id="mapSvg" viewBox="0 0 960 580">
+          <defs>
+            <pattern id="dotGrid" width="30" height="30" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="rgba(255,255,255,0.06)"/>
+            </pattern>
+            <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:0.4"/>
+              <stop offset="100%" style="stop-color:#a78bfa;stop-opacity:0"/>
+            </radialGradient>
+            <radialGradient id="nodeGlowActive" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" style="stop-color:#c4b5fd;stop-opacity:0.6"/>
+              <stop offset="100%" style="stop-color:#c4b5fd;stop-opacity:0"/>
+            </radialGradient>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="glowStrong" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="10" result="coloredBlur"/>
+              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <rect width="900" height="560" fill="url(#dotGrid)"/>
+
+          <!-- 装饰性等高线 -->
+          <g class="map-deco" opacity="0.15">
+            <path d="M 50 400 Q 200 350 400 380 T 850 300" fill="none" stroke="rgba(167,139,250,0.3)" stroke-width="1" stroke-dasharray="4 6"/>
+            <path d="M 80 450 Q 250 400 450 430 T 880 350" fill="none" stroke="rgba(167,139,250,0.2)" stroke-width="1" stroke-dasharray="4 6"/>
+            <path d="M 100 150 Q 300 100 500 180 T 850 100" fill="none" stroke="rgba(167,139,250,0.2)" stroke-width="1" stroke-dasharray="4 6"/>
+          </g>
+
+          <g id="mapPaths"></g>
+          <g id="mapNodes"></g>
+
+          <!-- 地图标题 -->
+          <text x="480" y="36" text-anchor="middle" fill="rgba(255,255,255,0.1)" font-size="12" font-weight="300" letter-spacing="6">LOGISTICS · OPERATIONS RESEARCH · 智慧大陆</text>
+        </svg>
+
+        <!-- 浮动装饰元素 -->
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+      </div>
+
+      <!-- 场景信息卡片 -->
+      <div class="scene-card glass" id="sceneCard">
+        <div class="scene-card-icon-wrap">
+          <div class="scene-card-icon" id="sceneCardIcon">🏙️</div>
+          <div class="scene-card-icon-ring"></div>
+        </div>
+        <div class="scene-card-info">
+          <div class="scene-card-eyebrow" id="sceneCardEyebrow">SCENE</div>
+          <h3 id="sceneCardTitle">选择关卡开始冒险</h3>
+          <p id="sceneCardDesc">点击地图上的节点或左侧知识树中的文件夹，开始你的物流运筹学闯关之旅！</p>
+          <div class="scene-card-meta" id="sceneCardMeta"></div>
+        </div>
+        <button class="btn-enter" id="btnEnter" disabled>
+          <span>进入关卡</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14m-6-6l6 6-6 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== 视图2：答题区 ===== -->
+    <div class="view-panel hidden" id="viewQuestion">
+      <div class="question-view">
+        <!-- 进度条 + 小圆点 -->
+        <div class="question-progress-bar">
+          <div id="questionProgressFill"></div>
+          <div id="questionDots"></div>
+        </div>
+
+        <div class="question-card glass">
+          <div class="q-header">
+            <span class="q-tag" id="qTag">场景</span>
+            <span class="q-difficulty" id="qDifficulty"></span>
+          </div>
+          <h2 class="q-title" id="qTitle"></h2>
+          <div class="q-scene" id="qScene"></div>
+          <div class="q-body" id="qBody"></div>
+          <div class="q-options" id="qOptions"></div>
+          <div class="hint-box hidden" id="hintBox"></div>
+          <div class="q-actions">
+            <button class="btn btn-ghost" id="btnHint">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18h6m-3-3v3m0-12a4 4 0 014 4c0 2-1 2.5-2 3.5S13 14 13 16"/>
+              </svg>
+              提示
+            </button>
+            <button class="btn btn-primary" id="btnSubmit">
+              <span>提交答案</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 13l4 4L19 7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 视图3：AI 报告 ===== -->
+    <div class="view-panel hidden" id="viewReport">
+      <div class="report-container glass">
+        <div class="report-header">
+          <div class="report-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v4m0 12v4m-10-14h4m12 0h4M5 12H1m22 0h-4"/><circle cx="12" cy="12" r="4"/>
+            </svg>
+          </div>
+          <h2>学习诊断报告</h2>
+          <span class="report-sub">AI-Powered Diagnosis</span>
+        </div>
+
+        <div class="report-summary glass-inner" id="reportSummary">
+          <p>完成更多关卡后，AI 将生成详细的学习诊断报告...</p>
+        </div>
+
+        <div class="report-grid">
+          <div class="radar-section glass-inner">
+            <div class="section-label">知识点掌握度</div>
+            <canvas id="radarChart" width="360" height="360"></canvas>
+          </div>
+
+          <div class="weak-section">
+            <div class="weak-points glass-inner" id="weakPoints">
+              <div class="section-label">⚠ 薄弱知识点</div>
+              <ul id="weakList"></ul>
+            </div>
+            <div class="suggestions glass-inner" id="suggestionsBox">
+              <div class="section-label">💡 复习建议</div>
+              <ul id="suggestionList"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ========== 答题结果弹窗 ========== -->
+<div class="modal-overlay hidden" id="resultModal">
+  <div class="modal-backdrop"></div>
+  <div class="modal-content glass">
+    <div class="modal-congrats" id="modalCongrats"></div>
+    <div class="modal-icon-wrap">
+      <div class="modal-icon" id="modalIcon">🎉</div>
+    </div>
+    <h2 id="modalTitle">关卡完成！</h2>
+    <div class="modal-feedback" id="modalFeedback"></div>
+    <div class="modal-knowledge" id="modalKnowledge"></div>
+    <div class="modal-actions">
+      <button class="btn-glass-secondary" id="btnContinue">继续闯关</button>
+      <button class="btn-glass-primary" id="btnViewReport">查看诊断报告</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Toast ========== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ========== JS ========== -->
+<script src="js/data.js"></script>
+<script src="js/map.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/question.js"></script>
+<script src="js/ai-eval.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
