@@ -1,0 +1,7 @@
+# Cloudflare Pages redirects
+# Handle Next.js RSC payload requests - return index.html for the page
+/agent/*.txt /agent/:splat/ 200
+/*.txt /:splat/ 200
+
+# SPA fallback: serve index.html for unmatched routes
+/* /index.html 200
