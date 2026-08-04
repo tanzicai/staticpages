@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智教云 · 教育教学服务平台</title>
+<style>
+:root{
+  --primary:#6366F1;--primary-dark:#4F46E5;--primary-light:#EEF2FF;--primary-soft:#F5F3FF;
+  --bg:#F7F8FC;--card:#FFFFFF;--text:#1F2937;--text-2:#4B5563;--text-3:#9CA3AF;
+  --border:#EDEFF4;--border-2:#E5E7EB;--success:#10B981;--warning:#F59E0B;--danger:#EF4444;
+  --radius:12px;--radius-sm:8px;--shadow:0 1px 3px rgba(17,24,39,.04),0 1px 2px rgba(17,24,39,.06);
+  --shadow-md:0 4px 16px rgba(99,102,241,.08);--shadow-lg:0 12px 40px rgba(17,24,39,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:inherit;font-size:14px;outline:none}
+ul,ol{list-style:none}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:#D1D5DB;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#9CA3AF}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ===== 登录页 ===== */
+.login-wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 60%,#6366F1 100%);overflow:hidden;z-index:100}
+.login-wrap::before,.login-wrap::after{content:"";position:absolute;border-radius:50%;filter:blur(80px);opacity:.4}
+.login-wrap::before{width:480px;height:480px;background:#A78BFA;top:-160px;right:-120px}
+.login-wrap::after{width:520px;height:520px;background:#7C3AED;bottom:-200px;left:-160px}
+.login-card{position:relative;width:400px;background:rgba(255,255,255,.96);backdrop-filter:blur(20px);
+  border-radius:20px;padding:48px 40px 40px;box-shadow:0 24px 60px rgba(31,41,55,.25);z-index:1}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.login-logo .logo-mark{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#6366F1,#8B5CF6);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px;box-shadow:0 6px 16px rgba(99,102,241,.4)}
+.login-logo .logo-text{font-size:20px;font-weight:700;color:#1F2937}
+.login-sub{color:var(--text-3);font-size:13px;margin-bottom:32px;padding-left:56px;margin-top:-4px}
+.login-field{margin-bottom:20px}
+.login-field label{display:block;font-size:13px;color:var(--text-2);margin-bottom:8px;font-weight:500}
+.login-input{width:100%;height:44px;padding:0 14px;border:1px solid var(--border-2);border-radius:10px;
+  background:#fff;transition:all .2s}
+.login-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+.login-btn{width:100%;height:46px;background:linear-gradient(135deg,#6366F1,#7C3AED);color:#fff;border-radius:10px;
+  font-size:15px;font-weight:600;margin-top:8px;transition:all .2s;box-shadow:0 6px 16px rgba(99,102,241,.35)}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(99,102,241,.45)}
+.login-btn:active{transform:translateY(0)}
+.login-tip{display:flex;justify-content:space-between;margin-top:20px;font-size:12px;color:var(--text-3)}
+.login-error{color:var(--danger);font-size:12px;margin-top:8px;min-height:16px;text-align:center}
+.login-footer{position:absolute;bottom:24px;left:0;right:0;text-align:center;color:rgba(255,255,255,.7);font-size:12px;z-index:1}
+
+/* ===== 主应用 ===== */
+.app{display:none;height:100vh;flex-direction:column}
+.app.show{display:flex}
+
+/* 顶栏 */
+.topbar{height:60px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;
+  padding:0 24px;justify-content:space-between;flex-shrink:0;z-index:10}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366F1,#8B5CF6);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:17px}
+.topbar-title{font-size:16px;font-weight:600;color:var(--text)}
+.topbar-title small{font-size:12px;color:var(--text-3);font-weight:400;margin-left:8px}
+.topbar-right{display:flex;align-items:center;gap:18px}
+.topbar-search{position:relative;width:280px}
+.topbar-search input{width:100%;height:36px;padding:0 12px 0 36px;background:var(--bg);border:1px solid transparent;
+  border-radius:18px;font-size:13px}
+.topbar-search input:focus{background:#fff;border-color:var(--primary)}
+.topbar-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-3)}
+.topbar-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:var(--text-2);cursor:pointer;transition:all .2s;position:relative}
+.topbar-icon:hover{background:var(--primary-light);color:var(--primary)}
+.topbar-icon .dot{position:absolute;top:8px;right:8px;width:8px;height:8px;background:var(--danger);border-radius:50%;border:2px solid #fff}
+.user-chip{display:flex;align-items:center;gap:10px;padding:4px 10px 4px 4px;border-radius:24px;cursor:pointer;transition:all .2s}
+.user-chip:hover{background:var(--bg)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#6366F1);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:13px}
+.user-name{font-size:13px;font-weight:500}
+.user-role{font-size:11px;color:var(--text-3)}
+
+/* 主体 */
+.app-body{flex:1;display:flex;overflow:hidden}
+
+/* 侧栏 */
+.sidebar{width:232px;background:#fff;border-right:1px solid var(--border);flex-shrink:0;overflow-y:auto;padding:16px 0}
+.nav-group{margin-bottom:6px}
+.nav-group-title{padding:8px 20px;font-size:11px;color:var(--text-3);font-weight:600;letter-spacing:.5px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;cursor:pointer;color:var(--text-2);
+  font-size:14px;transition:all .15s;border-left:3px solid transparent;position:relative}
+.nav-item:hover{background:var(--primary-soft);color:var(--primary)}
+.nav-item.active{background:var(--primary-light);color:var(--primary-dark);border-left-color:var(--primary);font-weight:600}
+.nav-item svg{flex-shrink:0}
+.nav-sub{padding:4px 0}
+.nav-sub-item{padding:9px 20px 9px 52px;cursor:pointer;font-size:13px;color:var(--text-2);transition:all .15s}
+.nav-sub-item:hover{color:var(--primary)}
+.nav-sub-item.active{color:var(--primary-dark);font-weight:600;background:var(--primary-light)}
+
+/* 内容区 */
+.content{flex:1;overflow-y:auto;padding:24px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-title{font-size:20px;font-weight:700;color:var(--text)}
+.page-subtitle{font-size:13px;color:var(--text-3);margin-top:4px}
+.breadcrumb{font-size:12px;color:var(--text-3);margin-bottom:8px}
+.breadcrumb span{margin:0 6px}
+
+/* 通用组件 */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.card-title{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;
+  font-weight:500;transition:all .2s;border:1px solid transparent}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-ghost{background:#fff;color:var(--text-2);border-color:var(--border-2)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn-soft{background:var(--primary-light);color:var(--primary-dark)}
+.btn-soft:hover{background:#E0E7FF}
+.btn-danger{background:#FEE2E2;color:var(--danger)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-lg{padding:11px 22px;font-size:14px}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:500}
+.tag-primary{background:var(--primary-light);color:var(--primary-dark)}
+.tag-success{background:#D1FAE5;color:#065F46}
+.tag-warning{background:#FEF3C7;color:#92400E}
+.tag-info{background:#DBEAFE;color:#1E40AF}
+.tag-gray{background:#F3F4F6;color:#4B5563}
+.tag-purple{background:#EDE9FE;color:#5B21B6}
+
+.grid{display:grid;gap:16px}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+.grid-5{grid-template-columns:repeat(5,1fr)}
+
+.stat-card{background:#fff;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.stat-card .stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.stat-card .stat-label{font-size:13px;color:var(--text-3);margin-bottom:6px}
+.stat-card .stat-value{font-size:26px;font-weight:700;color:var(--text)}
+.stat-card .stat-trend{font-size:12px;margin-top:8px}
+.stat-trend.up{color:var(--success)}
+.stat-trend.down{color:var(--danger)}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab{padding:10px 18px;cursor:pointer;font-size:14px;color:var(--text-2);border-bottom:2px solid transparent;transition:all .2s;font-weight:500}
+.tab:hover{color:var(--primary)}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+
+.seg{display:inline-flex;background:var(--bg);border-radius:8px;padding:3px;gap:2px}
+.seg-item{padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--text-2);transition:all .2s}
+.seg-item.active{background:#fff;color:var(--primary);font-weight:600;box-shadow:var(--shadow)}
+
+.input,.select,.textarea{width:100%;height:38px;padding:0 12px;border:1px solid var(--border-2);border-radius:8px;background:#fff;transition:all .2s}
+.textarea{height:auto;padding:10px 12px;line-height:1.6;resize:vertical}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+.input::placeholder,.textarea::placeholder{color:var(--text-3)}
+
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th{background:var(--bg);padding:12px 14px;text-align:left;font-weight:600;color:var(--text-2);font-size:12px;border-bottom:1px solid var(--border)}
+.table td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text)}
+.table tr:hover td{background:var(--primary-soft)}
+
+.progress{height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#6366F1,#8B5CF6);border-radius:4px;transition:width .6s}
+
+/* 弹窗 */
+.modal-mask{position:fixed;inset:0;background:rgba(17,24,39,.5);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px)}
+.modal-mask.show{display:flex}
+.modal{background:#fff;border-radius:14px;width:560px;max-width:92vw;max-height:86vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+.modal-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:600}
+.modal-close{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-3);cursor:pointer}
+.modal-close:hover{background:var(--bg);color:var(--text)}
+.modal-body{padding:24px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+
+/* 提示 */
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#1F2937;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:300;box-shadow:var(--shadow-lg);display:none;align-items:center;gap:8px}
+.toast.show{display:flex}
+.toast.success{background:#10B981}
+.toast.error{background:var(--danger)}
+
+.empty{text-align:center;padding:60px 20px;color:var(--text-3)}
+.empty svg{margin-bottom:12px;opacity:.4}
+
+/* 已移除移动端外壳样式 */
+
+.flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}
+.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}
+.mt-2{margin-top:8px}.mt-3{margin-top:12px}.mt-4{margin-top:16px}.mt-6{margin-top:24px}
+.mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}.mb-4{margin-bottom:16px}
+.text-sm{font-size:13px}.text-xs{font-size:12px}.text-3{color:var(--text-3)}.text-2{color:var(--text-2)}
+.font-bold{font-weight:700}.font-medium{font-weight:500}
+.flex-1{flex:1}.text-center{text-align:center}
+.hidden{display:none!important}
+
+/* 微课/详情头部返回 */
+.back-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;color:var(--text-2);font-size:13px}
+.back-bar:hover{color:var(--primary)}
+
+/* 图谱SVG */
+.kg-svg{width:100%;height:520px;background:radial-gradient(circle at 50% 50%,#F5F3FF 0%,#FFFFFF 70%);border-radius:12px;border:1px solid var(--border)}
+.kg-node{cursor:pointer;transition:all .2s}
+.kg-node:hover circle{filter:brightness(1.1)}
+.kg-link{stroke:#C7D2FE;stroke-width:1.5;fill:none}
+.kg-link.active{stroke:#6366F1;stroke-width:2.5}
+
+/* 资源卡片 */
+.res-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s;cursor:pointer}
+.res-card:hover{border-color:var(--primary);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.res-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* 学情环形 */
+.ring{position:relative;width:88px;height:88px}
+.ring svg{transform:rotate(-90deg)}
+.ring-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.ring-text .v{font-size:18px;font-weight:700;color:var(--primary)}
+.ring-text .l{font-size:10px;color:var(--text-3)}
+
+/* 微课Tabs内容 */
+.lesson-tab-content{min-height:300px}
+.quiz-option{padding:12px 14px;border:1px solid var(--border-2);border-radius:8px;margin-bottom:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px}
+.quiz-option:hover{border-color:var(--primary);background:var(--primary-soft)}
+.quiz-option.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary-dark)}
+.quiz-option.correct{border-color:var(--success);background:#D1FAE5;color:#065F46}
+.quiz-option.wrong{border-color:var(--danger);background:#FEE2E2;color:#991B1B}
+.quiz-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border-2);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.quiz-option.selected .quiz-radio{border-color:var(--primary)}
+.quiz-option.correct .quiz-radio{border-color:var(--success);background:var(--success)}
+.quiz-option.wrong .quiz-radio{border-color:var(--danger);background:var(--danger)}
+
+/* AI聊天 */
+.chat-bubble{max-width:80%;padding:12px 16px;border-radius:14px;font-size:13px;line-height:1.7;white-space:pre-wrap}
+.chat-bubble.user{background:var(--primary);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+.chat-bubble.ai{background:#fff;border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start}
+
+/* 职业卡片 */
+.career-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;transition:all .2s;cursor:pointer;position:relative;overflow:hidden}
+.career-card::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,#6366F1,#8B5CF6)}
+.career-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+</style>
+</head>
+<body>
+
+<!-- ===== 登录页 ===== -->
+<div class="login-wrap" id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-mark">智</div>
+      <div class="logo-text">智教云</div>
+    </div>
+    <div class="login-sub">教育教学服务平台</div>
+    <div class="login-field">
+      <label>账号</label>
+      <input type="text" class="login-input" id="loginUser" placeholder="请输入账号" autocomplete="off">
+    </div>
+    <div class="login-field">
+      <label>密码</label>
+      <input type="password" class="login-input" id="loginPass" placeholder="请输入密码">
+    </div>
+    <div class="login-error" id="loginError"></div>
+    <button class="login-btn" id="loginBtn">登 录</button>
+    <div class="login-tip">
+      <span>忘记密码？联系管理员</span>
+      <span>v 3.2.1</span>
+    </div>
+  </div>
+  <div class="login-footer">© 2026 智教云 · 教育教学服务平台 · 保留所有权利</div>
+</div>
+
+<!-- ===== 主应用 ===== -->
+<div class="app" id="mainApp">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">智</div>
+      <div class="topbar-title">智教云 <small>教育教学服务平台</small></div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="搜索知识点、资源、应用…">
+      </div>
+      <div class="topbar-icon" title="消息">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span class="dot"></span>
+      </div>
+      <div class="topbar-icon" title="帮助">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div class="user-chip" id="userChip">
+        <div class="user-avatar">管</div>
+        <div>
+          <div class="user-name">管理员</div>
+          <div class="user-role">系统管理员</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="content" id="content"></main>
+  </div>
+</div>
+
+<!-- 弹窗 -->
+<div class="modal-mask" id="modalMask">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+ * 智教云 · 教育教学服务平台
+ * 单文件实现：HTML / CSS / JS
+ * 本地存储：localStorage
+ * ========================================================= */
+
+/* ---------- 工具函数 ---------- */
+const $ = (s,el=document)=>el.querySelector(s);
+const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
+const uid = ()=>Math.random().toString(36).slice(2,10);
+const fmt = n=>Number(n).toLocaleString('zh-CN');
+function toast(msg,type=''){
+  const t=$('#toast');t.className='toast show '+type;t.textContent=msg;
+  clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast '+type,2400);
+}
+function openModal(title,bodyHTML,footerHTML=''){
+  $('#modalBox').innerHTML=`
+    <div class="modal-header"><div class="modal-title">${title}</div>
+    <div class="modal-close" onclick="closeModal()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div></div>
+    <div class="modal-body">${bodyHTML}</div>
+    ${footerHTML?('<div class="modal-footer">'+footerHTML+'</div>'):''}
+  `;
+  $('#modalMask').classList.add('show');
+}
+function closeModal(){$('#modalMask').classList.remove('show')}
+function handleQuizOption(el,correct){
+  el.parentElement.querySelectorAll('.quiz-option').forEach(function(opt){opt.classList.remove('correct','wrong')});
+  el.classList.add(correct?'correct':'wrong');
+}
+function setLibType(t){KBState.libType=t;KBState.searched=false;renderDbSearch()}
+function togglePlanTerm(el){
+  const next=el.nextElementSibling;
+  next.style.display=next.style.display==='none'?'block':'none';
+}
+function switchLessonTab(tabKey){
+  if(window.__curLesson){document.getElementById('lessonContent').innerHTML=renderLessonTabs(window.__curLesson,tabKey)}
+}
+function downloadMaterial(el){toast('已下载 '+el.dataset.name,'success')}
+function downloadAndClose(id){downloadResource(id);closeModal()}
+$('#modalMask').addEventListener('click',e=>{if(e.target.id==='modalMask')closeModal()});
+
+/* 图标库（简约线条风） */
+const I={
+  home:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+  book:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  network:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v4M12 11l-5 6M12 11l5 6"/></svg>',
+  bot:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 16h.01M16 16h.01"/></svg>',
+  user:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  list:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+  map:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>',
+  cloud:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>',
+  db:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>',
+  upload:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
+  play:'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>',
+  check:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+  file:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  video:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>',
+  chart:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+  target:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  star:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+};
+
+/* ---------- 数据层 ---------- */
+const DATA_KEY='zjy_data_v1';
+const AUTH_KEY='zjy_auth';
+
+function defaultData(){
+  return {
+    /* 知识点（学科：高等数学） */
+    knowledgePoints:[
+      {id:'kp1',name:'极限与连续',parent:null,level:1,desc:'数列极限、函数极限、无穷小量与无穷大量',mastery:78,resources:24,completed:true},
+      {id:'kp2',name:'导数与微分',parent:'kp1',level:2,desc:'导数定义、求导法则、高阶导数、微分',mastery:65,resources:31,completed:true},
+      {id:'kp3',name:'中值定理',parent:'kp2',level:3,desc:'罗尔定理、拉格朗日中值定理、柯西定理',mastery:52,resources:18,completed:false},
+      {id:'kp4',name:'不定积分',parent:'kp2',level:3,desc:'原函数、换元积分法、分部积分法',mastery:60,resources:26,completed:false},
+      {id:'kp5',name:'定积分',parent:'kp4',level:4,desc:'定积分概念、牛顿-莱布尼茨公式、反常积分',mastery:48,resources:22,completed:false},
+      {id:'kp6',name:'多元函数微分学',parent:'kp5',level:5,desc:'偏导数、全微分、多元函数极值',mastery:35,resources:20,completed:false},
+      {id:'kp7',name:'二重积分',parent:'kp6',level:6,desc:'二重积分概念、直角坐标与极坐标计算',mastery:28,resources:15,completed:false},
+      {id:'kp8',name:'微分方程',parent:'kp3',level:4,desc:'一阶微分方程、可降阶方程、二阶常系数线性方程',mastery:42,resources:19,completed:false},
+      {id:'kp9',name:'级数',parent:'kp5',level:6,desc:'常数项级数、幂级数、傅里叶级数',mastery:30,resources:17,completed:false},
+    ],
+    /* 微课 */
+    lessons:{
+      kp1:{title:'极限与连续 · 微课',video:'极限概念引入',duration:'18:24',analysis:'本节聚焦极限的 ε-δ 定义与性质，是微积分理论的基石。通过数列极限引入函数极限，理解无穷小量的比较。',content:['极限的直观描述','数列极限的 ε-N 定义','函数极限的 ε-δ 定义','无穷小量与无穷大量','极限的四则运算','两个重要极限'],materials:[{name:'极限概念讲义.pdf',type:'pdf',size:'2.4 MB'},{name:'极限例题集.docx',type:'doc',size:'1.1 MB'},{name:'极限动画讲解.mp4',type:'video',size:'18.6 MB'}],quiz:[{q:'下列极限中等于 e 的是？',opts:['lim(1+1/n)^n','lim(1+1/n)^2n','lim n·sin(1/n)','lim (1+1/n)^(n+1)'],ans:0},{q:'当 x→0 时，sin x 是 x 的？',opts:['等价无穷小','高阶无穷小','低阶无穷小','同阶但非等价无穷小'],ans:0},{q:'函数 f(x)=|x|/x 在 x=0 处？',opts:['极限存在','左极限存在右极限不存在','极限不存在','连续'],ans:2}],wrong:[{q:'求 lim(x→0) (tan x - sin x)/x³',your:'1/2',correct:'1/3',time:'2026-07-12'},{q:'lim(x→∞) (1+2/x)^x = ?',your:'e',correct:'e²',time:'2026-07-10'}]},
+      kp2:{title:'导数与微分 · 微课',video:'导数定义与几何意义',duration:'22:10',analysis:'导数反映函数瞬时变化率，几何上表示切线斜率。本节掌握导数定义、基本求导法则及微分的概念。',content:['导数定义与几何意义','左导数与右导数','基本求导公式','复合函数求导法则','隐函数求导','高阶导数与微分'],materials:[{name:'导数公式表.pdf',type:'pdf',size:'0.8 MB'},{name:'求导习题集.docx',type:'doc',size:'1.6 MB'}],quiz:[{q:'f(x)=x³ 在 x=2 处的导数为？',opts:['6','8','12','4'],ans:2},{q:'下列求导正确的是？',opts:['(sin x)′=cos x','(cos x)′=sin x','(ln x)′=1/x²','(e^x)′=x·e^(x-1)'],ans:0}],wrong:[]},
+      kp3:{title:'中值定理 · 微课',video:'拉格朗日中值定理',duration:'16:48',analysis:'中值定理建立了函数值与导数之间的桥梁，是微分学的理论核心，为后续泰勒公式与积分学奠定基础。',content:['罗尔定理','拉格朗日中值定理','柯西中值定理','泰勒公式初步'],materials:[{name:'中值定理证明.pdf',type:'pdf',size:'1.4 MB'}],quiz:[{q:'罗尔定理要求函数在闭区间上？',opts:['连续且端点值相等','可导即可','单调递增','有界'],ans:0}],wrong:[]},
+    },
+    /* 班级 */
+    classes:[
+      {id:'c1',name:'计算机科学与技术 2024级1班',course:'高等数学(上)',students:42,resources:156,completion:78,mastery:72},
+      {id:'c2',name:'软件工程 2024级2班',course:'高等数学(上)',students:38,resources:142,completion:71,mastery:68},
+      {id:'c3',name:'人工智能 2024级3班',course:'高等数学(上)',students:35,resources:148,completion:85,mastery:79},
+    ],
+    students:[
+      {id:'s1',name:'张明远',no:'202401001',classId:'c1',completion:92,mastery:88,lessons:48,homework:24,exams:6,avgScore:91,trend:[78,82,85,88,90,91]},
+      {id:'s2',name:'李思雨',no:'202401002',classId:'c1',completion:85,mastery:80,lessons:44,homework:22,exams:6,avgScore:86,trend:[72,75,78,82,84,86]},
+      {id:'s3',name:'王浩然',no:'202401003',classId:'c1',completion:76,mastery:68,lessons:40,homework:20,exams:5,avgScore:78,trend:[68,70,72,75,77,78]},
+      {id:'s4',name:'陈静怡',no:'202401004',classId:'c1',completion:95,mastery:92,lessons:50,homework:24,exams:6,avgScore:94,trend:[85,87,89,91,93,94]},
+      {id:'s5',name:'刘子轩',no:'202401005',classId:'c1',completion:62,mastery:55,lessons:32,homework:16,exams:4,avgScore:68,trend:[60,62,64,66,67,68]},
+      {id:'s6',name:'赵紫宁',no:'202401006',classId:'c1',completion:88,mastery:83,lessons:46,homework:23,exams:6,avgScore:87,trend:[75,78,80,83,85,87]},
+      {id:'s7',name:'孙嘉怡',no:'202401007',classId:'c1',completion:71,mastery:65,lessons:38,homework:19,exams:5,avgScore:76,trend:[66,68,70,73,75,76]},
+      {id:'s8',name:'周文博',no:'202401008',classId:'c1',completion:81,mastery:74,lessons:42,homework:21,exams:6,avgScore:80,trend:[70,72,75,77,79,80]},
+    ],
+    /* 个人知识库资源 */
+    myResources:[
+      {id:'r1',name:'高等数学（第七版）.pdf',type:'图书',source:'本地',size:'24.6 MB',time:'2026-07-15',cat:'教材'},
+      {id:'r2',name:'深度学习中的优化方法综述.pdf',type:'期刊',source:'数据库',size:'3.2 MB',time:'2026-07-14',cat:'论文'},
+      {id:'r3',name:'线性代数课程讲义.docx',type:'文档',source:'云盘',size:'1.8 MB',time:'2026-07-12',cat:'讲义'},
+      {id:'r4',name:'2025年人工智能产业白皮书.pdf',type:'科技成果',source:'数据库',size:'12.4 MB',time:'2026-07-10',cat:'报告'},
+      {id:'r5',name:'微积分教学视频-导数篇.mp4',type:'影音',source:'本地',size:'186 MB',time:'2026-07-08',cat:'视频'},
+      {id:'r6',name:'GB/T 38673-2020 信息技术标准.pdf',type:'标准专利',source:'数据库',size:'2.1 MB',time:'2026-07-05',cat:'标准'},
+      {id:'r7',name:'中国教育报·高校数字化专版.pdf',type:'报纸',source:'数据库',size:'0.8 MB',time:'2026-07-03',cat:'报刊'},
+      {id:'r8',name:'数据结构与算法笔记.md',type:'文档',source:'本地',size:'0.3 MB',time:'2026-07-01',cat:'笔记'},
+    ],
+    /* 数据库检索 - 文献库 */
+    library:[
+      {id:'l1',title:'基于知识图谱的个性化学习路径推荐研究',author:'王晓东, 李清华',type:'期刊',source:'《计算机应用研究》2026年第3期',keyword:['知识图谱','学习路径','推荐算法'],subject:'教育技术'},
+      {id:'l2',title:'深度神经网络优化方法综述',author:'张伟, 陈芳',type:'期刊',source:'《软件学报》2025年第12期',keyword:['深度学习','优化算法','梯度下降'],subject:'人工智能'},
+      {id:'l3',title:'高等数学（第七版）',author:'同济大学数学系',type:'图书',source:'高等教育出版社',keyword:['高等数学','微积分','教材'],subject:'数学'},
+      {id:'l4',title:'线性代数及其应用',author:'Gilbert Strang',type:'图书',source:'机械工业出版社',keyword:['线性代数','矩阵','应用'],subject:'数学'},
+      {id:'l5',title:'2026年中国人工智能产业发展白皮书',author:'中国人工智能学会',type:'科技成果',source:'2026年产业报告',keyword:['人工智能','产业','白皮书'],subject:'产业研究'},
+      {id:'l6',title:'GB/T 38673-2020 信息技术 大数据',author:'国家市场监督管理总局',type:'标准专利',source:'国家标准',keyword:['大数据','信息技术','标准'],subject:'信息技术'},
+      {id:'l7',title:'一种基于Transformer的智能问答方法及系统',author:'刘建国',type:'标准专利',source:'发明专利 CN202410123456',keyword:['Transformer','智能问答','自然语言处理'],subject:'人工智能'},
+      {id:'l8',title:'高校数字化转型实践与思考',author:'教育部教育信息化专班',type:'报纸',source:'中国教育报 2026-07-15',keyword:['教育数字化','高校','转型'],subject:'教育技术'},
+      {id:'l9',title:'机器学习入门微课系列',author:'智教云教研中心',type:'影音',source:'智教云资源平台',keyword:['机器学习','微课','入门'],subject:'人工智能'},
+      {id:'l10',title:'自适应学习系统的构建与评估',author:'赵敏, 孙强',type:'期刊',source:'《电化教育研究》2026年第2期',keyword:['自适应学习','学习系统','评估'],subject:'教育技术'},
+      {id:'l11',title:'强化学习在智能推荐中的应用',author:'钱学森, 吴玥',type:'期刊',source:'《自动化学报》2025年第9期',keyword:['强化学习','推荐系统'],subject:'人工智能'},
+      {id:'l12',title:'知识工程与知识图谱',author:'漆桂林',type:'图书',source:'科学出版社',keyword:['知识工程','知识图谱','语义'],subject:'计算机'},
+    ],
+    /* 知识图谱节点（中心词展开） */
+    graphNodes:[
+      {id:'g0',name:'人工智能',x:400,y:280,r:42,level:0,attr:'核心领域'},
+      {id:'g1',name:'机器学习',x:200,y:160,r:32,level:1,attr:'子领域'},
+      {id:'g2',name:'深度学习',x:180,y:380,r:32,level:1,attr:'子领域'},
+      {id:'g3',name:'自然语言处理',x:620,y:160,r:32,level:1,attr:'子领域'},
+      {id:'g4',name:'计算机视觉',x:640,y:380,r:32,level:1,attr:'子领域'},
+      {id:'g5',name:'监督学习',x:80,y:80,r:24,level:2,attr:'方法'},
+      {id:'g6',name:'无监督学习',x:60,y:220,r:24,level:2,attr:'方法'},
+      {id:'g7',name:'神经网络',x:60,y:440,r:24,level:2,attr:'方法'},
+      {id:'g8',name:'大语言模型',x:760,y:80,r:24,level:2,attr:'应用'},
+      {id:'g9',name:'图像识别',x:820,y:440,r:24,level:2,attr:'应用'},
+    ],
+    graphLinks:[
+      {s:'g0',t:'g1'},{s:'g0',t:'g2'},{s:'g0',t:'g3'},{s:'g0',t:'g4'},
+      {s:'g1',t:'g5'},{s:'g1',t:'g6'},{s:'g2',t:'g7'},{s:'g3',t:'g8'},{s:'g4',t:'g9'},
+      {s:'g2',t:'g1'},{s:'g3',t:'g8'},
+    ],
+    /* AI应用 */
+    aiApps:[
+      {id:'a1',name:'智能备课',desc:'依托知识库生成教学设计、教案与课件框架',icon:'book',color:'#6366F1',uses:1280},
+      {id:'a2',name:'智能出题',desc:'根据知识点自动生成多题型题库与解析',icon:'list',color:'#8B5CF6',uses:964},
+      {id:'a3',name:'学习总结',desc:'自动归纳学习内容要点生成复习大纲',icon:'chart',color:'#0EA5E9',uses:726},
+      {id:'a4',name:'智能问答',desc:'基于校内与个人知识库的精准问答',icon:'bot',color:'#10B981',uses:2156},
+      {id:'a5',name:'论文研读',desc:'文献阅读、要点提炼与对比分析',icon:'file',color:'#F59E0B',uses:532},
+      {id:'a6',name:'错题讲解',desc:'针对错题生成个性化讲解与变式练习',icon:'target',color:'#EC4899',uses:418},
+    ],
+    /* 培养方案 - 专业 */
+    major:{
+      name:'计算机科学与技术',code:'080901',degree:'工学学士',duration:'4年',totalCredits:160,completedCredits:98,
+      direction:'系统掌握计算机科学与技术领域的基本理论与专业知识，具备软件开发、系统设计与算法分析能力，能够从事计算机软硬件系统的设计、研发与运维工作。',
+      categories:[
+        {name:'通识教育课程',require:42,done:38,color:'#6366F1'},
+        {name:'学科基础课程',require:38,done:32,color:'#8B5CF6'},
+        {name:'专业核心课程',require:48,done:22,color:'#0EA5E9'},
+        {name:'专业选修课程',require:20,done:6,color:'#10B981'},
+        {name:'实践教学环节',require:12,done:0,color:'#F59E0B'},
+      ],
+      planCourses:[
+        {term:'第1学期',courses:[{name:'高等数学(上)',credit:5,cat:'学科基础',score:91,status:'通过'},{name:'大学英语(1)',credit:4,cat:'通识',score:88,status:'通过'},{name:'计算机导论',credit:3,cat:'专业核心',score:94,status:'通过'},{name:'程序设计基础',credit:4,cat:'学科基础',score:90,status:'通过'}]},
+        {term:'第2学期',courses:[{name:'高等数学(下)',credit:5,cat:'学科基础',score:89,status:'通过'},{name:'线性代数',credit:3,cat:'学科基础',score:92,status:'通过'},{name:'C语言程序设计',credit:4,cat:'专业核心',score:87,status:'通过'},{name:'大学英语(2)',credit:4,cat:'通识',score:85,status:'通过'}]},
+        {term:'第3学期',courses:[{name:'数据结构',credit:4,cat:'专业核心',score:90,status:'通过'},{name:'离散数学',credit:3,cat:'学科基础',score:84,status:'通过'},{name:'概率论与数理统计',credit:3,cat:'学科基础',score:88,status:'通过'},{name:'数字逻辑',credit:3,cat:'专业核心',score:86,status:'通过'}]},
+        {term:'第4学期',courses:[{name:'计算机组成原理',credit:4,cat:'专业核心',score:0,status:'修读中'},{name:'操作系统',credit:4,cat:'专业核心',score:0,status:'修读中'},{name:'数据库系统',credit:4,cat:'专业核心',score:0,status:'修读中'},{name:'面向对象程序设计',credit:3,cat:'专业核心',score:0,status:'修读中'}]},
+        {term:'第5学期',courses:[{name:'计算机网络',credit:4,cat:'专业核心',score:0,status:'未修'},{name:'软件工程',credit:3,cat:'专业核心',score:0,status:'未修'},{name:'算法设计与分析',credit:3,cat:'专业核心',score:0,status:'未修'},{name:'编译原理',credit:3,cat:'专业选修',score:0,status:'未修'}]},
+        {term:'第6学期',courses:[{name:'人工智能导论',credit:3,cat:'专业选修',score:0,status:'未修'},{name:'机器学习',credit:3,cat:'专业选修',score:0,status:'未修'},{name:'大数据技术',credit:3,cat:'专业选修',score:0,status:'未修'},{name:'毕业设计',credit:6,cat:'实践',score:0,status:'未修'}]},
+      ],
+      careers:[
+        {dir:'后端开发工程师',sal:'18-35K',city:'北京/上海/深圳/杭州',skills:['Java','Spring','MySQL','Redis','微服务'],outlook:'需求稳定，互联网与政企数字化双驱动',match:92},
+        {dir:'前端开发工程师',sal:'15-30K',city:'北京/上海/深圳/广州',skills:['JavaScript','React/Vue','TypeScript','工程化'],outlook:'用户体验需求升级，全栈化趋势明显',match:85},
+        {dir:'算法工程师',sal:'25-50K',city:'北京/上海/深圳/杭州',skills:['Python','机器学习','深度学习','数学建模'],outlook:'AI产业高速发展，人才稀缺度持续',match:88},
+        {dir:'数据工程师',sal:'20-40K',city:'北京/上海/杭州/成都',skills:['SQL','Spark','Hadoop','数据仓库'],outlook:'数据资产化加速，政企需求双增长',match:80},
+        {dir:'人工智能研发',sal:'30-60K',city:'北京/上海/深圳',skills:['PyTorch','NLP/CV','大模型','分布式'],outlook:'大模型时代核心赛道，前景广阔',match:90},
+        {dir:'安全工程师',sal:'18-35K',city:'北京/上海/深圳/成都',skills:['网络安全','渗透测试','密码学','运维'],outlook:'合规与攻防双轮驱动，人才缺口大',match:72},
+      ],
+    },
+    studentProfiles:{
+      s1:{
+        name:'张明远',no:'202401001',major:'计算机科学与技术',grade:'2024级',gpa:3.78,rank:'8/156',
+        awards:['2025年全国大学生数学建模竞赛 国家二等奖','2025年ACM程序设计竞赛 区域银奖','2025学年校级一等奖学金'],
+        skills:[{name:'Java',level:85},{name:'Python',level:78},{name:'数据结构',level:88},{name:'机器学习',level:65},{name:'数据库',level:80}],
+        target:'人工智能算法工程师',
+      },
+      s2:{
+        name:'李思雨',no:'202401002',major:'计算机科学与技术',grade:'2024级',gpa:3.65,rank:'18/156',
+        awards:['2025年全国大学生英语竞赛 二等奖','2025学年校级二等奖学金'],
+        skills:[{name:'Java',level:75},{name:'前端开发',level:82},{name:'数据库',level:70},{name:'Python',level:60}],
+        target:'全栈开发工程师',
+      },
+      s4:{
+        name:'陈静怡',no:'202401004',major:'计算机科学与技术',grade:'2024级',gpa:3.92,rank:'3/156',
+        awards:['2025年全国大学生数学建模竞赛 国家一等奖','2025年ACM程序设计竞赛 区域金奖','2025学年校级特等奖学金'],
+        skills:[{name:'算法',level:92},{name:'Java',level:90},{name:'Python',level:88},{name:'机器学习',level:80},{name:'数据库',level:85}],
+        target:'算法工程师',
+      },
+      s5:{
+        name:'刘子轩',no:'202401005',major:'软件工程',grade:'2024级',gpa:3.12,rank:'86/120',
+        awards:['2024学年校级进步奖'],
+        skills:[{name:'Java',level:62},{name:'前端开发',level:70},{name:'测试',level:75},{name:'数据库',level:58}],
+        target:'软件测试工程师',
+      },
+    },
+    /* 各专业培养方案数据（按专业代码区分） */
+    majorPlans:{
+      '080901':{
+        name:'计算机科学与技术',code:'080901',degree:'工学学士',duration:'4年',totalCredits:160,
+        completedCredits:98,
+        direction:'系统掌握计算机科学与技术领域的基本理论与专业知识，具备软件开发、系统设计与算法分析能力，能够从事计算机软硬件系统的设计、研发与运维工作。',
+        categories:[
+          {name:'通识教育课程',require:42,done:38,color:'#6366F1'},
+          {name:'学科基础课程',require:38,done:32,color:'#8B5CF6'},
+          {name:'专业核心课程',require:48,done:22,color:'#0EA5E9'},
+          {name:'专业选修课程',require:20,done:6,color:'#10B981'},
+          {name:'实践教学环节',require:12,done:0,color:'#F59E0B'},
+        ],
+        planCourses:[
+          {term:'第1学期',courses:[{name:'高等数学(上)',credit:5,cat:'学科基础',score:91,status:'通过'},{name:'大学英语(1)',credit:4,cat:'通识',score:88,status:'通过'},{name:'计算机导论',credit:3,cat:'专业核心',score:94,status:'通过'},{name:'程序设计基础',credit:4,cat:'学科基础',score:90,status:'通过'}]},
+          {term:'第2学期',courses:[{name:'高等数学(下)',credit:5,cat:'学科基础',score:89,status:'通过'},{name:'线性代数',credit:3,cat:'学科基础',score:92,status:'通过'},{name:'C语言程序设计',credit:4,cat:'专业核心',score:87,status:'通过'},{name:'大学英语(2)',credit:4,cat:'通识',score:85,status:'通过'}]},
+          {term:'第3学期',courses:[{name:'数据结构',credit:4,cat:'专业核心',score:90,status:'通过'},{name:'离散数学',credit:3,cat:'学科基础',score:84,status:'通过'},{name:'概率论与数理统计',credit:3,cat:'学科基础',score:88,status:'通过'},{name:'数字逻辑',credit:3,cat:'专业核心',score:86,status:'通过'}]},
+          {term:'第4学期',courses:[{name:'计算机组成原理',credit:4,cat:'专业核心',score:0,status:'修读中'},{name:'操作系统',credit:4,cat:'专业核心',score:0,status:'修读中'},{name:'数据库系统',credit:4,cat:'专业核心',score:0,status:'修读中'},{name:'面向对象程序设计',credit:3,cat:'专业核心',score:0,status:'修读中'}]},
+          {term:'第5学期',courses:[{name:'计算机网络',credit:4,cat:'专业核心',score:0,status:'未修'},{name:'软件工程',credit:3,cat:'专业核心',score:0,status:'未修'},{name:'算法设计与分析',credit:3,cat:'专业核心',score:0,status:'未修'},{name:'编译原理',credit:3,cat:'专业选修',score:0,status:'未修'}]},
+          {term:'第6学期',courses:[{name:'人工智能导论',credit:3,cat:'专业选修',score:0,status:'未修'},{name:'机器学习',credit:3,cat:'专业选修',score:0,status:'未修'},{name:'大数据技术',credit:3,cat:'专业选修',score:0,status:'未修'},{name:'毕业设计',credit:6,cat:'实践',score:0,status:'未修'}]},
+        ],
+        careers:[
+          {dir:'后端开发工程师',sal:'18-35K',city:'北京/上海/深圳/杭州',skills:['Java','Spring','MySQL','Redis','微服务'],outlook:'需求稳定，互联网与政企数字化双驱动',match:92},
+          {dir:'前端开发工程师',sal:'15-30K',city:'北京/上海/深圳/广州',skills:['JavaScript','React/Vue','TypeScript','工程化'],outlook:'用户体验需求升级，全栈化趋势明显',match:85},
+          {dir:'算法工程师',sal:'25-50K',city:'北京/上海/深圳/杭州',skills:['Python','机器学习','深度学习','数学建模'],outlook:'AI产业高速发展，人才稀缺度持续',match:88},
+          {dir:'数据工程师',sal:'20-40K',city:'北京/上海/杭州/成都',skills:['SQL','Spark','Hadoop','数据仓库'],outlook:'数据资产化加速，政企需求双增长',match:80},
+          {dir:'人工智能研发',sal:'30-60K',city:'北京/上海/深圳',skills:['PyTorch','NLP/CV','大模型','分布式'],outlook:'大模型时代核心赛道，前景广阔',match:90},
+          {dir:'安全工程师',sal:'18-35K',city:'北京/上海/深圳/成都',skills:['网络安全','渗透测试','密码学','运维'],outlook:'合规与攻防双轮驱动，人才缺口大',match:72},
+        ],
+      },
+      '080802':{
+        name:'软件工程',code:'080802',degree:'工学学士',duration:'4年',totalCredits:160,
+        completedCredits:72,
+        direction:'培养具备软件工程理论与实践能力，能在软件企业和信息化领域从事软件分析、设计、开发、测试与项目管理的复合型人才。',
+        categories:[
+          {name:'通识教育课程',require:42,done:32,color:'#6366F1'},
+          {name:'学科基础课程',require:36,done:24,color:'#8B5CF6'},
+          {name:'专业核心课程',require:52,done:16,color:'#0EA5E9'},
+          {name:'专业选修课程',require:18,done:0,color:'#10B981'},
+          {name:'实践教学环节',require:12,done:0,color:'#F59E0B'},
+        ],
+        planCourses:[
+          {term:'第1学期',courses:[{name:'高等数学',credit:5,cat:'学科基础',score:85,status:'通过'},{name:'大学英语(1)',credit:4,cat:'通识',score:80,status:'通过'},{name:'C语言程序设计',credit:4,cat:'专业核心',score:82,status:'通过'},{name:'计算机导论',credit:3,cat:'学科基础',score:78,status:'通过'}]},
+          {term:'第2学期',courses:[{name:'线性代数',credit:3,cat:'学科基础',score:83,status:'通过'},{name:'数据结构',credit:4,cat:'专业核心',score:85,status:'通过'},{name:'大学英语(2)',credit:4,cat:'通识',score:78,status:'通过'},{name:'离散数学',credit:3,cat:'学科基础',score:81,status:'通过'}]},
+          {term:'第3学期',courses:[{name:'软件工程',credit:3,cat:'专业核心',score:0,status:'修读中'},{name:'数据库系统',credit:4,cat:'专业核心',score:0,status:'修读中'},{name:'面向对象程序设计',credit:3,cat:'专业核心',score:0,status:'修读中'},{name:'操作系统',credit:4,cat:'专业核心',score:0,status:'修读中'}]},
+          {term:'第4学期',courses:[{name:'软件测试',credit:3,cat:'专业核心',score:0,status:'未修'},{name:'软件项目管理',credit:3,cat:'专业核心',score:0,status:'未修'},{name:'系统架构设计',credit:3,cat:'专业选修',score:0,status:'未修'},{name:'毕业设计',credit:6,cat:'实践',score:0,status:'未修'}]},
+        ],
+        careers:[
+          {dir:'Java开发工程师',sal:'15-30K',city:'北京/上海/深圳',skills:['Java','Spring Boot','MySQL','MyBatis'],outlook:'企业级应用开发需求稳定',match:95},
+          {dir:'软件测试工程师',sal:'12-25K',city:'北京/上海/深圳/成都',skills:['JUnit','Selenium','性能测试','自动化'],outlook:'质量保障需求日益增长',match:88},
+          {dir:'项目经理',sal:'20-45K',city:'北京/上海/杭州',skills:['PMP','敏捷','需求分析','团队管理'],outlook:'技术+管理复合人才稀缺',match:76},
+          {dir:'DevOps工程师',sal:'18-40K',city:'北京/上海/深圳',skills:['Docker','Kubernetes','CI/CD','运维'],outlook:'云原生时代热门方向',match:82},
+        ],
+      },
+    },
+  };
+}
+
+function loadData(){
+  try{
+    const raw=localStorage.getItem(DATA_KEY);
+    if(raw){
+      const d=JSON.parse(raw);
+      const def=defaultData();
+      let changed=false;
+      for(const k in def){
+        if(d[k]===undefined){d[k]=def[k];changed=true}
+      }
+      if(changed){localStorage.setItem(DATA_KEY,JSON.stringify(d))}
+      return d;
+    }
+  }catch(e){}
+  const d=defaultData();
+  localStorage.setItem(DATA_KEY,JSON.stringify(d));
+  return d;
+}
+function saveData(){localStorage.setItem(DATA_KEY,JSON.stringify(DB))}
+
+let DB=loadData();
+
+/* ---------- 认证 ---------- */
+function checkAuth(){
+  return localStorage.getItem(AUTH_KEY)==='1';
+}
+function doLogin(u,p){
+  if(u==='root'&&p==='root'){localStorage.setItem(AUTH_KEY,'1');return true}
+  return false;
+}
+function logout(){localStorage.removeItem(AUTH_KEY);location.reload()}
+
+$('#loginBtn').addEventListener('click',()=>{
+  const u=$('#loginUser').value.trim(),p=$('#loginPass').value;
+  if(!u||!p){$('#loginError').textContent='请输入账号和密码';return}
+  if(doLogin(u,p)){
+    $('#loginPage').style.display='none';
+    $('#mainApp').classList.add('show');
+    App.init();
+  }else{
+    $('#loginError').textContent='账号或密码不正确，请重新输入';
+  }
+});
+$('#loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')$('#loginBtn').click()});
+
+/* 自动登录（已登录则直接进入） */
+if(checkAuth()){
+  $('#loginPage').style.display='none';
+  $('#mainApp').classList.add('show');
+}
+
+/* ---------- 路由与导航 ---------- */
+const NAV=[
+  {group:'教学与学习',icon:'home',items:[
+    {id:'teach-student',name:'学生学习端',icon:'user'},
+    {id:'teach-teacher',name:'教师教学端',icon:'chart'},
+  ]},
+  {group:'资源中心',icon:'book',items:[
+    {id:'kb-my',name:'个人AI知识库',icon:'book'},
+    {id:'kb-create',name:'资源创建',icon:'upload'},
+  ]},
+  {group:'知识图谱',icon:'network',items:[
+    {id:'graph',name:'知识关联图谱',icon:'network'},
+  ]},
+  {group:'AI智能体',icon:'bot',items:[
+    {id:'ai-apps',name:'AI应用中心',icon:'bot'},
+  ]},
+  {group:'培养方案',icon:'target',items:[
+    {id:'plan',name:'一生一案管理',icon:'target'},
+  ]},
+];
+
+const App={
+  current:'teach-student',
+  init(){
+    this.renderSidebar();
+    this.navigate(this.current);
+    $('#userChip').addEventListener('click',()=>{
+      const body=`<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+        <div class="user-avatar" style="width:56px;height:56px;font-size:20px">管</div>
+        <div>
+          <div style="font-size:16px;font-weight:600">管理员</div>
+          <div class="text-3 text-sm">系统管理员 · 信息中心</div>
+        </div>
+      </div>
+      <div class="grid grid-2" style="font-size:13px">
+        <div><span class="text-3">工号：</span>A20260001</div>
+        <div><span class="text-3">角色：</span>系统管理员</div>
+        <div><span class="text-3">部门：</span>教务处</div>
+        <div><span class="text-3">登录时间：</span>${new Date().toLocaleString('zh-CN')}</div>
+      </div>`;
+      const footer='<button class="btn btn-ghost" onclick="closeModal()">关闭</button><button class="btn btn-danger" onclick="logout()">退出登录</button>';
+      openModal('账号信息',body,footer);
+    });
+  },
+  renderSidebar(){
+    const html=NAV.map(g=>`
+      <div class="nav-group">
+        <div class="nav-group-title">${g.group}</div>
+        ${g.items.map(it=>`
+          <div class="nav-item ${this.current===it.id?'active':''}" data-id="${it.id}">
+            ${I[it.icon]||''}<span>${it.name}</span>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+    $('#sidebar').innerHTML=html;
+    $$('#sidebar .nav-item').forEach(el=>{
+      el.addEventListener('click',()=>this.navigate(el.dataset.id));
+    });
+  },
+  navigate(id){
+    this.current=id;
+    $$('#sidebar .nav-item').forEach(el=>el.classList.toggle('active',el.dataset.id===id));
+    const fn=Views[id];
+    if(fn){fn()}
+    else{$('#content').innerHTML='<div class="empty">功能建设中</div>'}
+    $('#content').scrollTop=0;
+  }
+};
+
+/* ============================================================
+ * 视图模块（挂载到 Views 对象）
+ * ============================================================ */
+const Views={};
+
+/* =====================================================
+ * 模块1 · 教学与学习
+ * ===================================================== */
+const TeachState={studentMode:'graph',studentLesson:null,teacherClass:'c1',teacherStudent:null};
+
+/* --- 学生学习端 --- */
+Views['teach-student']=function(){
+  if(TeachState.studentLesson){return renderStudentLesson(TeachState.studentLesson)}
+  const kps=DB.knowledgePoints;
+  $('#content').innerHTML=`
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb">教学与学习 <span>/</span> 学生学习端</div>
+        <div class="page-title">学习中心</div>
+        <div class="page-subtitle">支持知识图谱、知识列表、学习地图三种模式，点击知识点进入微课深度学习</div>
+      </div>
+      <div class="seg">
+        <div class="seg-item ${TeachState.studentMode==='graph'?'active':''}" onclick="TeachState.studentMode='graph';Views['teach-student']()">知识图谱</div>
+        <div class="seg-item ${TeachState.studentMode==='list'?'active':''}" onclick="TeachState.studentMode='list';Views['teach-student']()">知识列表</div>
+        <div class="seg-item ${TeachState.studentMode==='map'?'active':''}" onclick="TeachState.studentMode='map';Views['teach-student']()">学习地图</div>
+      </div>
+    </div>
+    <div class="grid grid-4 mb-4">
+      <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light);color:var(--primary)">${I.book}</div><div class="stat-label">已学知识点</div><div class="stat-value">${kps.filter(k=>k.completed).length}/${kps.length}</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#D1FAE5;color:var(--success)">${I.target}</div><div class="stat-label">平均掌握率</div><div class="stat-value">${Math.round(kps.reduce((s,k)=>s+k.mastery,0)/kps.length)}%</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FEF3C7;color:var(--warning)">${I.file}</div><div class="stat-label">学习资源</div><div class="stat-value">${kps.reduce((s,k)=>s+k.resources,0)}</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#EDE9FE;color:#5B21B6">${I.star}</div><div class="stat-label">本周学习时长</div><div class="stat-value">14.6h</div></div>
+    </div>
+    <div id="studentModeBox"></div>
+  `;
+  if(TeachState.studentMode==='graph')renderKGraphMode();
+  else if(TeachState.studentMode==='list')renderKListMode();
+  else renderKMapMode();
+};
+
+function renderKGraphMode(){
+  const kps=DB.knowledgePoints;
+  // 简易树形布局
+  const positions={
+    kp1:{x:200,y:120},kp2:{x:340,y:220},kp3:{x:480,y:140},
+    kp4:{x:480,y:320},kp5:{x:620,y:240},kp6:{x:760,y:340},
+    kp7:{x:880,y:240},kp8:{x:340,y:400},kp9:{x:760,y:140}
+  };
+  const links=[];
+  kps.forEach(k=>{if(k.parent)links.push({s:k.parent,t:k.id})});
+  const W=1000,H=480;
+  $('#studentModeBox').innerHTML=`
+    <div class="card">
+      <div class="card-title">${I.network}知识图谱模式<div class="text-xs text-3" style="margin-left:auto;font-weight:400">点击节点进入微课学习</div></div>
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:480px;background:radial-gradient(circle at 50% 50%,#F5F3FF,#fff);border-radius:12px">
+        ${links.map(l=>{
+          const a=positions[l.s],b=positions[l.t];
+          return `<path class="kg-link" d="M${a.x} ${a.y} L${b.x} ${b.y}"/>`;
+        }).join('')}
+        ${kps.map(k=>{
+          const p=positions[k.id];const r=k.level===1?38:30;
+          const color=k.completed?'#6366F1':'#C7D2FE';
+          const text=k.completed?'#fff':'#4B5563';
+          return `<g class="kg-node" onclick="enterStudentLesson('${k.id}')">
+            <circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${color}" stroke="#fff" stroke-width="3"/>
+            <text x="${p.x}" y="${p.y+4}" text-anchor="middle" fill="${text}" font-size="11" font-weight="600">${k.name}</text>
+            <text x="${p.x}" y="${p.y+r+16}" text-anchor="middle" fill="#9CA3AF" font-size="10">掌握 ${k.mastery}%</text>
+          </g>`;
+        }).join('')}
+      </svg>
+      <div class="flex gap-4 mt-4 text-xs text-3">
+        <span class="flex items-center gap-2"><span style="width:12px;height:12px;background:#6366F1;border-radius:50%"></span>已学习</span>
+        <span class="flex items-center gap-2"><span style="width:12px;height:12px;background:#C7D2FE;border-radius:50%"></span>未学习</span>
+      </div>
+    </div>`;
+}
+
+function renderKListMode(){
+  const kps=DB.knowledgePoints;
+  const tree={};
+  kps.forEach(k=>{tree[k.id]={...k,children:[]}});
+  const roots=[];
+  kps.forEach(k=>{if(k.parent&&tree[k.parent])tree[k.parent].children.push(tree[k.id]);else roots.push(tree[k.id])});
+  $('#studentModeBox').innerHTML=`
+    <div class="card">
+      <div class="card-title">${I.list}知识列表模式<div class="text-xs text-3" style="margin-left:auto;font-weight:400">按层级展开知识点体系</div></div>
+      ${roots.map(r=>renderKNode(r,0)).join('')}
+    </div>`;
+}
+function renderKNode(node,depth){
+  const hasChild=node.children&&node.children.length;
+  return `<div style="padding-left:${depth*24}px">
+    <div class="res-card mb-2" onclick="enterStudentLesson('${node.id}')" style="display:flex;align-items:center;gap:14px">
+      <div class="res-icon" style="background:${node.completed?'var(--primary-light)':'#F3F4F6'};color:${node.completed?'var(--primary)':'var(--text-3)'}">${node.completed?I.check:I.book}</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2">
+          <span class="font-medium">${node.name}</span>
+          ${node.completed?'<span class="tag tag-success">已完成</span>':'<span class="tag tag-gray">未学习</span>'}
+        </div>
+        <div class="text-xs text-3 mt-2">${node.desc}</div>
+        <div class="flex gap-4 mt-2 text-xs text-3">
+          <span>资源 ${node.resources}</span>
+          <span>掌握率 ${node.mastery}%</span>
+          <span style="color:var(--primary)">进入微课 ›</span>
+        </div>
+      </div>
+    </div>
+    ${hasChild?node.children.map(c=>renderKNode(c,depth+1)).join(''):''}
+  </div>`;
+}
+
+function renderKMapMode(){
+  const kps=DB.knowledgePoints;
+  $('#studentModeBox').innerHTML=`
+    <div class="card">
+      <div class="card-title">${I.map}学习地图模式<div class="text-xs text-3" style="margin-left:auto;font-weight:400">按学习路径顺序推进</div></div>
+      <div style="position:relative;padding:20px 0">
+        <div style="position:absolute;left:30px;top:30px;bottom:30px;width:2px;background:linear-gradient(180deg,#6366F1,#C7D2FE)"></div>
+        ${kps.map((k,i)=>`
+          <div onclick="enterStudentLesson('${k.id}')" style="position:relative;padding-left:70px;margin-bottom:14px;cursor:pointer">
+            <div style="position:absolute;left:21px;top:8px;width:20px;height:20px;border-radius:50%;background:${k.completed?'var(--primary)':'#fff'};border:3px solid ${k.completed?'var(--primary)':'#C7D2FE'};box-shadow:0 0 0 4px #fff"></div>
+            <div class="res-card" style="display:flex;align-items:center;gap:14px">
+              <div style="width:36px;height:36px;border-radius:8px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700">${i+1}</div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="font-medium">${k.name}</span>
+                  <span class="tag ${k.completed?'tag-success':'tag-gray'}">${k.completed?'已完成':'待学习'}</span>
+                </div>
+                <div class="text-xs text-3 mt-2">${k.desc}</div>
+                <div class="progress mt-3"><div class="progress-bar" style="width:${k.mastery}%"></div></div>
+              </div>
+              <div class="text-xs" style="color:var(--primary)">${k.mastery}%</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function enterStudentLesson(kpId){
+  TeachState.studentLesson=kpId;
+  Views['teach-student']();
+}
+
+function renderStudentLesson(kpId){
+  const kp=DB.knowledgePoints.find(k=>k.id===kpId);
+  const lesson=DB.lessons[kpId]||DB.lessons.kp1;
+  $('#content').innerHTML=`
+    <div class="back-bar" onclick="TeachState.studentLesson=null;Views['teach-student']()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      返回学习中心
+    </div>
+    <div class="grid" style="grid-template-columns:1fr;gap:24px;align-items:flex-start">
+      <div>
+        <div class="breadcrumb">教学与学习 <span>/</span> 学生学习端 <span>/</span> ${kp.name}</div>
+        <div class="page-title">${kp.name}</div>
+        <div class="page-subtitle">${kp.desc}</div>
+        <div class="grid grid-3 mt-4">
+          <div class="card text-center"><div style="font-size:24px;font-weight:700;color:var(--primary)">${kp.mastery}%</div><div class="text-xs text-3 mt-2">掌握率</div></div>
+          <div class="card text-center"><div style="font-size:24px;font-weight:700;color:var(--success)">${kp.resources}</div><div class="text-xs text-3 mt-2">资源数</div></div>
+          <div class="card text-center"><div style="font-size:24px;font-weight:700;color:var(--warning)">${lesson.wrong?lesson.wrong.length:0}</div><div class="text-xs text-3 mt-2">错题数</div></div>
+        </div>
+        <div class="card mt-4">
+          <div class="card-title">学习进度</div>
+          <div class="progress"><div class="progress-bar" style="width:${kp.mastery}%"></div></div>
+          <div class="mt-4" style="background:var(--primary-soft);border-radius:10px;padding:16px;font-size:13px;line-height:1.8;color:var(--text-2)">
+            基于「${kp.name}」的学习数据，建议：1）重点复习${lesson.wrong&&lesson.wrong.length?'错题集中的薄弱题型':'核心定义与公式'}；2）结合微课视频与讲义巩固基础概念；3）完成自测练习以检验掌握程度，目标掌握率提升至 85% 以上。
+          </div>
+        </div>
+        <div class="card mt-4">
+          <div class="card-title">微课学习 · ${lesson.title}</div>
+          <div id="lessonContent">${(window.__curLesson=lesson,renderLessonTabs(lesson,'analysis'))}</div>
+        </div>
+      </div>
+    </div>`;
+};
+
+function renderLessonTabs(lesson,active){
+  const tabs=[{k:'analysis',n:'分析'},{k:'content',n:'学习内容'},{k:'quiz',n:'自测'},{k:'materials',n:'资料'},{k:'wrong',n:'错题集'}];
+  let body='';
+  if(active==='analysis'){
+    body=`<div style="padding:14px"><div class="text-sm font-medium mb-3">本节学情分析</div><div style="background:#F5F3FF;border-radius:10px;padding:14px;font-size:12px;line-height:1.8;color:var(--text-2)">${lesson.analysis}</div>
+      <div class="grid grid-2 mt-3" style="gap:10px">
+        <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px"><div class="text-xs text-3">视频时长</div><div style="font-size:18px;font-weight:700;color:var(--primary);margin-top:4px">${lesson.duration}</div></div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px"><div class="text-xs text-3">学习进度</div><div style="font-size:18px;font-weight:700;color:var(--success);margin-top:4px">75%</div></div>
+      </div></div>`;
+  }else if(active==='content'){
+    const items=lesson.content.map((c,i)=>'<div style="display:flex;gap:10px;padding:10px;background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;font-size:12px"><div style="width:22px;height:22px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">'+(i+1)+'</div><div style="flex:1;padding-top:1px">'+c+'</div></div>').join('');
+    body=`<div style="padding:14px">
+      <div style="background:#000;border-radius:10px;height:140px;display:flex;align-items:center;justify-content:center;color:#fff;position:relative;cursor:pointer" onclick="toast('开始播放：${lesson.video}','success')">
+        <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)">${I.play}</div>
+        <div style="position:absolute;bottom:8px;right:10px;font-size:11px;opacity:.9">${lesson.duration}</div>
+      </div>
+      <div class="text-sm font-medium mt-3 mb-2">学习要点</div>
+      ${items}
+    </div>`;
+  }else if(active==='quiz'){
+    const quizItems=lesson.quiz.map((q,qi)=>{
+      const opts=q.opts.map((o,oi)=>'<div class="quiz-option" onclick="handleQuizOption(this,'+(oi===q.ans?'true':'false')+')" style="padding:10px;font-size:12px"><div class="quiz-radio">'+(oi===q.ans?'<span style="color:#fff;font-size:11px;font-weight:700">✓</span>':'')+'</div><span>'+o+'</span></div>').join('');
+      return '<div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px"><div class="text-sm mb-2">'+(qi+1)+'. '+q.q+'</div>'+opts+'</div>';
+    }).join('');
+    body=`<div style="padding:14px"><div class="text-sm font-medium mb-2">课堂自测</div>
+      ${quizItems}
+      <button class="btn btn-primary" style="width:100%" onclick="toast('已提交自测，本次正确率 83%','success')">提交答案</button>
+    </div>`;
+  }else if(active==='materials'){
+    const mats=lesson.materials.map(m=>{const ic=m.type==='video'?I.video:I.file;const bg=m.type==='video'?'#FEF3C7':'#DBEAFE';const cl=m.type==='video'?'#92400E':'#1E40AF';return '<div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px"><div style="width:36px;height:36px;border-radius:8px;background:'+bg+';color:'+cl+';display:flex;align-items:center;justify-content:center">'+ic+'</div><div style="flex:1"><div class="text-sm">'+m.name+'</div><div class="text-xs text-3">'+m.size+'</div></div><button class="btn btn-soft btn-sm" data-name="'+m.name+'" onclick="downloadMaterial(this)">下载</button></div>';}).join('');
+    body=`<div style="padding:14px"><div class="text-sm font-medium mb-2">学习资料</div>
+      ${mats}
+    </div>`;
+  }else if(active==='wrong'){
+    const wrongItems=lesson.wrong&&lesson.wrong.length?lesson.wrong.map((w,i)=>'<div style="background:#fff;border:1px solid #FECACA;border-radius:10px;padding:12px;margin-bottom:10px"><div class="text-sm mb-2">'+(i+1)+'. '+w.q+'</div><div class="grid grid-2" style="gap:8px;font-size:11px"><div style="background:#FEE2E2;color:#991B1B;padding:8px;border-radius:6px">我的答案：'+w.your+'</div><div style="background:#D1FAE5;color:#065F46;padding:8px;border-radius:6px">正确答案：'+w.correct+'</div></div><div class="text-xs text-3 mt-2">记录时间：'+w.time+'</div></div>').join(''):'<div class="empty" style="padding:40px 10px"><div class="text-sm">暂无错题记录</div></div>';
+    body=`<div style="padding:14px"><div class="text-sm font-medium mb-2">错题集</div>
+      ${wrongItems}
+    </div>`;
+  }
+  const tabBar=tabs.map(t=>'<div onclick="switchLessonTab(\''+t.k+'\')" style="padding:12px 14px;font-size:12px;color:'+(active===t.k?'var(--primary)':'var(--text-3)')+';border-bottom:2px solid '+(active===t.k?'var(--primary)':'transparent')+';font-weight:'+(active===t.k?'600':'400')+';white-space:nowrap;cursor:pointer">'+t.n+'</div>').join('');
+  return `<div style="display:flex;background:#fff;border-bottom:1px solid var(--border);padding:0 4px;overflow-x:auto">
+    ${tabBar}
+  </div>${body}`;
+}
+window.__curLesson=null;
+
+/* --- 教师教学端 --- */
+Views['teach-teacher']=function(){
+  if(TeachState.teacherStudent){return renderTeacherStudent(TeachState.teacherStudent)}
+  const c=DB.classes.find(x=>x.id===TeachState.teacherClass);
+  const courseKps=DB.knowledgePoints;
+  $('#content').innerHTML=`
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb">教学与学习 <span>/</span> 教师教学端</div>
+        <div class="page-title">班级学情管理</div>
+        <div class="page-subtitle">掌握班级整体学情，深入查看学生学习情况</div>
+      </div>
+      <select class="select" style="width:280px" onchange="TeachState.teacherClass=this.value;Views['teach-teacher']()">
+        ${DB.classes.map(x=>`<option value="${x.id}" ${x.id===TeachState.teacherClass?'selected':''}>${x.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="grid grid-4 mb-4">
+      <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light);color:var(--primary)">${I.book}</div><div class="stat-label">教学资源总数</div><div class="stat-value">${c.resources}</div><div class="stat-trend up">较上周 +6</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#D1FAE5;color:var(--success)">${I.check}</div><div class="stat-label">平均完成率</div><div class="stat-value">${c.completion}%</div><div class="stat-trend up">较上周 +3.2%</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#FEF3C7;color:var(--warning)">${I.target}</div><div class="stat-label">平均掌握率</div><div class="stat-value">${c.mastery}%</div><div class="stat-trend up">较上周 +2.8%</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#EDE9FE;color:#5B21B6">${I.user}</div><div class="stat-label">班级人数</div><div class="stat-value">${c.students}</div><div class="stat-trend text-3">活跃 ${Math.round(c.students*0.92)}</div></div>
+    </div>
+    <div class="grid grid-2 mb-4">
+      <div class="card">
+        <div class="card-title">${I.chart}知识点掌握分布</div>
+        ${courseKps.map(k=>`<div class="mb-3"><div class="flex justify-between text-sm mb-2"><span>${k.name}</span><span class="text-3">${k.mastery}%</span></div><div class="progress"><div class="progress-bar" style="width:${k.mastery}%;background:${k.mastery>70?'linear-gradient(90deg,#10B981,#34D399)':k.mastery>40?'linear-gradient(90deg,#F59E0B,#FBBF24)':'linear-gradient(90deg,#EF4444,#F87171)'}"></div></div></div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="card-title">${I.chart}学情趋势（近6周）</div>
+        ${renderTrendChart([72,74,76,78,80,c.completion],['W1','W2','W3','W4','W5','W6'],'完成率','#6366F1')}
+        ${renderTrendChart([66,68,70,72,74,c.mastery],['W1','W2','W3','W4','W5','W6'],'掌握率','#10B981')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">${I.user}学生学情明细<div class="text-xs text-3" style="margin-left:auto;font-weight:400">点击学生查看详细学习情况</div></div>
+      <table class="table">
+        <thead><tr><th>学号</th><th>姓名</th><th>完成率</th><th>掌握率</th><th>微课学习</th><th>作业</th><th>考试</th><th>平均分</th><th>操作</th></tr></thead>
+        <tbody>
+          ${DB.students.filter(s=>s.classId===c.id).map(s=>`
+            <tr style="cursor:pointer" onclick="TeachState.teacherStudent='${s.id}';Views['teach-teacher']()">
+              <td>${s.no}</td><td><span class="font-medium">${s.name}</span></td>
+              <td><div class="flex items-center gap-2"><div class="progress" style="width:80px"><div class="progress-bar" style="width:${s.completion}%"></div></div><span class="text-xs">${s.completion}%</span></div></td>
+              <td><span class="tag ${s.mastery>=80?'tag-success':s.mastery>=60?'tag-warning':'tag-gray'}">${s.mastery}%</span></td>
+              <td>${s.lessons}</td><td>${s.homework}</td><td>${s.exams}</td>
+              <td><span class="font-medium" style="color:${s.avgScore>=85?'var(--success)':s.avgScore>=70?'var(--warning)':'var(--danger)'}">${s.avgScore}</span></td>
+              <td><span class="text-xs" style="color:var(--primary)">查看详情 ›</span></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+};
+
+function renderTrendChart(data,labels,name,color){
+  const W=320,H=100,pad=10;
+  const max=Math.max(...data)*1.1,min=Math.min(...data)*0.9;
+  const pts=data.map((v,i)=>{
+    const x=pad+i*(W-pad*2)/(data.length-1);
+    const y=H-pad-(v-min)/(max-min)*(H-pad*2);
+    return [x,y];
+  });
+  const path=pts.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' ');
+  const area=path+` L ${pts[pts.length-1][0]} ${H-pad} L ${pts[0][0]} ${H-pad} Z`;
+  return `<div class="mb-3"><div class="flex justify-between text-xs mb-2"><span style="color:${color};font-weight:600">${name}</span><span class="text-3">最新 ${data[data.length-1]}%</span></div>
+  <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:80px">
+    <defs><linearGradient id="g${name}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.3"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#g${name})"/>
+    <path d="${path}" fill="none" stroke="${color}" stroke-width="2"/>
+    ${pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#fff" stroke="${color}" stroke-width="2"/>`).join('')}
+    ${pts.map((p,i)=>`<text x="${p[0]}" y="${H-2}" text-anchor="middle" fill="#9CA3AF" font-size="8">${labels[i]}</text>`).join('')}
+  </svg></div>`;
+}
+
+function renderTeacherStudent(sid){
+  const s=DB.students.find(x=>x.id===sid);
+  $('#content').innerHTML=`
+    <div class="back-bar" onclick="TeachState.teacherStudent=null;Views['teach-teacher']()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      返回班级学情
+    </div>
+    <div class="breadcrumb">教学与学习 <span>/</span> 教师教学端 <span>/</span> ${s.name}</div>
+    <div class="grid grid-4 mb-4">
+      <div class="stat-card"><div class="stat-label">学习完成情况</div><div class="stat-value">${s.completion}%</div><div class="progress mt-3"><div class="progress-bar" style="width:${s.completion}%"></div></div></div>
+      <div class="stat-card"><div class="stat-label">知识掌握率</div><div class="stat-value" style="color:var(--success)">${s.mastery}%</div><div class="stat-trend up">较班级均值 +${s.mastery-72}%</div></div>
+      <div class="stat-card"><div class="stat-label">作业考试完成</div><div class="stat-value">${s.homework}/${s.exams}</div><div class="stat-trend text-3">作业 / 考试</div></div>
+      <div class="stat-card"><div class="stat-label">平均成绩</div><div class="stat-value" style="color:${s.avgScore>=85?'var(--success)':'var(--primary)'}">${s.avgScore}</div><div class="stat-trend up">排名 8/${DB.students.length}</div></div>
+    </div>
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="card-title">${I.chart}成绩趋势</div>
+        ${renderTrendChart(s.trend,['第1次','第2次','第3次','第4次','第5次','第6次'],'成绩','#6366F1')}
+        <div class="mt-3"><div class="text-sm text-2 mb-2">学习内容完成度</div>
+          <div class="grid grid-2" style="gap:10px;font-size:13px">
+            <div class="flex justify-between"><span class="text-3">微课学习</span><span class="font-medium">${s.lessons}/52</span></div>
+            <div class="flex justify-between"><span class="text-3">课后作业</span><span class="font-medium">${s.homework}/24</span></div>
+            <div class="flex justify-between"><span class="text-3">阶段考试</span><span class="font-medium">${s.exams}/6</span></div>
+            <div class="flex justify-between"><span class="text-3">在线自测</span><span class="font-medium">38/45</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">${I.target}知识点掌握明细</div>
+        ${DB.knowledgePoints.slice(0,6).map(k=>`<div class="mb-3"><div class="flex justify-between text-sm mb-2"><span>${k.name}</span><span class="text-3">${Math.min(100,k.mastery+(s.mastery-72))}%</span></div><div class="progress"><div class="progress-bar" style="width:${Math.min(100,k.mastery+(s.mastery-72))}%"></div></div></div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="card-title">${I.list}作业完成情况</div>
+        <table class="table"><thead><tr><th>作业名称</th><th>提交时间</th><th>成绩</th><th>状态</th></tr></thead><tbody>
+          <tr><td>第一章 极限练习</td><td>2026-07-08</td><td>92</td><td><span class="tag tag-success">已批改</span></td></tr>
+          <tr><td>第二章 导数练习</td><td>2026-07-15</td><td>88</td><td><span class="tag tag-success">已批改</span></td></tr>
+          <tr><td>第三章 中值定理</td><td>2026-07-22</td><td>85</td><td><span class="tag tag-success">已批改</span></td></tr>
+          <tr><td>第四章 不定积分</td><td>—</td><td>—</td><td><span class="tag tag-warning">未提交</span></td></tr>
+        </tbody></table>
+      </div>
+      <div class="card">
+        <div class="card-title">${I.list}考试完成情况</div>
+        <table class="table"><thead><tr><th>考试</th><th>时间</th><th>成绩</th><th>班级排名</th></tr></thead><tbody>
+          <tr><td>第一次月考</td><td>2026-04</td><td>88</td><td>12</td></tr>
+          <tr><td>期中考试</td><td>2026-05</td><td>91</td><td>8</td></tr>
+          <tr><td>第二次月考</td><td>2026-06</td><td>90</td><td>9</td></tr>
+        </tbody></table>
+      </div>
+    </div>`;
+}
+/* =====================================================
+ * 模块2 · 个人AI知识库
+ * ===================================================== */
+const KBState={createTab:'local',libType:'全部',libField:'标题',libKw:'',added:new Set(),searched:false};
+const CLOUD_RES=[
+  {id:'cr1',name:'我的高数课堂笔记.pdf',size:'2.1 MB',time:'2026-07-20',course:'高等数学'},
+  {id:'cr2',name:'数据结构实验报告.docx',size:'1.4 MB',time:'2026-07-18',course:'数据结构'},
+  {id:'cr3',name:'线性代数复习思维导图.png',size:'0.8 MB',time:'2026-07-16',course:'线性代数'},
+  {id:'cr4',name:'机器学习入门项目.zip',size:'24.6 MB',time:'2026-07-14',course:'人工智能导论'},
+  {id:'cr5',name:'操作系统课程设计.pdf',size:'3.2 MB',time:'2026-07-10',course:'操作系统'},
+  {id:'cr6',name:'概率论习题解答.docx',size:'1.9 MB',time:'2026-07-08',course:'概率论'},
+];
+const LIB_TYPES=['全部','期刊','图书','报纸','标准专利','科技成果','影音'];
+const TYPE_ICON={图书:{i:I.book,bg:'#DBEAFE',c:'#1E40AF'},期刊:{i:I.file,bg:'#EDE9FE',c:'#5B21B6'},报纸:{i:I.file,bg:'#FEF3C7',c:'#92400E'},标准专利:{i:I.file,bg:'#D1FAE5',c:'#065F46'},科技成果:{i:I.target,bg:'#FEE2E2',c:'#991B1B'},影音:{i:I.video,bg:'#FCE7F3',c:'#9D174D'},文档:{i:I.file,bg:'#E0E7FF',c:'#3730A3'}};
+
+Views['kb-my']=function(){
+  const rs=DB.myResources;
+  const typeCount=t=>rs.filter(r=>r.type===t).length;
+  $('#content').innerHTML=`
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb">资源中心 <span>/</span> 个人AI知识库</div>
+        <div class="page-title">个人AI知识库</div>
+        <div class="page-subtitle">汇聚图书、期刊、论文、文档等资源，作为AI应用的统一知识底座</div>
+      </div>
+      <button class="btn btn-primary" onclick="App.navigate('kb-create')">${I.upload} 创建资源</button>
+    </div>
+    <div class="grid grid-4 mb-4">
+      <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light);color:var(--primary)">${I.book}</div><div class="stat-label">资源总数</div><div class="stat-value">${rs.length}</div><div class="stat-trend up">本周 +3</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#DBEAFE;color:#1E40AF">${I.file}</div><div class="stat-label">图书 / 文档</div><div class="stat-value">${typeCount('图书')+typeCount('文档')}</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#EDE9FE;color:#5B21B6">${I.file}</div><div class="stat-label">期刊 / 报纸</div><div class="stat-value">${typeCount('期刊')+typeCount('报纸')}</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#D1FAE5;color:#065F46">${I.target}</div><div class="stat-label">标准 / 成果</div><div class="stat-value">${typeCount('标准专利')+typeCount('科技成果')}</div></div>
+    </div>
+    <div class="card">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="topbar-search" style="flex:1;position:relative">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-3)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="kbSearch" placeholder="搜索资源名称…" style="width:100%;height:38px;padding:0 12px 0 36px;border:1px solid var(--border-2);border-radius:8px" oninput="filterKbRes(this.value)">
+        </div>
+        <select class="select" style="width:160px" id="kbTypeFilter" onchange="filterKbRes()">
+          <option value="">全部类型</option>
+          ${[...new Set(rs.map(r=>r.type))].map(t=>`<option value="${t}">${t}</option>`).join('')}
+        </select>
+        <select class="select" style="width:140px" id="kbSrcFilter" onchange="filterKbRes()">
+          <option value="">全部来源</option>
+          <option value="本地">本地</option><option value="云盘">云盘</option><option value="数据库">数据库</option>
+        </select>
+      </div>
+      <div class="grid grid-3" id="kbGrid">${renderKbGrid(rs)}</div>
+    </div>`;
+};
+function renderKbGrid(rs){
+  if(!rs.length)return '<div class="empty" style="grid-column:1/-1"><div class="text-sm">暂无资源</div></div>';
+  return rs.map(r=>{
+    const ti=TYPE_ICON[r.type]||TYPE_ICON.文档;
+    return `<div class="res-card">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="res-icon" style="background:${ti.bg};color:${ti.c};cursor:pointer" onclick="previewResource('${r.id}')">${ti.i}</div>
+        <div class="flex-1" style="min-width:0">
+          <div class="font-medium text-sm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" onclick="previewResource('${r.id}')">${r.name}</div>
+          <div class="text-xs text-3 mt-2">${r.size} · ${r.time}</div>
+        </div>
+      </div>
+      <div class="flex items-center justify-between">
+        <div class="flex gap-2">
+          <span class="tag tag-primary">${r.type}</span>
+          <span class="tag ${r.source==='本地'?'tag-gray':r.source==='云盘'?'tag-info':'tag-purple'}">${r.source}</span>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm" onclick="previewResource('${r.id}')">预览</button>
+          <button class="btn btn-ghost btn-sm" onclick="downloadResource('${r.id}')" style="color:var(--primary)">下载</button>
+          <button class="btn btn-ghost btn-sm" onclick="delKbRes('${r.id}')" style="color:var(--danger)">删除</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function filterKbRes(kw){
+  const k=kw!==undefined?kw:$('#kbSearch').value;
+  const t=$('#kbTypeFilter')?$('#kbTypeFilter').value:'';
+  const s=$('#kbSrcFilter')?$('#kbSrcFilter').value:'';
+  let rs=DB.myResources.filter(r=>{
+    return (!k||r.name.includes(k))&&(!t||r.type===t)&&(!s||r.source===s);
+  });
+  $('#kbGrid').innerHTML=renderKbGrid(rs);
+}
+function delKbRes(id){
+  DB.myResources=DB.myResources.filter(r=>r.id!==id);
+  saveData();
+  Views['kb-my']();
+  toast('已删除资源','success');
+}
+
+function previewResource(id){
+  const r=DB.myResources.find(x=>x.id===id);
+  if(!r)return;
+  const ti=TYPE_ICON[r.type]||TYPE_ICON.文档;
+  const ext=r.name.split('.').pop().toLowerCase();
+  let previewHTML='';
+  if(ext==='mp4'||ext==='mp3'){
+    previewHTML='<div style="background:linear-gradient(135deg,#1e293b,#334155);border-radius:10px;height:200px;display:flex;align-items:center;justify-content:center;color:#fff;position:relative;overflow:hidden">'+
+      '<div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 50%,rgba(99,102,241,.3),transparent 60%)"></div>'+
+      '<div style="text-align:center;z-index:1"><div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;backdrop-filter:blur(4px);cursor:pointer">'+I.play+'</div>'+
+      '<div class="text-sm font-medium">'+r.name+'</div>'+
+      '<div class="text-xs opacity-70 mt-2">时长约 45:30 · '+r.size+'</div></div>'+
+      '<div style="position:absolute;bottom:12px;left:16px;right:16px;display:flex;align-items:center;gap:8px;z-index:1">'+
+      '<div style="flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden"><div style="width:35%;height:100%;background:#6366F1;border-radius:2px"></div></div>'+
+      '<span style="font-size:11px;opacity:.75">15:52 / 45:30</span></div></div>'+
+      '<div style="margin-top:12px;padding:12px;background:var(--primary-soft);border-radius:8px;font-size:12px;line-height:1.8;color:var(--text-2)"><strong>课程介绍：</strong>本节微课围绕核心知识点展开，通过典型例题分析和详细讲解，帮助学生深入理解导数的概念与应用方法。</div>';
+  }else if(ext==='pdf'||ext==='doc'||ext==='docx'||ext==='ppt'||ext==='pptx'){
+    const content=generateResourceContent(r);
+    previewHTML='<div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:24px;max-height:320px;overflow-y:auto;font-size:13px;line-height:1.8;color:var(--text-2)">'+content+'</div>';
+  }else{
+    previewHTML='<div style="background:#F9FAFB;border-radius:10px;padding:40px;text-align:center;color:var(--text-3)"><div style="font-size:48px;margin-bottom:12px">📄</div><div>'+r.name+'</div><div class="text-xs mt-2">文件类型：'+r.type+' · 大小：'+r.size+'</div></div>';
+  }
+  const body='<div class="mb-4" style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--primary-soft);border-radius:10px">'+
+    '<div class="res-icon" style="background:'+ti.bg+';color:'+ti.c+'">'+ti.i+'</div>'+
+    '<div style="flex:1"><div class="font-medium">'+r.name+'</div>'+
+    '<div class="text-xs text-3 mt-2">'+r.type+' · '+r.source+' · '+r.size+' · 上传时间 '+r.time+'</div></div>'+
+    '</div>'+previewHTML;
+  openModal('资源预览',body,'<button class="btn btn-ghost" onclick="closeModal()">关闭</button><button class="btn btn-primary" onclick="downloadAndClose(\''+r.id+'\')">下载到本地</button>');
+}
+
+function generateResourceContent(r){
+  const ext=r.name.split('.').pop().toLowerCase();
+  const id=r.id;
+  if(ext==='pdf'){
+    const pdfContents={
+      'r1':'<h2 style="text-align:center;font-size:18px;font-weight:700;margin-bottom:6px">高等数学（第七版）</h2>'+
+        '<p style="text-align:center;color:var(--text-3);font-size:12px;margin-bottom:20px">同济大学数学系 · 高等教育出版社</p>'+
+        '<h3 style="font-size:14px;font-weight:600;margin:16px 0 8px">第一章 函数与极限</h3>'+
+        '<p style="line-height:1.9;font-size:13px">初等数学的研究对象基本上是不变的量，而高等数学的研究对象则是变动的量。本章将介绍函数的概念、数列的极限、函数的极限、无穷小与无穷大、函数的连续性等基本概念。</p>'+
+        '<h4 style="font-size:13px;font-weight:600;margin:12px 0 6px">1.1 映射与函数</h4>'+
+        '<p style="line-height:1.9;font-size:13px">定义：设 X、Y 是两个非空集合，如果存在一个法则 f，使得对 X 中每个元素 x，在 Y 中有唯一确定的元素 y 与之对应，则称 f 为从 X 到 Y 的映射，记作 f: X → Y。</p>'+
+        '<p style="line-height:1.9;font-size:13px">函数是数学中的基础概念，本章将系统介绍函数的定义、性质与运算。</p>'+
+        '<h4 style="font-size:13px;font-weight:600;margin:12px 0 6px">1.2 数列的极限</h4>'+
+        '<p style="line-height:1.9;font-size:13px">定义：设 {xₙ} 是一个数列，如果存在常数 a，使得对于任意给定的正数 ε（无论多么小），总存在正整数 N，使得当 n > N 时，都有 |xₙ - a| < ε，则称数列 {xₙ} 收敛于 a。</p>'+
+        '<h4 style="font-size:13px;font-weight:600;margin:12px 0 6px">1.3 函数的极限</h4>'+
+        '<p style="line-height:1.9;font-size:13px">本节将介绍函数极限的定义、性质及计算方法，包括两个重要极限：lim(x→0) sin(x)/x = 1 和 lim(x→∞) (1+1/x)ˣ = e。</p>'+
+        '<h3 style="font-size:14px;font-weight:600;margin:16px 0 8px">第二章 导数与微分</h3>'+
+        '<p style="line-height:1.9;font-size:13px">本章将讨论导数和微分的概念、导数的运算法则、高阶导数以及微分在近似计算中的应用。</p>',
+      'r2':'<h2 style="text-align:center;font-size:17px;font-weight:700;margin-bottom:6px">深度学习中的优化方法综述</h2>'+
+        '<p style="text-align:center;color:var(--text-3);font-size:12px;margin-bottom:20px">张伟, 陈芳 · 《软件学报》2025年第12期</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">摘要</h3>'+
+        '<p style="line-height:1.9;font-size:13px">深度学习已在图像识别、自然语言处理等领域取得突破性进展，而优化算法是推动深度学习发展的核心动力。本文系统梳理了深度学习中常用的优化方法，包括SGD、Adam、RMSProp等经典优化器，并介绍了近年来提出的新型优化策略，如自适应学习率调整、梯度裁剪、混合精度训练等。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">1 引言</h3>'+
+        '<p style="line-height:1.9;font-size:13px">深度神经网络的训练本质上是一个高维非凸优化问题。给定训练数据 D = {(xᵢ, yᵢ)}ⁿᵢ₌₁，模型参数 θ，需要最小化损失函数 L(θ) = 1/n Σᵢ ℓ(f(xᵢ;θ), yᵢ)。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">2 经典优化算法</h3>'+
+        '<p style="line-height:1.9;font-size:13px">2.1 梯度下降（Gradient Descent）：最基本的优化方法，参数更新规则为 θ ← θ - η·∇L(θ)。</p>'+
+        '<p style="line-height:1.9;font-size:13px">2.2 动量法（Momentum）：引入动量项 vₜ = β·vₜ₋₁ + ∇L(θₜ₋₁)，加速收敛并减少震荡。</p>'+
+        '<p style="line-height:1.9;font-size:13px">2.3 Adam优化器：结合动量法与RMSProp的优点，自适应调整每个参数的学习率，在实践中表现优异。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">3 新型优化策略</h3>'+
+        '<p style="line-height:1.9;font-size:13px">包括学习率预热（Warmup）、余弦退火（Cosine Annealing）、梯度裁剪（Gradient Clipping）、损失函数自适应调整等技术。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">4 结论与展望</h3>'+
+        '<p style="line-height:1.9;font-size:13px">优化算法的研究仍是深度学习领域的热点问题，未来将探索更高效、更鲁棒的优化方法，以应对更大规模的模型和数据挑战。</p>',
+      'r4':'<h2 style="text-align:center;font-size:17px;font-weight:700;margin-bottom:6px">2025年人工智能产业白皮书</h2>'+
+        '<p style="text-align:center;color:var(--text-3);font-size:12px;margin-bottom:20px">中国人工智能学会 · 2025年产业报告</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">一、产业概述</h3>'+
+        '<p style="line-height:1.9;font-size:13px">2025年，我国人工智能产业规模突破 6000 亿元，同比增长 25.3%。AI技术在智能制造、智慧医疗、城市治理、教育创新等领域的应用持续深化，成为推动经济社会转型升级的核心力量。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">二、关键技术进展</h3>'+
+        '<p style="line-height:1.9;font-size:13px">大模型技术：国产大模型参数规模突破万亿级，在中文理解、代码生成、多模态处理等方面达到国际领先水平。</p>'+
+        '<p style="line-height:1.9;font-size:13px">AI芯片：国产AI训练芯片算力提升至 256 TOPS，能效比达到国际先进水平。</p>'+
+        '<p style="line-height:1.9;font-size:13px">具身智能：人形机器人在工业制造、商业服务等场景加速落地。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">三、重点应用领域</h3>'+
+        '<p style="line-height:1.9;font-size:13px">• 智能教育：AI个性化学习系统覆盖超过 5000 万学生</p>'+
+        '<p style="line-height:1.9;font-size:13px">• 智慧医疗：AI辅助诊断准确率达到 96.8%</p>'+
+        '<p style="line-height:1.9;font-size:13px">• 智能制造：AI质检效率提升 300%</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">四、发展趋势</h3>'+
+        '<p style="line-height:1.9;font-size:13px">未来三年，AI产业将呈现"大模型+具身智能+AI Agent"三位一体的发展格局，通用人工智能（AGI）研究将取得重要突破。</p>',
+      'r6':'<h2 style="text-align:center;font-size:16px;font-weight:700;margin-bottom:6px">GB/T 38673-2020</h2>'+
+        '<p style="text-align:center;color:var(--text-3);font-size:12px;margin-bottom:16px">信息技术 大数据 工业应用</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">前言</h3>'+
+        '<p style="line-height:1.9;font-size:13px">本标准由国家市场监督管理总局、国家标准化管理委员会提出并归口。本标准规定了大数据在工业应用中的总体框架、技术要求和实施指南。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">1 范围</h3>'+
+        '<p style="line-height:1.9;font-size:13px">本标准适用于工业领域大数据的采集、存储、处理、分析和应用，为工业大数据平台建设提供标准化指导。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">2 规范性引用文件</h3>'+
+        '<p style="line-height:1.9;font-size:13px">GB/T 36342-2018 大数据 工业应用 术语</p>'+
+        '<p style="line-height:1.9;font-size:13px">GB/T 37099-2018 大数据 工业应用 参考架构</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">3 术语和定义</h3>'+
+        '<p style="line-height:1.9;font-size:13px">3.1 工业大数据：在工业领域中，围绕生产制造、运维管理等环节产生的海量数据集合。</p>'+
+        '<p style="line-height:1.9;font-size:13px">3.2 数据治理：对数据进行规划、实施和控制的活动，确保数据的质量、安全和可用性。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">4 总体框架</h3>'+
+        '<p style="line-height:1.9;font-size:13px">工业大数据总体框架由数据层、平台层、应用层和安全保障体系构成，形成"采、存、管、用"全链路闭环。</p>',
+      'r7':'<h2 style="text-align:center;font-size:17px;font-weight:700;margin-bottom:6px">中国教育报 · 高校数字化专版</h2>'+
+        '<p style="text-align:center;color:var(--text-3);font-size:12px;margin-bottom:16px">2026年7月3日 · 第12版</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">头条：高校数字化转型迈入新阶段</h3>'+
+        '<p style="line-height:1.9;font-size:13px">本报讯（记者 李华）近日，教育部印发《关于深化高校教育数字化转型的指导意见》，明确提出到2028年实现"数字教育全覆盖、教学模式全变革、治理体系全重塑"的总体目标。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">一、数字化教学：从"用技术"到"用好技术"</h3>'+
+        '<p style="line-height:1.9;font-size:13px">在北京大学、清华大学等高校，AI辅助教学系统已覆盖超过 80% 的课程。个性化学习路径、智能作业批改、学情画像分析等应用正在重塑传统教学模式。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">二、智能治理：让数据成为决策支撑</h3>'+
+        '<p style="line-height:1.9;font-size:13px">复旦大学建立了全链条的数据治理体系，从招生、教学到就业，实现了"一数一源、动态更新"，为学校决策提供了科学依据。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">三、师生数字素养：数字化转型的核心</h3>'+
+        '<p style="line-height:1.9;font-size:13px">提升师生数字素养是数字化转型的基础。多所高校将数字素养纳入必修课程，建立了完善的培训和认证体系。</p>',
+    };
+    if(pdfContents[id])return pdfContents[id];
+    return '<h2 style="text-align:center;font-size:16px;font-weight:700;margin-bottom:16px">'+r.name+'</h2>'+
+      '<p style="line-height:1.9;font-size:13px">本资源为'+r.cat+'类文档，系统已完成全文解析与结构化处理。</p>'+
+      '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">目录</h3>'+
+      '<p style="line-height:1.9;font-size:13px">第一章 绪论</p>'+
+      '<p style="line-height:1.9;font-size:13px">第二章 理论基础</p>'+
+      '<p style="line-height:1.9;font-size:13px">第三章 核心方法</p>'+
+      '<p style="line-height:1.9;font-size:13px">第四章 实践应用</p>'+
+      '<p style="line-height:1.9;font-size:13px">第五章 结论与展望</p>';
+  }else if(ext==='doc'||ext==='docx'){
+    const docContents={
+      'r3':'<h2 style="text-align:center;font-size:17px;font-weight:700;margin-bottom:6px">线性代数课程讲义</h2>'+
+        '<p style="text-align:center;color:var(--text-3);font-size:12px;margin-bottom:20px">计算机科学与技术专业 · 本科二年级</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">一、课程基本信息</h3>'+
+        '<p style="line-height:1.9;font-size:13px">课程名称：线性代数</p>'+
+        '<p style="line-height:1.9;font-size:13px">课程性质：学科基础课</p>'+
+        '<p style="line-height:1.9;font-size:13px">总学时：48 学时（理论 32 + 实践 16）</p>'+
+        '<p style="line-height:1.9;font-size:13px">总学分：3 学分</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">二、教学目标</h3>'+
+        '<p style="line-height:1.9;font-size:13px">1. 理解矩阵、行列式、向量组线性相关等基本概念；</p>'+
+        '<p style="line-height:1.9;font-size:13px">2. 掌握矩阵运算、线性方程组求解、特征值与特征向量计算等基本方法；</p>'+
+        '<p style="line-height:1.9;font-size:13px">3. 能够运用线性代数方法解决工程和科学中的实际问题。</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">三、教学内容与学时分配</h3>'+
+        '<p style="line-height:1.9;font-size:13px">第1章 行列式（6学时）：行列式的定义、性质、展开定理、克莱姆法则</p>'+
+        '<p style="line-height:1.9;font-size:13px">第2章 矩阵（8学时）：矩阵的运算、逆矩阵、矩阵的秩、初等变换</p>'+
+        '<p style="line-height:1.9;font-size:13px">第3章 向量与线性方程组（10学时）：向量组的线性相关性、线性方程组解的结构</p>'+
+        '<p style="line-height:1.9;font-size:13px">第4章 特征值与特征向量（8学时）：特征值与特征向量、矩阵的对角化</p>'+
+        '<p style="line-height:1.9;font-size:13px">第5章 二次型（6学时）：二次型化简、正定二次型</p>'+
+        '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">四、典型例题</h3>'+
+        '<p style="line-height:1.9;font-size:13px">例1：计算行列式 D = |1 2 3; 4 5 6; 7 8 9| 的值。</p>'+
+        '<p style="line-height:1.9;font-size:13px">例2：设 A = |1 2; 3 4|，求 A⁻¹。</p>'+
+        '<p style="line-height:1.9;font-size:13px">例3：求矩阵 A = |3 1; 0 2| 的特征值与特征向量。</p>'+
+'<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">五、课程学习建议</h3>'+
+'<p style="line-height:1.9;font-size:13px">建议学生在学习本课程时，注重理解矩阵运算的几何意义，多做典型习题，结合计算机编程实践加深对线性代数方法的掌握。</p>'+
+'<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">六、参考资料</h3>'+
+'<p style="line-height:1.9;font-size:13px">1. 同济大学数学系. 线性代数（第六版）[M]. 高等教育出版社, 2019.</p>'+
+'<p style="line-height:1.9;font-size:13px">2. 李华. 线性代数及其应用（第五版）[M]. 科学出版社, 2020.</p>'
+    };
+    if(docContents[id])return docContents[id];
+    return '<h2 style="text-align:center;font-size:16px;font-weight:700;margin-bottom:16px">'+r.name+'</h2>'+
+      '<p style="line-height:1.9;font-size:13px">一、教学目标</p>'+
+      '<p style="line-height:1.9;font-size:13px">掌握本章节的核心概念与基本方法，能够运用所学知识分析和解决实际问题。</p>'+
+      '<p style="line-height:1.9;font-size:13px">二、重点与难点</p>'+
+      '<p style="line-height:1.9;font-size:13px">重点：基本定义与典型应用；难点：综合运用与拓展迁移。</p>'+
+      '<p style="line-height:1.9;font-size:13px">三、课后练习</p>'+
+      '<p style="line-height:1.9;font-size:13px">完成课后习题，并撰写学习心得体会。</p>';
+  }else if(ext==='md'){
+    return '<h2 style="font-size:16px;font-weight:700;margin-bottom:12px">'+r.name+'</h2>'+
+      '<p style="color:var(--text-3);font-size:12px;margin-bottom:16px">笔记 · '+r.size+' · 更新于 '+r.time+'</p>'+
+      '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">一、线性表</h3>'+
+      '<pre style="background:#F9FAFB;border-radius:6px;padding:10px;font-size:12px;line-height:1.7">class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\n# 反转链表\ndef reverse_list(head):\n    prev, curr = None, head\n    while curr:\n        next_temp = curr.next\n        curr.next = prev\n        prev = curr\n        curr = next_temp\n    return prev</pre>'+
+      '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">二、排序算法对比</h3>'+
+      '<table style="width:100%;border-collapse:collapse;font-size:12px"><tr style="background:#F3F4F6"><th style="padding:6px;border:1px solid var(--border)">算法</th><th style="padding:6px;border:1px solid var(--border)">时间复杂度</th><th style="padding:6px;border:1px solid var(--border)">空间复杂度</th><th style="padding:6px;border:1px solid var(--border)">稳定性</th></tr>'+
+      '<tr><td style="padding:6px;border:1px solid var(--border)">快速排序</td><td style="padding:6px;border:1px solid var(--border)">O(n log n)</td><td style="padding:6px;border:1px solid var(--border)">O(log n)</td><td style="padding:6px;border:1px solid var(--border)">不稳定</td></tr>'+
+      '<tr><td style="padding:6px;border:1px solid var(--border)">归并排序</td><td style="padding:6px;border:1px solid var(--border)">O(n log n)</td><td style="padding:6px;border:1px solid var(--border)">O(n)</td><td style="padding:6px;border:1px solid var(--border)">稳定</td></tr>'+
+      '<tr><td style="padding:6px;border:1px solid var(--border)">冒泡排序</td><td style="padding:6px;border:1px solid var(--border)">O(n²)</td><td style="padding:6px;border:1px solid var(--border)">O(1)</td><td style="padding:6px;border:1px solid var(--border)">稳定</td></tr></table>'+
+      '<h3 style="font-size:13px;font-weight:600;margin:12px 0 6px">三、动态规划</h3>'+
+      '<p style="line-height:1.9;font-size:13px">核心思想：将复杂问题分解为子问题，通过保存子问题的解来避免重复计算。适用条件：最优子结构、重叠子问题。</p>'+
+      '<pre style="background:#F9FAFB;border-radius:6px;padding:10px;font-size:12px;line-height:1.7"># 斐波那契数列 DP 实现\ndef fib(n):\n    dp = [0] * (n + 1)\n    dp[1] = 1\n    for i in range(2, n + 1):\n        dp[i] = dp[i-1] + dp[i-2]\n    return dp[n]</pre>';
+  }
+  return '<h2 style="font-size:16px;font-weight:600;margin-bottom:12px">'+r.name+'</h2><p style="line-height:1.9;font-size:13px">资源类型：'+r.type+' · 分类：'+r.cat+'</p><p style="line-height:1.9;font-size:13px">文件大小：'+r.size+' · 上传时间：'+r.time+'</p><p style="line-height:1.9;font-size:13px;margin-top:12px">该资源已上传至知识库，支持AI检索与智能问答调用。</p>';
+}
+
+function downloadResource(id){
+  const r=DB.myResources.find(x=>x.id===id);
+  if(!r)return;
+  const ext=r.name.split('.').pop().toLowerCase();
+  let content='';
+  let mimeType='text/plain';
+  if(ext==='pdf'){
+    content=generateResourceContent(r);
+    mimeType='text/html';
+    content='<html><head><meta charset="utf-8"><title>'+r.name+'</title></head><body style="font-family:sans-serif;padding:40px;line-height:1.8">'+content+'</body></html>';
+  }else if(ext==='doc'||ext==='docx'){
+    content=generateResourceContent(r);
+    mimeType='text/html';
+    content='<html><head><meta charset="utf-8"><title>'+r.name+'</title></head><body style="font-family:sans-serif;padding:40px;line-height:1.8">'+content+'</body></html>';
+  }else{
+    content='资源名称：'+r.name+'\n资源类型：'+r.type+'\n资源来源：'+r.source+'\n文件大小：'+r.size+'\n上传时间：'+r.time+'\n\n---\n\n'+generateResourceContent(r);
+    mimeType='text/plain';
+  }
+  try{
+    const blob=new Blob([content],{type:mimeType+';charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=r.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    toast('已下载：'+r.name,'success');
+  }catch(e){
+    toast('下载失败，请重试','error');
+  }
+}
+
+/* 资源创建 */
+Views['kb-create']=function(){
+  $('#content').innerHTML=`
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb">资源中心 <span>/</span> 资源创建</div>
+        <div class="page-title">创建知识库资源</div>
+        <div class="page-subtitle">支持本地、云盘、数据库检索三种方式添加资源到个人AI知识库</div>
+      </div>
+      <button class="btn btn-ghost" onclick="App.navigate('kb-my')">返回知识库</button>
+    </div>
+    <div class="card">
+      <div class="tabs">
+        <div class="tab ${KBState.createTab==='local'?'active':''}" onclick="KBState.createTab='local';Views['kb-create']()">${I.upload} 本地上传</div>
+        <div class="tab ${KBState.createTab==='cloud'?'active':''}" onclick="KBState.createTab='cloud';Views['kb-create']()">${I.cloud} 云盘上传</div>
+        <div class="tab ${KBState.createTab==='db'?'active':''}" onclick="KBState.createTab='db';Views['kb-create']()">${I.db} 数据库检索上传</div>
+      </div>
+      <div id="createBox"></div>
+    </div>`;
+  if(KBState.createTab==='local')renderLocalUpload();
+  else if(KBState.createTab==='cloud')renderCloudUpload();
+  else renderDbSearch();
+};
+
+function renderLocalUpload(){
+  $('#createBox').innerHTML=`
+    <div style="text-sm text-2 mb-3">将本地文件上传到个人AI知识库，支持 PDF / Word / PPT / 图片 / 视频等格式</div>
+    <div id="dropZone" style="border:2px dashed var(--border-2);border-radius:12px;padding:48px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)" onclick="document.getElementById('localFile').click()" onmouseover="this.style.borderColor='var(--primary)';this.style.background='var(--primary-soft)'" onmouseout="this.style.borderColor='var(--border-2)';this.style.background='var(--bg)'">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">${I.upload}</div>
+      <div class="font-medium">点击或拖拽文件到此处上传</div>
+      <div class="text-xs text-3 mt-2">单个文件不超过 500MB，支持 PDF / DOC / DOCX / PPT / XLS / 图片 / 视频等</div>
+    </div>
+    <input type="file" id="localFile" style="display:none" onchange="handleLocalFile(this)">
+    <div class="grid grid-3 mt-4 text-xs text-3" style="gap:12px">
+      <div class="card" style="padding:14px;box-shadow:none;border:1px solid var(--border)"><div class="font-medium text-2 mb-2">本地存储</div>文件安全存储于本地知识库</div>
+      <div class="card" style="padding:14px;box-shadow:none;border:1px solid var(--border)"><div class="font-medium text-2 mb-2">智能解析</div>自动提取文本与结构化内容</div>
+      <div class="card" style="padding:14px;box-shadow:none;border:1px solid var(--border)"><div class="font-medium text-2 mb-2">AI可用</div>上传后即可被AI应用调用</div>
+    </div>
+    <div id="localList" class="mt-4"></div>
+  `;
+}
+function handleLocalFile(input){
+  const f=input.files[0];if(!f)return;
+  const typeMap={'pdf':'图书','doc':'文档','docx':'文档','ppt':'文档','pptx':'文档','xls':'文档','xlsx':'文档','mp4':'影音','jpg':'影音','png':'影音'};
+  const ext=f.name.split('.').pop().toLowerCase();
+  const type=typeMap[ext]||'文档';
+  const id='r'+uid();
+  DB.myResources.unshift({id,name:f.name,type,source:'本地',size:(f.size/1024/1024).toFixed(1)+' MB',time:new Date().toISOString().slice(0,10),cat:'本地'});
+  saveData();
+  toast('已上传：'+f.name,'success');
+  renderLocalUpload();
+  $('#localList').innerHTML=`<div class="res-card" style="border-color:var(--success);background:#F0FDF4"><div class="flex items-center gap-3"><div class="res-icon" style="background:#D1FAE5;color:var(--success)">${I.check}</div><div class="flex-1"><div class="font-medium text-sm">${f.name}</div><div class="text-xs text-3 mt-2">${(f.size/1024/1024).toFixed(1)} MB · ${type} · 已添加到知识库</div></div></div></div>`;
+}
+
+function renderCloudUpload(){
+  $('#createBox').innerHTML=`
+    <div style="text-sm text-2 mb-3">对接智慧教学平台中学生已上传的资源，可一键添加到个人AI知识库，实现资源复用</div>
+    <div class="card" style="padding:14px;background:var(--primary-soft);border:none;margin-bottom:16px">
+      <div class="flex items-center gap-3">
+        <div class="res-icon" style="background:var(--primary);color:#fff">${I.cloud}</div>
+        <div><div class="font-medium text-sm">已对接智慧教学平台</div><div class="text-xs text-3 mt-2">当前账号：张明远 · 共 ${CLOUD_RES.length} 个云端资源</div></div>
+      </div>
+    </div>
+    <div class="grid grid-2">
+      ${CLOUD_RES.map(r=>{
+        const added=KBState.added.has(r.id);
+        return `<div class="res-card">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="res-icon" style="background:#E0E7FF;color:#3730A3">${I.file}</div>
+            <div class="flex-1"><div class="font-medium text-sm">${r.name}</div>
+              <div class="text-xs text-3 mt-2">${r.size} · ${r.time} · ${r.course}</div></div>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="tag tag-info">云盘 · 智慧教学平台</span>
+            ${added?`<button class="btn btn-sm" style="background:#D1FAE5;color:#065F46" disabled>${I.check} 已添加</button>`:`<button class="btn btn-primary btn-sm" onclick="addCloudRes('${r.id}')">一键添加</button>`}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+function addCloudRes(id){
+  const r=CLOUD_RES.find(x=>x.id===id);
+  DB.myResources.unshift({id:'r'+uid(),name:r.name,type:'文档',source:'云盘',size:r.size,time:new Date().toISOString().slice(0,10),cat:r.course});
+  saveData();
+  KBState.added.add(id);
+  renderCloudUpload();
+  toast('已添加到知识库：'+r.name,'success');
+}
+
+function renderDbSearch(){
+  $('#createBox').innerHTML=`
+    <div style="text-sm text-2 mb-3">通过数据库检索文献资源，支持期刊、图书、报纸、标准专利、科技成果、影音资源等类型，可按标题、作者、关键词、主题检索后添加</div>
+    <div class="flex gap-2 mb-3" style="flex-wrap:wrap">
+      ${LIB_TYPES.map(t=>`<div class="seg-item ${KBState.libType===t?'active':''}" onclick="setLibType('${t}')">${t}</div>`).join('')}
+    </div>
+    <div class="flex gap-2 mb-4">
+      <select class="select" style="width:120px" id="libField">
+        <option value="标题">标题</option>
+        <option value="作者">作者</option>
+        <option value="关键词">关键词</option>
+        <option value="主题">主题</option>
+      </select>
+      <input type="text" class="input" id="libKw" placeholder="输入检索词，如：知识图谱 / 王晓东 / 人工智能" style="flex:1" value="${KBState.libKw}" onkeydown="if(event.key==='Enter')doLibSearch()">
+      <button class="btn btn-primary" onclick="doLibSearch()">${I.db} 检 索</button>
+    </div>
+    <div id="libResult">${KBState.searched?'':'<div class="empty"><div class="text-sm">输入检索词后点击检索，或直接检索查看全部资源</div></div>'}</div>
+  `;
+  if(KBState.searched)doLibSearch(true);
+}
+function doLibSearch(silent){
+  const kw=($('#libKw')||{}).value||'';
+  const field=($('#libField')||{}).value||'标题';
+  KBState.libKw=kw;KBState.searched=true;
+  let list=DB.library.filter(r=>{
+    if(KBState.libType!=='全部'&&r.type!==KBState.libType)return false;
+    if(!kw)return true;
+    if(field==='标题')return r.title.includes(kw);
+    if(field==='作者')return r.author.includes(kw);
+    if(field==='关键词')return r.keyword.some(k=>k.includes(kw));
+    if(field==='主题')return r.subject.includes(kw);
+    return true;
+  });
+  const box=$('#libResult');if(!box)return;
+  if(!list.length){box.innerHTML='<div class="empty"><div class="text-sm">未检索到相关资源</div></div>';return}
+  box.innerHTML=`<div class="text-xs text-3 mb-3">检索到 <span class="font-medium" style="color:var(--primary)">${list.length}</span> 条结果</div>
+    <div class="grid grid-2" style="gap:14px">
+    ${list.map(r=>{
+      const added=KBState.added.has(r.id);
+      const ti=TYPE_ICON[r.type]||TYPE_ICON.文档;
+      return `<div class="res-card">
+        <div class="flex items-start gap-3 mb-3">
+          <div class="res-icon" style="background:${ti.bg};color:${ti.c};flex-shrink:0">${ti.i}</div>
+          <div class="flex-1" style="min-width:0">
+            <div class="font-medium text-sm">${r.title}</div>
+            <div class="text-xs text-3 mt-2">${r.author}</div>
+            <div class="text-xs text-3 mt-2">${r.source}</div>
+            <div class="flex gap-2 mt-3" style="flex-wrap:wrap">
+              <span class="tag tag-primary">${r.type}</span>
+              <span class="tag tag-gray">${r.subject}</span>
+              ${r.keyword.map(k=>`<span class="tag tag-purple">${k}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          ${added?`<button class="btn btn-sm" style="background:#D1FAE5;color:#065F46" disabled>${I.check} 已添加</button>`:`<button class="btn btn-primary btn-sm" onclick="addLibRes('${r.id}')">添加到知识库</button>`}
+        </div>
+      </div>`;
+    }).join('')}
+    </div>`;
+}
+function addLibRes(id){
+  const r=DB.library.find(x=>x.id===id);
+  DB.myResources.unshift({id:'r'+uid(),name:r.title+(r.type==='图书'?'':''),type:r.type,source:'数据库',size:'—',time:new Date().toISOString().slice(0,10),cat:r.subject});
+  saveData();
+  KBState.added.add(id);
+  doLibSearch(true);
+  toast('已添加到知识库：'+r.title,'success');
+}
+/* =====================================================
+ * 模块3 · 知识关联图谱
+ * ===================================================== */
+const GraphState={center:'人工智能',attr:'全部',layout:'放射',maxNodes:'全部',expanded:new Set(['g0']),selected:'g0'};
+
+Views['graph']=function(){
+  const attrs=['全部',...new Set(DB.graphNodes.map(n=>n.attr))];
+  $('#content').innerHTML=`
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb">知识图谱 <span>/</span> 知识关联图谱</div>
+        <div class="page-title">知识关联图谱分析</div>
+        <div class="page-subtitle">输入中心词呈现相关知识点关系图，支持按属性、布局、节点数量筛选，渐进式多层展开</div>
+      </div>
+    </div>
+    <div class="card mb-4">
+      <div class="flex items-center gap-3" style="flex-wrap:wrap">
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-2">中心词</span>
+          <input type="text" class="input" id="graphCenter" value="${GraphState.center}" style="width:200px" onkeydown="if(event.key==='Enter')updateGraphCenter()">
+        </div>
+        <button class="btn btn-primary" onclick="updateGraphCenter()">${I.network} 生成图谱</button>
+        <div style="flex:1"></div>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-2">属性</span>
+          <select class="select" style="width:120px" onchange="GraphState.attr=this.value;renderGraphCanvas()">
+            ${attrs.map(a=>`<option ${GraphState.attr===a?'selected':''}>${a}</option>`).join('')}
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-2">布局</span>
+          <select class="select" style="width:110px" onchange="GraphState.layout=this.value;renderGraphCanvas()">
+            <option ${GraphState.layout==='放射'?'selected':''}>放射</option>
+            <option ${GraphState.layout==='层级'?'selected':''}>层级</option>
+            <option ${GraphState.layout==='力导向'?'selected':''}>力导向</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-2">节点数量</span>
+          <select class="select" style="width:100px" onchange="GraphState.maxNodes=this.value;renderGraphCanvas()">
+            <option value="全部" ${GraphState.maxNodes==='全部'?'selected':''}>全部</option>
+            <option value="6" ${GraphState.maxNodes==='6'?'selected':''}>6</option>
+            <option value="8" ${GraphState.maxNodes==='8'?'selected':''}>8</option>
+            <option value="10" ${GraphState.maxNodes==='10'?'selected':''}>10</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="grid" style="grid-template-columns:1fr 280px;gap:16px;align-items:flex-start">
+      <div class="card">
+        <div class="card-title">${I.network}关联图谱<div class="text-xs text-3" style="margin-left:auto;font-weight:400">点击节点展开下一层 · 再次点击收起</div></div>
+        <div id="graphCanvas"></div>
+        <div class="flex gap-4 mt-4 text-xs text-3" style="flex-wrap:wrap">
+          <span class="flex items-center gap-2"><span style="width:14px;height:14px;background:#6366F1;border-radius:50%"></span>核心节点</span>
+          <span class="flex items-center gap-2"><span style="width:14px;height:14px;background:#8B5CF6;border-radius:50%"></span>子领域</span>
+          <span class="flex items-center gap-2"><span style="width:14px;height:14px;background:#A78BFA;border-radius:50%"></span>方法/应用</span>
+          <span style="margin-left:auto">已展开 ${GraphState.expanded.size} 个节点</span>
+        </div>
+      </div>
+      <div class="card" id="graphDetail"></div>
+    </div>
+  `;
+  renderGraphCanvas();
+};
+function updateGraphCenter(){
+  const v=$('#graphCenter').value.trim();
+  if(!v)return;
+  GraphState.center=v;
+  GraphState.expanded=new Set(['g0']);
+  GraphState.selected='g0';
+  renderGraphCanvas();
+  toast('已生成「'+v+'」关联图谱','success');
+}
+
+function computeLayout(){
+  const pos={};
+  const W=900,H=500,cx=450,cy=250;
+  const nodes=DB.graphNodes;
+  if(GraphState.layout==='放射'){
+    pos.g0={x:cx,y:cy};
+    const l1=nodes.filter(n=>n.level===1);
+    l1.forEach((n,i)=>{const a=-Math.PI/2+i*2*Math.PI/l1.length;pos[n.id]={x:cx+Math.cos(a)*190,y:cy+Math.sin(a)*190}});
+    const l2=nodes.filter(n=>n.level===2);
+    l2.forEach(n=>{
+      const pl=DB.graphLinks.find(l=>l.t===n.id&&l.s!=='g0');
+      const p=pos[pl?pl.s:'g0']||pos.g0;
+      const idx=l1.findIndex(x=>x.id===(pl?pl.s:''));
+      const a=idx>=0?idx*2*Math.PI/l1.length:0;
+      pos[n.id]={x:p.x+Math.cos(a)*120,y:p.y+Math.sin(a)*120};
+    });
+  }else if(GraphState.layout==='层级'){
+    const byLevel={};
+    nodes.forEach(n=>{(byLevel[n.level]=byLevel[n.level]||[]).push(n)});
+    Object.keys(byLevel).forEach(lv=>{
+      const arr=byLevel[lv];
+      const x=110+lv*250;
+      arr.forEach((n,i)=>{pos[n.id]={x,y:60+i*(H-120)/Math.max(1,arr.length-1)}});
+    });
+  }else{
+    nodes.forEach(n=>pos[n.id]={x:n.x-100,y:n.y-30});
+  }
+  return pos;
+}
+
+function getVisibleNodes(){
+  const links=DB.graphLinks;
+  const visible=['g0'];
+  DB.graphNodes.forEach(n=>{
+    if(n.id==='g0')return;
+    const parents=links.filter(l=>l.t===n.id).map(l=>l.s);
+    if(parents.some(p=>GraphState.expanded.has(p)))visible.push(n.id);
+  });
+  let res=DB.graphNodes.filter(n=>visible.includes(n.id));
+  if(GraphState.attr!=='全部')res=res.filter(n=>n.attr===GraphState.attr||n.id==='g0');
+  if(GraphState.maxNodes!=='全部'&&res.length>parseInt(GraphState.maxNodes)){
+    const keep=new Set([GraphState.selected||'g0',...res.slice(0,parseInt(GraphState.maxNodes)).map(n=>n.id)]);
+    res=res.filter(n=>keep.has(n.id));
+  }
+  return res;
+}
+
+function renderGraphCanvas(){
+  const pos=computeLayout();
+  const vis=getVisibleNodes();
+  const visIds=new Set(vis.map(n=>n.id));
+  const visLinks=DB.graphLinks.filter(l=>visIds.has(l.s)&&visIds.has(l.t));
+  const color={0:'#6366F1',1:'#8B5CF6',2:'#A78BFA'};
+  const r={0:42,1:30,2:24};
+  $('#graphCanvas').innerHTML=`
+    <svg viewBox="0 0 900 500" style="width:100%;height:500px;background:radial-gradient(circle at 50% 50%,#F5F3FF 0%,#FFFFFF 70%);border-radius:12px">
+      ${visLinks.map(l=>{
+        const a=pos[l.s],b=pos[l.t];
+        const isActive=GraphState.selected===l.s||GraphState.selected===l.t;
+        return `<path class="kg-link ${isActive?'active':''}" d="M${a.x} ${a.y} Q ${(a.x+b.x)/2} ${(a.y+b.y)/2-20} ${b.x} ${b.y}"/>`;
+      }).join('')}
+      ${vis.map(n=>{
+        const p=pos[n.id];const c=color[n.level]||'#A78BFA';const rr=r[n.level]||24;
+        const sel=GraphState.selected===n.id;
+        const expanded=GraphState.expanded.has(n.id);
+        const hasChild=DB.graphLinks.some(l=>l.s===n.id);
+        return `<g class="kg-node" onclick="toggleGraphNode('${n.id}')">
+          ${sel?`<circle cx="${p.x}" cy="${p.y}" r="${rr+6}" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="3 3" opacity=".5"/>`:''}
+          <circle cx="${p.x}" cy="${p.y}" r="${rr}" fill="${c}" stroke="#fff" stroke-width="3"/>
+          <text x="${p.x}" y="${p.y+4}" text-anchor="middle" fill="#fff" font-size="${n.level===0?14:11}" font-weight="600">${n.name}</text>
+          <text x="${p.x}" y="${p.y+rr+15}" text-anchor="middle" fill="#9CA3AF" font-size="10">${n.attr}</text>
+          ${hasChild?`<circle cx="${p.x+rr-6}" cy="${p.y-rr+6}" r="9" fill="#fff" stroke="${c}" stroke-width="1.5"/><text x="${p.x+rr-6}" y="${p.y-rr+10}" text-anchor="middle" fill="${c}" font-size="11" font-weight="700">${expanded?'−':'+'}</text>`:''}
+        </g>`;
+      }).join('')}
+    </svg>`;
+  renderGraphDetail();
+}
+
+function toggleGraphNode(id){
+  if(GraphState.selected===id){
+    // 已选中再次点击 → 展开/收起
+    if(id!=='g0'){
+      if(GraphState.expanded.has(id))GraphState.expanded.delete(id);
+      else GraphState.expanded.add(id);
+    }
+  }else{
+    GraphState.selected=id;
+    if(!GraphState.expanded.has(id)&&id!=='g0')GraphState.expanded.add(id);
+  }
+  renderGraphCanvas();
+}
+
+function renderGraphDetail(){
+  const n=DB.graphNodes.find(x=>x.id===GraphState.selected)||DB.graphNodes[0];
+  const children=DB.graphLinks.filter(l=>l.s===n.id).map(l=>DB.graphNodes.find(x=>x.id===l.t));
+  const parents=DB.graphLinks.filter(l=>l.t===n.id).map(l=>DB.graphNodes.find(x=>x.id===l.s));
+  $('#graphDetail').innerHTML=`
+    <div class="card-title">${I.target}节点详情</div>
+    <div style="text-align:center;padding:12px 0">
+      <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;margin:0 auto 10px">${n.name.slice(0,1)}</div>
+      <div class="font-bold" style="font-size:16px">${n.name}</div>
+      <span class="tag tag-primary mt-2">${n.attr}</span>
+    </div>
+    <div class="mt-4">
+      <div class="text-xs text-3 mb-2">关联上层</div>
+      ${parents.length?parents.map(p=>`<div class="res-card mb-2" style="padding:10px" onclick="toggleGraphNode('${p.id}')"><div class="flex items-center gap-2"><span style="width:8px;height:8px;background:#6366F1;border-radius:50%"></span><span class="text-sm">${p.name}</span></div></div>`).join(''):'<div class="text-xs text-3">无（顶级节点）</div>'}
+    </div>
+    <div class="mt-4">
+      <div class="text-xs text-3 mb-2">关联下层（${children.length}）</div>
+      ${children.length?children.map(c=>`<div class="res-card mb-2" style="padding:10px" onclick="toggleGraphNode('${c.id}')"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span style="width:8px;height:8px;background:#8B5CF6;border-radius:50%"></span><span class="text-sm">${c.name}</span></div><span class="text-xs text-3">${c.attr}</span></div></div>`).join(''):'<div class="text-xs text-3">无下级节点</div>'}
+    </div>
+    <button class="btn btn-soft mt-4" style="width:100%" onclick="toast('已收藏节点：${n.name}','success')">${I.star} 收藏该知识点</button>
+  `;
+}
+/* =====================================================
+ * 模块4 · AI智能体
+ * ===================================================== */
+const AIState={appId:null,chat:[],kbPub:true,kbPer:true,input:'',generating:false};
+
+Views['ai-apps']=function(){
+  if(AIState.appId){return renderAIWorkbench()}
+  $('#content').innerHTML=`
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb">AI智能体 <span>/</span> AI应用中心</div>
+        <div class="page-title">AI智能体应用中心</div>
+        <div class="page-subtitle">所有AI应用依托知识库资源底座，可调用校内公共知识库与个人AI知识库，生成内容可同步保存至个人知识库</div>
+      </div>
+    </div>
+    <div class="card mb-4" style="background:linear-gradient(135deg,#6366F1,#7C3AED);color:#fff;border:none">
+      <div class="flex items-center gap-4">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center">${I.bot}</div>
+        <div class="flex-1">
+          <div style="font-size:16px;font-weight:600">知识库资源底座已就绪</div>
+          <div style="font-size:13px;opacity:.9;margin-top:4px">校内公共知识库 ${DB.library.length} 篇文献 · 个人AI知识库 ${DB.myResources.length} 个资源 · AI应用可无缝调用</div>
+        </div>
+        <div class="text-center" style="opacity:.9"><div style="font-size:24px;font-weight:700">${DB.aiApps.reduce((s,a)=>s+a.uses,0)}</div><div style="font-size:11px">累计调用</div></div>
+      </div>
+    </div>
+    <div class="grid grid-3">
+      ${DB.aiApps.map(a=>`
+        <div class="res-card" onclick="openAIApp('${a.id}')" style="cursor:pointer">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="res-icon" style="background:${a.color}15;color:${a.color}">${I[a.icon]||I.bot}</div>
+            <div class="flex-1">
+              <div class="font-medium">${a.name}</div>
+              <div class="text-xs text-3 mt-2">已调用 ${a.uses} 次</div>
+            </div>
+          </div>
+          <div class="text-xs text-2" style="line-height:1.7;min-height:42px">${a.desc}</div>
+          <div class="flex items-center justify-between mt-3">
+            <span class="tag tag-primary">知识库联动</span>
+            <span class="text-xs" style="color:${a.color}">进入应用 ›</span>
+          </div>
+        </div>`).join('')}
+    </div>`;
+};
+
+function openAIApp(id){
+  AIState.appId=id;AIState.chat=[];AIState.input='';
+  Views['ai-apps']();
+}
+
+function renderAIWorkbench(){
+  const app=DB.aiApps.find(a=>a.id===AIState.appId);
+  $('#content').innerHTML=`
+    <div class="back-bar" onclick="AIState.appId=null;Views['ai-apps']()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      返回应用中心
+    </div>
+    <div class="breadcrumb">AI智能体 <span>/</span> ${app.name}</div>
+    <div class="flex items-center gap-3 mb-4">
+      <div class="res-icon" style="background:${app.color}15;color:${app.color};width:48px;height:48px;border-radius:12px">${I[app.icon]||I.bot}</div>
+      <div><div class="page-title" style="margin:0">${app.name}</div><div class="page-subtitle">${app.desc}</div></div>
+    </div>
+    <div class="grid" style="grid-template-columns:340px 1fr;gap:16px;align-items:flex-start">
+      <div>
+        <div class="card mb-4">
+          <div class="card-title">${I.db}知识库资源底座</div>
+          <div class="text-xs text-2 mb-3">选择AI应用调用的知识来源</div>
+          <label class="flex items-center gap-3 res-card mb-2" style="cursor:pointer">
+            <input type="checkbox" ${AIState.kbPub?'checked':''} onchange="AIState.kbPub=this.checked" style="width:16px;height:16px;accent-color:var(--primary)">
+            <div class="flex-1"><div class="text-sm font-medium">校内公共知识库</div><div class="text-xs text-3 mt-2">${DB.library.length} 篇文献 · 图书/期刊/标准</div></div>
+          </label>
+          <label class="flex items-center gap-3 res-card" style="cursor:pointer">
+            <input type="checkbox" ${AIState.kbPer?'checked':''} onchange="AIState.kbPer=this.checked" style="width:16px;height:16px;accent-color:var(--primary)">
+            <div class="flex-1"><div class="text-sm font-medium">个人AI知识库</div><div class="text-xs text-3 mt-2">${DB.myResources.length} 个资源 · 我的收藏</div></div>
+          </label>
+        </div>
+        <div class="card">
+          <div class="card-title">${I.list}输入主题</div>
+          <textarea class="textarea" id="aiInput" rows="5" placeholder="${getAIPlaceholder(app.id)}" oninput="AIState.input=this.value">${AIState.input}</textarea>
+          <button class="btn btn-primary mt-3" style="width:100%" onclick="doAIGenerate()" id="aiGenBtn">${I.bot} 生成内容</button>
+          <div class="text-xs text-3 mt-3 text-center">生成内容可一键保存至个人AI知识库</div>
+        </div>
+      </div>
+      <div class="card" style="min-height:560px;display:flex;flex-direction:column">
+        <div class="flex items-center justify-between mb-3">
+          <div class="card-title" style="margin:0">${I.chart}生成结果</div>
+          <button class="btn btn-soft btn-sm" onclick="saveAIToKb()" id="aiSaveBtn">${I.upload} 保存到知识库</button>
+        </div>
+        <div id="aiChat" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding-right:4px">
+          ${AIState.chat.length?'':`<div class="empty" style="margin:auto"><div style="font-size:32px;margin-bottom:8px">🤖</div><div class="text-sm">输入主题后点击「生成内容」</div><div class="text-xs text-3 mt-2">AI将基于所选知识库生成内容</div></div>`}
+          ${AIState.chat.map(c=>`
+            <div style="display:flex;flex-direction:column;align-items:${c.role==='user'?'flex-end':'flex-start'}">
+              <div class="text-xs text-3 mb-2">${c.role==='user'?'我':app.name}</div>
+              <div class="chat-bubble ${c.role}">${c.text}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  setTimeout(()=>{const b=$('#aiChat');if(b)b.scrollTop=b.scrollHeight},50);
+}
+
+function getAIPlaceholder(id){
+  const m={a1:'请输入教学主题，如：导数的概念与应用',a2:'请输入出题知识点，如：极限的计算',a3:'请输入需要总结的学习内容',a4:'请输入你的问题，如：什么是梯度下降？',a5:'请输入文献标题或主题',a6:'请输入错题内容或知识点'};
+  return m[id]||'请输入内容';
+}
+
+function doAIGenerate(){
+  if(AIState.generating)return;
+  const input=($('#aiInput')||{}).value||AIState.input;
+  if(!input.trim()){toast('请输入主题','error');return}
+  if(!AIState.kbPub&&!AIState.kbPer){toast('请至少选择一个知识库','error');return}
+  AIState.generating=true;
+  const btn=$('#aiGenBtn');if(btn){btn.disabled=true;btn.textContent='生成中…'}
+  AIState.chat.push({role:'user',text:input});
+  AIState.chat.push({role:'ai',text:'正在基于知识库生成内容，请稍候…'});
+  renderAIWorkbench();
+  setTimeout(()=>{
+    AIState.chat.pop();
+    AIState.chat.push({role:'ai',text:genAIContent(AIState.appId,input)});
+    AIState.generating=false;
+    AIState.input='';
+    renderAIWorkbench();
+  },1200);
+}
+
+function genAIContent(id,input){
+  const kb=AIState.kbPub&&AIState.kbPer?'校内公共知识库 + 个人AI知识库':AIState.kbPub?'校内公共知识库':AIState.kbPer?'个人AI知识库':'';
+  const head=`📚 已调用知识来源：${kb}\n`;
+  const tpl={
+    'a1':head+`【教学设计 · ${input}】\n\n一、教学目标\n1. 知识目标：掌握${input}的核心概念、基本原理与计算方法\n2. 能力目标：能够运用${input}分析和解决实际问题\n3. 素养目标：培养严谨的科学思维与探究精神\n\n二、教学重难点\n• 重点：${input}的基本定义与典型应用\n• 难点：${input}的综合运用与拓展迁移\n\n三、教学过程\n1. 课前预习 · 发布微课视频与预习任务清单\n2. 课堂讲授 · 概念引入 → 公式推导 → 例题精讲 → 分组研讨\n3. 课后巩固 · 分层作业 + 拓展探究 + 错题复盘\n\n四、教学资源（来自知识库）\n• 《高等数学（第七版）》相关章节\n• 关联知识点：极限、连续、导数\n• 典型例题库与解析 12 道`,
+    'a2':head+`【题库生成 · ${input}】\n\n一、单选题\n1. 下列关于${input}的描述，正确的是（ ）\n   A. 选项一  B. 选项二  C. 选项三  D. 选项四\n   【答案】B  【解析】根据${input}的定义与性质可得。\n\n2. 设函数 f(x) 满足条件…，则下列结论成立的是（ ）\n   A. α  B. β  C. γ  D. δ\n   【答案】C  【解析】略\n\n二、填空题\n3. ${input}中，当 x→0 时，lim f(x) = ______\n   【答案】1\n\n三、计算题\n4. 求 ${input} 的相关极限/导数/积分。\n   【解】步骤一 … 步骤二 … 步骤三 …\n\n已生成 8 道题目，难度分布：基础 40% / 中等 40% / 拓展 20%`,
+    'a3':head+`【学习总结 · ${input}】\n\n一、核心知识脉络\n• ${input}的基本概念与几何/物理意义\n• 核心公式与定理体系\n• 典型方法与解题套路\n\n二、重点要点\n1. 概念层：准确理解${input}的定义与内涵\n2. 方法层：掌握${input}的三大基本方法\n3. 应用层：能够灵活处理综合问题\n\n三、常见易错点\n• 概念混淆：A 与 B 的区别\n• 计算失误：符号、系数与定义域\n• 思维盲区：特殊情形与边界条件\n\n四、学习建议\n建议结合微课视频与错题集反复巩固，目标掌握率提升至 85%+。`,
+    'a4':head+`【智能问答 · ${input}】\n\n根据知识库相关资料，为您解答如下：\n\n${input}是微积分/计算机科学中的核心概念之一。其本质是从【角度一】刻画对象的变化规律，具有【性质一】和【性质二】两个重要特征。\n\n• 定义：在…条件下，${input}可表述为…\n• 几何意义：${input}对应曲线在某点处的切线斜率/图形特征\n• 典型应用：用于求解最值问题、变化率问题、近似计算等\n\n【参考来源】\n1. 《高等数学（第七版）》同济大学数学系\n2. 《深度学习中的优化方法综述》《软件学报》\n3. 个人知识库：高等数学课堂笔记\n\n如需深入理解，建议进一步学习关联知识点。`,
+    'a5':head+`【文献研读 · ${input}】\n\n一、文献要点\n• 研究背景：针对${input}领域的关键问题展开研究\n• 研究方法：采用理论分析 + 实证研究相结合的方法\n• 主要结论：提出了${input}的改进方案，效果显著\n\n二、创新点\n1. 方法创新：提出了一种新的${input}分析框架\n2. 应用创新：拓展了${input}的应用场景\n3. 评价创新：构建了多维评估指标体系\n\n三、对比分析\n与同类研究相比，本文在精度/效率/泛化性方面均有提升。\n\n四、启示\n本研究对教学/科研具有参考价值，建议结合本校实际进一步探索。`,
+    'a6':head+`【错题讲解 · ${input}】\n\n一、错题诊断\n• 错误类型：概念理解偏差 / 计算失误 / 方法选择不当\n• 错误原因：对${input}的定义理解不透彻，未能准确区分相关概念\n\n二、知识点回顾\n${input}的核心要点：\n1. 基本定义：…\n2. 关键性质：…\n3. 适用条件：…\n\n三、正确解法\n步骤一：识别题型，确定使用${input}的方法\n步骤二：代入公式，注意定义域与符号\n步骤三：化简计算，得出结论\n\n四、变式练习\n给出 3 道同类型变式题，巩固强化。`
+  };
+  return tpl[id]||head+`基于知识库对「${input}」的分析已完成。`;
+}
+
+function saveAIToKb(){
+  const last=[...AIState.chat].reverse().find(c=>c.role==='ai');
+  if(!last){toast('暂无可保存的生成内容','error');return}
+  const app=DB.aiApps.find(a=>a.id===AIState.appId);
+  const id='r'+uid();
+  const today=new Date().toISOString().slice(0,10);
+  DB.myResources.unshift({id,name:`${app.name}生成内容-${today}.md`,type:'文档',source:'AI生成',size:'—',time:today,cat:'AI生成'});
+  saveData();
+  toast('已保存到个人AI知识库','success');
+}
+
+/* =====================================================
+ * 模块5 · 一生一案培养方案管理
+ * ===================================================== */
+const PlanState={studentId:'s1'};
+
+Views['plan']=function(){
+  const allStudents=DB.students.filter(s=>DB.studentProfiles[s.id]);
+  const sp=DB.studentProfiles[PlanState.studentId]||DB.studentProfiles.s1;
+  const majorCodeMap={'计算机科学与技术':'080901','软件工程':'080802'};
+  const plan=DB.majorPlans[majorCodeMap[sp.major]||'080901'];
+  const creditPct=Math.round(plan.completedCredits/plan.totalCredits*100);
+  $('#content').innerHTML=`
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb">培养方案 <span>/</span> 一生一案管理</div>
+        <div class="page-title">个性化人才培养方案</div>
+        <div class="page-subtitle">管理员可查看所有学生的培养方案，完整展示专业基础信息与毕业要求，匹配职业发展方向</div>
+      </div>
+      <div class="flex items-center gap-3">
+        <select class="select" style="width:280px" onchange="PlanState.studentId=this.value;Views['plan']()">
+          ${allStudents.map(s=>{
+            const p=DB.studentProfiles[s.id];
+            return '<option value="'+s.id+'" '+(PlanState.studentId===s.id?'selected':'')+'>'+s.name+' · '+p.major+' · '+s.no+'</option>';
+          }).join('')}
+        </select>
+        <button class="btn btn-ghost" onclick="exportPlan()">${I.upload} 导出方案</button>
+      </div>
+    </div>
+    <!-- 学生 + 专业基础信息 -->
+    <div class="grid grid-2 mb-4">
+      <div class="card">
+        <div class="card-title">${I.user}学生信息</div>
+        <div class="flex items-center gap-4 mb-4">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700">${sp.name.slice(0,1)}</div>
+          <div>
+            <div style="font-size:18px;font-weight:700">${sp.name}</div>
+            <div class="text-sm text-3 mt-2">学号 ${sp.no} · ${sp.major} · ${sp.grade}</div>
+          </div>
+        </div>
+        <div class="grid grid-2" style="gap:12px;font-size:13px">
+          <div class="flex justify-between"><span class="text-3">GPA</span><span class="font-medium" style="color:var(--primary)">${sp.gpa}</span></div>
+          <div class="flex justify-between"><span class="text-3">专业排名</span><span class="font-medium">${sp.rank}</span></div>
+          <div class="flex justify-between"><span class="text-3">培养方向</span><span class="font-medium">${sp.target}</span></div>
+          <div class="flex justify-between"><span class="text-3">获奖经历</span><span class="font-medium">${sp.awards.length} 项</span></div>
+        </div>
+        <div class="mt-4">
+          <div class="text-xs text-3 mb-2">个人能力画像</div>
+          ${sp.skills.map(s=>'<div class="mb-2"><div class="flex justify-between text-xs mb-2"><span>'+s.name+'</span><span class="text-3">'+s.level+'%</span></div><div class="progress"><div class="progress-bar" style="width:'+s.level+'%"></div></div></div>').join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">${I.book}专业基础信息</div>
+        <div class="grid grid-2 mb-4" style="gap:14px;font-size:13px">
+          <div><div class="text-3 text-xs">专业名称</div><div class="font-medium mt-2">${plan.name}</div></div>
+          <div><div class="text-3 text-xs">专业代码</div><div class="font-medium mt-2">${plan.code}</div></div>
+          <div><div class="text-3 text-xs">授予学位</div><div class="font-medium mt-2">${plan.degree}</div></div>
+          <div><div class="text-3 text-xs">学制</div><div class="font-medium mt-2">${plan.duration}</div></div>
+        </div>
+        <div class="flex items-center gap-4 mb-4" style="background:var(--primary-soft);border-radius:10px;padding:16px">
+          ${renderCreditRing(creditPct,72,'#6366F1')}
+          <div class="flex-1">
+            <div class="text-xs text-3">毕业学分要求</div>
+            <div class="flex items-baseline gap-2 mt-2"><span style="font-size:26px;font-weight:700;color:var(--primary)">${plan.completedCredits}</span><span class="text-3">/ ${plan.totalCredits} 学分</span></div>
+            <div class="text-xs text-3 mt-2">已完成 ${creditPct}%，尚需 ${plan.totalCredits-plan.completedCredits} 学分</div>
+          </div>
+        </div>
+        <div>
+          <div class="text-xs text-3 mb-2">培养目标</div>
+          <div class="text-sm text-2" style="line-height:1.8">${plan.direction}</div>
+        </div>
+      </div>
+    </div>
+    <!-- 学分构成 -->
+    <div class="card mb-4">
+      <div class="card-title">${I.chart}学分构成与完成情况</div>
+      <div class="grid grid-5" style="gap:16px">
+        ${plan.categories.map(c=>{
+          const pct=Math.round(c.done/c.require*100);
+          return '<div class="text-center">'+
+            renderCreditRing(pct,64,c.color)+
+            '<div class="font-medium text-sm mt-3">'+c.name+'</div>'+
+            '<div class="text-xs text-3 mt-2">'+c.done+' / '+c.require+' 学分</div>'+
+          '</div>';
+        }).join('')}
+      </div>
+    </div>
+    <!-- 个性化学习方案 -->
+    <div class="card mb-4">
+      <div class="card-title">${I.list}个性化学习方案<div class="text-xs text-3" style="margin-left:auto;font-weight:400">按学期展开培养方案课程</div></div>
+      <div id="planTerms"></div>
+    </div>
+    <!-- 职业发展方向 -->
+    <div class="card">
+      <div class="card-title">${I.target}职业发展方向与就业岗位<div class="text-xs text-3" style="margin-left:auto;font-weight:400">基于专业匹配的就业岗位推荐</div></div>
+      <div class="grid grid-3">
+        ${plan.careers.map(c=>`
+          <div class="career-card">
+            <div class="flex items-center justify-between mb-3">
+              <div class="font-medium">${c.dir}</div>
+              <span class="tag tag-success">${c.match}% 匹配</span>
+            </div>
+            <div class="flex items-center gap-3 mb-3 text-sm">
+              <span style="color:var(--primary);font-weight:600">${c.sal}</span>
+              <span class="text-3">|</span>
+              <span class="text-3 text-xs">${c.city}</span>
+            </div>
+            <div class="text-xs text-2 mb-3" style="line-height:1.7">${c.outlook}</div>
+            <div class="text-xs text-3 mb-2">核心技能要求</div>
+            <div class="flex" style="gap:6px;flex-wrap:wrap">${c.skills.map(s=>'<span class="tag tag-gray">'+s+'</span>').join('')}</div>
+            <div class="mt-3"><div class="flex justify-between text-xs mb-2"><span class="text-3">专业匹配度</span><span style="color:var(--primary)">${c.match}%</span></div><div class="progress"><div class="progress-bar" style="width:${c.match}%"></div></div></div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  renderPlanTerms();
+};
+
+function renderCreditRing(pct,size,color){
+  const r=size/2-6,cx=size/2,cy=size/2;
+  const circ=2*Math.PI*r;
+  const off=circ*(1-pct/100);
+  return `<div style="position:relative;width:${size}px;height:${size}px;margin:0 auto">
+    <svg width="${size}" height="${size}" style="transform:rotate(-90deg)">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#EEF2FF" stroke-width="6"/>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/>
+    </svg>
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:700;color:${color};font-size:${size>80?16:13}px">${pct}%</div>
+  </div>`;
+}
+
+function renderPlanTerms(){
+  const sp=DB.studentProfiles[PlanState.studentId]||DB.studentProfiles.s1;
+  const majorCodeMap={'计算机科学与技术':'080901','软件工程':'080802'};
+  const m=DB.majorPlans[majorCodeMap[sp.major]||'080901'];
+  const statusTag={通过:'tag-success',修读中:'tag-warning',未修:'tag-gray'};
+  $('#planTerms').innerHTML=m.planCourses.map((t,i)=>{
+    const courseRows=t.courses.map(c=>'<tr><td><span class="font-medium">'+c.name+'</span></td><td><span class="tag tag-gray">'+c.cat+'</span></td><td>'+c.credit+'</td><td>'+(c.score||'—')+'</td><td><span class="tag '+statusTag[c.status]+'">'+c.status+'</span></td></tr>').join('');
+    return `
+    <div class="res-card mb-3" style="cursor:pointer" onclick="togglePlanTerm(this)">
+      <div class="flex items-center gap-3">
+        <div style="width:32px;height:32px;border-radius:8px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700">${i+1}</div>
+        <div class="flex-1"><div class="font-medium">${t.term}</div><div class="text-xs text-3 mt-2">${t.courses.length} 门课程 · 共 ${t.courses.reduce((s,c)=>s+c.credit,0)} 学分</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-3)"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+    <div style="${i>2?'display:none':''}">
+      <table class="table mb-3">
+        <thead><tr><th>课程名称</th><th>课程类别</th><th>学分</th><th>成绩</th><th>状态</th></tr></thead>
+        <tbody>${courseRows}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+function exportPlan(){
+  toast('培养方案已导出为 PDF','success');
+}
+if(checkAuth()){App.init()}
+</script>
+</body>
+</html>
