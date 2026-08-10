@@ -1,0 +1,2477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智慧教育平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#fff;color:#1a1a1a;min-height:100vh}
+/* Login */
+.login-page{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-bg{position:absolute;inset:0;background:linear-gradient(135deg,#fafafa 0%,#f0f0f0 100%)}
+.login-bg::before{content:'';position:absolute;top:20%;left:10%;width:300px;height:300px;background:rgba(0,0,0,.02);border-radius:50%;filter:blur(60px)}
+.login-bg::after{content:'';position:absolute;bottom:10%;right:15%;width:400px;height:400px;background:rgba(0,0,0,.015);border-radius:50%;filter:blur(80px)}
+.login-card{position:relative;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:40px;width:400px;max-width:90vw;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.login-logo{width:44px;height:44px;background:#1a1a1a;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.login-logo svg{color:#fff}
+.login-title{text-align:center;font-size:18px;font-weight:600;color:#1a1a1a;margin-bottom:6px}
+.login-subtitle{text-align:center;font-size:13px;color:#9ca3af;margin-bottom:28px}
+.login-field{margin-bottom:16px}
+.login-label{font-size:12px;color:#6b7280;margin-bottom:6px;display:block}
+.login-input{width:100%;height:42px;padding:0 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;transition:border-color .15s;background:#fff}
+.login-input:focus{outline:none;border-color:#1a1a1a}
+.login-btn{width:100%;height:42px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s;margin-top:8px}
+.login-btn:hover{opacity:.9}
+.login-btn:active{opacity:.8}
+.login-error{color:#dc2626;font-size:12px;margin-top:12px;text-align:center;display:none}
+.login-footer{text-align:center;margin-top:24px;font-size:11px;color:#d1d5db}
+/* Main layout */
+.app{display:none}
+.app.visible{display:block}
+.topbar{height:56px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#fff;position:fixed;top:0;left:0;right:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-logo{width:28px;height:28px;background:#1a1a1a;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.topbar-logo svg{color:#fff}
+.topbar-title{font-size:15px;font-weight:600;color:#1a1a1a}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-user{display:flex;align-items:center;gap:8px;font-size:13px;color:#4b5563;cursor:pointer;padding:6px 12px;border-radius:8px;transition:background .15s}
+.topbar-user:hover{background:#f5f5f5}
+.topbar-avatar{width:28px;height:28px;border-radius:50%;background:#1a1a1a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+.sidebar{width:220px;border-right:1px solid #f0f0f0;position:fixed;top:56px;left:0;bottom:0;background:#fff;overflow-y:auto;padding:12px 0;z-index:90}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:2px}
+.nav-group-title{font-size:10px;color:#9ca3af;padding:16px 20px 6px;font-weight:500;letter-spacing:.5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;color:#4b5563;cursor:pointer;transition:all .12s;border-left:2px solid transparent}
+.nav-item:hover{background:#f9fafb;color:#1a1a1a}
+.nav-item.active{background:#f5f5f5;color:#1a1a1a;font-weight:500;border-left-color:#1a1a1a}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.content-area{margin-left:220px;margin-top:56px;padding:24px;min-height:calc(100vh - 56px)}
+.page-title{font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
+.page-desc{font-size:13px;color:#9ca3af;margin-bottom:24px}
+/* Components */
+.card{background:#fff;border:1px solid #f0f0f0;border-radius:10px;padding:20px;margin-bottom:16px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:600;color:#1a1a1a}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid #f0f0f0;border-radius:10px;padding:18px}
+.stat-label{font-size:12px;color:#9ca3af;margin-bottom:8px}
+.stat-value{font-size:26px;font-weight:700;color:#1a1a1a}
+.stat-change{font-size:11px;color:#9ca3af;margin-top:4px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;color:#1a1a1a;font-size:13px;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn:hover{border-color:#d1d5db;background:#f9fafb}
+.btn-primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn-primary:hover{opacity:.9;background:#1a1a1a}
+.btn-sm{padding:6px 10px;font-size:12px}
+.btn-ghost{background:none;border:none;color:#6b7280}
+.btn-ghost:hover{background:#f5f5f5;color:#1a1a1a}
+.btn-danger{color:#dc2626;border-color:#fecaca}
+.btn-danger:hover{background:#fef2f2}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-default{background:#f3f4f6;color:#6b7280}
+.tag-success{background:#f0fdf4;color:#16a34a}
+.tag-warning{background:#fffbeb;color:#d97706}
+.tag-danger{background:#fef2f2;color:#dc2626}
+.tag-info{background:#f5f3ff;color:#7c3aed}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;border-bottom:1px solid #f0f0f0;font-weight:500;color:#6b7280;font-size:12px}
+td{padding:12px;border-bottom:1px solid #f5f5f5;color:#1a1a1a}
+tr:hover td{background:#fafafa}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;color:#4b5563;margin-bottom:6px;display:block;font-weight:500}
+.form-input,.form-textarea,.form-select{width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fff;transition:border-color .15s}
+.form-input:focus,.form-textarea:focus,.form-select:focus{outline:none;border-color:#1a1a1a}
+.form-textarea{min-height:80px;resize:vertical}
+.tab-bar{display:flex;gap:0;border-bottom:1px solid #f0f0f0;margin-bottom:20px}
+.tab-item{padding:10px 18px;font-size:13px;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tab-item:hover{color:#1a1a1a}
+.tab-item.active{color:#1a1a1a;font-weight:600;border-bottom-color:#1a1a1a}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:1000;padding:24px}
+.modal-overlay.visible{display:flex}
+.modal{background:#fff;border-radius:12px;max-width:600px;width:100%;max-height:85vh;display:flex;flex-direction:column}
+.modal-header{padding:16px 20px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:15px;font-weight:600}
+.modal-close{width:28px;height:28px;border:none;background:transparent;cursor:pointer;font-size:16px;color:#9ca3af;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:#f5f5f5;color:#1a1a1a}
+.modal-body{padding:20px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 20px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:10px}
+.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-20px);padding:10px 20px;background:#1a1a1a;color:#fff;border-radius:8px;font-size:13px;opacity:0;transition:all .3s;z-index:2000;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.progress-bar{width:100%;height:6px;background:#f3f4f6;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:#1a1a1a;border-radius:3px;transition:width .3s}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:600}
+.badge-dark{background:#1a1a1a;color:#fff}
+.badge-gray{background:#e5e7eb;color:#6b7280}
+/* Panel switching */
+.panel{display:none}
+.panel.active{display:block}
+/* Chat */
+.chat-box{display:flex;flex-direction:column;height:520px;border:1px solid #f0f0f0;border-radius:10px;overflow:hidden}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.chat-msg{display:flex;gap:10px;max-width:75%}
+.chat-msg.user{align-self:flex-end;flex-direction:row-reverse}
+.chat-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-weight:600}
+.chat-avatar.ai{background:#1a1a1a;color:#fff}
+.chat-avatar.user{background:#e5e7eb;color:#1a1a1a}
+.chat-bubble{padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.6}
+.chat-msg.ai .chat-bubble{background:#f5f5f5;color:#1a1a1a;border-top-left-radius:4px}
+.chat-msg.user .chat-bubble{background:#1a1a1a;color:#fff;border-top-right-radius:4px}
+.chat-input-area{padding:12px 16px;border-top:1px solid #f0f0f0;display:flex;gap:10px}
+.chat-input{flex:1;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.chat-input:focus{border-color:#1a1a1a}
+.chat-quick{padding:10px 16px;border-top:1px solid #f0f0f0;display:flex;gap:8px;flex-wrap:wrap}
+.chat-quick-btn{padding:5px 12px;border:1px solid #e5e7eb;border-radius:16px;font-size:11px;color:#6b7280;cursor:pointer;background:#fff}
+.chat-quick-btn:hover{border-color:#1a1a1a;color:#1a1a1a}
+/* Knowledge graph */
+.kg-viewport{height:480px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;overflow:auto;position:relative}
+.kg-canvas{width:100%;height:100%;min-width:600px;min-height:440px}
+/* Micro course */
+.micro-tabs{display:flex;gap:0;border-bottom:1px solid #f0f0f0;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.micro-tab{padding:10px 16px;font-size:13px;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0}
+.micro-tab.active{color:#1a1a1a;font-weight:600;border-bottom-color:#1a1a1a}
+/* Toggle */
+.toggle-group{display:inline-flex;background:#f3f4f6;border-radius:8px;padding:3px}
+.toggle-btn{padding:6px 14px;border:none;background:none;border-radius:6px;font-size:12px;color:#6b7280;cursor:pointer;font-family:inherit;transition:all .15s}
+.toggle-btn.active{background:#fff;color:#1a1a1a;font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+/* Knowledge graph - responsive */
+.mobile-kg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
+.mobile-kg-title{font-size:14px;font-weight:500;color:#1a1a1a}
+.mobile-kg-viewport{width:100%;height:480px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;overflow:auto;position:relative}
+.mobile-tree{padding:8px 0}
+.mobile-tree .tree-item{padding:10px 14px;font-size:14px}
+.mobile-tree .tree-children{padding-left:16px}
+.mobile-map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:10px;padding:12px}
+.mobile-map-node{aspect-ratio:1;border:1px solid #e5e7eb;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;padding:6px;min-width:0}
+.mobile-map-node:hover{border-color:#1a1a1a;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.mobile-map-node.completed{background:#f0fdf4;border-color:#bbf7d0}
+.mobile-map-node.current{background:#fffbeb;border-color:#fde68a}
+.mobile-map-node.locked{opacity:.5;cursor:not-allowed}
+.mobile-map-node .map-node-num{font-size:14px;font-weight:700;color:#1a1a1a}
+.mobile-map-node .map-node-name{font-size:11px;color:#6b7280;margin-top:4px;text-align:center;line-height:1.2;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all}
+/* Tree */
+.tree-node{padding:6px 0}
+.tree-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;cursor:pointer;transition:background .12s;font-size:13px}
+.tree-item:hover{background:#f5f5f5}
+.tree-item.active{background:#f5f5f5;font-weight:500}
+.tree-children{padding-left:20px}
+.tree-toggle{width:16px;text-align:center;color:#9ca3af;font-size:10px;cursor:pointer}
+/* Map mode */
+.map-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:20px}
+.map-node{aspect-ratio:1;border:1px solid #e5e7eb;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;position:relative;padding:8px}
+.map-node:hover{border-color:#1a1a1a;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.map-node.completed{background:#f0fdf4;border-color:#bbf7d0}
+.map-node.current{background:#fffbeb;border-color:#fde68a}
+.map-node.locked{opacity:.5;cursor:not-allowed}
+.map-node-num{font-size:16px;font-weight:700;color:#1a1a1a}
+.map-node-name{font-size:9px;color:#6b7280;margin-top:4px;text-align:center;line-height:1.2}
+/* List */
+.list-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #f0f0f0;border-radius:8px;margin-bottom:8px;cursor:pointer;transition:all .12s}
+.list-item:hover{border-color:#d1d5db;background:#fafafa}
+.list-item-icon{width:36px;height:36px;border-radius:8px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.list-item-body{flex:1}
+.list-item-title{font-size:13px;font-weight:500;color:#1a1a1a}
+.list-item-desc{font-size:11px;color:#9ca3af;margin-top:2px}
+.list-item-meta{font-size:11px;color:#6b7280}
+/* Research */
+.research-input{width:100%;min-height:100px;padding:14px;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;outline:none;transition:border-color .15s}
+.research-input:focus{border-color:#1a1a1a}
+.lit-item{display:flex;align-items:flex-start;gap:12px;padding:12px;border:1px solid #f0f0f0;border-radius:8px;margin-bottom:8px}
+.lit-item input[type=checkbox]{margin-top:3px}
+/* Analysis charts (simple bar) */
+.bar-chart{display:flex;flex-direction:column;gap:10px}
+bar-row{display:flex;align-items:center;gap:12px}
+.bar-label{width:80px;font-size:12px;color:#6b7280;text-align:right;flex-shrink:0}
+.bar-track{flex:1;height:24px;background:#f5f5f5;border-radius:4px;overflow:hidden;position:relative}
+.bar-fill{height:100%;background:#1a1a1a;border-radius:4px;transition:width .3s}
+.bar-value{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;color:#fff;font-weight:600}
+/* Security */
+.security-config-row{display:flex;gap:8px;margin-bottom:8px}
+.security-config-row input{flex:1}
+.keyword-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#f5f5f5;border-radius:6px;font-size:12px;margin:4px}
+.keyword-tag .remove{cursor:pointer;color:#9ca3af}
+.keyword-tag .remove:hover{color:#dc2626}
+/* Text correction */
+.correction-item{padding:12px 14px;border:1px solid #f0f0f0;border-radius:8px;margin-bottom:8px}
+.correction-original{color:#dc2626;text-decoration:line-through;font-size:13px}
+.correction-suggestion{color:#16a34a;font-size:13px;margin-top:4px}
+.correction-type{font-size:11px;color:#9ca3af;margin-top:4px}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:3px}
+::-webkit-scrollbar-track{background:transparent}
+@media(max-width:768px){
+  .sidebar{width:60px}
+  .nav-item span{display:none}
+  .nav-group-title{display:none}
+  .content-area{margin-left:60px;padding:16px}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .mobile-kg-viewport{height:380px}
+  .mobile-kg-header{flex-direction:column;align-items:flex-start}
+  .mobile-map-grid{grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+}
+@media(max-width:480px){
+  .content-area{padding:12px}
+  .stat-grid{grid-template-columns:1fr}
+  .mobile-kg-viewport{height:340px}
+  .mobile-map-grid{grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
+  .modal{max-width:95vw;border-radius:8px}
+  .modal-body{padding:14px}
+  .topbar{padding:0 12px}
+  .topbar-title{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div class="login-page" id="loginPage">
+  <div class="login-bg"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+    </div>
+    <div class="login-title">智慧教育平台</div>
+    <div class="login-subtitle">智能化教学管理与学习服务系统</div>
+    <div class="login-field">
+      <label class="login-label">账号</label>
+      <input class="login-input" id="loginUser" type="text" placeholder="请输入账号" autocomplete="off">
+    </div>
+    <div class="login-field">
+      <label class="login-label">密码</label>
+      <input class="login-input" id="loginPass" type="password" placeholder="请输入密码">
+    </div>
+    <div class="login-error" id="loginError">账号或密码不正确，请重新输入</div>
+    <button class="login-btn" onclick="doLogin()">登 录</button>
+    <div class="login-footer">© 2026 智慧教育平台 · 版权所有</div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div class="app" id="mainApp">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      </div>
+      <div class="topbar-title">智慧教育平台</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-user" onclick="doLogout()">
+        <div class="topbar-avatar">R</div>
+        <span>管理员</span>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar" id="sidebar">
+    <div class="nav-group-title">教学管理</div>
+    <div class="nav-item active" data-module="dashboard" onclick="switchModule('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span>工作台</span>
+    </div>
+    <div class="nav-item" data-module="mobile" onclick="switchModule('mobile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+      <span>移动学习</span>
+    </div>
+    <div class="nav-item" data-module="tasks" onclick="switchModule('tasks')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>学习任务</span>
+    </div>
+    <div class="nav-group-title">智能分析</div>
+    <div class="nav-item" data-module="research" onclick="switchModule('research')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>科研助手</span>
+    </div>
+    <div class="nav-item" data-module="analysis" onclick="switchModule('analysis')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>学情分析</span>
+    </div>
+    <div class="nav-group-title">系统管理</div>
+    <div class="nav-item" data-module="security" onclick="switchModule('security')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>安全检测</span>
+    </div>
+  </div>
+  <div class="content-area" id="contentArea"></div>
+</div>
+
+<!-- Modal container -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ STATE & STORAGE ============
+var STORAGE_KEY='edu_platform_session';
+var S={currentModule:'dashboard',currentSub:{}};
+
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2200)}
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+// ============ AUTH ============
+function doLogin(){
+  var u=document.getElementById('loginUser').value.trim();
+  var p=document.getElementById('loginPass').value;
+  if(u==='root'&&p==='root'){
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({user:u,loginTime:Date.now()}));
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('mainApp').classList.add('visible');
+    switchModule('dashboard');
+  }else{
+    document.getElementById('loginError').style.display='block';
+    document.getElementById('loginPass').value='';
+  }
+}
+function doLogout(){
+  if(confirm('确定退出登录？')){
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+}
+function checkSession(){
+  var session=localStorage.getItem(STORAGE_KEY);
+  if(session){
+    try{
+      var data=JSON.parse(session);
+      if(data.user==='root'){
+        document.getElementById('loginPage').style.display='none';
+        document.getElementById('mainApp').classList.add('visible');
+        switchModule('dashboard');
+        return true;
+      }
+    }catch(e){}
+  }
+  return false;
+}
+document.addEventListener('keypress',function(e){if(e.key==='Enter'&&document.getElementById('loginPage').style.display!=='none')doLogin()});
+
+// ============ MODULE SWITCHING ============
+function switchModule(name){
+  S.currentModule=name;
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.module===name)});
+  var area=document.getElementById('contentArea');
+  var renderers={dashboard:renderDashboard,mobile:renderMobile,tasks:renderTasks,research:renderResearch,analysis:renderAnalysis,security:renderSecurity};
+  area.innerHTML=(renderers[name]||renderDashboard)();
+  // Post-render hooks
+  if(name==='mobile')initMobile();
+  if(name==='tasks')initTasks();
+  if(name==='analysis')initAnalysis();
+}
+
+// ============ MODAL ============
+function openModal(title,body,footer){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalBody').innerHTML=body;
+  document.getElementById('modalFooter').innerHTML=footer||'<button class="btn" onclick="closeModal()">关闭</button>';
+  document.getElementById('modalOverlay').classList.add('visible');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('visible')}
+
+// ============ MOCK DATA ============
+var COURSES=[
+  {id:'c1',name:'人工智能导论',students:86,teacher:'张教授'},
+  {id:'c2',name:'数据结构与算法',students:72,teacher:'李副教授'},
+  {id:'c3',name:'机器学习基础',students:64,teacher:'王讲师'}
+];
+
+var KG_TREE={
+  name:'人工智能导论',children:[
+    {name:'第一章 AI概述',children:[
+      {name:'1.1 人工智能定义',microcourse:true},
+      {name:'1.2 发展历程',microcourse:true},
+      {name:'1.3 应用领域',microcourse:true}
+    ]},
+    {name:'第二章 机器学习',children:[
+      {name:'2.1 监督学习',microcourse:true},
+      {name:'2.2 无监督学习',microcourse:true},
+      {name:'2.3 强化学习',microcourse:true}
+    ]},
+    {name:'第三章 深度学习',children:[
+      {name:'3.1 神经网络基础',microcourse:true},
+      {name:'3.2 卷积神经网络',microcourse:true},
+      {name:'3.3 循环神经网络',microcourse:true}
+    ]},
+    {name:'第四章 自然语言处理',children:[
+      {name:'4.1 文本预处理',microcourse:true},
+      {name:'4.2 词向量',microcourse:true},
+      {name:'4.3 语言模型',microcourse:true}
+    ]}
+  ]
+};
+
+var STUDENTS=[
+  {id:'s1',name:'张明',score:92,videoRate:95,homeworkRate:100,examRate:90,participation:88,knowledge:90,level:'优秀'},
+  {id:'s2',name:'李华',score:85,videoRate:88,homeworkRate:92,examRate:85,participation:80,knowledge:82,level:'良好'},
+  {id:'s3',name:'王芳',score:78,videoRate:75,homeworkRate:80,examRate:78,participation:70,knowledge:75,level:'中等'},
+  {id:'s4',name:'刘强',score:62,videoRate:55,homeworkRate:60,examRate:65,participation:50,knowledge:58,level:'待提升'},
+  {id:'s5',name:'陈静',score:88,videoRate:90,homeworkRate:95,examRate:85,participation:85,knowledge:87,level:'良好'},
+  {id:'s6',name:'赵磊',score:55,videoRate:40,homeworkRate:50,examRate:58,participation:45,knowledge:52,level:'待提升'},
+  {id:'s7',name:'孙丽',score:95,videoRate:98,homeworkRate:100,examRate:95,participation:92,knowledge:96,level:'优秀'},
+  {id:'s8',name:'周伟',score:72,videoRate:68,homeworkRate:75,examRate:70,participation:65,knowledge:70,level:'中等'}
+];
+
+var RESEARCH_TEMPLATES=[
+  {id:'t1',name:'文献综述报告模板',desc:'系统梳理研究现状，归纳核心观点',
+   planData:{keyPoints:['研究领域综述','核心方法对比','发展趋势分析','研究空白识别'],keywords:['文献综述','研究现状','方法论','发展趋势'],steps:['文献检索与筛选','分类归纳','观点提炼','综合评述']}},
+  {id:'t2',name:'对比分析报告模板',desc:'多文献对比，突出创新差异',
+   planData:{keyPoints:['技术路线对比','性能指标评测','创新点识别','适用场景分析'],keywords:['对比分析','性能评估','创新点','适用性'],steps:['确定对比维度','数据收集','差异分析','结论总结']}},
+  {id:'t3',name:'研究计划报告模板',desc:'规划研究方向与实施路径',
+   planData:{keyPoints:['研究背景与意义','研究目标与内容','技术路线与方法','预期成果与创新'],keywords:['研究计划','技术路线','预期成果','创新点'],steps:['需求分析','方案设计','实验验证','结果评估']}}
+];
+
+var LITERATURE=[
+  {id:'l1',title:'基于深度学习的图像识别研究',author:'Smith J. et al.',year:2025,journal:'Nature Machine Intelligence',citations:128},
+  {id:'l2',title:'Transformer架构在NLP中的应用',author:'Wang L. et al.',year:2025,journal:'ACL 2025',citations:95},
+  {id:'l3',title:'强化学习在自动驾驶中的实践',author:'Chen H. et al.',year:2024,journal:'IEEE T-IV',citations:76},
+  {id:'l4',title:'联邦学习隐私保护机制研究',author:'Liu Y. et al.',year:2025,journal:'NeurIPS 2025',citations:112},
+  {id:'l5',title:'图神经网络的前沿进展',author:'Zhang K. et al.',year:2025,journal:'ICML 2025',citations:88}
+];
+
+var TASKS=[
+  {id:'task1',title:'第一章学习任务',type:'章节学习',progress:100,status:'completed',unlock:true,
+   groups:[
+     {name:'基础学习',status:'completed',points:[
+       {name:'视频：AI概述',type:'video',done:true,unlocked:true},
+       {name:'文档：发展历程',type:'doc',done:true,unlocked:true},
+       {name:'测验：基础概念',type:'quiz',done:true,unlocked:true}
+     ]},
+     {name:'拓展学习',status:'completed',points:[
+       {name:'视频：应用领域',type:'video',done:true,unlocked:true},
+       {name:'讨论：AI伦理',type:'discuss',done:true,unlocked:true}
+     ]}
+   ]},
+  {id:'task2',title:'第二章学习任务',type:'章节学习',progress:60,status:'in_progress',unlock:true,
+   groups:[
+     {name:'基础学习',status:'completed',points:[
+       {name:'视频：监督学习',type:'video',done:true,unlocked:true},
+       {name:'文档：分类与回归',type:'doc',done:true,unlocked:true},
+       {name:'测验：监督学习',type:'quiz',done:true,unlocked:true}
+     ]},
+     {name:'进阶学习',status:'in_progress',points:[
+       {name:'视频：无监督学习',type:'video',done:true,unlocked:true},
+       {name:'实验：K-Means聚类',type:'practice',done:false,unlocked:true},
+       {name:'测验：无监督学习',type:'quiz',done:false,unlocked:false}
+     ]},
+     {name:'挑战学习',status:'locked',points:[
+       {name:'视频：强化学习',type:'video',done:false,unlocked:false},
+       {name:'项目：Q-Learning',type:'practice',done:false,unlocked:false}
+     ]}
+   ]},
+  {id:'task3',title:'第三章学习任务',type:'章节学习',progress:0,status:'locked',unlock:false,
+   groups:[
+     {name:'基础学习',status:'locked',points:[
+       {name:'视频：神经网络基础',type:'video',done:false,unlocked:false},
+       {name:'文档：反向传播',type:'doc',done:false,unlocked:false}
+     ]}
+   ]}
+];
+
+var ANALYSIS_ASSIGNMENTS=[
+  {id:'a1',name:'第一次作业 · 基础概念',submitted:78,total:86,avgScore:76.5,passRate:89,maxScore:98,maxStudent:'张明',questions:[
+    {no:1,type:'单选题',rate:92,avgTime:'1.2分',difficulty:'易',analysis:'大部分学生掌握良好，主要考查人工智能基础概念定义。误选A选项的学生约占5%，混淆了图灵测试与AI概念提出者。'},
+    {no:2,type:'多选题',rate:68,avgTime:'2.8分',difficulty:'中',analysis:'部分学生漏选D选项（强AI需具备通用学习能力）。约20%的学生选择了过多选项，对强AI与弱AI的区别理解不够清晰。'},
+    {no:3,type:'判断题',rate:85,avgTime:'0.8分',difficulty:'易',analysis:'掌握情况良好。错误集中在对"符号主义"与"连接主义"代表人物的混淆。'},
+    {no:4,type:'简答题',rate:52,avgTime:'8.5分',difficulty:'难',analysis:'约48%的学生无法完整阐述AI三大流派的核心思想。常见失分点：①符号主义与连接主义的区别；②各流派代表人物及其贡献。建议重点讲解该知识点。'},
+    {no:5,type:'编程题',rate:61,avgTime:'15.2分',difficulty:'中',analysis:'常见错误：①边界条件处理不当（约30%）；②循环终止条件错误（约25%）；③变量初始化遗漏（约15%）。建议增加编程练习课时。'}
+  ]},
+  {id:'a2',name:'第二次作业 · 算法实现',submitted:72,total:86,avgScore:71.2,passRate:82,maxScore:96,maxStudent:'孙丽',questions:[
+    {no:1,type:'单选题',rate:88,avgTime:'1.5分',difficulty:'易',analysis:'算法复杂度基本概念掌握良好。'},
+    {no:2,type:'填空题',rate:72,avgTime:'3.2分',difficulty:'中',analysis:'时间复杂度计算存在问题，约28%的学生无法正确分析嵌套循环的复杂度。'},
+    {no:3,type:'简答题',rate:45,avgTime:'10.1分',difficulty:'难',analysis:'关于动态规划与贪心算法的区别，约55%的学生回答不完整。需加强算法设计方法的讲解。'},
+    {no:4,type:'编程题',rate:58,avgTime:'18.5分',difficulty:'中',analysis:'实现K-Means聚类算法，常见错误：①簇中心初始化不合理；②收敛条件判断错误。'}
+  ]},
+  {id:'a3',name:'期中考试',submitted:82,total:86,avgScore:74.8,passRate:86,maxScore:99,maxStudent:'孙丽',questions:[
+    {no:1,type:'单选题',rate:90,avgTime:'1.0分',difficulty:'易',analysis:'AI发展史相关基础知识掌握扎实。'},
+    {no:2,type:'多选题',rate:65,avgTime:'3.5分',difficulty:'中',analysis:'机器学习分类方法的适用场景，约35%的学生选择不完整。'},
+    {no:3,type:'判断题',rate:82,avgTime:'0.6分',difficulty:'易',analysis:'概念辨析题，整体表现良好。'},
+    {no:4,type:'简答题',rate:48,avgTime:'12.0分',difficulty:'难',analysis:'神经网络反向传播算法的推导，约52%的学生无法完整写出推导过程。'},
+    {no:5,type:'编程题',rate:55,avgTime:'22.3分',difficulty:'难',analysis:'手写实现简单神经网络，常见错误：①梯度计算错误；②参数更新顺序错误。'}
+  ]},
+  {id:'a4',name:'第三次作业 · 应用分析',submitted:65,total:86,avgScore:68.3,passRate:78,maxScore:94,maxStudent:'张明',questions:[
+    {no:1,type:'单选题',rate:85,avgTime:'1.3分',difficulty:'易',analysis:'深度学习应用场景辨析。'},
+    {no:2,type:'案例分析',rate:42,avgTime:'15.6分',difficulty:'难',analysis:'结合实际案例分析AI应用方案，约58%的学生分析不够深入，缺乏系统性思考。'},
+    {no:3,type:'编程题',rate:53,avgTime:'20.1分',difficulty:'中',analysis:'CNN图像分类实现，常见错误：①卷积层参数设置不当；②池化层选择错误。'}
+  ]}
+];
+var ANALYSIS_STATE={selectedAssignment:'a1',selectedStudentIdx:0,assignmentFilter:'all',riskFilter:'all'};
+var COMMON_QUESTIONS=[];
+var SECURITY_KEYWORDS=['违规词A','敏感词B','不当内容C','风险词D'];
+var SECURITY_IGNORE=['常见词','通用术语'];
+var SECURITY_BLACKLIST=['user_spam_001','user_violation_002'];
+var SECURITY_WHITELIST=['user_trusted_001','user_verified_002'];
+var SECURITY_REVIEWS=[
+  {id:'r1',type:'文本',content:'课程介绍中包含部分待审核表述...',status:'pending',risk:'中',source:'人工智能导论',author:'张教授',time:'2026-07-30 14:23'},
+  {id:'r2',type:'图片',content:'教学课件第3页配图',status:'pending',risk:'低',source:'数据结构与算法',author:'李副教授',time:'2026-07-30 13:15'},
+  {id:'r3',type:'文档',content:'实验指导书.pdf',status:'passed',risk:'无',source:'机器学习基础',author:'王讲师',time:'2026-07-29 16:40'},
+  {id:'r4',type:'课程',content:'人工智能导论 - 第三章',status:'pending',risk:'高',source:'人工智能导论',author:'张教授',time:'2026-07-30 10:08'},
+  {id:'r5',type:'文本',content:'作业描述中的部分文字...',status:'passed',risk:'无',source:'数据结构与算法',author:'李副教授',time:'2026-07-29 09:22'}
+];
+
+// ============ DASHBOARD ============
+function renderDashboard(){
+  return '<div class="page-title">工作台</div>'+
+    '<div class="page-desc">欢迎使用智慧教育平台，以下是平台核心数据概览</div>'+
+    '<div class="stat-grid">'+
+      statCard('开设课程','12','本学期共开设12门课程')+
+      statCard('注册学生','2,486','较上学期增长8.5%')+
+      statCard('教学资源','3,720','视频、文档、习题等')+
+      statCard('活跃教师','48','全职及兼职教师')+
+    '</div>'+
+    '<div class="card">'+
+      cardHeader('课程列表','')+
+      '<table><thead><tr><th>课程名称</th><th>授课教师</th><th>学生人数</th><th>完成率</th><th>状态</th></tr></thead><tbody>'+
+      COURSES.map(function(c){
+        var rate=Math.round(60+Math.random()*35);
+        return '<tr><td>'+c.name+'</td><td>'+c.teacher+'</td><td>'+c.students+'</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress-bar" style="width:100px"><div class="progress-fill" style="width:'+rate+'%"></div></div><span style="font-size:12px;color:#6b7280">'+rate+'%</span></div></td><td><span class="tag tag-success">进行中</span></td></tr>';
+      }).join('')+
+      '</tbody></table>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'+
+      '<div class="card">'+
+        cardHeader('快捷入口','')+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+          '<div class="list-item" onclick="switchModule(\'mobile\')"><div class="list-item-icon">📱</div><div class="list-item-body"><div class="list-item-title">移动学习</div><div class="list-item-desc">知识图谱与微课</div></div></div>'+
+          '<div class="list-item" onclick="switchModule(\'research\')"><div class="list-item-icon">🔍</div><div class="list-item-body"><div class="list-item-title">科研助手</div><div class="list-item-desc">AI研究报告生成</div></div></div>'+
+          '<div class="list-item" onclick="switchModule(\'analysis\')"><div class="list-item-icon">📊</div><div class="list-item-body"><div class="list-item-title">学情分析</div><div class="list-item-desc">学生学习数据</div></div></div>'+
+          '<div class="list-item" onclick="switchModule(\'security\')"><div class="list-item-icon">🛡</div><div class="list-item-body"><div class="list-item-title">安全检测</div><div class="list-item-desc">资源审核管理</div></div></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="card">'+
+        cardHeader('近期动态','')+
+        '<div style="display:flex;flex-direction:column;gap:12px">'+
+          '<div style="font-size:13px;padding:8px 0;border-bottom:1px solid #f5f5f5"><span style="color:#6b7280">[今日]</span> 张教授提交了新的教学课件</div>'+
+          '<div style="font-size:13px;padding:8px 0;border-bottom:1px solid #f5f5f5"><span style="color:#6b7280">[今日]</span> 6名学生完成机器学习基础测验</div>'+
+          '<div style="font-size:13px;padding:8px 0;border-bottom:1px solid #f5f5f5"><span style="color:#6b7280">[昨日]</span> 安全系统检测到2条待审核内容</div>'+
+          '<div style="font-size:13px;padding:8px 0;border-bottom:1px solid #f5f5f5"><span style="color:#6b7280">[昨日]</span> 新增注册学生12人</div>'+
+          '<div style="font-size:13px;padding:8px 0"><span style="color:#6b7280">[前日]</span> AI科研助手生成3份研究报告</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+}
+function statCard(label,value,change){return '<div class="stat-card"><div class="stat-label">'+label+'</div><div class="stat-value">'+value+'</div><div class="stat-change">'+change+'</div></div>'}
+function cardHeader(title,actions){return '<div class="card-header"><div class="card-title">'+title+'</div><div style="display:flex;gap:8px">'+(actions||'')+'</div></div>'}
+
+// ============ MODULE 1: MOBILE LEARNING ============
+function renderMobile(){
+  return '<div class="page-title">移动学习</div>'+
+    '<div class="page-desc">支持微信公众号、移动App访问知识图谱，提供图谱模式、大纲模式和学习地图模式，适应不同学习偏好和场景</div>'+
+    '<div class="card">'+
+      '<div class="mobile-kg-header">'+
+        '<div class="mobile-kg-title">人工智能导论 · 知识图谱</div>'+
+        '<div class="toggle-group" id="mobileModeToggle">'+
+          '<button class="toggle-btn active" onclick="setMobileMode(this,\'graph\')">图谱模式</button>'+
+          '<button class="toggle-btn" onclick="setMobileMode(this,\'outline\')">大纲模式</button>'+
+          '<button class="toggle-btn" onclick="setMobileMode(this,\'map\')">学习地图</button>'+
+        '</div>'+
+      '</div>'+
+      '<div id="mobileModeDesc" style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:12px">'+getMobileModeDesc('graph')+'</div>'+
+      '<div class="mobile-kg-viewport" id="mobileKgContent">'+renderMobileGraph()+'</div>'+
+    '</div>'+
+    '<div class="card" style="margin-top:16px">'+
+      cardHeader('功能说明','')+
+      '<div style="font-size:13px;color:#4b5563;line-height:1.8">'+
+        '<div style="padding:4px 0">• 支持移动端随时随地访问知识图谱，实现个性化学习</div>'+
+        '<div style="padding:4px 0">• 三种模式自由切换，适应不同学习偏好和场景</div>'+
+        '<div style="padding:4px 0">• 点击知识点可跳转至微课进行深入学习</div>'+
+        '<div style="padding:4px 0">• 微课提供分析、学习内容、自测、资料、错题集、讨论六大模块</div>'+
+      '</div>'+
+    '</div>';
+}
+var mobileMode='graph';
+function setMobileMode(btn,mode){
+  btn.parentElement.querySelectorAll('.toggle-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  mobileMode=mode;
+  document.getElementById('mobileModeDesc').textContent=getMobileModeDesc(mode);
+  var content=document.getElementById('mobileKgContent');
+  if(content){
+    if(mode==='graph')content.innerHTML=renderMobileGraph();
+    else if(mode==='outline')content.innerHTML=renderMobileOutline();
+    else content.innerHTML=renderMobileMap();
+  }
+}
+function getMobileModeDesc(mode){
+  var descs={
+    graph:'图谱模式：以可视化图谱形式展示知识点之间的关联关系，直观呈现知识结构全貌。',
+    outline:'大纲模式：以树形大纲形式按章节组织知识点，层次清晰，便于系统化学习。',
+    map:'学习地图模式：以地图节点形式展示学习路径，标注完成进度与解锁状态，游戏化学习体验。'
+  };
+  return descs[mode]||'';
+}
+function renderMobileGraph(){
+  var nodes=[];
+  var positions=[
+    {x:50,y:20,n:'AI导论',c:true},
+    {x:20,y:65,n:'机器学习',cx:true},{x:50,y:65,n:'深度学习',cx:true},{x:80,y:65,n:'NLP',cx:true},
+    {x:10,y:115,n:'监督学习'},{x:32,y:115,n:'无监督'},{x:50,y:115,n:'CNN'},{x:68,y:115,n:'RNN'},{x:88,y:115,n:'翻译'},
+    {x:15,y:160,n:'分类'},{x:28,y:160,n:'回归'},{x:55,y:160,n:'图像'},{x:70,y:160,n:'序列'}
+  ];
+  var lines='M50,20 L20,65 M50,20 L50,65 M50,20 L80,65 M20,65 L10,115 M20,65 L32,115 M50,65 L50,115 M50,65 L68,115 M80,65 L88,115 M10,115 L15,160 M32,115 L28,160 M50,115 L55,160 M68,115 L70,160';
+  return '<div style="font-size:12px;color:#9ca3af;text-align:center;padding:8px">点击节点进入微课学习</div>'+
+    '<svg viewBox="0 0 100 200" style="width:100%;max-width:500px;height:auto;display:block;margin:0 auto">'+
+    '<path d="'+lines+'" stroke="#e5e7eb" stroke-width="0.5" fill="none"/>'+
+    positions.map(function(p){
+      var r=(p.c||p.cx)?4:3.5;
+      var fill=(p.c?'#1a1a1a':p.cx?'#6366f1':'#9ca3af');
+      return '<circle cx="'+p.x+'" cy="'+p.y+'" r="'+r+'" fill="'+fill+'" stroke="#fff" stroke-width="0.5" onclick="openMicroCourse(\''+escapeHtml(p.n)+'\')" style="cursor:pointer"/>'+
+        '<text x="'+p.x+'" y="'+(p.y-5)+'" text-anchor="middle" font-size="3.5" fill="#1a1a1a">'+escapeHtml(p.n)+'</text>';
+    }).join('')+
+    '</svg>'+
+    '<div style="font-size:11px;color:#9ca3af;text-align:center;padding:12px;border-top:1px solid #f0f0f0;margin-top:8px">● 核心节点 · 点击跳转微课</div>';
+}
+function renderMobileOutline(){
+  function renderNode(node,level){
+    var html='<div class="tree-item" style="padding-left:'+(level*16+12)+'px" onclick="'+(node.microcourse?'openMicroCourse(\''+escapeHtml(node.name)+'\')':'')+'">'+
+      '<span class="tree-toggle">'+(node.children?'▾':'●')+'</span>'+
+      '<span>'+escapeHtml(node.name)+'</span>'+
+      (node.microcourse?'<span class="tag tag-info" style="margin-left:auto;font-size:11px">微课</span>':'')+
+    '</div>';
+    if(node.children)html+='<div class="tree-children">'+node.children.map(function(c){return renderNode(c,level+1)}).join('')+'</div>';
+    return html;
+  }
+  return '<div class="mobile-tree">'+renderNode(KG_TREE,0)+'</div>';
+}
+function renderMobileMap(){
+  var nodes=['AI概述','发展历程','应用领域','ML基础','监督学习','无监督','强化学习','DL基础','CNN','RNN','NLP基础','词向量','语言模型','实践项目','综合考核'];
+  var status=['completed','completed','completed','completed','completed','completed','current','locked','locked','locked','locked','locked','locked','locked','locked'];
+  return '<div class="mobile-map-grid">'+
+    nodes.map(function(n,i){
+      var cls=status[i];
+      var num=i+1;
+      return '<div class="mobile-map-node '+cls+'" onclick="'+(cls!=='locked'?'openMicroCourse(\''+escapeHtml(n)+'\')':'')+'">'+
+        '<div class="map-node-num">'+(cls==='completed'?'✓':num)+'</div>'+
+        '<div class="map-node-name">'+escapeHtml(n)+'</div>'+
+      '</div>';
+    }).join('')+
+  '</div>'+
+  '<div style="font-size:12px;color:#9ca3af;text-align:center;padding:12px;border-top:1px solid #f0f0f0;margin-top:8px">已完成6/15 · 当前进度40%</div>';
+}
+function initMobile(){}
+function openMicroCourse(name){
+  openModal('微课 · '+name,
+    '<div class="micro-tabs" id="microTabs">'+
+      '<div class="micro-tab active" onclick="setMicroTab(this,\'analysis\')">分析</div>'+
+      '<div class="micro-tab" onclick="setMicroTab(this,\'content\')">学习内容</div>'+
+      '<div class="micro-tab" onclick="setMicroTab(this,\'quiz\')">自测</div>'+
+      '<div class="micro-tab" onclick="setMicroTab(this,\'material\')">资料</div>'+
+      '<div class="micro-tab" onclick="setMicroTab(this,\'errors\')">错题集</div>'+
+      '<div class="micro-tab" onclick="setMicroTab(this,\'discuss\')">讨论</div>'+
+    '</div>'+
+    '<div id="microContent">'+renderMicroContent('analysis')+'</div>',
+    '<button class="btn" onclick="closeModal()">关闭</button><button class="btn btn-primary" onclick="showToast(\'学习进度已记录\')">标记完成</button>'
+  );
+}
+function setMicroTab(btn,tab){
+  document.querySelectorAll('#microTabs .micro-tab').forEach(function(t){t.classList.remove('active')});
+  btn.classList.add('active');
+  document.getElementById('microContent').innerHTML=renderMicroContent(tab);
+}
+function renderMicroContent(tab){
+  var contents={
+    analysis:'<div style="font-size:13px;line-height:1.8;color:#4b5563">'+
+      '<p style="margin-bottom:12px"><strong>知识点分析：人工智能的定义与范畴</strong></p>'+
+      '<p><strong>核心定义：</strong>人工智能（Artificial Intelligence）是研究如何使机器模拟人类思维的学科，包括学习、推理、感知、自然语言处理等能力。</p>'+
+      '<p style="margin-top:10px"><strong>知识定位：</strong>本知识点为第一章开篇核心概念，是后续学习机器学习、深度学习的基础。建议学习时长15-20分钟。</p>'+
+      '<p style="margin-top:10px"><strong>前置知识：</strong>计算机科学基础、数学（线性代数、概率统计）</p>'+
+      '<p><strong>后续关联：</strong>机器学习（第二章）、神经网络（第三章）</p>'+
+      '<p style="margin-top:12px"><strong>学习目标（3项）：</strong></p>'+
+      '<p>1. 能准确区分"弱人工智能"与"强人工智能"</p>'+
+      '<p>2. 理解图灵测试的历史意义与当代局限性</p>'+
+      '<p>3. 能列举AI在5个以上领域的典型应用</p>'+
+      '<p style="margin-top:12px;padding:10px;background:#f9fafb;border-radius:6px"><strong>重点提示：</strong>考试中常考AI的三大流派（符号主义、连接主义、行为主义）的代表人物与核心思想。</p>'+
+    '</div>',
+    content:'<div style="font-size:13px;line-height:1.8;color:#4b5563">'+
+      '<div style="background:#1a1a1a;border-radius:8px;padding:24px;text-align:center;margin-bottom:14px;color:#fff;cursor:pointer" onclick="simulateVideoPlay()">'+
+        '<div style="font-size:28px;margin-bottom:6px">▶</div>视频讲解：人工智能概述 · 18分45秒'+
+        '<div style="font-size:11px;opacity:.6;margin-top:4px">主讲人：张教授 · 配有字幕</div>'+
+      '</div>'+
+      '<p style="margin-bottom:8px"><strong>一、什么是人工智能</strong></p>'+
+      '<p>1956年达特茅斯会议首次提出"人工智能"术语，目标是让机器具备智能行为。</p>'+
+      '<p style="margin:10px 0 8px"><strong>二、AI的三大技术流派</strong></p>'+
+      '<p>• <strong>符号主义</strong>（Symbolism）：模拟逻辑推理，代表人物：纽厄尔、西蒙</p>'+
+      '<p>• <strong>连接主义</strong>（Connectionism）：模拟神经网络，代表人物：明斯基、罗森布拉特</p>'+
+      '<p>• <strong>行为主义</strong>（Behaviorism）：模拟感知行动，代表人物：布鲁克斯</p>'+
+      '<p style="margin:10px 0 8px"><strong>三、图灵测试</strong></p>'+
+      '<p>1950年Alan Turing提出：若一台机器的对话表现与人类无法区分，则认为该机器具有智能。现代图灵测试已演化为多模态评测框架。</p>'+
+      '<p style="margin:10px 0 8px"><strong>四、AI应用领域</strong></p>'+
+      '<p>自然语言处理、计算机视觉、语音识别、推荐系统、自动驾驶、医疗诊断、智能教育等。</p>'+
+    '</div>',
+    quiz:'<div style="font-size:13px">'+
+      '<div style="margin-bottom:16px;color:#6b7280;padding:8px;background:#f5f5f5;border-radius:6px">知识点自测 · 共4题 · 检测掌握程度</div>'+
+      '<div style="margin-bottom:14px;padding:12px;background:#f9fafb;border-radius:8px" id="quiz_q1">'+
+        '<div style="font-weight:500;margin-bottom:8px">1. 人工智能概念最早由哪位科学家在达特茅斯会议上提出？</div>'+
+        '<div style="display:flex;flex-direction:column;gap:6px">'+
+          '<label style="cursor:pointer;padding:4px 8px;border-radius:4px" onmouseover="this.style.background=\'#f0f0f0\'" onmouseout="this.style.background=\'\'"><input type="radio" name="quiz1" value="A"> A. Alan Turing（图灵）</label>'+
+          '<label style="cursor:pointer;padding:4px 8px;border-radius:4px" onmouseover="this.style.background=\'#f0f0f0\'" onmouseout="this.style.background=\'\'"><input type="radio" name="quiz1" value="B"> B. John McCarthy（麦卡锡）</label>'+
+          '<label style="cursor:pointer;padding:4px 8px;border-radius:4px" onmouseover="this.style.background=\'#f0f0f0\'" onmouseout="this.style.background=\'\'"><input type="radio" name="quiz1" value="C"> C. Marvin Minsky（明斯基）</label>'+
+          '<label style="cursor:pointer;padding:4px 8px;border-radius:4px" onmouseover="this.style.background=\'#f0f0f0\'" onmouseout="this.style.background=\'\'"><input type="radio" name="quiz1" value="D"> D. Herbert Simon（西蒙）</label>'+
+        '</div>'+
+      '</div>'+
+      '<div style="margin-bottom:14px;padding:12px;background:#f9fafb;border-radius:8px">'+
+        '<div style="font-weight:500;margin-bottom:8px">2. 以下哪项属于"强人工智能"的特征？（多选）</div>'+
+        '<div style="display:flex;flex-direction:column;gap:6px">'+
+          '<label style="cursor:pointer"><input type="checkbox" name="quiz2" value="A"> A. 能够通过图灵测试</label>'+
+          '<label style="cursor:pointer"><input type="checkbox" name="quiz2" value="B"> B. 具有自我意识和情感</label>'+
+          '<label style="cursor:pointer"><input type="checkbox" name="quiz2" value="C"> C. 能学习任意知识</label>'+
+          '<label style="cursor:pointer"><input type="checkbox" name="quiz2" value="D"> D. 在特定领域超越人类专家</label>'+
+        '</div>'+
+      '</div>'+
+      '<div style="margin-bottom:14px;padding:12px;background:#f9fafb;border-radius:8px">'+
+        '<div style="font-weight:500;margin-bottom:8px">3. 图灵测试的核心目的是什么？</div>'+
+        '<div style="display:flex;flex-direction:column;gap:6px">'+
+          '<label style="cursor:pointer"><input type="radio" name="quiz3"> A. 测试计算机的运算速度</label>'+
+          '<label style="cursor:pointer"><input type="radio" name="quiz3"> B. 判断机器是否表现出与人类不可区分的智能</label>'+
+          '<label style="cursor:pointer"><input type="radio" name="quiz3"> C. 评估算法的时间复杂度</label>'+
+          '<label style="cursor:pointer"><input type="radio" name="quiz3"> D. 验证网络传输的可靠性</label>'+
+        '</div>'+
+      '</div>'+
+      '<div style="margin-bottom:14px;padding:12px;background:#f9fafb;border-radius:8px">'+
+        '<div style="font-weight:500;margin-bottom:8px">4. 符号主义AI的核心思想是什么？</div>'+
+        '<div style="display:flex;flex-direction:column;gap:6px">'+
+          '<label style="cursor:pointer"><input type="radio" name="quiz4"> A. 通过大量数据训练神经网络</label>'+
+          '<label style="cursor:pointer"><input type="radio" name="quiz4"> B. 模拟人类大脑的神经元连接</label>'+
+          '<label style="cursor:pointer"><input type="radio" name="quiz4"> C. 用符号和规则进行逻辑推理</label>'+
+          '<label style="cursor:pointer"><input type="radio" name="quiz4"> D. 通过强化学习与环境交互</label>'+
+        '</div>'+
+      '</div>'+
+      '<button class="btn btn-primary" style="width:100%" onclick="submitQuizAnswers()">提交答案</button>'+
+    '</div>',
+    material:'<div style="font-size:13px">'+
+      '<div style="list-item" style="margin-bottom:8px"><div class="list-item-icon">📄</div><div class="list-item-body"><div class="list-item-title">第一章课件：人工智能概述.pdf</div><div class="list-item-desc">2.8MB · 32页 · 含知识结构图</div></div><button class="btn btn-sm" onclick="downloadMaterial(this,\'第一章课件.pdf\')">下载</button></div>'+
+      '<div class="list-item" style="margin-bottom:8px"><div class="list-item-icon">📊</div><div class="list-item-body"><div class="list-item-title">AI发展历程时间线.png</div><div class="list-item-desc">思维导图 · 高清PNG · 1.2MB</div></div><button class="btn btn-sm" onclick="downloadMaterial(this,\'AI发展历程.png\')">下载</button></div>'+
+      '<div class="list-item" style="margin-bottom:8px"><div class="list-item-icon">📝</div><div class="list-item-body"><div class="list-item-title">课后阅读：《人工智能：现代方法》节选</div><div class="list-item-desc">PDF · 第1-3章 · 15.6MB</div></div><button class="btn btn-sm" onclick="downloadMaterial(this,\'AI现代方法.pdf\')">下载</button></div>'+
+      '<div class="list-item" style="margin-bottom:8px"><div class="list-item-icon">🔗</div><div class="list-item-body"><div class="list-item-title">参考资源：Stanford AI Lab</div><div class="list-item-desc">外部链接 · 斯坦福AI实验室官网</div></div><button class="btn btn-sm" onclick="showToast(\'正在打开外部链接...\')">访问</button></div>'+
+      '<div class="list-item"><div class="list-item-icon">🎬</div><div class="list-item-body"><div class="list-item-title">扩展视频：TED Talk - What is AI?</div><div class="list-item-desc">YouTube · 15分钟 · 英文字幕</div></div><button class="btn btn-sm" onclick="showToast(\'正在加载视频...\')">观看</button></div>'+
+    '</div>',
+    errors:'<div style="font-size:13px">'+
+      '<div style="margin-bottom:14px;padding:10px;background:#fef3c7;border-radius:6px;font-size:12px;color:#92400e"><strong>错题集</strong>：本知识点共记录5道错题，建议复习巩固</div>'+
+      '<div class="correction-item"><div style="font-weight:500;margin-bottom:6px">Q1. 人工智能概念最早由谁提出？</div><div style="color:#dc2626;font-size:12px">你的答案：A. Turing</div><div style="color:#16a34a;margin-top:2px;font-size:12px">正确答案：B. McCarthy</div><div class="correction-type">知识点：AI发展史 · 1956年John McCarthy在达特茅斯会议上首次使用"人工智能"一词。Turing提出的是图灵测试。</div><div style="margin-top:6px"><button class="btn btn-sm" onclick="showToast(\'已加入重做\')">重做此题</button></div></div>'+
+      '<div class="correction-item"><div style="font-weight:500;margin-bottom:6px">Q2. 符号主义AI的核心思想？</div><div style="color:#dc2626;font-size:12px">你的答案：A. 训练神经网络</div><div style="color:#16a34a;margin-top:2px;font-size:12px">正确答案：C. 符号逻辑推理</div><div class="correction-type">知识点：AI三大流派 · 符号主义（Symbolism）代表：纽厄尔/西蒙的"逻辑理论家"程序，用符号和规则进行推理。</div><div style="margin-top:6px"><button class="btn btn-sm" onclick="showToast(\'已加入重做\')">重做此题</button></div></div>'+
+      '<div class="correction-item"><div style="font-weight:500;margin-bottom:6px">Q3. 以下哪些是AI的应用领域？</div><div style="color:#dc2626;font-size:12px">你的答案：仅选了A、B</div><div style="color:#16a34a;margin-top:2px;font-size:12px">正确答案：A、B、C、D全选</div><div class="correction-type">知识点：AI应用 · 自然语言处理、计算机视觉、推荐系统、自动驾驶均为AI典型应用。</div><div style="margin-top:6px"><button class="btn btn-sm" onclick="showToast(\'已加入重做\')">重做此题</button></div></div>'+
+      '<div class="correction-item"><div style="font-weight:500;margin-bottom:6px">Q4. 图灵测试通过的标准是什么？</div><div style="color:#dc2626;font-size:12px">你的答案：机器运算速度超过人类</div><div style="color:#16a34a;margin-top:2px;font-size:12px">正确答案：对话中无法区分机器与人类</div><div class="correction-type">知识点：图灵测试 · 核心是"不可区分性"，而非智能的具体实现方式。</div><div style="margin-top:6px"><button class="btn btn-sm" onclick="showToast(\'已加入重做\')">重做此题</button></div></div>'+
+      '<div class="correction-item"><div style="font-weight:500;margin-bottom:6px">Q5. 弱人工智能与强人工智能的区别？</div><div style="color:#dc2626;font-size:12px">你的答案：前者速度慢后者速度快</div><div style="color:#16a34a;margin-top:2px;font-size:12px">正确答案：专用领域智能 vs 通用智能</div><div class="correction-type">知识点：AI分类 · 弱AI（Weak AI）如语音助手，仅在特定领域有用；强AI（Strong AI）具有通用智能，目前尚未实现。</div><div style="margin-top:6px"><button class="btn btn-sm" onclick="showToast(\'已加入重做\')">重做此题</button></div></div>'+
+      '<button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="showToast(\'已生成针对性练习\')">开始巩固练习（系统将根据错题生成新题）</button>'+
+    '</div>',
+    discuss:'<div style="font-size:13px">'+
+      '<div style="margin-bottom:14px;padding:10px;background:#f5f5f5;border-radius:6px;font-size:12px"><strong>讨论话题：</strong>人工智能会取代人类吗？结合AI发展历史谈谈你的看法。</div>'+
+      '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">'+
+        '<div style="padding:12px;background:#f9fafb;border-radius:8px;border-left:3px solid #1a1a1a"><div style="font-size:12px;margin-bottom:4px"><strong>张明</strong> · 2小时前</div><div style="font-size:12px;color:#4b5563;line-height:1.6">我认为短期不会。AI目前在特定任务（如围棋、图像识别）上超越人类，但在创造力、情感、道德判断等维度还远不如人类。历史上每次技术革命都带来了新的就业形态而非简单替代。</div><div style="font-size:11px;color:#9ca3af;margin-top:4px">👍 12 · 💬 3</div></div>'+
+        '<div style="padding:12px;background:#f9fafb;border-radius:8px;border-left:3px solid #1a1a1a"><div style="font-size:12px;margin-bottom:4px"><strong>李华</strong> · 1小时前</div><div style="font-size:12px;color:#4b5563;line-height:1.6">补充一点：需要关注AI伦理问题。即使技术上能实现"强AI"，社会、法律、伦理层面的约束会是重要障碍。图灵测试的提出本身就伴随着对AI本质的哲学思考。</div><div style="font-size:11px;color:#9ca3af;margin-top:4px">👍 8 · 💬 1</div></div>'+
+        '<div style="padding:12px;background:#f9fafb;border-radius:8px;border-left:3px solid #1a1a1a"><div style="font-size:12px;margin-bottom:4px"><strong>王芳</strong> · 30分钟前</div><div style="font-size:12px;color:#4b5563;line-height:1.6">建议大家看看《人类简史》和《未来简史》，赫拉利对AI时代的思考很有启发性。同时推荐吴恩达的ML课程，理解技术本质才能更好地判断未来走向。</div><div style="font-size:11px;color:#9ca3af;margin-top:4px">👍 15 · 💬 5</div></div>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px;margin-bottom:8px">'+
+        '<textarea class="form-textarea" id="discussInput" placeholder="发表你的观点..." style="min-height:50px"></textarea>'+
+      '</div>'+
+      '<button class="btn btn-primary" onclick="submitDiscuss()">发表讨论</button>'+
+    '</div>'
+  };
+  return contents[tab]||'';
+}
+
+function simulateVideoPlay(){
+  openModal('视频播放',
+    '<div style="background:#000;border-radius:8px;padding:40px;text-align:center;color:#fff"><div style="font-size:32px;margin-bottom:10px">▶</div><div style="font-size:14px">人工智能概述 · 18:45</div><div style="margin-top:12px;display:flex;justify-content:center;gap:6px">'+
+      Array(20).fill(0).map(function(_,i){return '<div style="width:4px;height:'+(8+Math.sin(i)*6)+'px;background:#fff;border-radius:2px"></div>'}).join('')+
+    '</div></div>',
+    '<button class="btn" onclick="closeModal()">关闭</button>'
+  );
+}
+
+function submitQuizAnswers(){
+  var correctCount=0;
+  var q1=document.querySelector('input[name="quiz1"]:checked');
+  var q2=document.querySelectorAll('input[name="quiz2"]:checked');
+  var q3=document.querySelector('input[name="quiz3"]:checked');
+  var q4=document.querySelector('input[name="quiz4"]:checked');
+  var details=[];
+  // Q1: B
+  if(q1&&q1.value==='B'){correctCount++;details.push('Q1 ✓ 正确：McCarthy于1956年提出AI概念')}
+  else{details.push('Q1 ✗ 正确答案：B. McCarthy。图灵提出的是图灵测试（A）')}
+  // Q2: B+C (多选)
+  var q2vals=Array.from(q2||[]).map(function(x){return x.value}).sort().join(',');
+  if(q2vals==='B,C'){correctCount++;details.push('Q2 ✓ 正确：强AI需具备自我意识和通用学习能力')}
+  else{details.push('Q2 ✗ 正确答案：B、C（强AI需自我意识+通用学习）')}
+  // Q3: B
+  if(q3&&q3.value==='B'){correctCount++;details.push('Q3 ✓ 正确：判断机器表现与人类不可区分')}
+  else{details.push('Q3 ✗ 正确答案：B。图灵测试核心是"不可区分性"')}
+  // Q4: C
+  if(q4&&q4.value==='C'){correctCount++;details.push('Q4 ✓ 正确：符号主义用符号和规则进行逻辑推理')}
+  else{details.push('Q4 ✗ 正确答案：C。符号主义代表是纽厄尔/西蒙的"逻辑理论家"')}
+  var score=Math.round(correctCount*25);
+  openModal('答题结果',
+    '<div style="text-align:center;margin-bottom:16px"><div style="font-size:36px;margin-bottom:6px">'+(score>=75?'🎉':score>=50?'💪':'📚')+'</div><div style="font-size:20px;font-weight:600">得分 '+score+' / 100</div><div style="font-size:13px;color:#6b7280;margin-top:4px">答对 '+correctCount+' / 4 题</div></div>'+
+    '<div style="font-size:13px"><strong>答题详情：</strong>'+
+      details.map(function(d){return '<div style="padding:8px;background:#f9fafb;border-radius:4px;margin-top:4px">'+d+'</div>'}).join('')+
+    '</div>',
+    '<button class="btn" onclick="closeModal()">关闭</button><button class="btn btn-primary" onclick="closeModal();showToast(\'已标记为完成\')">标记完成</button>'
+  );
+}
+
+function downloadMaterial(btn,filename){
+  btn.innerHTML='下载中...';
+  btn.disabled=true;
+  var content='═══════════════════════════════════\n';
+  content+='  智慧教育平台 · 学习资料\n';
+  content+='═══════════════════════════════════\n\n';
+  content+='文件名称：'+filename+'\n';
+  content+='生成时间：'+new Date().toLocaleString()+'\n';
+  content+='课程：人工智能导论\n';
+  content+='═══════════════════════════════════\n\n';
+  content+='本文档为课程配套学习资料，包含以下内容：\n';
+  content+='1. 核心知识点梳理\n';
+  content+='2. 学习目标与重难点标注\n';
+  content+='3. 课后练习与参考答案\n';
+  content+='4. 拓展阅读推荐\n\n';
+  content+='--- 仅供学习参考，请勿外传 ---\n';
+  var blob=new Blob([content],{type:'application/octet-stream'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url)},1000);
+  btn.innerHTML='✓ 已下载';
+  btn.style.background='#f0fdf4';
+  btn.style.color='#16a34a';
+  btn.disabled=false;
+  showToast(filename+' 下载完成');
+  setTimeout(function(){btn.innerHTML='下载';btn.style='';btn.style.background='';btn.style.color=''},3000);
+}
+
+function submitDiscuss(){
+  var input=document.getElementById('discussInput');
+  if(!input||!input.value.trim()){showToast('请输入讨论内容');return}
+  showToast('讨论已发表');
+  input.value='';
+  var container=input.closest('.list-item, [style*="flex-direction"]');
+  var div=document.createElement('div');
+  div.style.cssText='padding:12px;background:#f5f3ff;border-radius:8px;border-left:3px solid #7c3aed;margin-bottom:10px';
+  div.innerHTML='<div style="font-size:12px;margin-bottom:4px"><strong>我</strong> · 刚刚</div><div style="font-size:12px;color:#4b5563">'+escapeHtml(input.value)+'</div>';
+  input.closest('.modal-body').querySelector('.modal-body').insertBefore(div,input.closest('div'));
+}
+
+// ============ MODULE 4: LEARNING TASKS ============
+function renderTasks(){
+  return '<div class="page-title">学习任务</div>'+
+    '<div class="page-desc">查看学习任务列表，进入任务查看基本信息、达标情况和解锁情况</div>'+
+    '<div class="card">'+
+      cardHeader('学习路径',
+        '<div class="toggle-group"><button class="toggle-btn active" onclick="setTaskMode(this,\'list\')">列表模式</button><button class="toggle-btn" onclick="setTaskMode(this,\'map\')">地图模式</button></div>'
+      )+
+      '<div id="taskListArea">'+renderTaskList()+'</div>'+
+    '</div>'+
+    '<div id="taskDetailArea"></div>';
+}
+var taskMode='list';
+function setTaskMode(btn,mode){
+  btn.parentElement.querySelectorAll('.toggle-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  taskMode=mode;
+  document.getElementById('taskListArea').innerHTML=mode==='list'?renderTaskList():renderTaskMap();
+}
+function renderTaskList(){
+  return TASKS.map(function(t){
+    var statusTag=t.status==='completed'?'<span class="tag tag-success">已完成</span>':t.status==='in_progress'?'<span class="tag tag-warning">进行中</span>':'<span class="tag tag-default">未解锁</span>';
+    return '<div class="list-item" onclick="viewTask(\''+t.id+'\')">'+
+      '<div class="list-item-icon">'+(t.status==='completed'?'✓':t.status==='in_progress'?'▶':'🔒')+'</div>'+
+      '<div class="list-item-body">'+
+        '<div class="list-item-title">'+t.title+'</div>'+
+        '<div class="list-item-desc">'+t.type+' · '+t.groups.length+'个分组</div>'+
+      '</div>'+
+      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+
+        statusTag+
+        '<div style="display:flex;align-items:center;gap:6px"><div class="progress-bar" style="width:60px"><div class="progress-fill" style="width:'+t.progress+'%"></div></div><span style="font-size:11px;color:#6b7280">'+t.progress+'%</span></div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+function renderTaskMap(){
+  var allPoints=[];
+  TASKS.forEach(function(t){
+    t.groups.forEach(function(g){
+      g.points.forEach(function(p){
+        allPoints.push({task:t,group:g,point:p});
+      });
+    });
+  });
+  return '<div class="map-grid">'+
+    allPoints.map(function(item,i){
+      var p=item.point;
+      var cls=p.done?'completed':p.unlocked?'current':'locked';
+      return '<div class="map-node '+cls+'" onclick="'+(p.unlocked?'learnTaskPoint(\''+item.task.id+'\',\''+escapeHtml(p.name)+'\')':'')+'">'+
+        '<div class="map-node-num">'+(p.done?'✓':i+1)+'</div>'+
+        '<div class="map-node-name">'+escapeHtml(p.name)+'</div>'+
+      '</div>';
+    }).join('')+
+  '</div>'+
+  '<div style="font-size:12px;color:#9ca3af;text-align:center;padding:12px">共'+allPoints.length+'个任务点 · 已完成'+allPoints.filter(function(x){return x.point.done}).length+'个</div>';
+}
+function initTasks(){}
+function viewTask(id){
+  var t=TASKS.find(function(x){return x.id===id});
+  if(!t)return;
+  if(t.status==='locked'){showToast('该任务尚未解锁，请先完成前置任务');return}
+  var html='<div class="card">'+
+    cardHeader(t.title+' · 任务详情',
+      t.status==='completed'?'<span class="tag tag-success">已完成</span>':t.status==='in_progress'?'<span class="tag tag-warning">进行中</span>':'<span class="tag tag-default">未解锁</span>'
+    )+
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">'+
+      '<div style="padding:12px;background:#f9fafb;border-radius:8px;text-align:center"><div style="font-size:11px;color:#9ca3af">任务类型</div><div style="font-size:14px;font-weight:600;margin-top:4px">'+t.type+'</div></div>'+
+      '<div style="padding:12px;background:#f9fafb;border-radius:8px;text-align:center"><div style="font-size:11px;color:#9ca3af">分组数</div><div style="font-size:14px;font-weight:600;margin-top:4px">'+t.groups.length+'</div></div>'+
+      '<div style="padding:12px;background:#f9fafb;border-radius:8px;text-align:center"><div style="font-size:11px;color:#9ca3af">完成进度</div><div style="font-size:14px;font-weight:600;margin-top:4px">'+t.progress+'%</div></div>'+
+      '<div style="padding:12px;background:#f9fafb;border-radius:8px;text-align:center"><div style="font-size:11px;color:#9ca3af">解锁状态</div><div style="font-size:14px;font-weight:600;margin-top:4px">'+(t.unlock?'已解锁':'未解锁')+'</div></div>'+
+    '</div>'+
+    '<div class="progress-bar" style="margin-bottom:16px"><div class="progress-fill" style="width:'+t.progress+'%"></div></div>';
+  t.groups.forEach(function(g){
+    html+='<div style="margin-bottom:16px">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'+
+        '<span style="font-size:14px;font-weight:600">'+g.name+'</span>'+
+        (g.status==='completed'?'<span class="tag tag-success">已完成</span>':g.status==='in_progress'?'<span class="tag tag-warning">进行中</span>':'<span class="tag tag-default">未解锁</span>')+
+      '</div>';
+    g.points.forEach(function(p){
+      html+='<div class="list-item" style="margin-bottom:6px" onclick="'+(p.unlocked?'learnTaskPoint(\''+t.id+'\',\''+escapeHtml(p.name)+'\')':'')+'">'+
+        '<div class="list-item-icon" style="background:'+(p.done?'#f0fdf4':'#f5f5f5')+'">'+(p.done?'✓':p.unlocked?'▶':'🔒')+'</div>'+
+        '<div class="list-item-body"><div class="list-item-title">'+escapeHtml(p.name)+'</div><div class="list-item-desc">'+p.type+'</div></div>'+
+        (p.unlocked?'<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();learnTaskPoint(\''+t.id+'\',\''+escapeHtml(p.name)+'\')">学习</button>':'<span style="font-size:11px;color:#9ca3af">未解锁</span>')+
+      '</div>';
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  document.getElementById('taskDetailArea').innerHTML=html;
+}
+function learnTaskPoint(taskId,pointName){
+  var t=TASKS.find(function(x){return x.id===taskId});
+  if(!t)return;
+  var point=null;
+  t.groups.forEach(function(g){
+    g.points.forEach(function(p){
+      if(p.name===pointName)point=p;
+    });
+  });
+  if(!point)return;
+  var content='';
+  if(point.type==='video'){
+    content='<div style="font-size:13px;line-height:1.8;color:#4b5563">'+
+      '<div style="background:#1a1a1a;border-radius:8px;padding:32px;text-align:center;margin-bottom:16px;color:#fff;cursor:pointer" onclick="simulateVideoPlay()">'+
+        '<div style="font-size:32px;margin-bottom:8px">▶</div>'+
+        '<div style="font-size:14px">'+pointName+'</div>'+
+        '<div style="font-size:11px;opacity:.6;margin-top:6px">时长：15分30秒 · 支持倍速播放 · 配有字幕</div>'+
+      '</div>'+
+      '<div style="margin-bottom:12px"><strong>视频要点：</strong></div>'+
+      '<div style="padding-left:8px">'+
+        '<div style="padding:4px 0">• 核心概念讲解与案例分析</div>'+
+        '<div style="padding:4px 0">• 关键技术原理演示</div>'+
+        '<div style="padding:4px 0">• 常见问题与解答</div>'+
+      '</div>'+
+      '<div style="margin-top:14px;padding:12px;background:#f9fafb;border-radius:8px;font-size:12px;color:#6b7280">'+
+        '观看进度：0% · 观看完成后请点击"完成学习"按钮'+
+      '</div>'+
+    '</div>';
+  }else if(point.type==='doc'){
+    content='<div style="font-size:13px;line-height:1.8;color:#4b5563">'+
+      '<div style="display:flex;align-items:center;gap:12px;padding:14px;background:#f9fafb;border-radius:8px;margin-bottom:16px">'+
+        '<div style="font-size:28px">📄</div>'+
+        '<div><div style="font-weight:500">'+pointName+'.pdf</div><div style="font-size:11px;color:#9ca3af;margin-top:2px">12页 · 2.3MB · 预计阅读15分钟</div></div>'+
+        '<button class="btn btn-sm" onclick="downloadMaterial(this,\''+pointName+'.pdf\')" style="margin-left:auto">下载</button>'+
+      '</div>'+
+      '<div style="margin-bottom:12px"><strong>文档摘要：</strong></div>'+
+      '<p>'+pointName+'系统阐述了相关知识点的核心概念、基本原理和典型应用。通过阅读本文档，您将掌握该知识点的主要内容框架。</p>'+
+      '<div style="margin-top:12px;padding:10px;background:#fffbeb;border-radius:6px;font-size:12px;color:#92400e">阅读提示：建议边读边做笔记，重点关注标注的核心概念和公式推导部分。</div>'+
+    '</div>';
+  }else if(point.type==='quiz'){
+    content='<div style="font-size:13px">'+
+      '<div style="margin-bottom:14px;color:#6b7280;padding:8px;background:#f5f5f5;border-radius:6px">'+pointName+' · 共5题 · 限时10分钟</div>'+
+      '<div style="margin-bottom:12px;padding:12px;background:#f9fafb;border-radius:8px">'+
+        '<div style="font-weight:500;margin-bottom:8px">1. 以下哪项是'+pointName+'的核心要点？</div>'+
+        '<div style="display:flex;flex-direction:column;gap:6px">'+
+          '<label style="cursor:pointer"><input type="radio" name="tp_quiz1"> A. 掌握基本概念与术语</label>'+
+          '<label style="cursor:pointer"><input type="radio" name="tp_quiz1"> B. 能够独立解决复杂问题</label>'+
+          '<label style="cursor:pointer"><input type="radio" name="tp_quiz1"> C. 记忆所有公式</label>'+
+          '<label style="cursor:pointer"><input type="radio" name="tp_quiz1"> D. 以上都不对</label>'+
+        '</div>'+
+      '</div>'+
+      '<div style="margin-bottom:12px;padding:12px;background:#f9fafb;border-radius:8px">'+
+        '<div style="font-weight:500;margin-bottom:8px">2. '+pointName+'中常用的方法有哪些？（多选）</div>'+
+        '<div style="display:flex;flex-direction:column;gap:6px">'+
+          '<label style="cursor:pointer"><input type="checkbox" name="tp_quiz2"> A. 理论推导</label>'+
+          '<label style="cursor:pointer"><input type="checkbox" name="tp_quiz2"> B. 实验验证</label>'+
+          '<label style="cursor:pointer"><input type="checkbox" name="tp_quiz2"> C. 案例分析</label>'+
+          '<label style="cursor:pointer"><input type="checkbox" name="tp_quiz2"> D. 以上都是</label>'+
+        '</div>'+
+      '</div>'+
+      '<div style="margin-bottom:12px;padding:12px;background:#f9fafb;border-radius:8px">'+
+        '<div style="font-weight:500;margin-bottom:8px">3. 判断对错：'+pointName+'的学习只需要理论学习即可。</div>'+
+        '<div style="display:flex;gap:20px"><label><input type="radio" name="tp_quiz3"> 正确</label><label><input type="radio" name="tp_quiz3"> 错误</label></div>'+
+      '</div>'+
+      '<button class="btn btn-primary" style="width:100%" onclick="showToast(\'已提交答案，请查看解析\');closeModal()">提交答案</button>'+
+    '</div>';
+  }else if(point.type==='practice'){
+    content='<div style="font-size:13px;line-height:1.8;color:#4b5563">'+
+      '<div style="padding:14px;background:#f0f9ff;border-radius:8px;margin-bottom:14px;border-left:3px solid #0369a1">'+
+        '<strong>实验任务：</strong>'+pointName+'<br>'+
+        '<span style="font-size:12px;color:#6b7280">实验时长：30-45分钟 · 难度：中等 · 需提交实验报告</span>'+
+      '</div>'+
+      '<div style="margin-bottom:12px"><strong>实验步骤：</strong></div>'+
+      '<div style="padding-left:8px">'+
+        '<div style="padding:4px 0">1. 准备实验环境和所需工具</div>'+
+        '<div style="padding:4px 0">2. 阅读实验指导书，理解实验目标</div>'+
+        '<div style="padding:4px 0">3. 按照步骤完成实验操作</div>'+
+        '<div style="padding:4px 0">4. 记录实验数据和结果</div>'+
+        '<div style="padding:4px 0">5. 撰写实验报告并提交</div>'+
+      '</div>'+
+      '<div style="margin-top:12px"><strong>提交要求：</strong></div>'+
+      '<div style="padding-left:8px">'+
+        '<div style="padding:4px 0">• 源代码文件（.py格式）</div>'+
+        '<div style="padding:4px 0">• 实验报告（含截图和分析）</div>'+
+        '<div style="padding:4px 0">• 运行结果录屏（可选）</div>'+
+      '</div>'+
+    '</div>';
+  }else if(point.type==='discuss'){
+    content='<div style="font-size:13px">'+
+      '<div style="padding:12px;background:#f5f5f5;border-radius:6px;margin-bottom:14px"><strong>讨论话题：</strong>'+pointName+'</div>'+
+      '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">'+
+        '<div style="padding:10px;background:#f9fafb;border-radius:8px;border-left:3px solid #1a1a1a"><div style="font-size:12px;margin-bottom:4px"><strong>同学A</strong> · 3小时前</div><div style="font-size:12px;color:#4b5563">我认为这个话题的核心在于理论与实践的结合。仅仅掌握理论知识是不够的，必须通过实际项目来加深理解。</div></div>'+
+        '<div style="padding:10px;background:#f9fafb;border-radius:8px;border-left:3px solid #1a1a1a"><div style="font-size:12px;margin-bottom:4px"><strong>同学B</strong> · 2小时前</div><div style="font-size:12px;color:#4b5563">补充一点：在实践过程中遇到的问题反过来可以促进对理论的深入理解。建议大家遇到问题先自己查阅资料，再讨论交流。</div></div>'+
+      '</div>'+
+      '<textarea class="form-textarea" style="min-height:50px" placeholder="发表你的观点..."></textarea>'+
+      '<button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="showToast(\'讨论已发表\');closeModal()">发表观点并完成</button>'+
+    '</div>';
+  }else{
+    content='<div style="font-size:13px;line-height:1.8;color:#4b5563">'+
+      '<p><strong>任务点：</strong>'+pointName+'</p>'+
+      '<p><strong>所属任务：</strong>'+t.title+'</p>'+
+      '<div style="margin-top:12px;padding:12px;background:#f9fafb;border-radius:8px">学习完成后，系统将自动更新任务进度，并解锁后续任务点。</div>'+
+    '</div>';
+  }
+  openModal('任务点学习 · '+pointName,
+    content,
+    '<button class="btn" onclick="closeModal()">取消</button>'+
+    '<button class="btn btn-primary" onclick="completeTaskPoint(\''+taskId+'\',\''+escapeHtml(pointName)+'\')">完成学习</button>'
+  );
+}
+function completeTaskPoint(taskId,pointName){
+  var t=TASKS.find(function(x){return x.id===taskId});
+  if(!t){closeModal();return}
+  var found=false;
+  t.groups.forEach(function(g){
+    g.points.forEach(function(p){
+      if(p.name===pointName&&!p.done){
+        p.done=true;
+        found=true;
+        // Unlock next point in same group
+      }
+    });
+  });
+  if(found){
+    // Unlock logic: find first unlocked but not done point, unlock next
+    var allPoints=[];
+    t.groups.forEach(function(g){g.points.forEach(function(p){allPoints.push(p)})});
+    for(var i=0;i<allPoints.length-1;i++){
+      if(allPoints[i].done&&!allPoints[i+1].done&&!allPoints[i+1].unlocked){
+        allPoints[i+1].unlocked=true;
+        break;
+      }
+    }
+    // Recalculate progress
+    var doneCount=allPoints.filter(function(p){return p.done}).length;
+    t.progress=Math.round(doneCount/allPoints.length*100);
+    if(t.progress===100){t.status='completed'}
+    // Unlock next task
+    if(t.status==='completed'){
+      var idx=TASKS.indexOf(t);
+      if(idx<TASKS.length-1){TASKS[idx+1].unlock=true;TASKS[idx+1].status='in_progress';TASKS[idx+1].groups[0].status='in_progress';TASKS[idx+1].groups[0].points[0].unlocked=true}
+    }
+    showToast('学习完成，进度已更新');
+    closeModal();
+    // Re-render
+    document.getElementById('taskListArea').innerHTML=taskMode==='list'?renderTaskList():renderTaskMap();
+    viewTask(taskId);
+  }else{
+    showToast('该任务点已完成');
+    closeModal();
+  }
+}
+
+// ============ MODULE 2: AI RESEARCH ============
+function renderResearch(){
+  return '<div class="page-title">AI科研助手</div>'+
+    '<div class="page-desc">以自然语言描述研究需求，由大模型自动生成分析计划并执行，支持文献分析与报告生成</div>'+
+    '<div class="card">'+
+      cardHeader('研究需求输入','<button class="btn btn-sm" onclick="loadTemplate()">选择模板</button>')+
+      '<textarea class="research-input" id="researchInput" placeholder="请用自然语言描述您的研究需求，例如：分析近年来深度学习在医学影像领域的应用进展，对比不同模型的优势与不足..."></textarea>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">'+
+        '<div style="display:flex;gap:8px;align-items:center">'+
+          '<div class="toggle-group"><button class="toggle-btn active" onclick="setSearchMode(this,\'task\')">任务模式</button><button class="toggle-btn" onclick="setSearchMode(this,\'outline\')">大纲模式</button></div>'+
+          '<button class="btn btn-sm" onclick="openRetrievalSource()">检索源设置</button>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px">'+
+          '<button class="btn btn-sm" onclick="addCustomTemplate()">保存为模板</button>'+
+          '<button class="btn btn-sm btn-primary" onclick="generateResearch()">生成分析计划</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<div id="researchResult"></div>';
+}
+var searchMode='task';
+var RESEARCH_PLAN_DATA={
+  keyPoints:['研究领域定位与背景分析','关键技术与方法梳理','代表性成果对比','发展趋势与挑战'],
+  keywords:['深度学习','医学影像','卷积神经网络','图像分割','Transformer','迁移学习'],
+  steps:['文献检索与筛选','核心观点提取','创新摘要生成','对比分析','报告生成']
+};
+function setSearchMode(btn,mode){
+  btn.parentElement.querySelectorAll('.toggle-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  searchMode=mode;
+  var input=document.getElementById('researchInput');
+  if(input){
+    if(mode==='task'){
+      input.placeholder='请用自然语言描述您的研究需求，例如：分析近年来深度学习在医学影像领域的应用进展，对比不同模型的优势与不足...';
+      showToast('已切换为任务模式：按研究任务生成分析计划');
+    }else{
+      input.placeholder='请输入研究大纲要点，每行一个要点，例如：\n1. 研究背景与意义\n2. 核心技术梳理\n3. 实验方法设计\n4. 预期成果';
+      showToast('已切换为大纲模式：按大纲结构生成分析计划');
+    }
+  }
+}
+function loadTemplate(){
+  var html=RESEARCH_TEMPLATES.map(function(t){
+    var hasPlan=t.planData?'<span style="font-size:10px;color:#7c3aed;margin-left:4px">含计划</span>':'';
+    return '<div class="list-item" onclick="applyTemplate(\''+t.id+'\')"><div class="list-item-body"><div class="list-item-title">'+t.name+hasPlan+'</div><div class="list-item-desc">'+t.desc+'</div></div><button class="btn btn-sm">使用</button></div>';
+  }).join('');
+  openModal('选择研究模板',html,'<button class="btn" onclick="closeModal()">取消</button>');
+}
+function applyTemplate(id){
+  var t=RESEARCH_TEMPLATES.find(function(x){return x.id===id});
+  if(!t)return;
+  // If template has planData, restore full plan; otherwise just set input text
+  if(t.planData){
+    RESEARCH_PLAN_DATA={
+      keyPoints:t.planData.keyPoints.slice(),
+      keywords:t.planData.keywords.slice(),
+      steps:t.planData.steps.slice()
+    };
+    document.getElementById('researchInput').value='基于【'+t.name+'】模板展开研究：'+t.desc;
+  }else{
+    document.getElementById('researchInput').value='基于【'+t.name+'】展开研究：'+t.desc;
+  }
+  closeModal();
+  showToast('已加载模板：'+t.name);
+  // If plan is visible, refresh it
+  var view=document.getElementById('researchPlanView');
+  if(view&&t.planData)view.innerHTML=renderPlanView();
+}
+function savePlanAsTemplate(){
+  openModal('保存分析计划为模板',
+    '<div style="font-size:13px">'+
+      '<div class="form-group"><label class="form-label">模板名称</label><input class="form-input" id="planTemplateName" placeholder="如：AI应用分析计划"></div>'+
+      '<div class="form-group"><label class="form-label">模板描述</label><input class="form-input" id="planTemplateDesc" placeholder="简要描述该模板的用途"></div>'+
+      '<div style="margin-top:12px;padding:10px;background:#f9fafb;border-radius:6px;font-size:12px;color:#6b7280">'+
+        '计划包含：<strong>'+RESEARCH_PLAN_DATA.keyPoints.length+'</strong>个要点 · <strong>'+RESEARCH_PLAN_DATA.keywords.length+'</strong>个关键词 · <strong>'+RESEARCH_PLAN_DATA.steps.length+'</strong>个步骤'+
+      '</div>'+
+    '</div>',
+    '<button class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="confirmSavePlanTemplate()">保存模板</button>'
+  );
+}
+function confirmSavePlanTemplate(){
+  var nameEl=document.getElementById('planTemplateName');
+  var descEl=document.getElementById('planTemplateDesc');
+  if(!nameEl||!nameEl.value.trim()){showToast('请输入模板名称');return}
+  var name=nameEl.value.trim();
+  var desc=(descEl&&descEl.value.trim())?descEl.value.trim():name;
+  RESEARCH_TEMPLATES.push({
+    id:'t'+Date.now(),
+    name:name,
+    desc:desc,
+    planData:{
+      keyPoints:RESEARCH_PLAN_DATA.keyPoints.slice(),
+      keywords:RESEARCH_PLAN_DATA.keywords.slice(),
+      steps:RESEARCH_PLAN_DATA.steps.slice()
+    }
+  });
+  closeModal();
+  showToast('计划模板"'+name+'"已保存，共'+RESEARCH_TEMPLATES.length+'个模板');
+}
+function addCustomTemplate(){
+  var val=document.getElementById('researchInput').value.trim();
+  if(!val){showToast('请先输入研究需求');return}
+  openModal('保存为模板',
+    '<div style="font-size:13px">'+
+      '<div class="form-group"><label class="form-label">模板名称</label><input class="form-input" id="templateNameInput" placeholder="请输入模板名称"></div>'+
+      '<div class="form-group"><label class="form-label">模板描述</label><div style="padding:10px;background:#f9fafb;border-radius:6px;font-size:12px;color:#6b7280">'+escapeHtml(val.slice(0,60))+'</div></div>'+
+    '</div>',
+    '<button class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveNewTemplate()">保存模板</button>'
+  );
+}
+function saveNewTemplate(){
+  var name=document.getElementById('templateNameInput');
+  if(!name||!name.value.trim()){showToast('请输入模板名称');return}
+  var val=document.getElementById('researchInput').value.trim();
+  RESEARCH_TEMPLATES.push({id:'t'+Date.now(),name:name.value.trim(),desc:val.slice(0,40)});
+  closeModal();
+  showToast('模板"'+name.value.trim()+'"已保存，共'+RESEARCH_TEMPLATES.length+'个模板');
+}
+function openRetrievalSource(){
+  openModal('检索源设置',
+    '<div style="font-size:13px">'+
+      '<div class="form-group"><label class="form-label">已选检索源</label>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
+          '<span class="keyword-tag">CNKI知网<span class="remove">✕</span></span>'+
+          '<span class="keyword-tag">万方数据<span class="remove">✕</span></span>'+
+          '<span class="keyword-tag">IEEE Xplore<span class="remove">✕</span></span>'+
+          '<span class="keyword-tag">arXiv<span class="remove">✕</span></span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="form-group"><label class="form-label">添加自定义检索源</label>'+
+        '<div class="security-config-row"><input class="form-input" placeholder="输入检索源URL或名称"><button class="btn btn-sm btn-primary" onclick="showToast(\'已添加\')">添加</button></div>'+
+      '</div>'+
+      '<div class="form-group"><label class="form-label">检索深度</label><select class="form-select"><option>标准检索</option><option>深度检索</option><option>全面检索</option></select></div>'+
+    '</div>',
+    '<button class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="closeModal();showToast(\'检索源已保存\')">保存</button>'
+  );
+}
+function generateResearch(){
+  var input=document.getElementById('researchInput').value.trim();
+  if(!input){showToast('请输入研究需求');return}
+  // Set plan data based on search mode
+  if(searchMode==='task'){
+    RESEARCH_PLAN_DATA={
+      keyPoints:['研究领域定位与背景分析','关键技术与方法梳理','代表性成果对比','发展趋势与挑战'],
+      keywords:extractKeywords(input),
+      steps:['文献检索与筛选','核心观点提取','创新摘要生成','对比分析','报告生成']
+    };
+  }else{
+    var lines=input.split('\n').filter(function(l){return l.trim().length>0});
+    if(lines.length>=3){
+      RESEARCH_PLAN_DATA={
+        keyPoints:lines.slice(0,8).map(function(l){return l.replace(/^\d+[\.\、\s]+/,'').trim()}),
+        keywords:extractKeywords(input),
+        steps:lines.slice(0,5).map(function(l,i){return '分析'+(i+1)+'：'+l.replace(/^\d+[\.\、\s]+/,'').trim().slice(0,15)})
+      };
+    }else{
+      RESEARCH_PLAN_DATA={
+        keyPoints:['研究背景与意义','研究目标与问题','研究方法与路径','预期成果与创新点'],
+        keywords:extractKeywords(input),
+        steps:['背景调研与文献梳理','方法设计与论证','数据分析与验证','结论与建议撰写']
+      };
+    }
+  }
+  var result=document.getElementById('researchResult');
+  result.innerHTML='<div class="card"><div style="text-align:center;padding:30px"><div style="font-size:14px;color:#6b7280">大模型正在分析需求并生成研究计划（'+(searchMode==='task'?'任务模式':'大纲模式')+'）...</div><div class="progress-bar" style="max-width:300px;margin:16px auto"><div class="progress-fill" id="genProgress" style="width:0%"></div></div></div></div>';
+  var prog=0;
+  var interval=setInterval(function(){prog+=15;if(prog>=100){prog=100;clearInterval(interval);setTimeout(function(){result.innerHTML=renderResearchResult(input)},300)}document.getElementById('genProgress').style.width=prog+'%'},200);
+}
+function extractKeywords(input){
+  var common=['深度学习','机器学习','神经网络','人工智能','数据分析','算法','模型','优化','系统','应用','研究','技术','方法','设计','实现'];
+  var found=[];
+  var lower=input.toLowerCase();
+  common.forEach(function(k){
+    if(lower.indexOf(k.toLowerCase())>=0&&found.length<8)found.push(k);
+  });
+  if(found.length===0)found=['人工智能','机器学习','深度学习','神经网络','数据分析'];
+  return found;
+}
+function renderResearchResult(input){
+  var html='<div class="card">'+
+    cardHeader('分析计划',
+      '<button class="btn btn-sm" onclick="togglePlanEdit()">编辑计划</button><button class="btn btn-sm" onclick="savePlanAsTemplate()">保存计划为模板</button><button class="btn btn-sm btn-primary" onclick="executeResearch()">执行分析</button>'
+    )+
+    '<div id="researchPlanView">'+renderPlanView()+'</div>'+
+    '<div id="researchPlanEdit" style="display:none">'+renderPlanEdit()+'</div>'+
+  '</div>'+
+  '<div class="card">'+
+    cardHeader('文献选择','<button class="btn btn-sm" onclick="uploadLiterature()">上传文献</button>')+
+    '<div style="font-size:13px;margin-bottom:12px;color:#6b7280">已选'+LITERATURE.length+'篇文献，系统将自动生成核心观点、创新摘要与对比分析</div>'+
+    LITERATURE.map(function(l){
+      return '<div class="lit-item"><input type="checkbox" checked><div style="flex:1"><div style="font-size:13px;font-weight:500">'+l.title+'</div><div style="font-size:11px;color:#9ca3af;margin-top:2px">'+l.author+' · '+l.journal+' · '+l.year+' · 被引'+l.citations+'</div></div></div>';
+    }).join('')+
+  '</div>';
+  return html;
+}
+function renderPlanView(){
+  var kpHtml=RESEARCH_PLAN_DATA.keyPoints.map(function(k,i){
+    return '<div>'+(i+1)+'. '+escapeHtml(k)+'</div>';
+  }).join('');
+  var kwHtml=RESEARCH_PLAN_DATA.keywords.map(function(k){
+    return '<span class="keyword-tag">'+escapeHtml(k)+'</span>';
+  }).join('');
+  var stHtml=RESEARCH_PLAN_DATA.steps.map(function(s,i){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0"><span class="badge badge-dark">'+(i+1)+'</span>'+escapeHtml(s)+'</div>';
+  }).join('');
+  return '<div style="font-size:13px;color:#4b5563;line-height:1.8">'+
+    '<div style="margin-bottom:10px"><strong>核心要点：</strong></div>'+
+    '<div style="padding-left:16px;margin-bottom:12px">'+kpHtml+'</div>'+
+    '<div style="margin-bottom:10px"><strong>提取关键词：</strong></div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">'+kwHtml+'</div>'+
+    '<div style="margin-bottom:10px"><strong>分析步骤：</strong></div>'+
+    '<div style="padding-left:16px">'+stHtml+'</div>'+
+    '<div style="margin-top:12px;padding:10px;background:#fffbeb;border-radius:8px;font-size:12px;color:#92400e">点击右上角"编辑计划"可对核心要点、关键词和分析步骤进行修改</div>'+
+  '</div>';
+}
+function renderPlanEdit(){
+  var kpHtml=RESEARCH_PLAN_DATA.keyPoints.map(function(k,i){
+    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'+
+      '<span style="color:#9ca3af;font-size:12px">'+(i+1)+'.</span>'+
+      '<input class="form-input" style="flex:1" value="'+escapeHtml(k)+'" onchange="updateKeyPoint('+i+',this.value)">'+
+      '<button class="btn btn-sm btn-danger" onclick="removeKeyPoint('+i+')">删除</button>'+
+    '</div>';
+  }).join('');
+  var kwHtml=RESEARCH_PLAN_DATA.keywords.map(function(k,i){
+    return '<span class="keyword-tag">'+escapeHtml(k)+'<span class="remove" onclick="removeKeyword('+i+')">✕</span></span>';
+  }).join('');
+  var stHtml=RESEARCH_PLAN_DATA.steps.map(function(s,i){
+    return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;margin-bottom:6px">'+
+      '<span class="badge badge-dark">'+(i+1)+'</span>'+
+      '<input class="form-input" style="flex:1;padding:6px 10px" value="'+escapeHtml(s)+'" onchange="updateStep('+i+',this.value)">'+
+      '<button class="btn btn-sm btn-danger" onclick="removeStep('+i+')">删除</button>'+
+    '</div>';
+  }).join('');
+  return '<div style="font-size:13px;color:#4b5563;line-height:1.8">'+
+    '<div style="margin-bottom:14px;padding:8px;background:#f0f9ff;border-radius:6px;font-size:12px;color:#0369a1">✏️ 编辑模式：点击文本框直接修改内容，支持删除和新增</div>'+
+    '<div style="margin-bottom:10px"><strong>核心要点：</strong></div>'+
+    '<div style="margin-bottom:12px">'+kpHtml+'</div>'+
+    '<button class="btn btn-sm" onclick="addKeyPoint()">+ 添加要点</button>'+
+    '<div style="margin:14px 0 10px"><strong>提取关键词：</strong></div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">'+kwHtml+'</div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:14px">'+
+      '<input class="form-input" id="newKeyword" placeholder="输入新关键词" style="flex:1">'+
+      '<button class="btn btn-sm btn-primary" onclick="addKeyword()">添加</button>'+
+    '</div>'+
+    '<div style="margin-bottom:10px"><strong>分析步骤：</strong></div>'+
+    '<div style="margin-bottom:12px">'+stHtml+'</div>'+
+    '<button class="btn btn-sm" onclick="addStep()">+ 添加步骤</button>'+
+  '</div>';
+}
+function togglePlanEdit(){
+  var view=document.getElementById('researchPlanView');
+  var edit=document.getElementById('researchPlanEdit');
+  if(!view||!edit)return;
+  if(edit.style.display==='none'){
+    view.style.display='none';
+    edit.style.display='block';
+    var btn=document.querySelector('#researchResult .card-header button[onclick^="togglePlanEdit"]');
+    if(btn)btn.textContent='完成编辑';
+    showToast('已进入编辑模式');
+  }else{
+    edit.style.display='none';
+    view.style.display='block';
+    var btn=document.querySelector('#researchResult .card-header button[onclick^="togglePlanEdit"]');
+    if(btn)btn.textContent='编辑计划';
+    showToast('编辑已保存');
+  }
+}
+function updateKeyPoint(i,val){RESEARCH_PLAN_DATA.keyPoints[i]=val}
+function removeKeyPoint(i){RESEARCH_PLAN_DATA.keyPoints.splice(i,1);refreshPlanEdit()}
+function addKeyPoint(){
+  var name=prompt('请输入新的核心要点：');
+  if(name){RESEARCH_PLAN_DATA.keyPoints.push(name);refreshPlanEdit()}
+}
+function updateKeyword(i,val){RESEARCH_PLAN_DATA.keywords[i]=val}
+function removeKeyword(i){RESEARCH_PLAN_DATA.keywords.splice(i,1);refreshPlanEdit()}
+function addKeyword(){
+  var input=document.getElementById('newKeyword');
+  if(!input||!input.value.trim()){showToast('请输入关键词');return}
+  RESEARCH_PLAN_DATA.keywords.push(input.value.trim());
+  input.value='';
+  refreshPlanEdit();
+  showToast('关键词已添加');
+}
+function updateStep(i,val){RESEARCH_PLAN_DATA.steps[i]=val}
+function removeStep(i){RESEARCH_PLAN_DATA.steps.splice(i,1);refreshPlanEdit()}
+function addStep(){
+  var name=prompt('请输入新的分析步骤：');
+  if(name){RESEARCH_PLAN_DATA.steps.push(name);refreshPlanEdit()}
+}
+function refreshPlanEdit(){
+  var edit=document.getElementById('researchPlanEdit');
+  if(edit)edit.innerHTML=renderPlanEdit();
+}
+function uploadLiterature(){
+  openModal('上传文献',
+    '<div style="font-size:13px">'+
+      '<div style="border:2px dashed #e5e7eb;border-radius:10px;padding:30px;text-align:center;cursor:pointer" onclick="document.getElementById(\'realFileUpload\').click()">'+
+        '<div style="font-size:24px;margin-bottom:8px;color:#9ca3af">+</div>'+
+        '<div style="color:#6b7280">点击选择文件</div>'+
+        '<div style="font-size:11px;color:#9ca3af;margin-top:4px">支持 PDF、Word、TXT 格式</div>'+
+        '<input type="file" id="realFileUpload" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="onFileSelected(this)">'+
+        '<div id="fileSelectedName" style="margin-top:10px;font-size:12px;color:#16a34a;font-weight:500;display:none"></div>'+
+      '</div>'+
+    '</div>',
+    '<button class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="confirmUpload()">确认上传</button>'
+  );
+}
+var selectedFile=null;
+function onFileSelected(input){
+  if(input.files&&input.files.length>0){
+    selectedFile=input.files[0];
+    var info=document.getElementById('fileSelectedName');
+    if(info){
+      info.textContent='✓ 已选择：'+selectedFile.name+' ('+(selectedFile.size/1024).toFixed(1)+' KB)';
+      info.style.display='block';
+    }
+  }
+}
+function confirmUpload(){
+  if(!selectedFile){showToast('请先选择文件');return}
+  LITERATURE.push({
+    id:'l'+(LITERATURE.length+1),
+    title:selectedFile.name.replace(/\.(pdf|doc|docx|txt)$/i,''),
+    author:'用户上传',
+    journal:'本地文献',
+    year:new Date().getFullYear(),
+    citations:0
+  });
+  showToast('文献 '+selectedFile.name+' 已上传');
+  selectedFile=null;
+  closeModal();
+  // Refresh literature list if visible
+  var result=document.getElementById('researchResult');
+  if(result&&result.innerHTML.indexOf('文献选择')>0){
+    var litSection=result.querySelector('.card:last-child');
+    if(litSection){
+      litSection.innerHTML=
+        cardHeader('文献选择','<button class="btn btn-sm" onclick="uploadLiterature()">上传文献</button>')+
+        '<div style="font-size:13px;margin-bottom:12px;color:#6b7280">已选'+LITERATURE.length+'篇文献，系统将自动生成核心观点、创新摘要与对比分析</div>'+
+        LITERATURE.map(function(l){
+          return '<div class="lit-item"><input type="checkbox" checked><div style="flex:1"><div style="font-size:13px;font-weight:500">'+l.title+'</div><div style="font-size:11px;color:#9ca3af;margin-top:2px">'+l.author+' · '+l.journal+' · '+l.year+' · 被引'+l.citations+'</div></div></div>';
+        }).join('');
+    }
+  }
+}
+function executeResearch(){
+  var input=document.getElementById('researchInput').value.trim();
+  var kp=RESEARCH_PLAN_DATA.keyPoints;
+  var kw=RESEARCH_PLAN_DATA.keywords;
+  var st=RESEARCH_PLAN_DATA.steps;
+  // Build key-point analysis sections
+  var kpSections=kp.map(function(k,i){
+    var insights=getInsightForPoint(k,i);
+    return '<div style="margin-bottom:14px;padding:14px;background:#f9fafb;border-radius:8px;border-left:3px solid #1a1a1a">'+
+      '<strong>'+(i+1)+'. '+escapeHtml(k)+'</strong>'+
+      '<p style="margin-top:6px;color:#4b5563;line-height:1.7">'+insights+'</p>'+
+    '</div>';
+  }).join('');
+  // Build keyword analysis
+  var kwSections=kw.map(function(k,i){
+    return '<div style="display:inline-block;padding:8px 14px;background:#f5f5f5;border-radius:6px;margin:4px;font-size:13px">'+
+      '<strong>'+escapeHtml(k)+'</strong><span style="color:#6b7280;margin-left:6px;font-size:11px">'+
+      getKeywordDef(k)+'</span></div>';
+  }).join('');
+  // Build methodology sections
+  var stSections=st.map(function(s,i){
+    return '<div style="padding:10px 0;border-bottom:1px solid #f0f0f0">'+
+      '<span class="badge badge-dark">'+(i+1)+'</span> '+
+      '<strong>'+escapeHtml(s)+'</strong>'+
+      '<span style="color:#6b7280;font-size:12px;margin-left:8px">'+getStepDetail(s,i)+'</span>'+
+    '</div>';
+  }).join('');
+  // Build literature references
+  var litRefs=LITERATURE.slice(0,5).map(function(l,i){
+    return '<div style="padding:10px;border-bottom:1px solid #f5f5f5">'+
+      '<strong>['+(i+1)+']</strong> '+l.author+' ('+l.year+'). <em>'+l.title+'</em>. '+l.journal+'. 被引：'+l.citations+'次'+
+    '</div>';
+  }).join('');
+  var reportTitle=generateTitle(input);
+  var html='<div class="card">'+
+    cardHeader('分析结果','<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-sm" onclick="editReport()">编辑</button><button class="btn btn-sm" onclick="copyReport()">复制</button><button class="btn btn-sm" onclick="downloadReport(\'pdf\')">下载PDF</button><button class="btn btn-sm" onclick="downloadReport(\'doc\')">下载Word</button><button class="btn btn-sm" onclick="downloadReport(\'txt\')">下载TXT</button></div>')+
+    '<div style="font-size:13px;line-height:1.9;color:#1a1a1a" id="reportBody">'+
+      '<h3 style="font-size:16px;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #1a1a1a">'+escapeHtml(reportTitle)+'</h3>'+
+      '<div style="margin-bottom:8px;font-size:12px;color:#9ca3af">生成时间：'+new Date().toLocaleString()+' | 基于'+kp.length+'个要点、'+kw.length+'个关键词、'+st.length+'个步骤 | 引用'+LITERATURE.length+'篇文献</div>'+
+      // Section 1: Research Background
+      '<div style="margin-bottom:20px"><strong style="font-size:14px">一、研究背景与问题界定</strong>'+
+        '<p style="margin-top:8px;color:#4b5563">本研究聚焦于"<strong>'+escapeHtml(input.slice(0,60))+'</strong>"，旨在系统性地梳理该领域的核心问题与发展脉络。'+
+        '根据分析计划中设定的<strong>'+kp.length+'个核心要点</strong>，本报告将从多维度展开深入分析，覆盖从理论基础到应用实践的全链路。'+
+        '当前该领域正处于快速发展期，近三年相关研究成果数量年均增长超过<strong>35%</strong>，这表明该方向具有重要的学术价值和广阔的应用前景。</p>'+
+      '</div>'+
+      // Section 2: Core Points Analysis
+      '<div style="margin-bottom:20px"><strong style="font-size:14px">二、核心要点深度分析</strong>'+
+        '<p style="margin-top:4px;color:#6b7280;font-size:12px;margin-bottom:12px">以下逐项展开分析计划中的每个核心要点，结合文献数据与领域知识进行深入解读</p>'+
+        kpSections+
+      '</div>'+
+      // Section 3: Keyword Analysis
+      '<div style="margin-bottom:20px"><strong style="font-size:14px">三、关键词聚类与语义分析</strong>'+
+        '<p style="margin-top:8px;color:#4b5563;margin-bottom:12px">通过对<strong>'+kw.length+'个核心关键词</strong>的语义聚类分析，构建了该研究领域的知识网络。这些关键词之间的关联强度反映了研究热点的集中度与交叉性：</p>'+
+        '<div style="line-height:2.2">'+kwSections+'</div>'+
+        '<p style="margin-top:12px;color:#4b5563;font-size:12px">关键词共现分析显示，"<strong>'+kw[0]+'</strong>"与"<strong>'+(kw[1]||kw[0])+'</strong>"的共现频率最高，表明两者是该领域最核心的研究方向。</p>'+
+      '</div>'+
+      // Section 4: Methodology
+      '<div style="margin-bottom:20px"><strong style="font-size:14px">四、研究方法与分析流程</strong>'+
+        '<p style="margin-top:8px;color:#4b5563;margin-bottom:12px">本报告严格遵循分析计划中设定的<strong>'+st.length+'个分析步骤</strong>，确保研究过程的系统性与可复现性：</p>'+
+        '<div style="padding:12px;background:#f9fafb;border-radius:8px">'+stSections+'</div>'+
+      '</div>'+
+      // Section 5: Literature Support
+      '<div style="margin-bottom:20px"><strong style="font-size:14px">五、文献支撑与数据来源</strong>'+
+        '<p style="margin-top:8px;color:#4b5563;margin-bottom:12px">本次分析共引用<strong>'+LITERATURE.length+'篇</strong>高质量文献，以下为关键参考文献：</p>'+
+        '<div style="font-size:12px;color:#4b5563">'+litRefs+'</div>'+
+        '<p style="margin-top:12px;color:#4b5563;font-size:12px">文献来源涵盖顶级期刊与会议（Nature MI、NeurIPS、ICML、ACL、IEEE T-IV），平均被引<strong>'+Math.round(LITERATURE.reduce(function(s,l){return s+l.citations},0)/LITERATURE.length)+'次</strong>，确保分析结论的可靠性。</p>'+
+      '</div>'+
+      // Section 6: Comparative Analysis
+      '<div style="margin-bottom:20px"><strong style="font-size:14px">六、对比分析与创新评估</strong>'+
+        '<p style="margin-top:8px;color:#4b5563;margin-bottom:12px">从技术路线、性能指标、适用场景和创新程度四个维度进行横向对比：</p>'+
+        '<table style="margin-top:8px;font-size:12px"><thead><tr><th>对比维度</th><th>传统方法</th><th>当前主流方法</th><th>前沿探索</th><th>创新评分</th></tr></thead><tbody>'+
+        '<tr><td><strong>技术架构</strong></td><td>基于规则/统计</td><td>深度学习（CNN/RNN）</td><td>Transformer+大模型</td><td>★★★★☆</td></tr>'+
+        '<tr><td><strong>数据需求</strong></td><td>少量标注数据</td><td>大规模标注数据</td><td>自监督/少样本</td><td>★★★★★</td></tr>'+
+        '<tr><td><strong>可解释性</strong></td><td>高（规则明确）</td><td>低（黑箱问题）</td><td>中（可解释AI发展）</td><td>★★★☆☆</td></tr>'+
+        '<tr><td><strong>泛化能力</strong></td><td>弱（领域受限）</td><td>中（需微调）</td><td>强（跨领域迁移）</td><td>★★★★★</td></tr>'+
+        '<tr><td><strong>计算成本</strong></td><td>低</td><td>中</td><td>高（需优化）</td><td>★★★☆☆</td></tr>'+
+        '</tbody></table>'+
+      '</div>'+
+      // Section 7: Innovation Assessment
+      '<div style="margin-bottom:20px"><strong style="font-size:14px">七、创新价值综合评估</strong>'+
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">'+
+          '<div style="padding:14px;background:#f0fdf4;border-radius:8px;text-align:center"><div style="font-size:24px;font-weight:700;color:#16a34a">85</div><div style="font-size:12px;color:#6b7280;margin-top:4px">学术创新指数</div></div>'+
+          '<div style="padding:14px;background:#f5f3ff;border-radius:8px;text-align:center"><div style="font-size:24px;font-weight:700;color:#7c3aed">78</div><div style="font-size:12px;color:#6b7280;margin-top:4px">应用价值指数</div></div>'+
+          '<div style="padding:14px;background:#fffbeb;border-radius:8px;text-align:center"><div style="font-size:24px;font-weight:700;color:#d97706">72</div><div style="font-size:12px;color:#6b7280;margin-top:4px">技术可行性指数</div></div>'+
+        '</div>'+
+        '<p style="margin-top:14px;color:#4b5563">综合评估：该研究方向具有<strong>较高的学术创新价值</strong>（85分），在理论层面有望取得突破性进展。应用价值处于中上水平（78分），技术可行性面临一定挑战（72分），主要体现在计算资源需求与模型可解释性方面。建议重点关注轻量化部署与可解释AI两个子方向，以提升整体可行性。</p>'+
+      '</div>'+
+      // Section 8: Conclusion
+      '<div style="margin-bottom:16px;padding:16px;background:#f9fafb;border-radius:8px"><strong style="font-size:14px">八、结论与建议</strong>'+
+        '<p style="margin-top:8px;color:#4b5563"><strong>核心结论：</strong>基于对<strong>'+kp.length+'个核心要点</strong>的系统分析，结合<strong>'+kw.length+'个关键词</strong>的语义网络，本报告得出以下关键结论：</p>'+
+        '<div style="padding-left:8px;color:#4b5563;margin-top:6px">'+
+          kp.map(function(k,i){return '<div style="padding:4px 0">'+(i+1)+'. <strong>'+escapeHtml(k)+'</strong>方面，现有研究已取得显著进展，但仍存在优化空间，建议作为重点研究方向持续关注。</div>'}).join('')+
+        '</div>'+
+        '<p style="margin-top:10px;color:#4b5563"><strong>行动建议：</strong></p>'+
+        '<div style="padding-left:8px;color:#4b5563">'+
+          '<div style="padding:3px 0">• 优先推进<strong>'+kp[0]+'</strong>的深入研究，争取在6个月内产出阶段性成果</div>'+
+          '<div style="padding:3px 0">• 关注<strong>'+kw[0]+'</strong>与<strong>'+(kw[1]||kw[0])+'</strong>的交叉融合方向，探索新的研究增长点</div>'+
+          '<div style="padding:3px 0">• 按照分析步骤<strong>"'+st[0]+'"</strong>的要求，建立标准化的研究流程模板</div>'+
+          '<div style="padding:3px 0">• 定期（每季度）更新文献检索，跟踪领域最新进展</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+  document.getElementById('researchResult').innerHTML+=html;
+  showToast('分析完成，报告已生成（基于'+kp.length+'个要点、'+kw.length+'个关键词、'+st.length+'个步骤）');
+}
+function generateTitle(input){
+  var title=input.slice(0,50);
+  if(title.length>=50)title+='...';
+  return title+' — 系统性研究报告';
+}
+function getInsightForPoint(k,i){
+  var insights=[
+    '该要点是研究框架的基础支柱。通过文献计量分析发现，近五年该方向论文数量增长'+(180+i*30)+'%，是领域内增长速度最快的方向之一。建议从理论建模与实证验证两个维度并行推进，重点关注前沿方法的适用性评估。',
+    '该要点聚焦技术方法层面。当前主流方法在标准数据集上已达到'+(88+i*3)+'%的准确率，但在复杂场景下的泛化能力仍有'+(25-i*3)+'%的提升空间。迁移学习与领域自适应技术是解决这一瓶颈的关键路径。',
+    '该要点侧重成果对比与评估。横向对比'+(3+i)+'种主流方案，最优方案在核心指标上领先次优方案约'+(8+i*2)+'个百分点。然而各方案在计算效率、可解释性等方面存在明显差异，建议根据实际场景进行权衡选择。',
+    '该要点关注发展趋势与前沿探索。大模型与自监督学习的结合正在重塑研究范式，预计未来'+(2+i)+'年内将出现'+(3+i)+'个以上的突破性进展。建议提前布局相关技术储备，把握先发优势。'
+  ];
+  return insights[i%insights.length];
+}
+function getKeywordDef(k){
+  var defs={
+    '深度学习':'多层神经网络学习范式','机器学习':'数据驱动的模型训练','神经网络':'模拟人脑的计算模型','人工智能':'机器模拟人类智能',
+    '数据分析':'数据的挖掘与解读','算法':'解决问题的计算步骤','模型':'现实世界的抽象表示','优化':'性能提升的迭代过程',
+    '系统':'集成化的解决方案','应用':'实际场景的落地','研究':'系统性的探索','技术':'工程化的方法',
+    '方法':'解决问题的途径','设计':'架构与方案规划','实现':'从理论到实践','Transformer':'自注意力机制架构',
+    '文献综述':'文献的系统梳理','研究现状':'当前研究进展','方法论':'研究方法体系','发展趋势':'未来演进方向',
+    '对比分析':'多方案横向比较','性能评估':'效果量化评测','创新点':'独特贡献识别','适用性':'场景适配度',
+    '研究计划':'系统研究方案','技术路线':'技术实现路径','预期成果':'目标产出规划','创新点':'独创性贡献'
+  };
+  return defs[k]||'核心研究概念';
+}
+function getStepDetail(s,i){
+  var details=[
+    '预计耗时：'+(2+i*0.5)+'小时，产出：结构化文献数据库',
+    '预计耗时：'+(3+i*0.5)+'小时，产出：核心观点摘要表',
+    '预计耗时：'+(2+i*0.5)+'小时，产出：创新点列表与评估',
+    '预计耗时：'+(4+i*0.5)+'小时，产出：多维度对比矩阵',
+    '预计耗时：'+(3+i*0.5)+'小时，产出：完整研究报告'
+  ];
+  return details[i%details.length];
+}
+function editReport(){
+  var reportContainer=document.querySelector('#researchResult .card:last-child');
+  if(!reportContainer){showToast('请先生成报告');return}
+  var reportBody=reportContainer.querySelector('.card-body')||reportContainer.querySelector('div[style]');
+  if(!reportBody){showToast('请先生成报告');return}
+  if(reportBody.contentEditable!=='true'){
+    reportBody.contentEditable='true';
+    reportBody.style.outline='2px dashed #6366f1';
+    reportBody.style.outlineOffset='4px';
+    reportBody.style.borderRadius='4px';
+    var editBtn=reportContainer.querySelector('button[onclick="editReport()"]');
+    if(editBtn){editBtn.textContent='保存编辑';editBtn.setAttribute('onclick','saveReportEdit()')}
+    showToast('已进入编辑模式，点击报告内容即可修改');
+  }
+}
+function saveReportEdit(){
+  var reportContainer=document.querySelector('#researchResult .card:last-child');
+  if(!reportContainer)return;
+  var reportBody=reportContainer.querySelector('[contenteditable="true"]');
+  if(reportBody){
+    reportBody.contentEditable='false';
+    reportBody.style.outline='';
+    reportBody.style.outlineOffset='';
+  }
+  var editBtn=reportContainer.querySelector('button[onclick="saveReportEdit()"]');
+  if(editBtn){editBtn.textContent='编辑';editBtn.setAttribute('onclick','editReport()')}
+  showToast('报告已保存');
+}
+function copyReport(){
+  var result=document.getElementById('researchResult');
+  if(!result||!result.textContent.trim()){showToast('请先生成报告');return}
+  var reportText=result.innerText;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(reportText).then(function(){
+      showToast('报告内容已复制到剪贴板');
+    }).catch(function(){
+      fallbackCopy(reportText);
+    });
+  }else{
+    fallbackCopy(reportText);
+  }
+}
+function fallbackCopy(text){
+  var ta=document.createElement('textarea');
+  ta.value=text;
+  ta.style.position='fixed';
+  ta.style.left='-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try{document.execCommand('copy');showToast('报告内容已复制到剪贴板')}catch(e){showToast('复制失败，请手动复制')}
+  document.body.removeChild(ta);
+}
+function downloadReport(format){
+  var result=document.getElementById('researchResult');
+  if(!result||!result.textContent.trim()){showToast('请先生成报告');return}
+  var content=result.innerHTML;
+  var textContent=result.innerText;
+  if(format==='pdf'){
+    // Generate HTML file with print-friendly styling; user can open and print to PDF
+    var printHtml='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>研究报告</title>'+
+      '<style>body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;padding:40px;color:#333;line-height:1.8;max-width:800px;margin:0 auto}'+
+      'h3{border-bottom:2px solid #333;padding-bottom:8px;margin-top:20px}'+
+      'table{border-collapse:collapse;width:100%;margin:16px 0}td,th{border:1px solid #ddd;padding:8px;text-align:left}'+
+      '@media print{body{padding:20px}}</style></head><body>'+
+      content.replace(/style="[^"]*"/g,'')+'</body></html>';
+    var blob=new Blob([printHtml],{type:'text/html;charset=UTF-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download='研究报告_'+new Date().toISOString().slice(0,10)+'.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url)},1000);
+    showToast('报告已下载为HTML文件（可用浏览器打开后打印为PDF）');
+  }else if(format==='doc'){
+    var blob=new Blob(['\ufeff',textContent],{type:'application/msword'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download='研究报告_'+Date.now()+'.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('报告已下载为Word文档');
+  }else{
+    var blob=new Blob([textContent],{type:'text/plain'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download='研究报告_'+Date.now()+'.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('报告已下载为TXT文件');
+  }
+}
+
+// ============ MODULE 3: LEARNING ANALYSIS ============
+function renderAnalysis(){
+  return '<div class="page-title">AI学情分析</div>'+
+    '<div class="page-desc">针对课程学生学习展开数据统计分析，支持AI智能体问答与个性化评价</div>'+
+    '<div class="tab-bar">'+
+      '<div class="tab-item active" onclick="setAnalysisTab(this,\'overview\')">班级总览</div>'+
+      '<div class="tab-item" onclick="setAnalysisTab(this,\'assignment\')">作业/考试分析</div>'+
+      '<div class="tab-item" onclick="setAnalysisTab(this,\'portrait\')">学生画像</div>'+
+      '<div class="tab-item" onclick="setAnalysisTab(this,\'qa\')">AI学情问答</div>'+
+    '</div>'+
+    '<div id="analysisContent">'+renderAnalysisOverview()+'</div>';
+}
+function setAnalysisTab(btn,tab){
+  document.querySelectorAll('.tab-bar .tab-item').forEach(function(t){t.classList.remove('active')});
+  btn.classList.add('active');
+  var renderers={overview:renderAnalysisOverview,assignment:renderAnalysisAssignment,portrait:renderAnalysisPortrait,qa:renderAnalysisQA};
+  document.getElementById('analysisContent').innerHTML=(renderers[tab]||renderAnalysisOverview)();
+  if(tab==='qa')initAnalysisQA();
+}
+function renderAnalysisOverview(){
+  var avgScore=Math.round(STUDENTS.reduce(function(s,st){return s+st.score},0)/STUDENTS.length);
+  var avgVideo=Math.round(STUDENTS.reduce(function(s,st){return s+st.videoRate},0)/STUDENTS.length);
+  var avgHw=Math.round(STUDENTS.reduce(function(s,st){return s+st.homeworkRate},0)/STUDENTS.length);
+  var avgExam=Math.round(STUDENTS.reduce(function(s,st){return s+st.examRate},0)/STUDENTS.length);
+  var avgPart=Math.round(STUDENTS.reduce(function(s,st){return s+st.participation},0)/STUDENTS.length);
+  var avgKnow=Math.round(STUDENTS.reduce(function(s,st){return s+st.knowledge},0)/STUDENTS.length);
+  return '<div class="stat-grid">'+
+      statCard('班级平均分',avgScore,'满分100')+
+      statCard('视频完成率',avgVideo+'%','班级平均')+
+      statCard('作业完成率',avgHw+'%','班级平均')+
+      statCard('考试完成率',avgExam+'%','班级平均')+
+    '</div>'+
+    '<div class="card">'+
+      cardHeader('各维度完成情况','')+
+      '<div class="bar-chart">'+
+        barRow('视频观看',avgVideo)+
+        barRow('作业完成',avgHw)+
+        barRow('考试完成',avgExam)+
+        barRow('课堂参与',avgPart)+
+        barRow('知识掌握',avgKnow)+
+      '</div>'+
+    '</div>'+
+    '<div class="card">'+
+      cardHeader('学生成绩分布','<button class="btn btn-sm" onclick="showToast(\'已导出\')">导出</button>')+
+      '<table><thead><tr><th>学生</th><th>综合成绩</th><th>视频</th><th>作业</th><th>考试</th><th>参与</th><th>知识</th><th>等级</th><th>操作</th></tr></thead><tbody>'+
+        STUDENTS.map(function(s){
+          return '<tr><td>'+s.name+'</td><td><strong>'+s.score+'</strong></td><td>'+s.videoRate+'%</td><td>'+s.homeworkRate+'%</td><td>'+s.examRate+'%</td><td>'+s.participation+'%</td><td>'+s.knowledge+'%</td><td>'+levelTag(s.level)+'</td><td><button class="btn btn-sm" onclick="viewStudent(\''+s.id+'\')">详情</button></td></tr>';
+        }).join('')+
+      '</tbody></table>'+
+    '</div>'+
+    '<div class="card">'+
+      cardHeader('关注学生提醒','<button class="btn btn-sm btn-primary" onclick="remindStudents()">一键提醒</button>')+
+      '<div style="font-size:13px;color:#6b7280;margin-bottom:12px">以下学生学习表现较差，建议及时提醒</div>'+
+      STUDENTS.filter(function(s){return s.level==='待提升'}).map(function(s){
+        return '<div class="list-item"><div class="list-item-icon" style="background:#fef2f2">'+s.name.charAt(0)+'</div><div class="list-item-body"><div class="list-item-title">'+s.name+'</div><div class="list-item-desc">综合成绩：'+s.score+' · 视频完成：'+s.videoRate+'%</div></div><span class="tag tag-danger">待提升</span></div>';
+      }).join('')+
+    '</div>';
+}
+function barRow(label,value){
+  return '<div style="display:flex;align-items:center;gap:12px">'+
+    '<div style="width:80px;font-size:12px;color:#6b7280;text-align:right">'+label+'</div>'+
+    '<div class="bar-track"><div class="bar-fill" style="width:'+value+'%"></div><div class="bar-value">'+value+'%</div></div>'+
+  '</div>';
+}
+function levelTag(level){
+  var map={'优秀':'tag-success','良好':'tag-info','中等':'tag-warning','待提升':'tag-danger'};
+  return '<span class="tag '+(map[level]||'tag-default')+'">'+level+'</span>';
+}
+function renderAnalysisAssignment(){
+  var aid=ANALYSIS_STATE.selectedAssignment;
+  var a=ANALYSIS_ASSIGNMENTS.find(function(x){return x.id===aid})||ANALYSIS_ASSIGNMENTS[0];
+  return '<div class="card">'+
+    cardHeader('作业/考试选择','<select class="form-select" style="width:auto" onchange="onAssignmentChange(this.value)">'+
+      ANALYSIS_ASSIGNMENTS.map(function(x){return '<option value="'+x.id+'"'+(x.id===aid?' selected':'')+'>'+x.name+'</option>'}).join('')+
+    '</select>')+
+    '<div style="font-size:13px;color:#6b7280;margin-bottom:16px">分析单份作业/考试中题目作答情况 · 当前：'+a.name+'</div>'+
+    '<div class="stat-grid">'+
+      statCard('提交人数',a.submitted,'应交'+a.total+'人')+
+      statCard('平均分',a.avgScore,'满分100')+
+      statCard('及格率',a.passRate+'%','70分及格')+
+      statCard('最高分',a.maxScore,a.maxStudent)+
+    '</div>'+
+    '<div style="margin-top:16px">'+
+      cardHeader('题目作答分析','')+
+      '<table><thead><tr><th>题号</th><th>题型</th><th>正确率</th><th>平均用时</th><th>难度</th><th>分析</th></tr></thead><tbody>'+
+        a.questions.map(function(q){
+          var diffTag=q.difficulty==='易'?'tag-success':q.difficulty==='中'?'tag-warning':'tag-danger';
+          return '<tr><td>'+q.no+'</td><td>'+q.type+'</td><td>'+q.rate+'%</td><td>'+q.avgTime+'</td><td><span class="tag '+diffTag+'">'+q.difficulty+'</span></td><td><button class="btn btn-sm" onclick="viewQuestionAnalysis(\''+a.id+'\','+q.no+')">查看</button></td></tr>';
+        }).join('')+
+      '</tbody></table>'+
+    '</div>'+
+    '<div style="margin-top:16px;padding:14px;background:#f9fafb;border-radius:8px;font-size:13px;line-height:1.7;color:#4b5563">'+
+      '<strong>整体分析结论：</strong>'+
+      getAssignmentConclusion(a)+
+    '</div>'+
+  '</div>';
+}
+function onAssignmentChange(id){
+  ANALYSIS_STATE.selectedAssignment=id;
+  document.getElementById('analysisContent').innerHTML=renderAnalysisAssignment();
+}
+function getAssignmentConclusion(a){
+  var lowRateQ=a.questions.filter(function(q){return q.rate<60});
+  if(lowRateQ.length>0){
+    return '本次作业共'+a.questions.length+'题，其中'+lowRateQ.length+'题正确率低于60%，分别为第'+lowRateQ.map(function(q){return q.no}).join('、')+'题。建议针对这些题目涉及的知识点进行重点讲解和专项练习。班级整体表现'+(a.passRate>=85?'优秀':a.passRate>=75?'良好':'中等偏下')+'，平均分'+a.avgScore+'分。';
+  }
+  return '本次作业整体表现优秀，所有题目正确率均在60%以上，班级平均分'+a.avgScore+'分。可以适度提升难度，引导学生进行拓展学习。';
+}
+function viewQuestionAnalysis(aid,qno){
+  var a=ANALYSIS_ASSIGNMENTS.find(function(x){return x.id===aid});
+  if(!a)return;
+  var q=a.questions.find(function(x){return x.no===qno});
+  if(!q)return;
+  var wrongCount=Math.round((100-q.rate)/100*a.submitted);
+  var totalWrong=Math.round((100-q.rate)/100*a.submitted);
+  var wrongRate=100-q.rate;
+  openModal('题目详细分析 · 第'+q.no+'题',
+    '<div style="font-size:13px;line-height:1.8">'+
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">'+
+        '<div style="padding:10px;background:#f9fafb;border-radius:8px;text-align:center"><div style="font-size:11px;color:#9ca3af">题型</div><div style="font-size:14px;font-weight:600;margin-top:4px">'+q.type+'</div></div>'+
+        '<div style="padding:10px;background:#f9fafb;border-radius:8px;text-align:center"><div style="font-size:11px;color:#9ca3af">正确率</div><div style="font-size:14px;font-weight:600;margin-top:4px;color:'+(q.rate>=80?'#16a34a':q.rate>=60?'#d97706':'#dc2626')+'">'+q.rate+'%</div></div>'+
+        '<div style="padding:10px;background:#f9fafb;border-radius:8px;text-align:center"><div style="font-size:11px;color:#9ca3af">答错人数</div><div style="font-size:14px;font-weight:600;margin-top:4px">'+totalWrong+'人</div></div>'+
+        '<div style="padding:10px;background:#f9fafb;border-radius:8px;text-align:center"><div style="font-size:11px;color:#9ca3af">平均用时</div><div style="font-size:14px;font-weight:600;margin-top:4px">'+q.avgTime+'</div></div>'+
+      '</div>'+
+      '<div style="margin-bottom:14px"><strong>难度：</strong><span class="tag '+(q.difficulty==='易'?'tag-success':q.difficulty==='中'?'tag-warning':'tag-danger')+'">'+q.difficulty+'</span></div>'+
+      '<div style="padding:14px;background:#fffbeb;border-radius:8px;margin-bottom:14px">'+
+        '<div style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:6px">错因分析</div>'+
+        '<div style="font-size:12px;color:#4b5563;line-height:1.7">'+q.analysis+'</div>'+
+      '</div>'+
+      '<div style="padding:14px;background:#f0f9ff;border-radius:8px">'+
+        '<div style="font-size:12px;font-weight:600;color:#0369a1;margin-bottom:6px">教学建议</div>'+
+        '<div style="font-size:12px;color:#4b5563;line-height:1.7">'+getQuestionSuggestion(q)+'</div>'+
+      '</div>'+
+    '</div>',
+    '<button class="btn" onclick="closeModal()">关闭</button>'+
+    '<button class="btn btn-primary" onclick="closeModal();showToast(\'已加入重点复习\')">加入重点复习</button>'
+  );
+}
+function getQuestionSuggestion(q){
+  if(q.rate>=80)return '本题掌握情况良好，建议在后续测验中保持该题型的训练频率即可。';
+  if(q.rate>=60)return '本题正确率中等，建议在下次课上花5-10分钟进行针对性讲解，并布置类似练习题加强巩固。';
+  return '本题正确率偏低，建议：①安排专题讲解时间（建议20分钟以上）；②设计3-5道同类型课后练习题；③对答错学生进行个别辅导或小组讨论。';
+}
+function renderAnalysisPortrait(){
+  var idx=ANALYSIS_STATE.selectedStudentIdx;
+  var s=STUDENTS[idx];
+  if(!s)s=STUDENTS[0];
+  var strengths=[];
+  var weaknesses=[];
+  if(s.videoRate>=85)strengths.push('视频观看积极（完成率'+s.videoRate+'%）');
+  if(s.homeworkRate>=85)strengths.push('作业完成优秀（完成率'+s.homeworkRate+'%）');
+  if(s.examRate>=85)strengths.push('考试成绩优异（完成率'+s.examRate+'%）');
+  if(s.participation>=80)strengths.push('课堂参与度高（参与率'+s.participation+'%）');
+  if(s.knowledge>=85)strengths.push('知识掌握扎实（掌握率'+s.knowledge+'%）');
+  if(s.videoRate<70)weaknesses.push('视频观看不足（完成率仅'+s.videoRate+'%）');
+  if(s.homeworkRate<70)weaknesses.push('作业完成情况较差（完成率仅'+s.homeworkRate+'%）');
+  if(s.examRate<70)weaknesses.push('考试成绩有待提升（完成率仅'+s.examRate+'%）');
+  if(s.participation<65)weaknesses.push('课堂参与度偏低（参与率仅'+s.participation+'%）');
+  if(s.knowledge<70)weaknesses.push('知识掌握不牢（掌握率仅'+s.knowledge+'%）');
+  if(strengths.length===0)strengths.push('暂无突出优势维度，需全面提升');
+  if(weaknesses.length===0)weaknesses.push('无明显薄弱环节，继续保持');
+  var rankInfo=getStudentRank(s);
+  return '<div class="card">'+
+    cardHeader('学生画像分析','<select class="form-select" style="width:auto" onchange="onStudentChange(this.value)">'+
+      STUDENTS.map(function(st,i){return '<option value="'+i+'"'+(i===idx?' selected':'')+'>'+st.name+'</option>'}).join('')+
+    '</select>')+
+    '<div style="display:grid;grid-template-columns:200px 1fr;gap:20px">'+
+      '<div style="text-align:center">'+
+        '<div style="width:80px;height:80px;border-radius:50%;background:#1a1a1a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;margin:0 auto 12px">'+s.name.charAt(0)+'</div>'+
+        '<div style="font-size:16px;font-weight:600">'+s.name+'</div>'+
+        '<div style="font-size:12px;color:#9ca3af;margin-top:4px">学号：2024'+String(idx+1).padStart(4,'0')+'</div>'+
+        '<div style="font-size:12px;color:#9ca3af">计算机学院 · 大三</div>'+
+        '<div style="margin-top:8px">'+levelTag(s.level)+'</div>'+
+        '<div style="margin-top:12px;padding:8px;background:#f9fafb;border-radius:6px;font-size:12px">'+
+          '<div>班级排名：<strong>'+rankInfo.rank+'</strong>/'+rankInfo.total+'</div>'+
+          '<div style="margin-top:4px">进步情况：<span style="color:'+(rankInfo.improved?'#16a34a':'#dc2626')+'">'+(rankInfo.improved?'↑ 上升2名':'↓ 下降1名')+'</span></div>'+
+        '</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="bar-chart">'+
+          barRow('视频观看',s.videoRate)+
+          barRow('作业完成',s.homeworkRate)+
+          barRow('考试完成',s.examRate)+
+          barRow('课堂参与',s.participation)+
+          barRow('知识掌握',s.knowledge)+
+        '</div>'+
+        '<div style="margin-top:16px;padding:14px;background:#f0fdf4;border-radius:8px;font-size:13px;line-height:1.7">'+
+          '<strong style="color:#16a34a">优势维度：</strong><br>'+
+          strengths.map(function(x){return '• '+x}).join('<br>')+
+        '</div>'+
+        '<div style="margin-top:10px;padding:14px;background:#fef2f2;border-radius:8px;font-size:13px;line-height:1.7">'+
+          '<strong style="color:#dc2626">薄弱环节：</strong><br>'+
+          weaknesses.map(function(x){return '• '+x}).join('<br>')+
+        '</div>'+
+        '<div style="margin-top:12px;padding:14px;background:#f9fafb;border-radius:8px;font-size:13px;line-height:1.7;color:#4b5563">'+
+          '<strong>AI综合评价：</strong><br>'+
+          getStudentEvalDetailed(s)+
+        '</div>'+
+        '<div style="margin-top:12px;display:flex;gap:8px">'+
+          '<button class="btn btn-sm" onclick="viewStudent(\''+s.id+'\')">查看详情</button>'+
+          '<button class="btn btn-sm" onclick="showToast(\'已生成学习建议\')">生成学习建议</button>'+
+          (s.level==='待提升'?'<button class="btn btn-sm btn-primary" onclick="closeModal();showToast(\'已发送提醒\')">发送提醒</button>':'')+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+function onStudentChange(idx){
+  ANALYSIS_STATE.selectedStudentIdx=parseInt(idx);
+  document.getElementById('analysisContent').innerHTML=renderAnalysisPortrait();
+}
+function getStudentRank(s){
+  var sorted=STUDENTS.slice().sort(function(a,b){return b.score-a.score});
+  var rank=sorted.indexOf(s)+1;
+  var improved=s.level==='优秀'?true:s.level==='待提升'?false:Math.random()>0.5;
+  return {rank:rank,total:sorted.length,improved:improved};
+}
+function getStudentEvalDetailed(s){
+  if(s.level==='优秀'){
+    return s.name+'同学综合表现优秀，综合成绩'+s.score+'分，班级排名前列。学习态度积极主动，视频完成率达'+s.videoRate+'%，作业完成率'+s.homeworkRate+'%。知识掌握扎实，课堂参与度高。'+
+      '建议：①作为学习小组组长，带动同学共同进步；②推荐参与科研项目（如AI实验室助手）；③可申请免修部分已掌握的基础课程，将精力集中在深度学习等前沿方向。';
+  }
+  if(s.level==='良好'){
+    return s.name+'同学整体表现良好，综合成绩'+s.score+'分。各维度发展均衡，视频和作业完成率均在'+s.homeworkRate+'%以上。'+
+      '建议：①加强课堂参与度，主动回答问题和参与讨论；②针对薄弱知识点进行专项练习；③可尝试参加AI相关竞赛（如"中国大学生计算机设计大赛"）。';
+  }
+  if(s.level==='中等'){
+    return s.name+'同学综合表现中等，综合成绩'+s.score+'分。视频观看和作业完成情况尚可，但课堂参与度和知识掌握率有提升空间。'+
+      '建议：①制定每日学习计划，确保视频观看时间；②每章结束后主动完成思维导图总结；③主动向老师或助教提问，及时解决知识盲点。';
+  }
+  return s.name+'同学综合成绩'+s.score+'分，处于班级待提升行列。'+
+    '可能存在的问题：①学习动力不足，缺乏明确目标；②基础知识薄弱，跟不上教学进度；③学习方法不当，效率低下。'+
+    '建议：①安排学习伙伴进行一对一帮扶；②制定个性化学习计划，分解学习目标；③定期进行学习心理辅导，增强学习信心；④与家长沟通，形成家校合力。';
+}
+function renderAnalysisQA(){
+  return '<div class="card">'+
+    cardHeader('AI学情问答',
+      '<div style="display:flex;gap:8px">'+
+        '<button class="btn btn-sm" onclick="saveCommonQuestion()">保存当前对话</button>'+
+        '<button class="btn btn-sm" onclick="toggleCommonList()">'+(COMMON_QUESTIONS.length>0?'查看已保存问题('+COMMON_QUESTIONS.length+')':'查看已保存问题')+'</button>'+
+      '</div>'
+    )+
+    '<div class="chat-box">'+
+      '<div class="chat-messages" id="analysisChat">'+
+        '<div class="chat-msg ai"><div class="chat-avatar ai">AI</div><div class="chat-bubble">您好，我是学情分析助手。可以回答关于班级学情的各类问题，例如：班级整体成绩如何？哪些学生需要关注？某次作业的完成情况？</div></div>'+
+      '</div>'+
+      '<div class="chat-quick">'+
+        '<div class="chat-quick-btn" onclick="sendAnalysisQ(\'班级整体成绩如何？\')">班级整体成绩如何？</div>'+
+        '<div class="chat-quick-btn" onclick="sendAnalysisQ(\'哪些学生需要重点关注？\')">哪些学生需要重点关注？</div>'+
+        '<div class="chat-quick-btn" onclick="sendAnalysisQ(\'视频完成情况如何？\')">视频完成情况如何？</div>'+
+        '<div class="chat-quick-btn" onclick="sendAnalysisQ(\'知识掌握情况分析\')">知识掌握情况分析</div>'+
+      '</div>'+
+      '<div class="chat-input-area">'+
+        '<input class="chat-input" id="analysisInput" placeholder="输入您的问题..." onkeypress="if(event.key===\'Enter\')sendAnalysisQ()">'+
+        '<button class="btn btn-primary" onclick="sendAnalysisQ()">发送</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>'+
+  '<div class="card" id="commonQuestionsCard" style="display:none">'+
+    cardHeader('已保存的常见问题','<button class="btn btn-sm btn-ghost" onclick="toggleCommonList()">收起</button>')+
+    '<div id="commonQuestionsList"></div>'+
+  '</div>'+
+  '<div class="card">'+
+    cardHeader('定时推送设置','<button class="btn btn-sm btn-primary" onclick="addPushRule()">添加推送</button>')+
+    '<div style="font-size:13px;color:#6b7280;margin-bottom:12px">设置关注数据的定时推送，自动接收分析报告</div>'+
+    '<table><thead><tr><th>推送内容</th><th>推送频率</th><th>接收方式</th><th>状态</th><th>操作</th></tr></thead><tbody>'+
+      '<tr><td>每周学情周报</td><td>每周一 8:00</td><td>站内消息</td><td><span class="tag tag-success">启用</span></td><td><button class="btn btn-sm btn-ghost">编辑</button></td></tr>'+
+      '<tr><td>低分学生预警</td><td>每日 18:00</td><td>站内消息+邮件</td><td><span class="tag tag-success">启用</span></td><td><button class="btn btn-sm btn-ghost">编辑</button></td></tr>'+
+      '<tr><td>作业完成率统计</td><td>每周三 9:00</td><td>站内消息</td><td><span class="tag tag-default">停用</span></td><td><button class="btn btn-sm btn-ghost">编辑</button></td></tr>'+
+    '</tbody></table>'+
+  '</div>';
+}
+function toggleCommonList(){
+  var card=document.getElementById('commonQuestionsCard');
+  if(!card)return;
+  if(card.style.display==='none'){
+    card.style.display='block';
+    renderCommonQuestionsList();
+  }else{
+    card.style.display='none';
+  }
+}
+function renderCommonQuestionsList(){
+  var list=document.getElementById('commonQuestionsList');
+  if(!list)return;
+  if(COMMON_QUESTIONS.length===0){
+    list.innerHTML='<div style="font-size:13px;color:#9ca3af;text-align:center;padding:20px">暂无已保存的问题，在AI对话中提问后点击"保存当前对话"可保存问题</div>';
+    return;
+  }
+  list.innerHTML=COMMON_QUESTIONS.map(function(q,i){
+    return '<div style="padding:12px;background:#f9fafb;border-radius:8px;margin-bottom:10px;border-left:3px solid #1a1a1a">'+
+      '<div style="display:flex;justify-content:space-between;align-items:start">'+
+        '<div style="flex:1">'+
+          '<div style="font-size:13px;font-weight:500;margin-bottom:4px">'+escapeHtml(q.question)+'</div>'+
+          '<div style="font-size:12px;color:#6b7280;line-height:1.6">'+escapeHtml(q.answer)+'</div>'+
+          '<div style="font-size:11px;color:#9ca3af;margin-top:6px">保存时间：'+q.time+'</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:4px">'+
+          '<button class="btn btn-sm btn-ghost" onclick="sendAnalysisQ(\''+escapeHtml(q.question)+'\')">重新提问</button>'+
+          '<button class="btn btn-sm btn-danger" onclick="deleteCommonQuestion('+i+')">删除</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+function deleteCommonQuestion(idx){
+  COMMON_QUESTIONS.splice(idx,1);
+  renderCommonQuestionsList();
+  showToast('问题已删除');
+}
+function initAnalysis(){}
+function initAnalysisQA(){}
+function sendAnalysisQ(q){
+  q=q||document.getElementById('analysisInput').value.trim();
+  if(!q)return;
+  var chat=document.getElementById('analysisChat');
+  chat.innerHTML+='<div class="chat-msg user"><div class="chat-avatar user">我</div><div class="chat-bubble">'+escapeHtml(q)+'</div></div>';
+  document.getElementById('analysisInput').value='';
+  chat.scrollTop=chat.scrollHeight;
+  setTimeout(function(){
+    var response=getAnalysisResponse(q);
+    chat.innerHTML+='<div class="chat-msg ai"><div class="chat-avatar ai">AI</div><div class="chat-bubble">'+response.replace(/\n/g,'<br>')+'</div></div>';
+    chat.scrollTop=chat.scrollHeight;
+  },600);
+}
+function getAnalysisResponse(q){
+  var avgScore=Math.round(STUDENTS.reduce(function(s,st){return s+st.score},0)/STUDENTS.length);
+  var poorStudents=STUDENTS.filter(function(s){return s.level==='待提升'});
+  if(q.indexOf('成绩')>=0||q.indexOf('整体')>=0){
+    return '当前班级共'+STUDENTS.length+'名学生，平均分'+avgScore+'分。\n\n成绩分布：\n· 优秀(90+)：'+STUDENTS.filter(function(s){return s.level==='优秀'}).length+'人\n· 良好(80-89)：'+STUDENTS.filter(function(s){return s.level==='良好'}).length+'人\n· 中等(70-79)：'+STUDENTS.filter(function(s){return s.level==='中等'}).length+'人\n· 待提升(<70)：'+poorStudents.length+'人\n\n整体成绩呈正态分布，建议关注低分段学生的学习情况。';
+  }
+  if(q.indexOf('关注')>=0||q.indexOf('重点')>=0){
+    return '以下'+poorStudents.length+'名学生需要重点关注：\n\n'+poorStudents.map(function(s){return '· '+s.name+'：综合成绩'+s.score+'分，视频完成'+s.videoRate+'%，作业完成'+s.homeworkRate+'%'}).join('\n')+'\n\n建议使用一键提醒功能通知这些学生加强学习。';
+  }
+  if(q.indexOf('视频')>=0){
+    var avg=Math.round(STUDENTS.reduce(function(s,st){return s+st.videoRate},0)/STUDENTS.length);
+    return '视频观看整体完成率为'+avg+'%。\n\n完成率最高：'+STUDENTS.sort(function(a,b){return b.videoRate-a.videoRate})[0].name+'('+STUDENTS[0].videoRate+'%)\n完成率最低：'+STUDENTS.sort(function(a,b){return a.videoRate-b.videoRate})[0].name+'\n\n建议对完成率低于60%的学生进行提醒。';
+  }
+  if(q.indexOf('知识')>=0){
+    return '知识掌握情况分析：\n\n班级平均知识掌握度：'+Math.round(STUDENTS.reduce(function(s,st){return s+st.knowledge},0)/STUDENTS.length)+'%\n\n薄弱知识点：\n· 深度学习相关概念掌握率偏低\n· 强化学习原理理解不足\n\n建议针对薄弱知识点布置专项练习。';
+  }
+  return '已收到您的问题。当前班级共'+STUDENTS.length+'名学生，平均分'+avgScore+'分。您可以尝试询问"班级整体成绩"、"重点关注学生"、"视频完成情况"等获取更详细分析。';
+}
+function viewStudent(id){
+  var s=STUDENTS.find(function(x){return x.id===id});
+  if(!s)return;
+  openModal('学生详情 · '+s.name,
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">'+
+      '<div style="padding:12px;background:#f9fafb;border-radius:8px;text-align:center"><div style="font-size:11px;color:#9ca3af">综合成绩</div><div style="font-size:20px;font-weight:700;margin-top:4px">'+s.score+'</div></div>'+
+      '<div style="padding:12px;background:#f9fafb;border-radius:8px;text-align:center"><div style="font-size:11px;color:#9ca3af">视频完成</div><div style="font-size:20px;font-weight:700;margin-top:4px">'+s.videoRate+'%</div></div>'+
+      '<div style="padding:12px;background:#f9fafb;border-radius:8px;text-align:center"><div style="font-size:11px;color:#9ca3af">作业完成</div><div style="font-size:20px;font-weight:700;margin-top:4px">'+s.homeworkRate+'%</div></div>'+
+    '</div>'+
+    '<div class="bar-chart">'+barRow('视频观看',s.videoRate)+barRow('作业完成',s.homeworkRate)+barRow('考试完成',s.examRate)+barRow('课堂参与',s.participation)+barRow('知识掌握',s.knowledge)+'</div>'+
+    '<div style="margin-top:16px;padding:14px;background:#f9fafb;border-radius:8px;font-size:13px;line-height:1.7;color:#4b5563"><strong>AI画像评价：</strong><br>'+getStudentEval(s)+'</div>',
+    '<button class="btn" onclick="closeModal()">关闭</button>'+(s.level==='待提升'?'<button class="btn btn-primary" onclick="closeModal();showToast(\'已发送提醒通知\')">发送提醒</button>':'')
+  );
+}
+function getStudentEval(s){
+  if(s.level==='优秀')return '该学生学习态度积极，各维度表现优异。视频观看和作业完成率高，知识掌握扎实，课堂参与积极。建议拓展深度学习相关研究，可参与科研实践项目。';
+  if(s.level==='良好')return '该学生整体表现良好，各维度较为均衡。建议加强课堂互动参与，深化薄弱知识点的学习。继续保持当前学习状态。';
+  if(s.level==='中等')return '该学生表现中等，视频和作业完成情况尚可，但课堂参与度和知识掌握有待提升。建议增加课堂互动，主动提问和讨论。';
+  return '该学生各维度完成率偏低，学习积极性不足。建议及时与该生沟通，了解学习困难原因，制定针对性辅导计划。可使用一键提醒功能发送学习督促通知。';
+}
+function remindStudents(){
+  var poor=STUDENTS.filter(function(s){return s.level==='待提升'});
+  openModal('一键提醒',
+    '<div style="font-size:13px;line-height:1.7">'+
+      '<div style="margin-bottom:12px;color:#6b7280">将向以下'+poor.length+'名学习表现较差的学生发送提醒通知：</div>'+
+      poor.map(function(s){return '<div class="list-item"><div class="list-item-icon" style="background:#fef2f2">'+s.name.charAt(0)+'</div><div class="list-item-body"><div class="list-item-title">'+s.name+'</div><div class="list-item-desc">成绩：'+s.score+' · 视频：'+s.videoRate+'%</div></div></div>'}).join('')+
+      '<div class="form-group" style="margin-top:12px"><label class="form-label">提醒内容</label><textarea class="form-textarea">同学你好，你的学习进度有所滞后，请尽快完成课程视频和作业。如有学习困难，请及时联系老师。</textarea></div>'+
+      '<div class="form-group"><label class="form-label">通知方式</label><div style="display:flex;gap:12px"><label><input type="checkbox" checked> 站内消息</label><label><input type="checkbox"> 邮件</label><label><input type="checkbox"> 短信</label></div></div>'+
+    '</div>',
+    '<button class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="closeModal();showToast(\'已向'+poor.length+'名学生发送提醒\')">发送提醒</button>'
+  );
+}
+function saveCommonQuestion(){
+  var chat=document.getElementById('analysisChat');
+  if(!chat)return;
+  var userMsgs=chat.querySelectorAll('.chat-msg.user .chat-bubble');
+  var aiMsgs=chat.querySelectorAll('.chat-msg.ai .chat-bubble');
+  if(userMsgs.length===0){showToast('暂无对话内容可保存，请先提问');return}
+  var lastQ=userMsgs[userMsgs.length-1].textContent;
+  var lastA=aiMsgs.length>0?aiMsgs[aiMsgs.length-1].textContent:'暂无AI回答';
+  var now=new Date();
+  var timeStr=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  COMMON_QUESTIONS.push({question:lastQ,answer:lastA,time:timeStr});
+  showToast('问题已保存，共'+COMMON_QUESTIONS.length+'条');
+}
+function addPushRule(){
+  openModal('添加定时推送',
+    '<div class="form-group"><label class="form-label">推送内容</label><select class="form-select"><option>每周学情周报</option><option>低分学生预警</option><option>作业完成率统计</option><option>自定义内容</option></select></div>'+
+    '<div class="form-group"><label class="form-label">推送频率</label><select class="form-select"><option>每日</option><option>每周</option><option>每月</option></select></div>'+
+    '<div class="form-group"><label class="form-label">推送时间</label><input class="form-input" type="time" value="08:00"></div>'+
+    '<div class="form-group"><label class="form-label">接收方式</label><div style="display:flex;gap:12px"><label><input type="checkbox" checked> 站内消息</label><label><input type="checkbox"> 邮件</label></div></div>',
+    '<button class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="closeModal();showToast(\'推送规则已添加\')">添加</button>'
+  );
+}
+
+// ============ MODULE 5: SECURITY ============
+function renderSecurity(){
+  return '<div class="page-title">资源安全检测</div>'+
+    '<div class="page-desc">对课程资源进行智能安全检测，支持关键词配置、多维度审核与文本纠错</div>'+
+    '<div class="tab-bar">'+
+      '<div class="tab-item active" onclick="setSecurityTab(this,\'config\')">检测配置</div>'+
+      '<div class="tab-item" onclick="setSecurityTab(this,\'review\')">资源审核</div>'+
+      '<div class="tab-item" onclick="setSecurityTab(this,\'correction\')">文本纠错</div>'+
+    '</div>'+
+    '<div id="securityContent">'+renderSecurityConfig()+'</div>';
+}
+function setSecurityTab(btn,tab){
+  document.querySelectorAll('.tab-bar .tab-item').forEach(function(t){t.classList.remove('active')});
+  btn.classList.add('active');
+  var renderers={config:renderSecurityConfig,review:renderSecurityReview,correction:renderSecurityCorrection};
+  document.getElementById('securityContent').innerHTML=(renderers[tab]||renderSecurityConfig)();
+}
+function renderSecurityConfig(){
+  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'+
+    '<div class="card">'+
+      cardHeader('关键词配置','<button class="btn btn-sm" onclick="addKeyword(\'keyword\')">添加</button>')+
+      '<div style="font-size:12px;color:#6b7280;margin-bottom:10px">命中关键词的内容将被标记为待审核</div>'+
+      '<div id="keywordList">'+SECURITY_KEYWORDS.map(function(k){return '<span class="keyword-tag">'+escapeHtml(k)+'<span class="remove" onclick="this.parentElement.remove()">✕</span></span>'}).join('')+'</div>'+
+    '</div>'+
+    '<div class="card">'+
+      cardHeader('忽略词配置','<button class="btn btn-sm" onclick="addKeyword(\'ignore\')">添加</button>')+
+      '<div style="font-size:12px;color:#6b7280;margin-bottom:10px">包含忽略词的内容将被自动放行</div>'+
+      '<div id="ignoreList">'+SECURITY_IGNORE.map(function(k){return '<span class="keyword-tag">'+escapeHtml(k)+'<span class="remove" onclick="this.parentElement.remove()">✕</span></span>'}).join('')+'</div>'+
+    '</div>'+
+    '<div class="card">'+
+      cardHeader('用户黑名单','<button class="btn btn-sm" onclick="addUserList(\'black\')">添加</button>')+
+      '<div style="font-size:12px;color:#6b7280;margin-bottom:10px">黑名单用户发布的内容将严格审核</div>'+
+      '<div id="blackList">'+SECURITY_BLACKLIST.map(function(k){return '<span class="keyword-tag" style="background:#fef2f2;color:#dc2626">'+escapeHtml(k)+'<span class="remove" onclick="this.parentElement.remove()">✕</span></span>'}).join('')+'</div>'+
+    '</div>'+
+    '<div class="card">'+
+      cardHeader('用户白名单','<button class="btn btn-sm" onclick="addUserList(\'white\')">添加</button>')+
+      '<div style="font-size:12px;color:#6b7280;margin-bottom:10px">白名单用户发布的内容将免审核</div>'+
+      '<div id="whiteList">'+SECURITY_WHITELIST.map(function(k){return '<span class="keyword-tag" style="background:#f0fdf4;color:#16a34a">'+escapeHtml(k)+'<span class="remove" onclick="this.parentElement.remove()">✕</span></span>'}).join('')+'</div>'+
+    '</div>'+
+  '</div>'+
+  '<div class="card">'+
+    cardHeader('图片名单管理','<button class="btn btn-sm" onclick="showToast(\'已添加\')">添加图片</button>')+
+    '<div style="font-size:12px;color:#6b7280;margin-bottom:12px">配置违规图片特征库，用于图片内容比对检测</div>'+
+    '<table><thead><tr><th>图片名称</th><th>类型</th><th>添加时间</th><th>状态</th><th>操作</th></tr></thead><tbody>'+
+      '<tr><td>违规图片_001.jpg</td><td>敏感内容</td><td>2026-07-20</td><td><span class="tag tag-success">启用</span></td><td><button class="btn btn-sm btn-ghost">移除</button></td></tr>'+
+      '<tr><td>违规图片_002.png</td><td>不当信息</td><td>2026-07-18</td><td><span class="tag tag-success">启用</span></td><td><button class="btn btn-sm btn-ghost">移除</button></td></tr>'+
+      '<tr><td>违规图片_003.jpg</td><td>敏感内容</td><td>2026-07-15</td><td><span class="tag tag-default">停用</span></td><td><button class="btn btn-sm btn-ghost">移除</button></td></tr>'+
+    '</tbody></table>'+
+  '</div>'+
+  '<div class="card">'+
+    cardHeader('用户风险统计','')+
+    '<div class="stat-grid" style="margin-bottom:0">'+
+      statCard('垃圾发布量','126','本周累计')+
+      statCard('垃圾发布率','3.2%','占总发布量')+
+      statCard('高风险用户','8','需重点关注')+
+      statCard('已屏蔽用户','3','累计处理')+
+    '</div>'+
+  '</div>';
+}
+function addKeyword(type){
+  openModal('添加'+(type==='keyword'?'关键词':'忽略词'),
+    '<div class="form-group"><label class="form-label">词内容</label><input class="form-input" id="newKeyword" placeholder="请输入词内容"></div>',
+    '<button class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="confirmAddKeyword(\''+type+'\')">添加</button>'
+  );
+}
+function confirmAddKeyword(type){
+  var val=document.getElementById('newKeyword').value.trim();
+  if(!val){showToast('请输入内容');return}
+  var listId=type==='keyword'?'keywordList':'ignoreList';
+  var list=document.getElementById(listId);
+  var tag=document.createElement('span');
+  tag.className='keyword-tag';
+  tag.innerHTML=escapeHtml(val)+'<span class="remove" onclick="this.parentElement.remove()">✕</span>';
+  list.appendChild(tag);
+  closeModal();
+  showToast('已添加');
+}
+function addUserList(type){
+  openModal('添加'+(type==='black'?'黑名单':'白名单')+'用户',
+    '<div class="form-group"><label class="form-label">用户ID</label><input class="form-input" id="newUser" placeholder="请输入用户ID"></div>',
+    '<button class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="confirmAddUser(\''+type+'\')">添加</button>'
+  );
+}
+function confirmAddUser(type){
+  var val=document.getElementById('newUser').value.trim();
+  if(!val){showToast('请输入用户ID');return}
+  var listId=type==='black'?'blackList':'whiteList';
+  var list=document.getElementById(listId);
+  var tag=document.createElement('span');
+  tag.className='keyword-tag';
+  if(type==='black')tag.style.cssText='background:#fef2f2;color:#dc2626';
+  else tag.style.cssText='background:#f0fdf4;color:#16a34a';
+  tag.innerHTML=escapeHtml(val)+'<span class="remove" onclick="this.parentElement.remove()">✕</span>';
+  list.appendChild(tag);
+  closeModal();
+  showToast('已添加');
+}
+function renderSecurityReview(){
+  var filterType=ANALYSIS_STATE.assignmentFilter;
+  var filterRisk=ANALYSIS_STATE.riskFilter;
+  var filtered=SECURITY_REVIEWS.filter(function(r){
+    var typeMatch=filterType==='all'||r.type===filterType;
+    var riskMatch=filterRisk==='all'||r.risk===filterRisk;
+    return typeMatch&&riskMatch;
+  });
+  var pendingCount=SECURITY_REVIEWS.filter(function(r){return r.status==='pending'}).length;
+  var passedCount=SECURITY_REVIEWS.filter(function(r){return r.status==='passed'}).length;
+  return '<div class="card">'+
+    cardHeader('待审核资源',
+      '<div style="display:flex;gap:8px;align-items:center">'+
+        '<span style="font-size:12px;color:#6b7280">待审核：'+pendingCount+' · 已通过：'+passedCount+'</span>'+
+        '<select class="form-select" style="width:auto" onchange="onSecurityFilter(\'type\',this.value)">'+
+          '<option value="all"'+(filterType==='all'?' selected':'')+'>全部类型</option>'+
+          '<option value="文本"'+(filterType==='文本'?' selected':'')+'>文本</option>'+
+          '<option value="图片"'+(filterType==='图片'?' selected':'')+'>图片</option>'+
+          '<option value="文档"'+(filterType==='文档'?' selected':'')+'>文档</option>'+
+          '<option value="课程"'+(filterType==='课程'?' selected':'')+'>课程</option>'+
+        '</select>'+
+        '<select class="form-select" style="width:auto" onchange="onSecurityFilter(\'risk\',this.value)">'+
+          '<option value="all"'+(filterRisk==='all'?' selected':'')+'>全部风险</option>'+
+          '<option value="高"'+(filterRisk==='高'?' selected':'')+'>高风险</option>'+
+          '<option value="中"'+(filterRisk==='中'?' selected':'')+'>中风险</option>'+
+          '<option value="低"'+(filterRisk==='低'?' selected':'')+'>低风险</option>'+
+          '<option value="无"'+(filterRisk==='无'?' selected':'')+'>无风险</option>'+
+        '</select>'+
+      '</div>'
+    )+
+    '<div style="font-size:12px;color:#9ca3af;margin-bottom:10px">当前筛选：'+(filterType==='all'?'全部类型':filterType)+' · '+(filterRisk==='all'?'全部风险':filterRisk)+' · 共'+filtered.length+'条记录</div>'+
+    '<table><thead><tr><th>资源类型</th><th>内容</th><th>来源课程</th><th>提交者</th><th>时间</th><th>风险</th><th>状态</th><th>操作</th></tr></thead><tbody>'+
+      (filtered.length===0?'<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:20px">无符合条件的记录</td></tr>':
+      filtered.map(function(r){
+        var riskTag=r.risk==='高'?'tag-danger':r.risk==='中'?'tag-warning':r.risk==='低'?'tag-info':'tag-success';
+        var statusTag=r.status==='pending'?'<span class="tag tag-warning">待审核</span>':r.status==='passed'?'<span class="tag tag-success">已通过</span>':'<span class="tag tag-danger">已驳回</span>';
+        var actionBtn=r.status==='pending'?'<button class="btn btn-sm" onclick="reviewItem(\''+r.id+'\')">审核</button>':'<span style="font-size:11px;color:#9ca3af">已处理</span>';
+        return '<tr><td>'+r.type+'</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.content+'</td><td>'+r.source+'</td><td>'+r.author+'</td><td style="font-size:12px;color:#9ca3af">'+r.time+'</td><td><span class="tag '+riskTag+'">'+r.risk+'</span></td><td>'+statusTag+'</td><td>'+actionBtn+'</td></tr>';
+      }).join(''))+
+    '</tbody></table>'+
+  '</div>';
+}
+function onSecurityFilter(type,value){
+  if(type==='type')ANALYSIS_STATE.assignmentFilter=value;
+  else ANALYSIS_STATE.riskFilter=value;
+  document.getElementById('securityContent').innerHTML=renderSecurityReview();
+}
+function reviewItem(id){
+  var r=SECURITY_REVIEWS.find(function(x){return x.id===id});
+  if(!r)return;
+  openModal('资源审核 · '+r.type,
+    '<div style="font-size:13px;line-height:1.7">'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'+
+        '<div style="padding:10px;background:#f9fafb;border-radius:8px"><div style="font-size:11px;color:#9ca3af">来源课程</div><div style="margin-top:4px">'+r.source+'</div></div>'+
+        '<div style="padding:10px;background:#f9fafb;border-radius:8px"><div style="font-size:11px;color:#9ca3af">提交者</div><div style="margin-top:4px">'+r.author+'</div></div>'+
+      '</div>'+
+      '<div style="padding:14px;background:#f9fafb;border-radius:8px;margin-bottom:16px"><div style="font-size:11px;color:#9ca3af;margin-bottom:6px">资源内容</div><div>'+r.content+'</div></div>'+
+      '<div style="padding:14px;border-radius:8px;margin-bottom:16px;background:'+(r.risk==='高'?'#fef2f2':r.risk==='中'?'#fffbeb':'#f0fdf4')+'">'+
+        '<div style="font-size:12px;font-weight:600;margin-bottom:6px">系统检测结果</div>'+
+        '<div style="font-size:12px;color:#4b5563">风险等级：'+r.risk+'<br>检测项：关键词命中'+(r.risk==='高'?'3':'1')+'项，图片比对'+(r.risk!=='无'?'1':'0')+'项<br>建议：'+(r.risk==='高'?'建议驳回并通知作者修改':'内容基本合规，可人工确认通过')+'</div>'+
+      '</div>'+
+      '<div style="margin-bottom:8px"><label class="form-label">审核备注</label><textarea class="form-textarea" id="reviewRemark" placeholder="输入审核备注（可选）..."></textarea></div>'+
+    '</div>',
+    '<button class="btn" onclick="closeModal()">取消</button>'+
+    '<button class="btn btn-danger" onclick="confirmReview(\''+r.id+'\',\'reject\')">驳回</button>'+
+    '<button class="btn btn-primary" onclick="confirmReview(\''+r.id+'\',\'pass\')">通过</button>'
+  );
+}
+function confirmReview(id,action){
+  var r=SECURITY_REVIEWS.find(function(x){return x.id===id});
+  if(!r)return;
+  if(action==='pass'){
+    r.status='passed';
+    showToast('已通过审核：'+r.content);
+  }else{
+    r.status='rejected';
+    showToast('已驳回：'+r.content);
+  }
+  closeModal();
+  document.getElementById('securityContent').innerHTML=renderSecurityReview();
+}
+function renderSecurityCorrection(){
+  return '<div class="card">'+
+    cardHeader('文本纠错校对','<button class="btn btn-sm btn-primary" onclick="runCorrection()">开始检测</button>')+
+    '<div style="font-size:12px;color:#6b7280;margin-bottom:10px">对日常公文、网站文章等多类型文本进行自动化纠错校对，识别拼写、语法、搭配、机构名称问题</div>'+
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">'+
+      '<span style="font-size:12px;color:#6b7280">文本类型：</span>'+
+      '<select class="form-select" id="correctionType" onchange="loadCorrectionSample()" style="width:auto;font-size:12px">'+
+        '<option value="custom">手动输入</option>'+
+        '<option value="document">日常公文</option>'+
+        '<option value="web">网站文章</option>'+
+        '<option value="paper">学术论文</option>'+
+        '<option value="news">新闻稿件</option>'+
+        '<option value="product">产品说明</option>'+
+      '</select>'+
+      '<button class="btn btn-sm" onclick="loadCorrectionSample()">加载范本</button>'+
+    '</div>'+
+    '<textarea class="form-textarea" id="correctionText" style="min-height:140px" placeholder="粘贴或输入需要检测的文本内容..."></textarea>'+
+  '</div>'+
+  '<div class="card" id="correctionResult" style="display:none">'+
+    cardHeader('检测结果','<span class="tag tag-warning" id="correctionCount">发现0处问题</span>')+
+    '<div id="correctionItems"></div>'+
+  '</div>';
+}
+// Correction samples
+var CORRECTION_SAMPLES={
+  document:'关于进一步加强人工智能技术应用管理工作的通知\n\n各有关单位：\n\n为深入贯彻落实国家创新驱动发展战略，加快推进人工智能技术在各行各业的广泛应用，经中国科学研究院研究决定，现就有关事宜通知如下：\n\n一、充分认识人工智能技术的重要性。近年来，人工智能技术在图象识别、自然语言处理等领域取得了突飞猛进的发展，已经成为推动经济社会发展的关键力量。\n\n二、切实加强组织领导。各单位要成立专门的工作小组，明确责任分工，确保各项工作落到实处。\n\n三、注重实际效果。要结合本单位实际情况，制定切实可行的实施方案，避免形式主义。',
+  web:'人工智能技术近年来发展迅速，在医疗、教育、金融等多个领域得到了广泛应用。随着深度学习技术的不断突破，卷积神经网络在图象识别领域取得了显著成果，准确率已经超过了人类水平。\n\n然而，在实际应用中仍然存在一些挑战需要克服。例如，数据标注成本高昂、模型可解释性不足等问题仍然是制约行业发展的瓶颈。中国科学研究院的研究人员提出了一种新的方法来应对这些挑战。\n\n专家表示，未来人工智能的发展方向将更加注重与各行业的深度融合，特别是在智慧城市、自动驾驶等领域将有广阔的应用前景。',
+  paper:'摘要：本文针对当前深度学习模型在图像识别任务中的性能瓶颈，提出了一种基于注意力机制的改进卷积神经网络架构。实验结果表明，该模型在ImageNet数据集上的准确率达到了96.8%，相比传统方法提升了3.2个百分点。\n\n关键词：深度学习；图象识别；注意力机制；卷积神经网络\n\n一、引言\n\n近年来，深度学习技术在计算机视觉领域取得了突破性进展。其中，卷积神经网络作为核心算法，被广泛应用于图像分析、目标检测等任务中。然而，现有模型在复杂场景下的泛化能力仍然不足，需要进一步研究。\n\n二、相关工作\n\n中国科学研究院和清华大学等机构在相关领域进行了大量研究。Smith等人提出的ResNet架构通过引入残差连接，有效解决了深层网络的退化问题。',
+  news:'本报讯（记者 张明）昨日，2025年人工智能技术应用峰会在北京国家会议中心隆重举行。来自全国各地的专家学者、企业代表共计500余人参加了此次盛会。\n\n会上，中国科学研究院副院长李华发表了主题演讲。他指出，当前人工智能技术正处于快速发展期，图象识别、自然语言处理等领域取得了重大突破。\n\n"人工智能正在深刻改变着我们的生产和生活方式，"李华表示，"我们要抓住这一历史机遇，加快推进技术创新和产业升级。"\n\n据悉，本次峰会为期三天，期间还将举办多场专题论坛和技术展览，为参会者提供了一个交流合作的平台。',
+  product:'产品名称：智能图像识别系统 V3.0\n\n产品概述：\n本产品是一款基于深度学习技术的智能图象识别系统，支持多种格式的图片输入，能够快速、准确地识别图像中的物体、场景和文字信息。\n\n核心功能：\n1. 图象分类：支持超过1000种物体类别的自动识别\n2. 目标检测：精确定位图象中的多个目标物体\n3. 文字识别：支持中英文等多语言文字提取\n\n技术优势：\n采用最新的卷积神经网络算法，识别准确率高达99.5%。经过中国科学研究院的严格测试，性能指标均达到国际领先水平。\n\n适用场景：\n安防监控、智能驾驶、医疗影像分析、工业质检等领域。'
+};
+function loadCorrectionSample(){
+  var type=document.getElementById('correctionType').value;
+  var textarea=document.getElementById('correctionText');
+  if(type==='custom'){textarea.value='';textarea.placeholder='粘贴或输入需要检测的文本内容...';return}
+  if(CORRECTION_SAMPLES[type]){textarea.value=CORRECTION_SAMPLES[type];showToast('已加载范本：'+(type==='document'?'日常公文':type==='web'?'网站文章':type==='paper'?'学术论文':type==='news'?'新闻稿件':'产品说明'))}
+}
+// Correction rules
+var CORRECTION_RULES={
+  mixup:[
+    {pattern:'图象',suggestion:'图像',type:'用词错误 · "图象"应为"图像"'},
+    {pattern:'做为',suggestion:'作为',type:'用词错误 · "做为"应为"作为"'},
+    {pattern:'在次',suggestion:'再次',type:'用词错误 · "在次"应为"再次"'},
+    {pattern:'必竟',suggestion:'毕竟',type:'用词错误 · "必竟"应为"毕竟"'},
+    {pattern:'己经',suggestion:'已经',type:'用词错误 · "己经"应为"已经"'},
+    {pattern:'决对',suggestion:'绝对',type:'用词错误 · "决对"应为"绝对"'},
+    {pattern:'担误',suggestion:'耽误',type:'用词错误 · "担误"应为"耽误"'},
+    {pattern:'幅射',suggestion:'辐射',type:'用词错误 · "幅射"应为"辐射"'},
+    {pattern:'按装',suggestion:'安装',type:'用词错误 · "按装"应为"安装"'},
+    {pattern:'凑和',suggestion:'凑合',type:'用词错误 · "凑和"应为"凑合"'},
+    {pattern:'既使',suggestion:'即使',type:'用词错误 · "既使"应为"即使"'},
+    {pattern:'洁据',suggestion:'拮据',type:'用词错误 · "洁据"应为"拮据"'},
+    {pattern:'蓝球',suggestion:'篮球',type:'用词错误 · "蓝球"应为"篮球"'},
+    {pattern:'了望',suggestion:'瞭望',type:'用词错误 · "了望"应为"瞭望"'},
+    {pattern:'努气',suggestion:'怒气',type:'用词错误 · "努气"应为"怒气"'},
+    {pattern:'欧打',suggestion:'殴打',type:'用词错误 · "欧打"应为"殴打"'}
+  ],
+  institution:[
+    {pattern:'中国科学研究院',suggestion:'中国科学院',type:'机构名称错误 · 规范全称为"中国科学院"'},
+    {pattern:'国家教育部',suggestion:'教育部',type:'机构名称错误 · 规范全称为"中华人民共和国教育部"'},
+    {pattern:'国家发改委',suggestion:'国家发展和改革委员会',type:'机构名称不规范 · 建议使用全称'},
+    {pattern:'中国工程院',suggestion:'中国工程院',type:'机构名称正确 · 无需修改',skip:true},
+    {pattern:'中国社科院',suggestion:'中国社会科学院',type:'机构名称不规范 · 建议使用全称'}
+  ],
+  grammar:[
+    {pattern:'得到了广泛应用',suggestion:'得到了广泛的应用',type:'语法搭配 · 建议补充助词"的"'},
+    {pattern:'按照要求',suggestion:'按照要求',type:'语法正确 · 无需修改',skip:true},
+    {pattern:'进行了分析',suggestion:'进行了分析',type:'语法正确 · 无需修改',skip:true},
+    {pattern:'面临着.*挑战',suggestion:'',type:'搭配建议 · "面临"后可加"严峻/重大"等修饰词',regex:true},
+    {pattern:'存在着.*问题',suggestion:'',type:'搭配建议 · "存在"后可加"严重/突出"等修饰词',regex:true},
+    {pattern:'(\S+)的很快',suggestion:'',type:'语法错误 · "的"应改为"得"（补语标记）',regex:true}
+  ],
+  punctuation:[
+    {pattern:'。。',suggestion:'。',type:'标点错误 · 重复句号'},
+    {pattern:'，，',suggestion:'，',type:'标点错误 · 重复逗号'},
+    {pattern:'、、',suggestion:'、',type:'标点错误 · 重复顿号'},
+    {pattern:'！！！',suggestion:'！',type:'标点错误 · 重复感叹号'},
+    {pattern:'？？',suggestion:'？',type:'标点错误 · 重复问号'}
+  ]
+};
+function runCorrection(){
+  var text=document.getElementById('correctionText').value;
+  if(!text.trim()){showToast('请输入待检测文本');return}
+  var items=[];
+  // 1. Check mixup words (错别字)
+  CORRECTION_RULES.mixup.forEach(function(rule){
+    if(rule.skip)return;
+    var idx=text.indexOf(rule.pattern);
+    if(idx>=0){
+      items.push({
+        original:rule.pattern,
+        suggestion:rule.suggestion,
+        type:rule.type,
+        context:getContext(text,idx,rule.pattern.length)
+      });
+    }
+  });
+  // 2. Check institution names (机构名称)
+  CORRECTION_RULES.institution.forEach(function(rule){
+    if(rule.skip)return;
+    var idx=text.indexOf(rule.pattern);
+    if(idx>=0){
+      items.push({
+        original:rule.pattern,
+        suggestion:rule.suggestion,
+        type:rule.type,
+        context:getContext(text,idx,rule.pattern.length)
+      });
+    }
+  });
+  // 3. Check grammar patterns (语法搭配)
+  CORRECTION_RULES.grammar.forEach(function(rule){
+    if(rule.skip)return;
+    var match;
+    if(rule.regex){
+      var re=new RegExp(rule.pattern,'g');
+      while((match=re.exec(text))!==null){
+        if(items.some(function(item){return item.original===match[0]}))continue;
+        items.push({
+          original:match[0],
+          suggestion:rule.suggestion||match[0],
+          type:rule.type,
+          context:getContext(text,match.index,match[0].length)
+        });
+      }
+    }else{
+      var idx=text.indexOf(rule.pattern);
+      if(idx>=0){
+        items.push({
+          original:rule.pattern,
+          suggestion:rule.suggestion,
+          type:rule.type,
+          context:getContext(text,idx,rule.pattern.length)
+        });
+      }
+    }
+  });
+  // 4. Check punctuation (标点)
+  CORRECTION_RULES.punctuation.forEach(function(rule){
+    if(rule.skip)return;
+    var idx=text.indexOf(rule.pattern);
+    if(idx>=0){
+      items.push({
+        original:rule.pattern,
+        suggestion:rule.suggestion,
+        type:rule.type,
+        context:getContext(text,idx,rule.pattern.length)
+      });
+    }
+  });
+  // 5. Generic checks: detect long sentences without punctuation
+  var sentences=text.split(/[。！？\n]/);
+  sentences.forEach(function(s){
+    if(s.length>80&&s.indexOf('，')<0){
+      items.push({
+        original:s.slice(0,30)+'...',
+        suggestion:'建议添加逗号分隔',
+        type:'可读性建议 · 长句(>80字)缺少标点分隔',
+        context:'...'+s.slice(0,40)+'...'
+      });
+    }
+  });
+  // Show results
+  document.getElementById('correctionResult').style.display='block';
+  document.getElementById('correctionCount').textContent='发现'+items.length+'处问题';
+  if(items.length===0){
+    document.getElementById('correctionItems').innerHTML='<div style="text-align:center;padding:30px;color:#16a34a;font-size:14px">✓ 未发现明显问题，文本质量良好</div>';
+  }else{
+    document.getElementById('correctionItems').innerHTML=items.map(function(item,i){
+      return '<div class="correction-item">'+
+        '<div class="correction-original">'+escapeHtml(item.original)+'</div>'+
+        '<div class="correction-suggestion">建议修改为：'+escapeHtml(item.suggestion)+'</div>'+
+        '<div class="correction-type">'+escapeHtml(item.type)+'</div>'+
+        (item.context?'<div style="font-size:11px;color:#9ca3af;margin-top:4px">上下文：'+escapeHtml(item.context)+'</div>':'')+
+        '<div style="margin-top:8px"><button class="btn btn-sm btn-primary" onclick="applyCorrection('+i+',\''+escapeHtml(item.suggestion)+'\')">采纳</button> <button class="btn btn-sm" onclick="ignoreCorrection(this)">忽略</button></div>'+
+      '</div>';
+    }).join('');
+  }
+  showToast('检测完成，发现'+items.length+'处问题');
+}
+function getContext(text,idx,len){
+  var start=Math.max(0,idx-15);
+  var end=Math.min(text.length,idx+len+15);
+  var ctx=text.slice(start,end);
+  if(start>0)ctx='...'+ctx;
+  if(end<text.length)ctx=ctx+'...';
+  return ctx.replace(/\n/g,' ');
+}
+function applyCorrection(i,suggestion){
+  var text=document.getElementById('correctionText').value;
+  var items=document.getElementById('correctionItems').querySelectorAll('.correction-item');
+  if(!items[i])return;
+  var original=items[i].querySelector('.correction-original').textContent;
+  document.getElementById('correctionText').value=text.replace(original,suggestion);
+  items[i].style.opacity='0.4';
+  items[i].querySelector('.btn-primary').disabled=true;
+  items[i].querySelector('.btn-primary').textContent='已采纳';
+  showToast('已采纳修改建议');
+}
+function ignoreCorrection(btn){
+  var item=btn.closest('.correction-item');
+  if(item){item.style.opacity='0.4';btn.disabled=true;btn.textContent='已忽略'}
+  showToast('已忽略该建议');
+}
+
+// ============ INIT ============
+checkSession();
+</script>
+</body>
+</html>
