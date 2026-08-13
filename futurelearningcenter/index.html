@@ -1,0 +1,2258 @@
+﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>智慧教学综合管理平台</title>
+<style>
+:root{
+  --primary:#10B981;--primary-light:#6EE7B7;--primary-dark:#059669;
+  --primary-bg:#ECFDF5;--primary-bg2:#D1FAE5;
+  --accent:#F59E0B;--success:#10B981;--warning:#F59E0B;--danger:#EF4444;
+  --text:#1E293B;--text-light:#64748B;--text-lighter:#94A3B8;
+  --bg:#F8FAFC;--card:#FFFFFF;--border:#E2E8F0;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 6px rgba(0,0,0,0.05),0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg:0 10px 25px rgba(0,0,0,0.08);
+  --radius:10px;--radius-sm:6px;--radius-lg:14px;
+  --topnav-h:52px;--transition:0.2s ease;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--primary-light);border-radius:4px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ===== LOGIN ===== */
+.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#065F46 0%,#059669 40%,#34D399 100%);position:relative;overflow:hidden}
+.login-page::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 30 L30 55 L5 30Z' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='1'/%3E%3C/svg%3E") repeat;opacity:0.5}
+.login-card{background:#fff;border-radius:16px;padding:44px 36px;width:90%;max-width:400px;box-shadow:0 25px 60px rgba(0,0,0,0.2);position:relative;z-index:1;animation:cardIn 0.5s ease}
+@keyframes cardIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.login-logo{text-align:center;margin-bottom:36px}
+.login-logo .logo-icon{width:52px;height:52px;background:linear-gradient(135deg,#10B981,#059669);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px}
+.login-logo .logo-icon svg{width:26px;height:26px;fill:#fff}
+.login-logo h1{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.5px}
+.login-logo p{font-size:13px;color:var(--text-light);margin-top:6px}
+.login-form .field{margin-bottom:22px}
+.login-form label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.login-form input{width:100%;height:48px;border:2px solid var(--border);border-radius:8px;padding:0 14px;font-size:15px;color:var(--text);background:var(--bg);transition:var(--transition);outline:none}
+.login-form input:focus{border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
+.login-btn{width:100%;height:48px;background:linear-gradient(135deg,#10B981,#059669);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:var(--transition);letter-spacing:2px}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(16,185,129,0.35)}
+.login-btn:active{transform:translateY(0)}
+.login-error{color:var(--danger);font-size:13px;text-align:center;margin-top:12px;min-height:20px}
+
+/* ===== MAIN APP ===== */
+.app-page{display:none;min-height:100vh;background:var(--bg)}
+.app-page.active{display:block}
+
+/* ===== TOP NAV ===== */
+.topnav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.topnav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;height:var(--topnav-h);padding:0 20px;gap:2px}
+.topnav-brand{display:flex;align-items:center;gap:8px;margin-right:16px;flex-shrink:0;text-decoration:none;color:var(--text);cursor:pointer}
+.topnav-brand .brand-icon{width:32px;height:32px;background:linear-gradient(135deg,#10B981,#059669);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.topnav-brand .brand-icon svg{width:16px;height:16px;fill:#fff}
+.topnav-brand .brand-name{font-size:15px;font-weight:700;white-space:nowrap}
+.topnav-links{display:flex;align-items:center;gap:2px;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.topnav-links::-webkit-scrollbar{display:none}
+.nav-dropdown{position:relative;flex-shrink:0}
+.nav-dropdown>button{display:flex;align-items:center;gap:4px;padding:7px 12px;border-radius:6px;font-size:13px;font-weight:500;color:var(--text-light);cursor:pointer;white-space:nowrap;border:none;background:none;transition:var(--transition)}
+.nav-dropdown>button:hover{background:var(--primary-bg);color:var(--primary)}
+.nav-dropdown>button .arrow{font-size:10px;transition:var(--transition)}
+.nav-dropdown.open>button{background:var(--primary-bg);color:var(--primary)}
+.nav-dropdown.open>button .arrow{transform:rotate(180deg)}
+.nav-dropdown-menu{position:absolute;top:100%;left:0;margin-top:4px;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);min-width:170px;display:none;z-index:110;overflow:hidden}
+.nav-dropdown.open>.nav-dropdown-menu{display:block}
+.nav-dropdown-menu button{display:block;width:100%;padding:10px 16px;text-align:left;border:none;background:none;font-size:13px;color:var(--text);cursor:pointer;transition:var(--transition);white-space:nowrap}
+.nav-dropdown-menu button:hover{background:var(--primary-bg);color:var(--primary)}
+.nav-dropdown-menu button.active{background:var(--primary-bg);color:var(--primary);font-weight:600}
+.topnav-link{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:500;color:var(--text-light);cursor:pointer;white-space:nowrap;border:none;background:none;transition:var(--transition);text-decoration:none;flex-shrink:0}
+.topnav-link:hover{background:var(--primary-bg);color:var(--primary)}
+.topnav-link.active{background:var(--primary-bg);color:var(--primary);font-weight:600}
+.topnav-link .nav-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:0.5}
+.topnav-right{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto}
+.topnav-role{display:flex;background:var(--bg);border-radius:20px;overflow:hidden;height:30px;border:1px solid var(--border)}
+.topnav-role button{padding:0 12px;border:none;background:transparent;color:var(--text-light);font-size:12px;font-weight:500;cursor:pointer;transition:var(--transition);white-space:nowrap}
+.topnav-role button.active{background:var(--primary);color:#fff;font-weight:600;border-radius:20px}
+.topnav-logout{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:#fff;color:var(--text-light);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:var(--transition)}
+.topnav-logout:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+
+/* ===== CONTENT ===== */
+.app-content{max-width:1200px;margin:0 auto;padding:20px}
+.tab-panel{display:none;animation:fadeUp 0.25s ease}
+.tab-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== CARDS ===== */
+.card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border)}
+.card-header{font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.card-header .badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+.badge-primary{background:var(--primary-bg);color:var(--primary)}
+.badge-green{background:#ECFDF5;color:var(--success)}
+.badge-amber{background:#FFFBEB;color:#D97706}
+
+/* ===== STATS ===== */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:18px}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:14px}
+.stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.stat-icon.c1{background:var(--primary-bg);color:var(--primary)}
+.stat-icon.c2{background:#ECFDF5;color:var(--success)}
+.stat-icon.c3{background:#FFFBEB;color:#D97706}
+.stat-icon.c4{background:#FEF2F2;color:var(--danger)}
+.stat-info .stat-num{font-size:24px;font-weight:700;line-height:1.2}
+.stat-info .stat-label{font-size:12px;color:var(--text-light);margin-top:2px}
+
+/* ===== SUB TABS ===== */
+.subtabs{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.subtabs::-webkit-scrollbar{height:0}
+.subtab{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:500;color:var(--text-light);cursor:pointer;white-space:nowrap;transition:var(--transition)}
+.subtab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.subtab:active{transform:scale(0.96)}
+.mode-panel{display:none}
+.mode-panel.active{display:block}
+
+/* ===== LIST ITEMS ===== */
+.list-item{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:var(--transition);gap:12px}
+.list-item:last-child{border-bottom:none}
+.list-item:hover{background:var(--primary-bg);margin:0 -12px;padding:13px 12px;border-radius:6px}
+.list-item .li-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;font-weight:700}
+.list-item .li-info{flex:1;min-width:0}
+.list-item .li-title{font-size:14px;font-weight:600;color:var(--text)}
+.list-item .li-meta{font-size:12px;color:var(--text-light);margin-top:2px}
+.list-item .li-arrow{color:var(--text-lighter)}
+
+/* ===== PROGRESS ===== */
+.progress{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--primary),var(--primary-light));transition:width 0.6s ease}
+.progress-bar.green{background:linear-gradient(90deg,#10B981,#34D399)}
+
+/* ===== TAGS ===== */
+.tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500;margin:1px}
+.tag-primary{background:var(--primary-bg);color:var(--primary)}
+.tag-green{background:#ECFDF5;color:var(--success)}
+.tag-amber{background:#FFFBEB;color:#D97706}
+.tag-red{background:#FEF2F2;color:var(--danger)}
+
+/* ===== KNOWLEDGE GRAPH ===== */
+.kg-wrap{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px}
+.kg-controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.kg-controls input{flex:1;min-width:120px;height:38px;border:2px solid var(--border);border-radius:20px;padding:0 16px;font-size:14px;outline:none;transition:var(--transition)}
+.kg-controls input:focus{border-color:var(--primary)}
+.kg-controls select{height:38px;border:2px solid var(--border);border-radius:20px;padding:0 10px;font-size:13px;color:var(--text);background:#fff;outline:none;cursor:pointer}
+.kg-controls .btn{height:38px;padding:0 20px;background:var(--primary);color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);white-space:nowrap}
+.kg-controls .btn:active{transform:scale(0.96)}
+.kg-canvas-wrap{position:relative;width:100%;height:420px;border-radius:8px;overflow:hidden;background:#FAFBFC;border:1px solid var(--border);cursor:grab}
+.kg-canvas-wrap:active{cursor:grabbing}
+.kg-canvas-wrap canvas{display:block}
+.kg-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--text-light)}
+.kg-legend span{display:flex;align-items:center;gap:5px}
+.kg-legend .dot{width:10px;height:10px;border-radius:50%}
+
+/* ===== SIMPLE TABLE ===== */
+.simple-table{width:100%;border-collapse:collapse;font-size:13px}
+.simple-table th{background:var(--primary-bg);padding:10px 14px;text-align:left;font-weight:600;color:var(--primary);font-size:12px;white-space:nowrap}
+.simple-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
+.simple-table tr:hover td{background:var(--primary-bg)}
+.simple-table .link{color:var(--primary);cursor:pointer;font-weight:500}
+
+/* ===== UPLOAD ===== */
+.upload-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.upload-method{padding:18px 12px;border:2px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;transition:var(--transition);background:#fff}
+.upload-method:hover{border-color:var(--primary-light);background:var(--primary-bg)}
+.upload-method.active{border-color:var(--primary);background:var(--primary-bg)}
+.upload-method .um-icon{font-size:24px;margin-bottom:8px;font-weight:700}
+.upload-method .um-label{font-size:12px;font-weight:600;color:var(--text)}
+.search-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.search-row input,.search-row select{height:38px;border:2px solid var(--border);border-radius:8px;padding:0 12px;font-size:13px;outline:none;flex:1;min-width:90px;background:#fff}
+.search-row input:focus,.search-row select:focus{border-color:var(--primary)}
+.search-row .btn{height:38px;padding:0 18px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+
+/* ===== RESOURCE CARD ===== */
+.res-card{display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:var(--transition);border:1px solid transparent}
+.res-card:hover{background:var(--primary-bg);border-color:var(--primary-light)}
+.res-card .rc-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;font-weight:700}
+.res-card .rc-info{flex:1;min-width:0}
+.res-card .rc-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.res-card .rc-meta{font-size:11px;color:var(--text-light)}
+
+/* ===== AI GRID ===== */
+.ai-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+.ai-card{background:var(--card);border-radius:var(--radius);padding:18px 14px;box-shadow:var(--shadow);border:1px solid var(--border);text-align:center;cursor:pointer;transition:var(--transition)}
+.ai-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.ai-card .ai-icon{font-size:28px;margin-bottom:8px;font-weight:700}
+.ai-card .ai-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.ai-card .ai-desc{font-size:11px;color:var(--text-light);line-height:1.5}
+
+/* ===== PLAN ===== */
+.plan-section{margin-bottom:22px}
+.plan-section h4{font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.credit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.credit-item{background:var(--primary-bg);border-radius:8px;padding:14px 10px;text-align:center;border:1px solid var(--primary-bg2)}
+.credit-item .cr-num{font-size:20px;font-weight:700;color:var(--primary)}
+.credit-item .cr-label{font-size:11px;color:var(--text-light);margin-top:2px}
+.career-chips{display:flex;flex-wrap:wrap;gap:8px}
+.career-chip{padding:9px 16px;background:#fff;border:2px solid var(--border);border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;transition:var(--transition)}
+.career-chip:hover{border-color:var(--primary);color:var(--primary)}
+.career-chip.selected{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* ===== DASHBOARD ===== */
+.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:18px}
+.quick-link{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;transition:var(--transition);box-shadow:var(--shadow)}
+.quick-link:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.quick-link .ql-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0}
+.quick-link .ql-info{flex:1}
+.quick-link .ql-title{font-size:14px;font-weight:600}
+.quick-link .ql-desc{font-size:12px;color:var(--text-light)}
+
+.placeholder-page{text-align:center;padding:60px 20px}
+.placeholder-page .ph-icon{font-size:48px;margin-bottom:16px;opacity:0.6}
+.placeholder-page h3{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
+.placeholder-page p{font-size:14px;color:var(--text-light);max-width:400px;margin:0 auto;line-height:1.8}
+
+/* ===== MODALS ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.active{display:flex;animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-sheet{background:#fff;border-radius:14px 14px 0 0;width:100%;max-width:620px;max-height:85vh;overflow-y:auto;padding:8px 0 20px;animation:slideUp 0.3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:8px auto 16px}
+.modal-hd{padding:0 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-hd h3{font-size:16px;font-weight:700}
+.modal-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--bg);color:var(--text-light);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-bd{padding:16px 20px}
+
+/* ===== MC TABS ===== */
+.mc-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.mc-tab{padding:10px 16px;border:none;background:none;font-size:13px;font-weight:500;color:var(--text-light);cursor:pointer;white-space:nowrap;position:relative;transition:var(--transition)}
+.mc-tab.active{color:var(--primary);font-weight:600}
+.mc-tab.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--primary);border-radius:1px}
+.mc-panel{display:none}
+.mc-panel.active{display:block;animation:fadeUp 0.25s ease}
+
+/* ===== QUIZ ===== */
+.quiz-option{padding:8px 12px;margin:4px 0;border-radius:6px;cursor:pointer;border:1px solid var(--border);transition:var(--transition);font-size:13px}
+.quiz-option:hover{background:var(--primary-bg);border-color:var(--primary)}
+.quiz-option.selected{background:var(--primary-bg);border-color:var(--primary);font-weight:600}
+.quiz-option.correct{background:#ECFDF5;border-color:var(--success);color:var(--success)}
+.quiz-option.wrong{background:#FEF2F2;border-color:var(--danger);color:var(--danger)}
+.submit-btn{display:block;width:100%;height:44px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:16px;transition:var(--transition)}
+.submit-btn:active{transform:scale(0.97)}
+.quiz-result{display:none;margin-top:12px;padding:14px;background:var(--primary-bg);border-radius:8px;font-size:14px;text-align:center;font-weight:600}
+
+/* ===== AI Detail Panel ===== */
+.ai-detail-back{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:#fff;color:var(--text-light);font-size:13px;cursor:pointer;margin-bottom:16px;transition:var(--transition)}
+.ai-detail-back:hover{background:var(--primary-bg);color:var(--primary)}
+.ai-detail-panel{display:none}
+.ai-detail-panel.active{display:block}
+
+/* ===== AI Config Select ===== */
+.ai-config-row{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.ai-config-step{width:32px;height:32px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:4px}
+.ai-config-body{flex:1;min-width:0}
+.ai-config-label{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.ai-config-desc{font-size:12px;color:var(--text-light);margin-bottom:10px;line-height:1.5}
+.ai-config-options{display:flex;flex-wrap:wrap;gap:8px}
+.ai-option-chip{padding:7px 14px;border-radius:18px;border:2px solid var(--border);font-size:13px;font-weight:500;cursor:pointer;background:#fff;color:var(--text-light);transition:var(--transition);white-space:nowrap}
+.ai-option-chip:hover{border-color:var(--primary-light);color:var(--primary)}
+.ai-option-chip.selected{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:600}
+.ai-option-input{flex:1;min-width:150px;height:40px;border:2px solid var(--border);border-radius:8px;padding:0 12px;font-size:13px;outline:none;background:#fff;transition:var(--transition)}
+.ai-option-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(16,185,129,0.08)}
+.ai-option-select{height:40px;border:2px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px;color:var(--text);background:#fff;outline:none;cursor:pointer;min-width:120px}
+.ai-option-select:focus{border-color:var(--primary)}
+
+/* ===== AI Chat ===== */
+.ai-chat-wrap{background:var(--bg);border-radius:10px;border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column;height:380px}
+.ai-chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.ai-chat-msg{max-width:85%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.7;animation:fadeUp 0.2s ease}
+.ai-chat-msg.user{align-self:flex-end;background:var(--primary);color:#fff;border-bottom-right-radius:4px}
+.ai-chat-msg.bot{align-self:flex-start;background:#fff;color:var(--text);border:1px solid var(--border);border-bottom-left-radius:4px}
+.ai-chat-msg.bot .bot-label{font-size:11px;color:var(--primary);font-weight:600;margin-bottom:4px}
+.ai-chat-input-row{display:flex;gap:8px;padding:12px;background:#fff;border-top:1px solid var(--border)}
+.ai-chat-input-row input{flex:1;height:42px;border:2px solid var(--border);border-radius:21px;padding:0 16px;font-size:13px;outline:none;transition:var(--transition)}
+.ai-chat-input-row input:focus{border-color:var(--primary)}
+.ai-chat-input-row button{width:42px;height:42px;border-radius:50%;border:none;background:var(--primary);color:#fff;font-size:16px;cursor:pointer;flex-shrink:0;transition:var(--transition)}
+.ai-chat-input-row button:active{transform:scale(0.94)}
+
+/* ===== Generated Result ===== */
+.ai-gen-result{display:none;margin-top:16px;background:#ECFDF5;padding:16px;border-radius:10px;border:1px solid var(--success);animation:fadeUp 0.3s ease}
+.ai-gen-result.show{display:block}
+.ai-gen-result .gen-title{font-weight:700;color:var(--success);font-size:14px;margin-bottom:8px}
+.ai-gen-result .gen-content{font-size:13px;color:var(--text);line-height:1.8;margin-bottom:10px;background:#fff;padding:12px;border-radius:6px}
+.ai-gen-result .gen-meta{font-size:12px;color:var(--text-light)}
+.ai-gen-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.ai-gen-btns button{flex:1;min-width:120px;height:44px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition);border:none}
+.ai-gen-btns .btn-generate{background:var(--primary);color:#fff}
+.ai-gen-btns .btn-generate:active{transform:scale(0.97)}
+.ai-gen-btns .btn-sync{background:#fff;color:var(--primary);border:2px solid var(--primary)}
+.ai-gen-btns .btn-sync:active{transform:scale(0.97)}
+.ai-gen-btns .btn-back{background:var(--bg);color:var(--text-light);border:2px solid var(--border)}
+.ai-status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+.ai-status-dot.done{background:var(--success)}
+.ai-status-dot.pending{background:var(--warning)}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:12px 24px;border-radius:24px;font-size:14px;z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.toast.success{background:var(--success)}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:767px){
+  .topnav-brand .brand-name{display:none}
+  .topnav-links{flex:1;gap:0}
+  .nav-dropdown>button{padding:7px 8px;font-size:12px}
+  .topnav-link{padding:7px 10px;font-size:12px}
+  .topnav-link .nav-dot,.nav-dropdown>button .nav-dot{display:none}
+  .topnav-right{gap:6px}
+  .topnav-role button{padding:0 10px;font-size:11px}
+  .app-content{padding:14px}
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat-card{padding:12px;gap:10px}
+  .stat-icon{width:36px;height:36px;font-size:16px}
+  .stat-info .stat-num{font-size:20px}
+  .ai-grid{grid-template-columns:repeat(2,1fr)}
+  .upload-methods{grid-template-columns:repeat(3,1fr);gap:6px}
+  .upload-method{padding:12px 8px}
+  .credit-grid{grid-template-columns:repeat(2,1fr)}
+  .dashboard-grid{grid-template-columns:1fr}
+  .modal-sheet{border-radius:14px 14px 0 0}
+}
+@media(min-width:768px){
+  .modal-sheet{border-radius:14px;margin:auto;max-height:80vh;width:90%}
+  .modal-overlay{align-items:center}
+  .stats-row{grid-template-columns:repeat(4,1fr)}
+}
+@media(min-width:1024px){
+  .ai-grid{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== LOGIN ==================== -->
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg></div>
+      <h1>智慧教学综合管理平台</h1>
+      <p>Intelligent Teaching Management Platform</p>
+    </div>
+    <form class="login-form" onsubmit="return false">
+      <div class="field"><label>用户名</label><input type="text" id="username" placeholder="请输入用户名" autocomplete="off"></div>
+      <div class="field"><label>密码</label><input type="password" id="password" placeholder="请输入密码" autocomplete="off"></div>
+      <button type="submit" class="login-btn" onclick="handleLogin()">登 录 系 统</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== MAIN APP ==================== -->
+<div class="app-page" id="appPage">
+  <nav class="topnav">
+    <div class="topnav-inner">
+      <a class="topnav-brand" onclick="switchTab('dashboard')"><span class="brand-icon"><svg viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3z"/></svg></span><span class="brand-name">智慧教学平台</span></a>
+      <div class="topnav-links" id="topnavLinks">
+        <button class="topnav-link active" data-tab="dashboard"><span class="nav-dot"></span>首页</button>
+        <div class="nav-dropdown" id="ddTeach">
+          <button onclick="toggleDropdown('ddTeach')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:2px"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>教学管理 <span class="arrow">&#9660;</span></button>
+          <div class="nav-dropdown-menu">
+            <button data-tab="teaching">教学学习</button>
+            <button data-tab="plan">一生一案</button>
+            <button data-tab="teaching">学情分析</button>
+            <button data-tab="academic">课程排课</button>
+          </div>
+        </div>
+        <div class="nav-dropdown" id="ddRes">
+          <button onclick="toggleDropdown('ddRes')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:2px"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>资源中心 <span class="arrow">&#9660;</span></button>
+          <div class="nav-dropdown-menu">
+            <button data-tab="knowledge">个人知识库</button>
+            <button data-tab="graph">知识图谱</button>
+            <button data-tab="knowledge">文献检索</button>
+            <button data-tab="knowledge">公共资源库</button>
+          </div>
+        </div>
+        <div class="nav-dropdown" id="ddAI">
+          <button onclick="toggleDropdown('ddAI')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:2px"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="16" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="18" r="1" fill="currentColor"/><circle cx="16" cy="18" r="1" fill="currentColor"/></svg>智能工具 <span class="arrow">&#9660;</span></button>
+          <div class="nav-dropdown-menu">
+            <button data-tab="ai">AI应用中心</button>
+            <button data-tab="ai">智能备课</button>
+            <button data-tab="ai">题库生成</button>
+            <button data-tab="ai">答疑助教</button>
+          </div>
+        </div>
+        <div class="nav-dropdown" id="ddAdmin">
+          <button onclick="toggleDropdown('ddAdmin')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>管理后台 <span class="arrow">&#9660;</span></button>
+          <div class="nav-dropdown-menu">
+            <button data-tab="academic">教务管理</button>
+            <button data-tab="research">科研管理</button>
+            <button data-tab="settings">系统设置</button>
+          </div>
+        </div>
+        <div class="nav-dropdown" id="ddPersonal">
+          <button onclick="toggleDropdown('ddPersonal')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:2px"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>个人中心 <span class="arrow">&#9660;</span></button>
+          <div class="nav-dropdown-menu">
+            <button data-tab="settings">个人信息</button>
+            <button data-tab="knowledge">我的数据</button>
+            <button data-tab="dashboard">消息通知</button>
+          </div>
+        </div>
+      </div>
+      <div class="topnav-right">
+        <div class="topnav-role"><button class="active" data-role="student" onclick="switchRole('student')">学生端</button><button data-role="teacher" onclick="switchRole('teacher')">教师端</button></div>
+        <button class="topnav-logout" onclick="handleLogout()" title="退出">&#x2190;</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="app-content" id="appContent">
+
+    <!-- ===== 首页 ===== -->
+    <div class="tab-panel active" id="panel-dashboard">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon c1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div><div class="stat-info"><div class="stat-num">156</div><div class="stat-label">课程资源总数</div></div></div>
+        <div class="stat-card"><div class="stat-icon c2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-info"><div class="stat-num">82%</div><div class="stat-label">课程完成率</div></div></div>
+        <div class="stat-card"><div class="stat-icon c3"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="stat-info"><div class="stat-num">91</div><div class="stat-label">平均成绩</div></div></div>
+        <div class="stat-card"><div class="stat-icon c4"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><div class="stat-info"><div class="stat-num">28</div><div class="stat-label">待处理消息</div></div></div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="card"><div class="card-header">最近学习 <span class="badge badge-primary">进行中</span></div>
+          <div class="list-item" onclick="switchTab('teaching')"><div class="li-icon" style="background:var(--primary-bg);color:var(--primary)">DS</div><div class="li-info"><div class="li-title">数据结构 - 图论算法</div><div class="li-meta">上次学习：2024-12-20 · 进度 65%</div></div><span class="li-arrow">&#8250;</span></div>
+          <div class="list-item" onclick="switchTab('teaching')"><div class="li-icon" style="background:#ECFDF5;color:var(--success)">AL</div><div class="li-info"><div class="li-title">算法设计与分析</div><div class="li-meta">上次学习：2024-12-18 · 进度 42%</div></div><span class="li-arrow">&#8250;</span></div>
+          <div class="list-item" onclick="switchTab('teaching')"><div class="li-icon" style="background:#FFFBEB;color:#D97706">OS</div><div class="li-info"><div class="li-title">操作系统原理</div><div class="li-meta">上次学习：2024-12-15 · 进度 78%</div></div><span class="li-arrow">&#8250;</span></div>
+        </div>
+        <div class="card"><div class="card-header">快捷入口</div>
+          <div class="quick-link" onclick="switchTab('teaching')"><div class="ql-icon" style="background:var(--primary-bg);color:var(--primary)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div><div class="ql-info"><div class="ql-title">教学学习</div><div class="ql-desc">课程学习与知识自测</div></div></div>
+          <div class="quick-link" onclick="switchTab('graph')"><div class="ql-icon" style="background:#ECFDF5;color:var(--success)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="6.5" y1="17.5" x2="10.5" y2="6.5"/><line x1="17.5" y1="17.5" x2="13.5" y2="6.5"/></svg></div><div class="ql-info"><div class="ql-title">知识图谱分析</div><div class="ql-desc">可视化知识关联关系</div></div></div>
+          <div class="quick-link" onclick="switchTab('knowledge')"><div class="ql-icon" style="background:#FFFBEB;color:#D97706"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div><div class="ql-info"><div class="ql-title">个人知识库</div><div class="ql-desc">管理上传资源与文献</div></div></div>
+          <div class="quick-link" onclick="switchTab('ai')"><div class="ql-icon" style="background:#FEF2F2;color:var(--danger)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="16" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="18" r="1" fill="currentColor"/><circle cx="16" cy="18" r="1" fill="currentColor"/></svg></div><div class="ql-info"><div class="ql-title">AI智能体</div><div class="ql-desc">智能备课与题库生成</div></div></div>
+          <div class="quick-link" onclick="switchTab('ai')"><div class="ql-icon" style="background:var(--primary-bg);color:var(--primary)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><div class="ql-info"><div class="ql-title">智能答疑</div><div class="ql-desc">AI助教24小时在线答疑</div></div></div>
+          <div class="quick-link" onclick="switchTab('plan')"><div class="ql-icon" style="background:#ECFDF5;color:var(--success)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><div class="ql-info"><div class="ql-title">一生一案</div><div class="ql-desc">个性化培养方案</div></div></div>
+          <div class="quick-link" onclick="switchTab('teaching')"><div class="ql-icon" style="background:#FFFBEB;color:#D97706"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="ql-info"><div class="ql-title">学情分析</div><div class="ql-desc">掌握学习数据与趋势</div></div></div>
+          <div class="quick-link" onclick="switchTab('academic')"><div class="ql-icon" style="background:#FEF2F2;color:var(--danger)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="ql-info"><div class="ql-title">教务管理</div><div class="ql-desc">课程排课与选课管理</div></div></div>
+          <div class="quick-link" onclick="switchTab('research')"><div class="ql-icon" style="background:var(--primary-bg);color:var(--primary)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="ql-info"><div class="ql-title">科研管理</div><div class="ql-desc">项目管理与成果统计</div></div></div>
+          <div class="quick-link" onclick="switchTab('settings')"><div class="ql-icon" style="background:#ECFDF5;color:var(--success)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div><div class="ql-info"><div class="ql-title">系统设置</div><div class="ql-desc">个人信息与权限管理</div></div></div>
+        </div>
+      </div>
+      <div class="card"><div class="card-header">系统公告</div>
+        <div class="list-item"><div class="li-info"><div class="li-title">关于2024-2025学年第二学期选课通知</div><div class="li-meta">教务处 · 2024-12-20</div></div></div>
+        <div class="list-item"><div class="li-info"><div class="li-title">智慧教学平台V3.2版本更新公告</div><div class="li-meta">信息中心 · 2024-12-18</div></div></div>
+        <div class="list-item"><div class="li-info"><div class="li-title">关于期末考试成绩查询的通知</div><div class="li-meta">教务处 · 2024-12-15</div></div></div>
+      </div>
+    </div>
+
+    <!-- ===== 教学学习 ===== -->
+    <div class="tab-panel" id="panel-teaching">
+      <div id="studentTeachingView">
+        <div class="subtabs" id="learningModeTabs">
+          <button class="subtab active" data-mode="graph">知识图谱</button>
+          <button class="subtab" data-mode="list">知识列表</button>
+          <button class="subtab" data-mode="map">学习地图</button>
+        </div>
+        <div class="mode-panel active" id="mode-graph">
+          <div class="card"><div class="card-header">课程知识图谱 <span class="badge badge-primary">数据结构</span></div>
+            <div class="kg-canvas-wrap" id="teachingKgWrap" style="height:340px"><canvas id="teachingKgCvs"></canvas></div>
+            <div class="kg-legend"><span><span class="dot" style="background:#10B981"></span>核心知识点</span><span><span class="dot" style="background:#6EE7B7"></span>关联知识点</span><span><span class="dot" style="background:#059669"></span>已掌握</span></div>
+            <p style="font-size:12px;color:var(--text-light);margin-top:8px">点击知识节点可进入微课学习</p>
+          </div>
+        </div>
+        <div class="mode-panel" id="mode-list"><div class="card"><div class="card-header">知识列表 <span class="badge badge-primary">数据结构</span></div><div id="knowledgeList"></div></div></div>
+        <div class="mode-panel" id="mode-map"><div class="card"><div class="card-header">学习地图 <span class="badge badge-green">学习进度 65%</span></div><div id="learningMap"></div></div></div>
+      </div>
+      <div id="teacherTeachingView" style="display:none">
+        <div class="card"><div class="card-header">教学资源概览 <span class="badge badge-primary">数据结构</span></div>
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-icon c1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><div class="stat-info"><div class="stat-num">156</div><div class="stat-label">教学资源总数</div></div></div>
+            <div class="stat-card"><div class="stat-icon c2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="stat-info"><div class="stat-num">78%</div><div class="stat-label">班级平均完成率</div></div></div>
+            <div class="stat-card"><div class="stat-icon c3"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg></div><div class="stat-info"><div class="stat-num">82%</div><div class="stat-label">班级平均掌握率</div></div></div>
+            <div class="stat-card"><div class="stat-icon c1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div class="stat-info"><div class="stat-num">3</div><div class="stat-label">授课班级数</div></div></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-header">学生学情一览 <span class="badge badge-green">软件工程2101班</span></div>
+          <div style="overflow-x:auto"><table class="simple-table"><thead><tr><th>学号</th><th>姓名</th><th>完成率</th><th>掌握率</th><th>作业均分</th><th>操作</th></tr></thead><tbody id="studentTableBody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 知识库 ===== -->
+    <div class="tab-panel" id="panel-knowledge">
+      <div class="card" style="background:var(--bg);border:1px dashed var(--primary-light);margin-bottom:16px">
+        <div class="card-header" style="border-bottom:none;margin-bottom:8px;padding-bottom:0">
+          <span style="font-size:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>AI知识库资源底座</span>
+          <span class="badge badge-primary" style="margin-left:8px">核心底座</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-light);margin-bottom:10px;line-height:1.6">所有AI应用均依托AI知识库的资源底座，可直接调用校内公共知识库、个人AI知识库中的图书、期刊、论文、文档等各类资源，实现知识资源与AI应用的无缝联动。</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px">
+          <div style="background:#fff;padding:10px;border-radius:6px;border:1px solid var(--border);text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--primary)" id="kbResourceCount">12</div>
+            <div style="font-size:11px;color:var(--text-light)">个人知识库资源</div>
+          </div>
+          <div style="background:#fff;padding:10px;border-radius:6px;border:1px solid var(--border);text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--success)">8</div>
+            <div style="font-size:11px;color:var(--text-light)">公共知识库资源</div>
+          </div>
+          <div style="background:#fff;padding:10px;border-radius:6px;border:1px solid var(--border);text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--warning)">6</div>
+            <div style="font-size:11px;color:var(--text-light)">资源类型</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="tag tag-primary">图书</span><span class="tag tag-green">期刊</span><span class="tag tag-amber">论文</span>
+          <span class="tag tag-primary">文档</span><span class="tag tag-green">视频</span><span class="tag tag-amber">课件</span>
+        </div>
+      </div>
+      <div class="card"><div class="card-header">资源创建方式</div>
+        <div class="upload-methods" id="uploadMethods">
+          <div class="upload-method active" data-method="local"><div class="um-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="um-label">本地上传</div></div>
+          <div class="upload-method" data-method="cloud"><div class="um-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg></div><div class="um-label">云盘上传</div></div>
+          <div class="upload-method" data-method="database"><div class="um-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div><div class="um-label">数据库检索上传</div></div>
+        </div>
+        <div class="upload-panel" id="panel-local">
+          <input type="file" id="realFileInput" style="display:none" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.mp4,.avi,.mov" onchange="handleRealFileUpload(event)">
+          <div style="border:2px dashed var(--border);border-radius:10px;padding:36px;text-align:center;cursor:pointer;transition:var(--transition)" onclick="document.getElementById('realFileInput').click()" id="dropZone">
+            <div style="font-size:36px;margin-bottom:10px;font-weight:700;color:var(--primary)"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div style="font-size:14px;font-weight:600;color:var(--text)">点击选择文件上传</div>
+            <div style="font-size:12px;color:var(--text-light);margin-top:6px">支持 PDF、DOC、PPT、视频等多种格式</div>
+          </div>
+        </div>
+        <div class="upload-panel" id="panel-cloud" style="display:none">
+          <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">从智慧教学平台云盘中选择已上传的资源，一键添加到个人AI知识库</div>
+          <div id="cloudResourceList"></div>
+        </div>
+        <div class="upload-panel" id="panel-database" style="display:none">
+          <div class="search-row">
+            <select id="dbType"><option value="all">全部类型</option><option value="期刊">期刊</option><option value="图书">图书</option><option value="报纸">报纸</option><option value="标准专利">标准专利</option><option value="科技成果">科技成果</option><option value="影音资源">影音资源</option></select>
+            <select id="dbField"><option value="title">标题</option><option value="author">作者</option><option value="keyword">关键词</option><option value="subject">主题</option></select>
+            <input type="text" id="dbKeyword" placeholder="输入检索关键词...">
+            <button class="btn" onclick="searchDatabase()">检索</button>
+          </div>
+          <div id="dbSearchResults"></div>
+        </div>
+      </div>
+      <div class="card"><div class="card-header">我的知识库资源 <span class="badge badge-primary" id="resourceCount">12</span></div><div id="myResourceList"></div></div>
+    </div>
+
+    <!-- ===== 知识图谱 ===== -->
+    <div class="tab-panel" id="panel-graph">
+      <div class="kg-wrap"><div class="card-header">知识关联图谱分析</div>
+        <div class="kg-controls">
+          <input type="text" id="kgCenterWord" value="数据结构" placeholder="输入中心词...">
+          <select id="kgAttribute"><option value="all">全部属性</option><option value="prerequisite">前置知识</option><option value="extension">扩展知识</option><option value="application">应用场景</option></select>
+          <select id="kgLayout"><option value="force">力导向布局</option><option value="radial">辐射布局</option><option value="tree">树形布局</option></select>
+          <select id="kgNodeCount"><option value="15">15个节点</option><option value="25">25个节点</option><option value="40">40个节点</option></select>
+          <button class="btn" onclick="updateKnowledgeGraph()">更新图谱</button>
+        </div>
+        <div class="kg-canvas-wrap" id="mainKgWrap"><canvas id="mainKgCvs"></canvas></div>
+        <div class="kg-legend"><span><span class="dot" style="background:#10B981"></span>核心知识</span><span><span class="dot" style="background:#EF4444"></span>前置知识</span><span><span class="dot" style="background:#F59E0B"></span>应用场景</span><span><span class="dot" style="background:#10B981"></span>扩展知识</span></div>
+      </div>
+    </div>
+
+    <!-- ===== AI智能体 ===== -->
+    <div class="tab-panel" id="panel-ai">
+      <div id="aiListView">
+        <div class="card"><div class="card-header">AI应用中心 <span class="badge badge-primary">8个智能体</span></div>
+          <div class="ai-grid" id="aiAppGrid"></div>
+        </div>
+        <div class="card"><div class="card-header">最近生成内容</div><div id="aiGeneratedList"></div></div>
+      </div>
+      <div class="ai-detail-panel" id="aiDetailPanel">
+        <button class="ai-detail-back" onclick="backToAIList()">&#8592; 返回应用中心</button>
+        <div id="aiDetailContent"></div>
+      </div>
+    </div>
+
+    <!-- ===== 一生一案 ===== -->
+    <div class="tab-panel" id="panel-plan">
+      <div id="studentPlanView">
+        <div class="card"><div class="card-header">学生基本信息</div>
+          <div class="credit-grid">
+            <div class="credit-item"><div class="cr-num">170</div><div class="cr-label">毕业所需总学分</div></div>
+            <div class="credit-item"><div class="cr-num">128</div><div class="cr-label">已获学分</div></div>
+            <div class="credit-item"><div class="cr-num">42</div><div class="cr-label">剩余学分</div></div>
+          </div>
+          <div style="font-size:13px;color:var(--text-light);line-height:1.8">
+            <b>专业：</b>软件工程<br><b>学制：</b>4年<br><b>学位：</b>工学学士<br><b>培养目标：</b>培养具备扎实软件工程理论基础与实践能力，能从事软件系统分析、设计、开发、测试和维护的高素质应用型人才。
+          </div>
+        </div>
+        <div class="card"><div class="card-header">职业发展方向</div>
+          <div class="career-chips" id="careerChipsList">
+            <div class="career-chip" data-career="frontend">前端开发工程师</div>
+            <div class="career-chip" data-career="backend">后端开发工程师</div>
+            <div class="career-chip" data-career="mobile">移动端开发工程师</div>
+            <div class="career-chip" data-career="ai">AI算法工程师</div>
+            <div class="career-chip" data-career="devops">DevOps工程师</div>
+            <div class="career-chip" data-career="architect">系统架构师</div>
+            <div class="career-chip" data-career="data">数据分析师</div>
+            <div class="career-chip" data-career="security">信息安全工程师</div>
+          </div>
+        </div>
+        <div class="plan-section" id="careerDetail" style="display:none"><h4>推荐课程路径</h4><div id="careerCourses"></div></div>
+        <div class="card"><div class="card-header">自主搭建培养方案 <span class="badge badge-primary">个性化课程选择</span></div>
+          <div style="font-size:13px;color:var(--text-light);margin-bottom:14px">选择您感兴趣的方向课程，构建个性化学习路径。已选课程将计入培养方案学分。</div>
+          <div id="customPlanBuilder"></div>
+          <button class="submit-btn" style="margin-top:16px" onclick="saveCustomPlan()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>保存培养方案</button>
+        </div>
+      </div>
+      <div id="teacherPlanView" style="display:none">
+        <div class="card"><div class="card-header">学生培养方案管理 <span class="badge badge-primary">软件工程2101班</span></div>
+          <div style="overflow-x:auto"><table class="simple-table"><thead><tr><th>学号</th><th>姓名</th><th>目标方向</th><th>方案进度</th><th>已获学分</th><th>操作</th></tr></thead><tbody id="teacherPlanTableBody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 教务管理 ===== -->
+    <div class="tab-panel" id="panel-academic">
+      <div class="placeholder-page">
+        <div class="ph-icon" style="color:var(--primary)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <h3>教务管理系统</h3>
+        <p>课程排课管理、选课系统、成绩管理、教学评估、考试安排、学籍管理等教务功能模块</p>
+        <div style="margin-top:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;max-width:600px;margin-left:auto;margin-right:auto">
+          <div class="card" style="text-align:center;padding:20px"><div style="font-size:24px;font-weight:700;color:var(--primary);margin-bottom:6px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div style="font-size:13px;font-weight:600">课程排课</div></div>
+          <div class="card" style="text-align:center;padding:20px"><div style="font-size:24px;font-weight:700;color:var(--success);margin-bottom:6px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div><div style="font-size:13px;font-weight:600">选课管理</div></div>
+          <div class="card" style="text-align:center;padding:20px"><div style="font-size:24px;font-weight:700;color:#D97706;margin-bottom:6px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div style="font-size:13px;font-weight:600">成绩管理</div></div>
+          <div class="card" style="text-align:center;padding:20px"><div style="font-size:24px;font-weight:700;color:var(--danger);margin-bottom:6px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div style="font-size:13px;font-weight:600">教学评估</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 科研管理 ===== -->
+    <div class="tab-panel" id="panel-research">
+      <div class="placeholder-page">
+        <div class="ph-icon" style="color:var(--primary)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <h3>科研管理系统</h3>
+        <p>科研项目管理、论文发表管理、专利申请、科研成果统计、学术交流、科研经费管理等科研功能模块</p>
+        <div style="margin-top:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;max-width:600px;margin-left:auto;margin-right:auto">
+          <div class="card" style="text-align:center;padding:20px"><div style="font-size:24px;font-weight:700;color:var(--primary);margin-bottom:6px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div style="font-size:13px;font-weight:600">项目管理</div></div>
+          <div class="card" style="text-align:center;padding:20px"><div style="font-size:24px;font-weight:700;color:var(--success);margin-bottom:6px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div><div style="font-size:13px;font-weight:600">论文管理</div></div>
+          <div class="card" style="text-align:center;padding:20px"><div style="font-size:24px;font-weight:700;color:#D97706;margin-bottom:6px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div style="font-size:13px;font-weight:600">成果统计</div></div>
+          <div class="card" style="text-align:center;padding:20px"><div style="font-size:24px;font-weight:700;color:var(--danger);margin-bottom:6px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10 4 4 0 01-5-5 4 4 0 01-5-5"/><line x1="2" y1="2" x2="22" y2="22"/></svg></div><div style="font-size:13px;font-weight:600">经费管理</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 系统设置 ===== -->
+    <div class="tab-panel" id="panel-settings">
+      <div class="placeholder-page">
+        <div class="ph-icon" style="color:var(--primary)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
+        <h3>系统设置</h3>
+        <p>个人信息管理、账号安全设置、通知偏好配置、界面个性化设置、系统权限管理等</p>
+        <div style="margin-top:24px;max-width:500px;margin-left:auto;margin-right:auto">
+          <div class="list-item"><div class="li-icon" style="background:var(--primary-bg);color:var(--primary)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="li-info"><div class="li-title">个人信息</div><div class="li-meta">修改姓名、联系方式、头像等信息</div></div><span class="li-arrow">&#8250;</span></div>
+          <div class="list-item"><div class="li-icon" style="background:#ECFDF5;color:var(--success)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><div class="li-info"><div class="li-title">账号安全</div><div class="li-meta">修改密码、绑定手机、安全设置</div></div><span class="li-arrow">&#8250;</span></div>
+          <div class="list-item"><div class="li-icon" style="background:#FFFBEB;color:#D97706"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div><div class="li-info"><div class="li-title">通知设置</div><div class="li-meta">管理消息通知偏好与提醒方式</div></div><span class="li-arrow">&#8250;</span></div>
+          <div class="list-item"><div class="li-icon" style="background:#FEF2F2;color:var(--danger)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="li-info"><div class="li-title">权限管理</div><div class="li-meta">角色与权限配置管理</div></div><span class="li-arrow">&#8250;</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODALS ==================== -->
+<div class="modal-overlay" id="microCourseModal">
+  <div class="modal-sheet"><div class="modal-handle"></div>
+    <div class="modal-hd"><h3 id="mcTitle">微课学习</h3><button class="modal-close" onclick="closeModal('microCourseModal')">&#x2715;</button></div>
+    <div class="modal-bd">
+      <div class="mc-tabs" id="mcTabs">
+        <button class="mc-tab active" data-mctab="analysis">分析</button><button class="mc-tab" data-mctab="content">学习内容</button><button class="mc-tab" data-mctab="quiz">自测</button><button class="mc-tab" data-mctab="materials">资料</button><button class="mc-tab" data-mctab="wrongbook">错题集</button>
+      </div>
+      <div id="mcPanelAnalysis" class="mc-panel active"></div>
+      <div id="mcPanelContent" class="mc-panel"></div>
+      <div id="mcPanelQuiz" class="mc-panel"></div>
+      <div id="mcPanelMaterials" class="mc-panel"></div>
+      <div id="mcPanelWrongbook" class="mc-panel"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="studentDetailModal">
+  <div class="modal-sheet"><div class="modal-handle"></div>
+    <div class="modal-hd"><h3 id="sdTitle">学生详情</h3><button class="modal-close" onclick="closeModal('studentDetailModal')">&#x2715;</button></div>
+    <div class="modal-bd" id="studentDetailBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="downloadModal">
+  <div class="modal-sheet"><div class="modal-handle"></div>
+    <div class="modal-hd"><h3 id="dlTitle">文件下载</h3><button class="modal-close" onclick="closeModal('downloadModal')">&#x2715;</button></div>
+    <div class="modal-bd" id="downloadBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="previewModal">
+  <div class="modal-sheet"><div class="modal-handle"></div>
+    <div class="modal-hd"><h3 id="pvTitle">资源预览</h3><button class="modal-close" onclick="closeModal('previewModal')">&#x2715;</button></div>
+    <div class="modal-bd" id="previewBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== MOCK DATA ====================
+const knowledgePoints = [
+  {id:'k1',name:'线性表',category:'core',mastered:true,children:['k2','k3','k4']},
+  {id:'k2',name:'顺序表',category:'core',mastered:true,children:[]},
+  {id:'k3',name:'链表',category:'core',mastered:true,children:['k5','k6']},
+  {id:'k4',name:'栈与队列',category:'core',mastered:false,children:['k7']},
+  {id:'k5',name:'单链表',category:'detail',mastered:true,children:[]},
+  {id:'k6',name:'双向链表',category:'detail',mastered:false,children:[]},
+  {id:'k7',name:'循环队列',category:'detail',mastered:false,children:[]},
+  {id:'k8',name:'树与二叉树',category:'core',mastered:false,children:['k9','k10','k11']},
+  {id:'k9',name:'二叉搜索树',category:'detail',mastered:false,children:[]},
+  {id:'k10',name:'平衡二叉树',category:'detail',mastered:false,children:[]},
+  {id:'k11',name:'堆与优先队列',category:'detail',mastered:false,children:[]},
+  {id:'k12',name:'图论基础',category:'core',mastered:false,children:['k13','k14']},
+  {id:'k13',name:'最短路径',category:'detail',mastered:false,children:[]},
+  {id:'k14',name:'最小生成树',category:'detail',mastered:false,children:[]},
+  {id:'k15',name:'排序算法',category:'core',mastered:false,children:['k16','k17','k18']},
+  {id:'k16',name:'快速排序',category:'detail',mastered:false,children:[]},
+  {id:'k17',name:'归并排序',category:'detail',mastered:false,children:[]},
+  {id:'k18',name:'堆排序',category:'detail',mastered:false,children:[]},
+  {id:'k19',name:'查找算法',category:'core',mastered:false,children:['k20']},
+  {id:'k20',name:'哈希表',category:'detail',mastered:false,children:[]},
+  {id:'k21',name:'字符串匹配',category:'extension',mastered:false,children:['k22']},
+  {id:'k22',name:'KMP算法',category:'detail',mastered:false,children:[]},
+  {id:'k23',name:'动态规划',category:'extension',mastered:false,children:[]},
+  {id:'k24',name:'贪心算法',category:'extension',mastered:false,children:[]},
+  {id:'k25',name:'分治算法',category:'extension',mastered:false,children:[]}
+];
+
+const students = [
+  {id:'s1',no:'20240101',name:'张伟',completion:92,mastery:88,homework:91},
+  {id:'s2',no:'20240102',name:'李娜',completion:85,mastery:82,homework:87},
+  {id:'s3',no:'20240103',name:'王浩',completion:78,mastery:75,homework:80},
+  {id:'s4',no:'20240104',name:'赵敏',completion:95,mastery:93,homework:94},
+  {id:'s5',no:'20240105',name:'陈静',completion:70,mastery:68,homework:73},
+  {id:'s6',no:'20240106',name:'刘洋',completion:88,mastery:85,homework:89},
+  {id:'s7',no:'20240107',name:'周磊',completion:60,mastery:55,homework:62},
+  {id:'s8',no:'20240108',name:'吴芳',completion:82,mastery:80,homework:84}
+];
+
+const myResources = [
+  {id:'r1',name:'数据结构与算法分析.pdf',type:'document',from:'本地上传',date:'2024-09-15',size:'12.5MB'},
+  {id:'r2',name:'算法导论（第三版）.pdf',type:'book',from:'数据库检索',date:'2024-09-20',size:'45.2MB'},
+  {id:'r3',name:'数据结构课程课件.pptx',type:'ppt',from:'云盘上传',date:'2024-10-01',size:'8.7MB'},
+  {id:'r4',name:'图论算法综述.pdf',type:'document',from:'数据库检索',date:'2024-10-08',size:'3.2MB'},
+  {id:'r5',name:'排序算法可视化视频.mp4',type:'video',from:'本地上传',date:'2024-10-15',size:'156MB'},
+  {id:'r6',name:'二叉树遍历图解.pdf',type:'document',from:'云盘上传',date:'2024-10-22',size:'2.1MB'},
+  {id:'r7',name:'哈希表冲突解决方案.pdf',type:'document',from:'数据库检索',date:'2024-11-01',size:'5.8MB'},
+  {id:'r8',name:'动态规划经典例题解析.pdf',type:'document',from:'本地上传',date:'2024-11-10',size:'4.3MB'},
+  {id:'r9',name:'算法复杂度分析指南.pdf',type:'document',from:'数据库检索',date:'2024-11-18',size:'6.1MB'},
+  {id:'r10',name:'数据结构期末复习资料.pdf',type:'document',from:'云盘上传',date:'2024-12-01',size:'9.4MB'},
+  {id:'r11',name:'LeetCode算法题解汇总.pdf',type:'document',from:'本地上传',date:'2024-12-10',size:'18.3MB'},
+  {id:'r12',name:'编程之美-面试算法指南.pdf',type:'book',from:'数据库检索',date:'2024-12-20',size:'22.7MB'}
+];
+
+const cloudResources = [
+  {id:'c1',name:'高等数学期末笔记.pdf',date:'2024-06-20',size:'3.5MB'},
+  {id:'c2',name:'线性代数习题集.pdf',date:'2024-05-15',size:'7.2MB'},
+  {id:'c3',name:'概率论与数理统计课件.pptx',date:'2024-04-10',size:'11.3MB'},
+  {id:'c4',name:'大学物理实验报告.docx',date:'2024-03-25',size:'1.8MB'},
+  {id:'c5',name:'C语言程序设计笔记.pdf',date:'2024-02-18',size:'4.6MB'}
+];
+
+const dbSearchResults = [
+  {id:'d1',title:'基于深度学习的代码自动生成技术研究',author:'张伟',source:'计算机学报',year:'2024',type:'期刊',keyword:'深度学习;代码生成'},
+  {id:'d2',title:'大数据环境下知识图谱构建方法综述',author:'李明',source:'软件学报',year:'2024',type:'期刊',keyword:'大数据;知识图谱'},
+  {id:'d3',title:'算法设计手册',author:'王强',source:'机械工业出版社',year:'2023',type:'图书',keyword:'算法设计;数据结构'},
+  {id:'d4',title:'人工智能在教育教学中的应用研究',author:'赵丽',source:'教育研究',year:'2024',type:'期刊',keyword:'人工智能;教育'},
+  {id:'d5',title:'云计算与边缘计算协同架构研究',author:'陈华',source:'通信学报',year:'2024',type:'期刊',keyword:'云计算;边缘计算'},
+  {id:'d6',title:'自然语言处理前沿技术展望',author:'刘洋',source:'中国科学',year:'2024',type:'期刊',keyword:'自然语言处理'},
+  {id:'d7',title:'一种基于知识图谱的智能推荐方法',author:'周杰',source:'专利号CN202410123456',year:'2024',type:'标准专利',keyword:'知识图谱;推荐系统'},
+  {id:'d8',title:'面向教育领域的AI辅助教学系统',author:'吴刚',source:'科技成果登记号20240321',year:'2024',type:'科技成果',keyword:'AI;教学系统'}
+];
+
+const aiApps = [
+  {id:'a1',name:'AI智能备课',icon:'备',desc:'基于知识库自动生成教案与课件'},
+  {id:'a2',name:'AI题库生成',icon:'题',desc:'根据知识点智能生成试题与答案'},
+  {id:'a3',name:'AI学习总结',icon:'总',desc:'自动归纳课程核心要点与知识框架'},
+  {id:'a4',name:'AI论文助手',icon:'论',desc:'辅助文献综述与论文写作润色'},
+  {id:'a5',name:'AI答疑助教',icon:'答',desc:'24小时智能问答与学习辅导'},
+  {id:'a6',name:'AI学情分析',icon:'析',desc:'多维度学习数据分析与预警'},
+  {id:'a7',name:'AI资源推荐',icon:'荐',desc:'基于学习画像精准推荐学习资源'},
+  {id:'a8',name:'AI知识抽取',icon:'抽',desc:'从文献中自动提取结构化知识点'}
+];
+
+const aiGenerated = [
+  {id:'g1',name:'数据结构-线性表章节教案',type:'教案',date:'2024-12-15',size:'2.3MB'},
+  {id:'g2',name:'排序算法专题题库（50题）',type:'题库',date:'2024-12-12',size:'1.8MB'},
+  {id:'g3',name:'二叉树遍历方法学习总结',type:'总结',date:'2024-12-08',size:'0.5MB'},
+  {id:'g4',name:'图论算法课程PPT课件',type:'课件',date:'2024-12-05',size:'15.2MB'},
+  {id:'g5',name:'哈希表知识点思维导图',type:'总结',date:'2024-12-01',size:'0.3MB'}
+];
+
+const planCourses = [
+  {id:'pc1',name:'数据结构与算法',category:'专业必修',credits:4,selected:true},
+  {id:'pc2',name:'操作系统原理',category:'专业必修',credits:4,selected:true},
+  {id:'pc3',name:'计算机网络',category:'专业必修',credits:3,selected:true},
+  {id:'pc4',name:'数据库原理',category:'专业必修',credits:3,selected:true},
+  {id:'pc5',name:'软件工程',category:'专业必修',credits:3,selected:true},
+  {id:'pc6',name:'Web前端开发',category:'专业选修',credits:2,selected:false},
+  {id:'pc7',name:'移动应用开发',category:'专业选修',credits:2,selected:false},
+  {id:'pc8',name:'人工智能导论',category:'专业选修',credits:2,selected:false},
+  {id:'pc9',name:'大数据技术',category:'专业选修',credits:2,selected:false},
+  {id:'pc10',name:'云计算与分布式系统',category:'专业选修',credits:2,selected:false},
+  {id:'pc11',name:'网络安全',category:'专业选修',credits:2,selected:false},
+  {id:'pc12',name:'软件测试',category:'专业选修',credits:2,selected:true}
+];
+
+// ==================== STATE ====================
+let currentRole = 'student';
+let currentTab = 'dashboard';
+let kgOffsetX = 0, kgOffsetY = 0, kgScale = 1;
+let kgDragging = false, kgDragStart = {x:0,y:0};
+let currentMainGraphData = null;
+let currentTeachingGraphData = null;
+let mainGraphNodeMap = {};
+let teachingGraphNodeMap = {};
+let currentAIApp = null;
+let currentPlanCourses = JSON.parse(JSON.stringify(planCourses));
+let currentDownloadInfo = null;
+let quizSubmitted = false;
+
+// ==================== AUTH ====================
+function handleLogin(){
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value.trim();
+  const err = document.getElementById('loginError');
+  if(!u||!p){err.textContent='请输入用户名和密码';return;}
+  if(u==='root'&&p==='root'){
+    err.textContent='';
+    localStorage.setItem('smartedu_auth','true');
+    localStorage.setItem('smartedu_user',u);
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('appPage').classList.add('active');
+    initApp();
+    showToast('登录成功','success');
+  }else{err.textContent='用户名或密码错误，请重试';}
+}
+
+function handleLogout(){
+  localStorage.removeItem('smartedu_auth');
+  localStorage.removeItem('smartedu_user');
+  document.getElementById('appPage').classList.remove('active');
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('username').value='';
+  document.getElementById('password').value='';
+  document.getElementById('loginError').textContent='';
+}
+
+function checkAuth(){
+  if(localStorage.getItem('smartedu_auth')==='true'){
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('appPage').classList.add('active');
+    initApp();
+  }
+}
+
+// ==================== INIT ====================
+function initApp(){
+  renderAll();
+  setupNavListeners();
+  setupSubTabListeners();
+  setupUploadMethodListeners();
+  setupMcTabListeners();
+  setupCareerListeners();
+  setupLoginEnterKey();
+  setupCanvasInteractions();
+  setTimeout(()=>{
+    if(currentTab==='dashboard'||currentTab==='teaching') updateTeachingGraph();
+    if(currentTab==='graph') updateKnowledgeGraph();
+  },200);
+}
+
+function renderAll(){
+  renderKnowledgeList();
+  renderLearningMap();
+  renderStudentTable();
+  renderCloudResources();
+  renderMyResources();
+  renderAIApps();
+  renderAIGenerated();
+  renderCustomPlanBuilder();
+  renderTeacherPlanTable();
+}
+
+// ==================== NAVIGATION ====================
+function toggleDropdown(id){
+  const dd = document.getElementById(id);
+  if(!dd) return;
+  const wasOpen = dd.classList.contains('open');
+  document.querySelectorAll('.nav-dropdown').forEach(d=>d.classList.remove('open'));
+  if(!wasOpen) dd.classList.add('open');
+}
+
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.nav-dropdown')){
+    document.querySelectorAll('.nav-dropdown').forEach(d=>d.classList.remove('open'));
+  }
+  if(e.target.classList.contains('modal-overlay')){
+    e.target.classList.remove('active');
+    document.body.style.overflow='';
+  }
+});
+
+function setupNavListeners(){
+  document.querySelectorAll('#topnavLinks .topnav-link, #topnavLinks .nav-dropdown-menu button').forEach(link=>{
+    link.addEventListener('click',function(e){
+      e.stopPropagation();
+      const tab = this.dataset.tab;
+      if(tab) switchTab(tab);
+      document.querySelectorAll('.nav-dropdown').forEach(d=>d.classList.remove('open'));
+    });
+  });
+}
+
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('#topnavLinks .topnav-link, #topnavLinks .nav-dropdown-menu button').forEach(l=>l.classList.remove('active'));
+  const topLink = document.querySelector('#topnavLinks .topnav-link[data-tab="'+tab+'"]');
+  const ddLink = document.querySelector('#topnavLinks .nav-dropdown-menu button[data-tab="'+tab+'"]');
+  if(topLink) topLink.classList.add('active');
+  if(ddLink) ddLink.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  const panel = document.getElementById('panel-'+tab);
+  if(panel) panel.classList.add('active');
+  if(tab==='ai'){
+    document.getElementById('aiDetailPanel').classList.remove('active');
+    document.getElementById('aiListView').style.display = 'block';
+    currentAIApp = null;
+    lastAIGeneratedId = null;
+    renderAIGenerated();
+  }
+  setTimeout(()=>{
+    if(tab==='graph') updateKnowledgeGraph();
+    if(tab==='teaching'&&currentRole==='student'){
+      const activeMode = document.querySelector('.subtab.active');
+      if(activeMode&&activeMode.dataset.mode==='graph') updateTeachingGraph();
+    }
+    if(tab==='plan'){renderTeacherPlanTable();renderCustomPlanBuilder();}
+  },150);
+  document.getElementById('appContent').scrollTop = 0;
+}
+
+function switchRole(role){
+  currentRole = role;
+  document.querySelectorAll('.topnav-role button').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.topnav-role button[data-role="'+role+'"]').classList.add('active');
+  if(role==='student'){
+    document.getElementById('studentTeachingView').style.display='block';
+    document.getElementById('teacherTeachingView').style.display='none';
+    document.getElementById('studentPlanView').style.display='block';
+    document.getElementById('teacherPlanView').style.display='none';
+    setTimeout(()=>updateTeachingGraph(),150);
+  }else{
+    document.getElementById('studentTeachingView').style.display='none';
+    document.getElementById('teacherTeachingView').style.display='block';
+    document.getElementById('studentPlanView').style.display='none';
+    document.getElementById('teacherPlanView').style.display='block';
+    renderStudentTable();
+    renderTeacherPlanTable();
+  }
+}
+
+// ==================== SUB TABS ====================
+function setupSubTabListeners(){
+  document.querySelectorAll('.subtab').forEach(tab=>{
+    tab.addEventListener('click',function(){
+      document.querySelectorAll('.subtab').forEach(t=>t.classList.remove('active'));
+      this.classList.add('active');
+      document.querySelectorAll('.mode-panel').forEach(p=>p.classList.remove('active'));
+      const mode = this.dataset.mode;
+      const panel = document.getElementById('mode-'+mode);
+      if(panel) panel.classList.add('active');
+      if(mode==='graph') setTimeout(()=>updateTeachingGraph(),150);
+    });
+  });
+}
+
+// ==================== KNOWLEDGE LIST ====================
+function renderKnowledgeList(){
+  const cats = {core:'核心知识',detail:'详细知识',extension:'扩展知识'};
+  const icons = {core:'Co',detail:'De',extension:'Ex'};
+  document.getElementById('knowledgeList').innerHTML = knowledgePoints.map(k=>`
+    <div class="list-item" onclick="openMicroCourse('${k.id}','${k.name}')">
+      <div class="li-icon" style="background:${k.mastered?'#ECFDF5':'var(--primary-bg)'};color:${k.mastered?'var(--success)':'var(--primary)'}">${icons[k.category]}</div>
+      <div class="li-info"><div class="li-title">${k.name}</div><div class="li-meta">${cats[k.category]} · ${k.mastered?'已掌握':'待学习'}</div></div>
+      <span class="tag ${k.mastered?'tag-green':'tag-primary'}">${k.mastered?'已掌握':'待学习'}</span>
+      <span class="li-arrow">&#8250;</span>
+    </div>`).join('');
+}
+
+function renderLearningMap(){
+  const stages = [
+    {name:'基础入门',points:knowledgePoints.filter(k=>['k1','k2','k3','k4'].includes(k.id)),icon:'I'},
+    {name:'核心进阶',points:knowledgePoints.filter(k=>['k8','k12','k15','k19'].includes(k.id)),icon:'II'},
+    {name:'算法深入',points:knowledgePoints.filter(k=>['k21','k23','k24','k25'].includes(k.id)),icon:'III'},
+    {name:'综合应用',points:knowledgePoints.filter(k=>['k5','k6','k7','k9','k10','k11','k13','k14','k16','k17','k18','k20','k22'].includes(k.id)),icon:'IV'}
+  ];
+  document.getElementById('learningMap').innerHTML = stages.map(stage=>{
+    const mastered = stage.points.filter(p=>p.mastered).length;
+    const total = stage.points.length;
+    const pct = total>0?Math.round(mastered/total*100):0;
+    return `<div style="margin-bottom:14px;padding:14px;background:var(--bg);border-radius:8px;border-left:4px solid var(--primary)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-weight:600;font-size:14px"><span style="display:inline-block;width:22px;height:22px;background:var(--primary);color:#fff;border-radius:50%;text-align:center;line-height:22px;font-size:10px;font-weight:700;margin-right:6px">${stage.icon}</span>${stage.name}</span>
+        <span style="font-size:12px;color:var(--primary)">${mastered}/${total} · ${pct}%</span>
+      </div>
+      <div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">
+        ${stage.points.map(p=>`<span class="tag ${p.mastered?'tag-green':'tag-primary'}" style="cursor:pointer" onclick="openMicroCourse('${p.id}','${p.name}')">${p.name}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ==================== STUDENT TABLE ====================
+function renderStudentTable(){
+  document.getElementById('studentTableBody').innerHTML = students.map(s=>`
+    <tr><td>${s.no}</td><td>${s.name}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div class="progress" style="width:50px"><div class="progress-bar" style="width:${s.completion}%"></div></div>${s.completion}%</div></td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div class="progress" style="width:50px"><div class="progress-bar green" style="width:${s.mastery}%"></div></div>${s.mastery}%</div></td>
+      <td>${s.homework}</td>
+      <td><span class="link" onclick="openStudentDetail('${s.id}')">详情 &#8250;</span></td>
+    </tr>`).join('');
+}
+
+function openStudentDetail(sid){
+  const s = students.find(st=>st.id===sid);
+  if(!s) return;
+  document.getElementById('sdTitle').textContent = s.name + ' · 学情详情';
+  document.getElementById('studentDetailBody').innerHTML = `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon c1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div><div class="stat-info"><div class="stat-num">${s.completion}%</div><div class="stat-label">内容完成率</div></div></div>
+      <div class="stat-card"><div class="stat-icon c2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="stat-info"><div class="stat-num">${s.mastery}%</div><div class="stat-label">知识掌握率</div></div></div>
+      <div class="stat-card"><div class="stat-icon c3"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="stat-info"><div class="stat-num">${s.homework}</div><div class="stat-label">作业均分</div></div></div>
+    </div>
+    <div class="card"><div class="card-header">学习内容完成情况</div>
+      ${knowledgePoints.slice(0,8).map(k=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:13px">${k.name}</span><span class="tag ${Math.random()>0.3?'tag-green':'tag-amber'}">${Math.random()>0.3?'已完成':'进行中'}</span></div>`).join('')}
+    </div>
+    <div class="card"><div class="card-header">作业考试完成情况</div>
+      ${['作业一：线性表练习','作业二：栈与队列','期中考试','作业三：树与二叉树','作业四：图论','期末考试'].map(item=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:13px">${item}</span><span style="font-weight:600;color:var(--primary)">${Math.floor(Math.random()*20+80)}分</span></div>`).join('')}
+    </div>`;
+  openModal('studentDetailModal');
+}
+
+// ==================== STUDENT PLAN DETAIL (Teacher View) ====================
+function openStudentPlanDetail(sid){
+  const s = students.find(st=>st.id===sid);
+  if(!s) return;
+  const careers = ['前端开发工程师','后端开发工程师','AI算法工程师','数据分析师','DevOps工程师','系统架构师','信息安全工程师','移动端开发工程师'];
+  const careerIdx = students.indexOf(s);
+  const career = careers[careerIdx%careers.length];
+  const planCoursesForStudent = planCourses.map(c=>({...c,selected:Math.random()>0.5}));
+  const selectedCourses = planCoursesForStudent.filter(c=>c.selected);
+  const totalPlanCredits = selectedCourses.reduce((sum,c)=>sum+c.credits,0);
+  document.getElementById('sdTitle').textContent = s.name + ' · 人培方案详情';
+  document.getElementById('studentDetailBody').innerHTML = `
+    <div class="card"><div class="card-header">基本信息</div>
+      <div style="font-size:13px;color:var(--text);line-height:2">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><b>学号：</b>${s.no}</div><div><b>姓名：</b>${s.name}</div>
+          <div><b>专业：</b>软件工程</div><div><b>学制：</b>4年</div>
+          <div><b>目标方向：</b>${career}</div><div><b>学位：</b>工学学士</div>
+        </div>
+      </div>
+    </div>
+    <div class="card"><div class="card-header">学分统计</div>
+      <div class="credit-grid">
+        <div class="credit-item"><div class="cr-num">170</div><div class="cr-label">毕业所需总学分</div></div>
+        <div class="credit-item"><div class="cr-num">${Math.floor(Math.random()*40+100)}</div><div class="cr-label">已获学分</div></div>
+        <div class="credit-item"><div class="cr-num">${totalPlanCredits}</div><div class="cr-label">方案选课学分</div></div>
+      </div>
+    </div>
+    <div class="card"><div class="card-header">方案课程详情</div>
+      ${planCoursesForStudent.map(c=>`<div style="display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+        <span style="flex:1;font-size:13px;font-weight:500">${c.name}</span>
+        <span class="tag ${c.category==='专业必修'?'tag-primary':'tag-amber'}" style="margin-right:8px">${c.category}</span>
+        <span style="font-size:12px;color:var(--text-light);margin-right:8px">${c.credits}学分</span>
+        <span class="tag ${c.selected?'tag-green':'tag-red'}">${c.selected?'已选':'未选'}</span>
+      </div>`).join('')}
+      <div style="margin-top:12px;padding:12px;background:var(--primary-bg);border-radius:8px;font-size:13px;color:var(--text);line-height:1.8">
+        <b>方案说明：</b>该生选择了${career}方向，方案共包含${selectedCourses.length}门课程，总计${totalPlanCredits}学分。其中专业必修${selectedCourses.filter(c=>c.category==='专业必修').length}门，专业选修${selectedCourses.filter(c=>c.category==='专业选修').length}门。该方案侧重于${career}方向所需的核心能力培养。
+      </div>
+    </div>`;
+  openModal('studentDetailModal');
+}
+
+// ==================== MICRO COURSE ====================
+function openMicroCourse(kid,kname){
+  const kp = knowledgePoints.find(k=>k.id===kid);
+  quizSubmitted = false;
+  document.getElementById('mcTitle').textContent = '微课学习 · ' + kname;
+  document.getElementById('mcPanelAnalysis').innerHTML = `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon c1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="stat-info"><div class="stat-num">${kp&&kp.mastered?'92':'45'}%</div><div class="stat-label">知识点掌握度</div></div></div>
+      <div class="stat-card"><div class="stat-icon c2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg></div><div class="stat-info"><div class="stat-num">${Math.floor(Math.random()*20+5)}</div><div class="stat-label">学习次数</div></div></div>
+      <div class="stat-card"><div class="stat-icon c3"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="stat-info"><div class="stat-num">${Math.floor(Math.random()*60+30)}min</div><div class="stat-label">累计学习时长</div></div></div>
+    </div>
+    <div class="card"><div class="card-header">学习进度分析</div>
+      <div style="font-size:13px;color:var(--text-light);line-height:1.8">
+        <p><b>前置知识掌握情况：</b>${kp&&kp.mastered?'已完全掌握相关前置知识，可以进入下一阶段学习。':'部分前置知识尚未掌握，建议先复习相关基础内容。'}</p>
+        <p style="margin-top:8px"><b>关联知识点：</b>${kp&&kp.children?kp.children.map(cid=>{const c=knowledgePoints.find(k=>k.id===cid);return c?c.name:'';}).filter(Boolean).join('、'):'暂无'}</p>
+        <p style="margin-top:8px"><b>推荐学习路径：</b>建议结合实践练习，完成相关自测题目以巩固理解。</p>
+      </div>
+    </div>`;
+  document.getElementById('mcPanelContent').innerHTML = `
+    <div style="font-size:14px;line-height:2;color:var(--text)">
+      <h4 style="color:var(--primary);margin-bottom:12px">${kname} - 核心概念</h4>
+      <p>${kname}是数据结构与算法课程中的重要知识点。掌握此知识点对于理解后续的算法设计、程序优化以及实际工程应用具有重要意义。</p>
+      <p style="margin-top:12px">在本节内容中，我们将系统地学习${kname}的定义、原理、实现方式以及典型应用场景。通过理论讲解与代码实践相结合的方式，帮助学习者深入理解并灵活运用。</p>
+      <div style="background:var(--primary-bg);padding:16px;border-radius:8px;margin-top:16px">
+        <b>关键要点：</b>
+        <ul style="margin-top:8px;padding-left:20px">
+          <li>理解${kname}的基本概念与核心原理</li>
+          <li>掌握${kname}的多种实现方式及其适用场景</li>
+          <li>能够分析${kname}相关算法的时间与空间复杂度</li>
+          <li>了解${kname}在实际项目中的典型应用</li>
+        </ul>
+      </div>
+    </div>`;
+  const quizData = [
+    {q:`关于${kname}的下列说法中，正确的是？`,opts:['A. 这是正确选项的内容描述，符合该知识点的定义与特征','B. 这是一个干扰项的描述，与该知识点实际内容不符','C. 这是另一个干扰项，混淆了相关但不相同的概念','D. 以上都不对，需要重新审视该知识点的定义'],ans:0},
+    {q:`在${kname}的实际应用中，以下哪种场景最为常见？`,opts:['A. 数据库索引优化与查询加速','B. 操作系统进程调度与资源分配','C. 网络路由算法与拓扑发现','D. 编译器语法分析与代码生成'],ans:0},
+    {q:`${kname}的时间复杂度通常为？`,opts:['A. O(1) 常数时间复杂度','B. O(n) 线性时间复杂度','C. O(log n) 对数时间复杂度','D. O(n²) 平方时间复杂度'],ans:1}
+  ];
+  document.getElementById('mcPanelQuiz').innerHTML = `
+    <div style="font-size:13px" id="quizContainer">
+      ${quizData.map((item,i)=>`<div class="quiz-block" data-qidx="${i}" data-ans="${item.ans}" style="background:var(--bg);padding:16px;border-radius:8px;margin-bottom:12px">
+        <div style="font-weight:600;margin-bottom:10px">${i+1}. ${item.q}</div>
+        ${item.opts.map((opt,oi)=>`<div class="quiz-option" data-oidx="${oi}" onclick="selectQuizOption(this,${i},${oi})">${opt}</div>`).join('')}
+      </div>`).join('')}
+      <button class="submit-btn" id="quizSubmitBtn" onclick="submitQuiz()">提交答案</button>
+      <div class="quiz-result" id="quizResult"></div>
+    </div>`;
+  document.getElementById('mcPanelMaterials').innerHTML = myResources.slice(0,6).map(r=>`
+    <div class="res-card" onclick="openDownloadModal('${r.id}','${r.name.replace(/'/g,"\\'")}','${r.size}','${r.type}')">
+      <div class="rc-icon" style="background:${r.type==='video'?'#FFFBEB':r.type==='ppt'?'#FFFBEB':'var(--primary-bg)'};color:${r.type==='video'?'#D97706':r.type==='ppt'?'#D97706':'var(--primary)'}">${r.type==='video'?'Vid':r.type==='ppt'?'PPT':'PDF'}</div>
+      <div class="rc-info"><div class="rc-name">${r.name}</div><div class="rc-meta">${r.size} · ${r.date}</div></div>
+      <span class="tag tag-primary">下载</span>
+    </div>`).join('');
+  document.getElementById('mcPanelWrongbook').innerHTML = `
+    <div style="font-size:13px">
+      ${[{q:`关于${kname}的常见误区：以下哪种说法是错误的？`,wrong:'选择错误选项的学生通常混淆了概念的定义与适用范围。',correct:'正确理解应为：需结合具体场景和条件进行分析。',count:15},
+        {q:`在实现${kname}时，以下哪种做法可能导致性能问题？`,wrong:'许多学生忽略了边界条件和特殊情况的处理。',correct:'应当注意数据规模、输入特性对算法选择的影响。',count:12},
+        {q:`${kname}与相关知识点之间的联系，以下哪项描述不准确？`,wrong:'学生容易混淆相似概念之间的细微差别和适用边界。',correct:'各知识点之间存在递进与互补的关系，需系统理解。',count:8}]
+      .map((item,i)=>`<div style="background:var(--bg);padding:16px;border-radius:8px;margin-bottom:12px">
+        <div style="font-weight:600;margin-bottom:8px">错题${i+1}：${item.q}</div>
+        <div style="color:var(--danger);font-size:12px;margin-bottom:4px">常见错误：${item.wrong}</div>
+        <div style="color:var(--success);font-size:12px;margin-bottom:4px">正确解析：${item.correct}</div>
+        <div style="color:var(--text-lighter);font-size:11px">班级错误率：${Math.round(item.count/students.length*100)}%（${item.count}人答错）</div>
+      </div>`).join('')}
+    </div>`;
+  document.querySelectorAll('#mcTabs .mc-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  document.querySelectorAll('#microCourseModal .mc-panel').forEach((p,i)=>{p.style.display=i===0?'block':'none';p.classList.toggle('active',i===0);});
+  openModal('microCourseModal');
+}
+
+function selectQuizOption(el,qi,oi){
+  const block = el.closest('.quiz-block');
+  block.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function submitQuiz(){
+  if(quizSubmitted) return;
+  quizSubmitted = true;
+  let correct = 0, total = 0;
+  document.querySelectorAll('.quiz-block').forEach(block=>{
+    const ans = parseInt(block.dataset.ans);
+    const selected = block.querySelector('.quiz-option.selected');
+    total++;
+    if(selected){
+      const oi = parseInt(selected.dataset.oidx);
+      if(oi === ans){correct++;selected.classList.add('correct');}
+      else{selected.classList.add('wrong');block.querySelector('.quiz-option[data-oidx="'+ans+'"]').classList.add('correct');}
+    }
+  });
+  document.getElementById('quizSubmitBtn').style.display='none';
+  const resultEl = document.getElementById('quizResult');
+  resultEl.style.display='block';
+  resultEl.style.color = correct===total?'var(--success)':correct>=total/2?'#D97706':'var(--danger)';
+  resultEl.textContent = `答题结果：${correct}/${total} 正确（正确率 ${Math.round(correct/total*100)}%）`;
+}
+
+function setupMcTabListeners(){
+  document.querySelectorAll('#mcTabs .mc-tab').forEach(tab=>{
+    tab.addEventListener('click',function(){
+      document.querySelectorAll('#mcTabs .mc-tab').forEach(t=>t.classList.remove('active'));
+      this.classList.add('active');
+      const mctab = this.dataset.mctab;
+      const panels = {analysis:'mcPanelAnalysis',content:'mcPanelContent',quiz:'mcPanelQuiz',materials:'mcPanelMaterials',wrongbook:'mcPanelWrongbook'};
+      Object.values(panels).forEach(id=>{const el=document.getElementById(id);if(el){el.style.display='none';el.classList.remove('active');}});
+      const target = document.getElementById(panels[mctab]);
+      if(target){target.style.display='block';target.classList.add('active');}
+    });
+  });
+}
+
+// ==================== KNOWLEDGE BASE ====================
+function setupUploadMethodListeners(){
+  document.querySelectorAll('.upload-method').forEach(m=>{
+    m.addEventListener('click',function(){
+      document.querySelectorAll('.upload-method').forEach(x=>x.classList.remove('active'));
+      this.classList.add('active');
+      document.querySelectorAll('.upload-panel').forEach(p=>p.style.display='none');
+      document.getElementById('panel-'+this.dataset.method).style.display='block';
+      if(this.dataset.method==='database') searchDatabase();
+    });
+  });
+  const dbKw = document.getElementById('dbKeyword');
+  if(dbKw){dbKw.addEventListener('keydown',function(e){if(e.key==='Enter') searchDatabase();});}
+}
+
+function handleRealFileUpload(event){
+  const files = event.target.files;
+  if(!files||files.length===0) return;
+  const dz = document.getElementById('dropZone');
+  dz.style.borderColor='var(--primary)';dz.style.background='var(--primary-bg)';
+  setTimeout(()=>{
+    dz.style.borderColor='var(--border)';dz.style.background='transparent';
+    for(let i=0;i<files.length;i++){
+      const f = files[i];
+      const ext = f.name.split('.').pop().toLowerCase();
+      const type = ['mp4','avi','mov'].includes(ext)?'video':['ppt','pptx'].includes(ext)?'ppt':'document';
+      myResources.unshift({id:'r'+(myResources.length+1),name:f.name,type:type,from:'本地上传',date:new Date().toISOString().split('T')[0],size:(f.size/1024/1024).toFixed(1)+'MB'});
+    }
+    renderMyResources();
+    showToast(files.length+'个文件上传成功','success');
+  },800);
+  showToast('正在上传文件...');
+}
+
+function renderCloudResources(){
+  document.getElementById('cloudResourceList').innerHTML = cloudResources.map(r=>`
+    <div class="res-card" onclick="addFromCloud('${r.id}')">
+      <div class="rc-icon" style="background:var(--primary-bg);color:var(--primary)">PDF</div>
+      <div class="rc-info"><div class="rc-name">${r.name}</div><div class="rc-meta">${r.size} · ${r.date}</div></div>
+      <span class="tag tag-primary">+ 添加</span>
+    </div>`).join('');
+}
+
+function addFromCloud(cid){
+  const cr = cloudResources.find(r=>r.id===cid);
+  if(!cr) return;
+  if(myResources.find(r=>r.name===cr.name)){showToast('该资源已在知识库中');return;}
+  myResources.unshift({id:'r'+(myResources.length+1),name:cr.name,type:'document',from:'云盘上传',date:new Date().toISOString().split('T')[0],size:cr.size});
+  renderMyResources();
+  showToast('已从云盘添加到知识库','success');
+}
+
+function searchDatabase(){
+  const keyword = document.getElementById('dbKeyword').value.trim().toLowerCase();
+  const type = document.getElementById('dbType').value;
+  const field = document.getElementById('dbField').value;
+  let results = dbSearchResults;
+  if(type!=='all'){results = results.filter(r=>r.type===type);}
+  if(keyword){
+    results = results.filter(r=>{
+      if(field==='title') return r.title.toLowerCase().includes(keyword);
+      if(field==='author') return r.author.toLowerCase().includes(keyword);
+      if(field==='keyword') return (r.keyword||'').toLowerCase().includes(keyword);
+      if(field==='subject') return r.title.toLowerCase().includes(keyword)||(r.keyword||'').toLowerCase().includes(keyword);
+      return r.title.toLowerCase().includes(keyword);
+    });
+  }
+  document.getElementById('dbSearchResults').innerHTML = results.length===0
+    ? `<div style="text-align:center;padding:30px;color:var(--text-light);font-size:13px">未找到匹配的文献资源</div>`
+    : `<div style="font-size:12px;color:var(--text-light);margin-bottom:8px">检索结果，共找到 ${results.length} 条</div>
+    ${results.map(r=>`<div class="res-card" onclick="addFromDatabase('${r.id}')">
+      <div class="rc-icon" style="background:${r.type==='图书'?'#FFFBEB':r.type==='标准专利'?'#ECFDF5':'var(--primary-bg)'};color:${r.type==='图书'?'#D97706':r.type==='标准专利'?'var(--success)':'var(--primary)'}">${r.type==='图书'?'Bk':r.type==='标准专利'?'Pt':r.type==='科技成果'?'Te':'Jn'}</div>
+      <div class="rc-info"><div class="rc-name">${r.title}</div><div class="rc-meta">${r.author} · ${r.source} · ${r.year} · ${r.type}</div></div>
+      <span class="tag tag-primary">+ 添加</span>
+    </div>`).join('')}`;
+}
+
+function addFromDatabase(did){
+  const dr = dbSearchResults.find(r=>r.id===did);
+  if(!dr) return;
+  if(myResources.find(r=>r.name===dr.title+'.pdf')){showToast('该资源已在知识库中');return;}
+  myResources.unshift({id:'r'+(myResources.length+1),name:dr.title+'.pdf',type:'document',from:'数据库检索',date:new Date().toISOString().split('T')[0],size:(Math.random()*10+1).toFixed(1)+'MB'});
+  renderMyResources();
+  showToast('已从数据库添加到知识库','success');
+}
+
+function renderMyResources(){
+  document.getElementById('resourceCount').textContent = myResources.length;
+  const kbRc = document.getElementById('kbResourceCount');
+  if(kbRc) kbRc.textContent = myResources.length;
+  document.getElementById('myResourceList').innerHTML = myResources.map(r=>`
+    <div class="res-card" onclick="previewResource('${r.id}','${r.name.replace(/'/g,"\\'")}')">
+      <div class="rc-icon" style="background:${r.type==='video'?'#FFFBEB':r.type==='ppt'?'#FFFBEB':r.type==='book'?'#ECFDF5':'var(--primary-bg)'};color:${r.type==='video'?'#D97706':r.type==='ppt'?'#D97706':r.type==='book'?'var(--success)':'var(--primary)'}">${r.type==='video'?'Vid':r.type==='ppt'?'PPT':r.type==='book'?'Bk':'PDF'}</div>
+      <div class="rc-info"><div class="rc-name">${r.name}</div><div class="rc-meta">${r.size} · ${r.from} · ${r.date}</div></div>
+      <span class="tag tag-primary" style="cursor:pointer;margin-right:4px" onclick="event.stopPropagation();previewResource('${r.id}','${r.name.replace(/'/g,"\\'")}')">预览</span>
+      <span class="tag tag-red" style="cursor:pointer" onclick="event.stopPropagation();removeResource('${r.id}')">删除</span>
+    </div>`).join('');
+}
+
+function removeResource(rid){
+  const idx = myResources.findIndex(r=>r.id===rid);
+  if(idx>-1){myResources.splice(idx,1);renderMyResources();showToast('资源已移除');}
+}
+
+// ==================== DOWNLOAD & PREVIEW ====================
+function openDownloadModal(rid,rname,rsize,rtype){
+  currentDownloadInfo = {id:rid,name:rname,size:rsize,type:rtype};
+  document.getElementById('dlTitle').textContent = '文件下载';
+  document.getElementById('downloadBody').innerHTML = `
+    <div style="text-align:center;padding:10px 0">
+      <div style="font-size:40px;margin-bottom:12px;font-weight:700;color:var(--primary)">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+      </div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:4px">${rname}</div>
+      <div style="font-size:12px;color:var(--text-light);margin-bottom:20px">文件大小：${rsize}</div>
+      <div style="display:flex;flex-direction:column;gap:10px;max-width:300px;margin:0 auto">
+        <button class="submit-btn" onclick="doDownload()">直接下载</button>
+        <button style="width:100%;height:44px;background:#fff;color:var(--primary);border:2px solid var(--primary);border-radius:8px;font-size:15px;font-weight:600;cursor:pointer" onclick="previewResource('${rid}','${rname.replace(/'/g,"\\'")}')">在线预览</button>
+      </div>
+    </div>`;
+  openModal('downloadModal');
+}
+
+function doDownload(){
+  if(!currentDownloadInfo) return;
+  const info = currentDownloadInfo;
+  const content = '这是「'+info.name+'」的演示文件内容。\n\n文件大小：'+info.size+'\n资源类型：'+info.type.toUpperCase()+'\n来源：智慧教学综合管理平台\n\n--- 文件正文预览 ---\n\n本资源包含数据结构与算法相关的核心知识点，涵盖了线性表、树、图、排序算法、查找算法等重要内容。适合计算机科学与技术、软件工程等专业学生参考学习。\n\n一、课程概述\n本课程系统介绍数据结构的基本概念、常用数据结构及其实现方法，以及基本算法设计与分析技术。\n\n二、主要内容\n1. 线性表：顺序表、链表、栈、队列\n2. 树与二叉树：二叉搜索树、平衡二叉树、堆\n3. 图论：图的存储、遍历、最短路径、最小生成树\n4. 排序算法：快速排序、归并排序、堆排序\n5. 查找算法：二分查找、哈希表\n\n三、学习建议\n建议结合编程实践，每学完一个知识点完成相应的练习题目，以巩固理解。';
+  const blob = new Blob([content],{type:'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;a.download = info.name;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showToast('文件下载已开始','success');
+  setTimeout(()=>closeModal('downloadModal'),500);
+}
+
+function previewResource(rid,rname){
+  closeModal('downloadModal');
+  const resource = myResources.find(r=>r.id===rid);
+  const rtype = resource?resource.type:'document';
+  const rsize = resource?resource.size:'未知';
+  const rfrom = resource?resource.from:'未知';
+  document.getElementById('pvTitle').textContent = '资源预览 - '+rname;
+  let previewContent = '';
+  if(rtype==='video'){
+    previewContent = `<div style="text-align:center;padding:40px 0;background:var(--bg);border-radius:8px">
+      <div style="margin-bottom:12px;display:inline-block"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29.94 29.94 0 001 11.75a29.94 29.94 0 00.46 5.33A2.78 2.78 0 003.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-1.94 29.94 29.94 0 00.46-5.25 29.94 29.94 0 00-.46-5.39z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="var(--primary)"/></svg></div>
+      <div style="font-size:14px;font-weight:600">${rname}</div>
+      <div style="font-size:12px;color:var(--text-light);margin-top:4px">${rsize} · ${rfrom}</div>
+      <div style="margin-top:16px;padding:20px;background:#fff;border-radius:8px;border:1px solid var(--border);max-width:500px;margin-left:auto;margin-right:auto">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--primary-bg);border-radius:6px">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <div style="text-align:left"><div style="font-size:13px;font-weight:600">视频预览</div><div style="font-size:11px;color:var(--text-light)">时长：${Math.floor(Math.random()*30+10)}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} · 分辨率：1080P</div></div>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-light);text-align:left;line-height:1.8">
+          <p><b>视频简介：</b>本视频资源详细讲解了相关知识点的核心概念、算法原理的动画演示、代码实现讲解以及典型应用案例分析。</p>
+          <p style="margin-top:6px"><b>章节列表：</b>1. 概念导入 2. 原理讲解 3. 代码实现 4. 案例分析 5. 总结回顾</p>
+        </div>
+      </div></div>`;
+  } else if(rtype==='ppt'){
+    previewContent = `<div style="background:var(--bg);border-radius:8px;padding:24px;min-height:200px">
+      <div style="text-align:center;margin-bottom:20px;color:var(--primary);font-size:14px;font-weight:600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="8" y1="2" x2="8" y2="4"/><line x1="16" y1="2" x2="16" y2="4"/><line x1="2" y1="12" x2="22" y2="12"/></svg>幻灯片预览</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+        ${[1,2,3,4].map(i=>`<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:16px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px;font-weight:700;color:var(--primary)">第${i}页</div>
+          <div style="font-size:11px;color:var(--text-light);line-height:1.6">${['课程概述与学习目标','核心概念与定义','算法实现与示例','应用场景与总结'][i-1]}</div>
+        </div>`).join('')}
+      </div>
+      <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--text-light)">共12页幻灯片 · ${rsize} · ${rfrom}</div>
+    </div>`;
+  } else if(rtype==='book'){
+    previewContent = `<div style="background:var(--bg);border-radius:8px;padding:24px;min-height:200px">
+      <div style="display:flex;gap:16px;margin-bottom:20px">
+        <div style="width:80px;height:110px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0;text-align:center;line-height:1.4">${rname.replace('.pdf','')}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600">${rname}</div>
+          <div style="font-size:12px;color:var(--text-light);margin-top:4px">作者：${['张伟','李明','王强','Nicholas Zakas'][Math.floor(Math.random()*4)]}</div>
+          <div style="font-size:12px;color:var(--text-light)">出版社：${['机械工业出版社','人民邮电出版社','清华大学出版社','高等教育出版社'][Math.floor(Math.random()*4)]}</div>
+          <div style="font-size:12px;color:var(--text-light)">出版年份：202${Math.floor(Math.random()*5)+1} · ${rsize}</div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-light);line-height:1.8">
+            <b>目录：</b>第1章 绪论 · 第2章 基础概念 · 第3章 核心算法 · 第4章 高级应用 · 第5章 案例分析
+          </div>
+        </div>
+      </div>
+    </div>`;
+  } else {
+    previewContent = `<div style="background:var(--bg);border-radius:8px;padding:24px;min-height:200px">
+      <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:16px">
+        <div style="flex-shrink:0"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:600">${rname}</div><div style="font-size:12px;color:var(--text-light);margin-top:2px">文件大小：${rsize} · 来源：${rfrom}</div></div>
+      </div>
+      <div style="background:#fff;border-radius:6px;padding:18px;border:1px solid var(--border);font-size:13px;line-height:1.8">
+        <p style="color:var(--primary);font-weight:600;margin-bottom:10px">文档摘要：</p>
+        <p>本资源包含数据结构与算法相关的核心知识点，涵盖了线性表、树、图、排序算法、查找算法等重要内容。适合计算机科学与技术、软件工程等专业学生参考学习。</p>
+        <p style="margin-top:10px"><b>关键词：</b>数据结构、算法分析、时间复杂度、空间复杂度、程序设计</p>
+        <div style="margin-top:14px;padding:12px;background:var(--primary-bg);border-radius:6px;font-size:12px">
+          <b>适用对象：</b>计算机科学与技术、软件工程、人工智能、数据科学等相关专业本科生和研究生<br>
+          <b>前置知识：</b>C/C++或Java编程基础、离散数学基础
+        </div>
+      </div>
+    </div>`;
+  }
+  document.getElementById('previewBody').innerHTML = previewContent;
+  openModal('previewModal');
+}
+
+// ==================== AI AGENT ====================
+function renderAIApps(){
+  document.getElementById('aiAppGrid').innerHTML = aiApps.map(a=>`
+    <div class="ai-card" onclick="openAIDetail('${a.id}','${a.name}','${a.desc.replace(/'/g,"\\'")}')">
+      <div class="ai-icon">${a.icon}</div>
+      <div class="ai-name">${a.name}</div>
+      <div class="ai-desc">${a.desc}</div>
+    </div>`).join('');
+}
+
+function renderAIGenerated(){
+  document.getElementById('aiGeneratedList').innerHTML = aiGenerated.length===0
+    ? '<div style="text-align:center;padding:20px;color:var(--text-light);font-size:13px">暂无生成内容，点击上方AI应用开始生成</div>'
+    : aiGenerated.map(g=>{
+      const synced = myResources.find(r=>r.name===g.name+'.pdf');
+      return `<div class="res-card">
+        <div class="rc-icon" style="background:${g.type==='教案'?'var(--primary-bg)':g.type==='题库'?'#FFFBEB':g.type==='课件'?'#FFFBEB':'#ECFDF5'};color:${g.type==='教案'?'var(--primary)':g.type==='题库'?'#D97706':g.type==='课件'?'#D97706':'var(--success)'}">${g.type==='教案'?'LP':g.type==='题库'?'QB':g.type==='课件'?'CW':'SM'}</div>
+        <div class="rc-info"><div class="rc-name">${g.name}</div><div class="rc-meta">${g.type} · ${g.size} · ${g.date}</div></div>
+        ${synced
+          ? '<span class="tag tag-green">已同步至知识库</span>'
+          : '<span class="tag tag-primary" style="cursor:pointer" onclick="event.stopPropagation();syncToKnowledgeBase(\''+g.id+'\')">同步至知识库</span>'
+        }
+      </div>`;
+    }).join('');
+}
+
+function syncToKnowledgeBase(gid){
+  const g = aiGenerated.find(x=>x.id===gid);
+  if(!g) return;
+  if(myResources.find(r=>r.name===g.name+'.pdf')){showToast('该内容已在知识库中');return;}
+  myResources.unshift({id:'r'+(myResources.length+1),name:g.name+'.pdf',type:'document',from:'AI生成同步',date:g.date,size:g.size});
+  renderMyResources();renderAIGenerated();
+  showToast('已同步至个人AI知识库','success');
+}
+
+function openAIDetail(aid,aname,adesc){
+  currentAIApp = {id:aid,name:aname};
+  document.getElementById('aiListView').style.display = 'none';
+  document.getElementById('aiDetailPanel').classList.add('active');
+
+  // AI答疑助教 - Chat interface
+  if(aid==='a5'){
+    document.getElementById('aiDetailContent').innerHTML = `
+      <div class="card">
+        <div class="card-header"><span style="font-size:20px;margin-right:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="vertical-align:middle"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>AI答疑助教</div>
+        <div style="font-size:13px;color:var(--text-light);margin-bottom:16px;padding:12px;background:var(--primary-bg);border-radius:8px;line-height:1.8">24小时智能问答与学习辅导，基于知识库提供精准解答。支持文字、图片、公式等多种形式的问题输入。</div>
+        <div class="card" style="background:var(--bg);border:1px dashed var(--primary-light);margin-bottom:16px">
+          <div class="card-header" style="border-bottom:none;margin-bottom:8px;padding-bottom:0">
+            <span style="font-size:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>知识库资源底座</span>
+            <span class="badge badge-primary" style="margin-left:8px">已关联</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-light);margin-bottom:10px;line-height:1.6">本AI应用依托知识库资源底座，可直接调用校内公共知识库与个人AI知识库中的图书、期刊、论文、文档等各类资源，实现知识资源与AI应用的无缝联动。</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px">
+            <div style="background:#fff;padding:10px;border-radius:6px;border:1px solid var(--border);text-align:center">
+              <div style="font-size:18px;font-weight:700;color:var(--primary)">${myResources.length}</div>
+              <div style="font-size:11px;color:var(--text-light)">个人知识库资源</div>
+            </div>
+            <div style="background:#fff;padding:10px;border-radius:6px;border:1px solid var(--border);text-align:center">
+              <div style="font-size:18px;font-weight:700;color:var(--success)">${dbSearchResults.length}</div>
+              <div style="font-size:11px;color:var(--text-light)">公共知识库资源</div>
+            </div>
+            <div style="background:#fff;padding:10px;border-radius:6px;border:1px solid var(--border);text-align:center">
+              <div style="font-size:18px;font-weight:700;color:var(--warning)">5</div>
+              <div style="font-size:11px;color:var(--text-light)">资源类型</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <span class="tag tag-primary">图书</span><span class="tag tag-green">期刊</span><span class="tag tag-amber">论文</span>
+            <span class="tag tag-primary">文档</span><span class="tag tag-green">视频</span><span class="tag tag-amber">课件</span>
+            <span class="tag tag-primary">专利</span><span class="tag tag-green">报纸</span><span class="tag tag-amber">标准</span>
+          </div>
+        </div>
+        <div class="ai-chat-wrap" id="aiChatWrap">
+          <div class="ai-chat-msgs" id="aiChatMsgs">
+            <div class="ai-chat-msg bot">
+              <div class="bot-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="vertical-align:middle;margin-right:4px"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="8" cy="6" r="1" fill="var(--primary)"/><circle cx="16" cy="6" r="1" fill="var(--primary)"/><circle cx="8" cy="18" r="1" fill="var(--primary)"/><circle cx="16" cy="18" r="1" fill="var(--primary)"/></svg>AI助教</div>
+              <div>您好！我是AI答疑助教，我可以帮您解答数据结构、算法、编程等方面的问题。请随时向我提问！</div>
+            </div>
+          </div>
+          <div class="ai-chat-input-row">
+            <input type="text" id="aiChatInput" placeholder="输入您的问题..." onkeydown="if(event.key==='Enter')sendAIChat()">
+            <button onclick="sendAIChat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          </div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="ai-gen-btns btn-sync" style="flex:1;min-width:140px;height:44px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;background:#fff;color:var(--primary);border:2px solid var(--primary)" onclick="syncChatToKnowledgeBase()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>同步对话至知识库</button>
+          <button style="flex:1;min-width:140px;height:44px;background:var(--bg);color:var(--text-light);border:2px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer" onclick="backToAIList()">返回应用中心</button>
+        </div>
+      </div>`;
+    setTimeout(()=>{
+      const input = document.getElementById('aiChatInput');
+      if(input) input.focus();
+    },300);
+    return;
+  }
+
+  const details = {
+    a1:{title:'AI智能备课',icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',desc:'基于知识库自动生成教案与课件，支持调用公共知识库与个人AI知识库中的图书、期刊、论文等资源',
+      steps:[
+        {label:'选择课程',desc:'从课程列表中选择目标课程，系统将自动关联相关知识库资源',type:'chips',options:['数据结构','算法设计','操作系统','计算机网络','数据库原理'],key:'course'},
+        {label:'设置参数',desc:'配置教学风格与难度等级',type:'mixed',options1:['基础','进阶','高级'],options2:['理论讲解','案例分析','项目驱动'],key1:'level',key2:'style'},
+        {label:'输出配置',desc:'选择生成内容的类型',type:'chips',options:['教案+课件','仅教案','仅课件','含习题'],key:'output'}
+      ]},
+    a2:{title:'AI题库生成',icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>',desc:'根据知识点智能生成试题与答案解析，支持多种题型与难度级别',
+      steps:[
+        {label:'选择知识点',desc:'选择需要生成题库的知识点范围',type:'chips',options:['线性表','树与二叉树','图论','排序算法','查找算法','动态规划'],key:'topic'},
+        {label:'设置题型',desc:'选择题型组合',type:'chips',options:['选择题','填空题','简答题','编程题','综合题'],key:'qtype'},
+        {label:'难度与数量',desc:'设置题目难度和数量',type:'mixed2',options1:['简单','中等','困难'],key1:'difficulty',key2:'count',label2:'题目数量'}
+      ]},
+    a3:{title:'AI学习总结',icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',desc:'自动归纳课程核心要点与知识框架，生成结构化学习笔记',
+      steps:[
+        {label:'选择范围',desc:'选择需要总结的课程范围',type:'chips',options:['整门课程','指定章节','知识点范围'],key:'scope'},
+        {label:'输出格式',desc:'选择总结的输出格式',type:'chips',options:['思维导图','大纲笔记','详细摘要','知识卡片'],key:'format'},
+        {label:'侧重点',desc:'选择总结的侧重点',type:'chips',options:['重点难点','知识关联','应用场景','习题总结'],key:'focus'}
+      ]},
+    a4:{title:'AI论文助手',icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>',desc:'辅助文献综述与论文写作润色，支持多类型学术写作',
+      steps:[
+        {label:'选择服务',desc:'选择需要的论文辅助服务',type:'chips',options:['文献综述','语法检查','格式排版','查重降重','润色优化'],key:'service'},
+        {label:'学术层次',desc:'选择目标学术层次',type:'chips',options:['本科','硕士','博士'],key:'level'},
+        {label:'研究领域',desc:'输入研究领域关键词',type:'input',key:'field',placeholder:'例如：人工智能、机器学习、深度学习'}
+      ]},
+    a6:{title:'AI学情分析',icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',desc:'多维度学习数据分析与学业预警，生成个性化学习报告',
+      steps:[
+        {label:'分析对象',desc:'选择需要分析的目标',type:'chips',options:['单个学生','班级整体','年级对比'],key:'target'},
+        {label:'分析维度',desc:'选择分析的维度',type:'chips',options:['完成率','掌握率','活跃度','成绩趋势','能力画像'],key:'dimension'},
+        {label:'时间范围',desc:'选择分析的时间范围',type:'chips',options:['本学期','本学年','全部学期'],key:'timerange'}
+      ]},
+    a7:{title:'AI资源推荐',icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',desc:'基于学习画像与知识图谱，精准推荐个性化学习资源',
+      steps:[
+        {label:'学习目标',desc:'设定你的学习目标',type:'chips',options:['考试备考','项目实战','知识拓展','科研入门'],key:'goal'},
+        {label:'资源类型',desc:'选择偏好的资源类型',type:'chips',options:['视频课程','电子文档','习题集','论文文献','综合'],key:'restype'},
+        {label:'难度等级',desc:'选择适合的难度',type:'chips',options:['入门','基础','进阶','高级'],key:'level'}
+      ]},
+    a8:{title:'AI知识抽取',icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',desc:'从文献中自动提取结构化知识点，构建个人知识图谱',
+      steps:[
+        {label:'来源类型',desc:'选择文献来源类型',type:'chips',options:['论文PDF','教材章节','技术文档','视频字幕'],key:'source'},
+        {label:'抽取粒度',desc:'选择知识抽取的详细程度',type:'chips',options:['粗粒度','中等粒度','细粒度'],key:'granularity'},
+        {label:'输出格式',desc:'选择知识输出的格式',type:'chips',options:['知识卡片','思维导图','结构化JSON','Markdown笔记'],key:'output'}
+      ]}
+  };
+  const d = details[aid]||details.a1;
+  let stepsHTML = d.steps.map((s,i)=>{
+    let optionsHTML = '';
+    if(s.type==='chips'){
+      optionsHTML = `<div class="ai-config-options">${s.options.map(o=>`<span class="ai-option-chip" data-key="${s.key}" data-val="${o}" onclick="toggleAIChip(this)">${o}</span>`).join('')}</div>`;
+    } else if(s.type==='mixed'){
+      optionsHTML = `<div style="font-size:13px;color:var(--text-light);margin-bottom:10px">难度等级：</div>
+        <div class="ai-config-options">${s.options1.map(o=>`<span class="ai-option-chip" data-key="${s.key1}" data-val="${o}" onclick="toggleAIChip(this)">${o}</span>`).join('')}</div>
+        <div style="margin-top:10px;margin-bottom:10px;font-size:13px;color:var(--text-light)">教学风格：</div>
+        <div class="ai-config-options">${s.options2.map(o=>`<span class="ai-option-chip" data-key="${s.key2}" data-val="${o}" onclick="toggleAIChip(this)">${o}</span>`).join('')}</div>`;
+    } else if(s.type==='mixed2'){
+      optionsHTML = `<div style="font-size:13px;color:var(--text-light);margin-bottom:10px">难度：</div>
+        <div class="ai-config-options">${s.options1.map(o=>`<span class="ai-option-chip" data-key="${s.key1}" data-val="${o}" onclick="toggleAIChip(this)">${o}</span>`).join('')}</div>
+        <div style="margin-top:10px;margin-bottom:10px;font-size:13px;color:var(--text-light)">${s.label2||'数量'}：</div>
+        <input type="number" class="ai-option-input" data-key="${s.key2}" value="10" min="1" max="100" onchange="updateAIInput(this)">`;
+    } else if(s.type==='input'){
+      optionsHTML = `<input type="text" class="ai-option-input" data-key="${s.key}" placeholder="${s.placeholder||'请输入...'}" onchange="updateAIInput(this)">`;
+    }
+    return `<div class="ai-config-row">
+      <span class="ai-config-step">${i+1}</span>
+      <div class="ai-config-body">
+        <div class="ai-config-label">${s.label}</div>
+        <div class="ai-config-desc">${s.desc}</div>
+        ${optionsHTML}
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('aiDetailContent').innerHTML = `
+    <div class="card">
+      <div class="card-header"><span style="font-size:20px;margin-right:8px">${d.icon}</span>${d.title}</div>
+      <div style="font-size:13px;color:var(--text-light);margin-bottom:16px;padding:12px;background:var(--primary-bg);border-radius:8px;line-height:1.8">${d.desc}</div>
+      <div class="card" style="background:var(--bg);border:1px dashed var(--primary-light);margin-bottom:16px">
+        <div class="card-header" style="border-bottom:none;margin-bottom:8px;padding-bottom:0">
+          <span style="font-size:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>知识库资源底座</span>
+          <span class="badge badge-primary" style="margin-left:8px">已关联</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-light);margin-bottom:10px;line-height:1.6">本AI应用依托知识库资源底座，可直接调用校内公共知识库与个人AI知识库中的图书、期刊、论文、文档等各类资源，实现知识资源与AI应用的无缝联动。</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px">
+          <div style="background:#fff;padding:10px;border-radius:6px;border:1px solid var(--border);text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--primary)">${myResources.length}</div>
+            <div style="font-size:11px;color:var(--text-light)">个人知识库资源</div>
+          </div>
+          <div style="background:#fff;padding:10px;border-radius:6px;border:1px solid var(--border);text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--success)">${dbSearchResults.length}</div>
+            <div style="font-size:11px;color:var(--text-light)">公共知识库资源</div>
+          </div>
+          <div style="background:#fff;padding:10px;border-radius:6px;border:1px solid var(--border);text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--warning)">5</div>
+            <div style="font-size:11px;color:var(--text-light)">资源类型</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="tag tag-primary">图书</span><span class="tag tag-green">期刊</span><span class="tag tag-amber">论文</span>
+          <span class="tag tag-primary">文档</span><span class="tag tag-green">视频</span><span class="tag tag-amber">课件</span>
+          <span class="tag tag-primary">专利</span><span class="tag tag-green">报纸</span><span class="tag tag-amber">标准</span>
+        </div>
+      </div>
+      ${stepsHTML}
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="ai-gen-btns btn-generate" style="flex:1;min-width:140px" onclick="executeAIGenerate('${aid}','${aname.replace(/'/g,"\\'")}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>一键生成</button>
+        <button class="ai-gen-btns btn-sync" style="flex:1;min-width:140px" id="btnSyncAI" disabled onclick="syncAIGenerate('${aid}','${aname.replace(/'/g,"\\'")}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>同步至知识库</button>
+        <button style="flex:1;min-width:140px;height:44px;background:var(--bg);color:var(--text-light);border:2px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer" onclick="backToAIList()">返回应用中心</button>
+      </div>
+      <div class="ai-gen-result" id="aiGenResult"></div>
+    </div>`;
+}
+
+// ==================== AI CHIP TOGGLE ====================
+function toggleAIChip(chip){
+  const key = chip.dataset.key;
+  if(key){
+    const container = chip.parentElement;
+    container.querySelectorAll('.ai-option-chip[data-key="'+key+'"]').forEach(c=>c.classList.remove('selected'));
+  }
+  chip.classList.toggle('selected');
+}
+
+function updateAIInput(input){
+  input.dataset.val = input.value;
+}
+
+// ==================== AI GENERATE ====================
+let lastAIGeneratedId = null;
+
+function executeAIGenerate(aid, aname){
+  const resultEl = document.getElementById('aiGenResult');
+  const syncBtn = document.getElementById('btnSyncAI');
+  
+  resultEl.classList.add('show');
+  resultEl.innerHTML = `<div class="gen-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>正在生成中...</div>
+    <div style="font-size:13px;color:var(--text-light);text-align:center;padding:20px">
+      <div style="font-size:20px;margin-bottom:8px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>AI正在分析您的配置参数，调取知识库资源，生成内容中...
+    </div>`;
+  
+  setTimeout(()=>{
+    const genId = 'g'+(aiGenerated.length+1);
+    lastAIGeneratedId = genId;
+    const now = new Date().toISOString().split('T')[0];
+    const typeMap = {a1:'教案',a2:'题库',a3:'总结',a4:'论文',a5:'问答',a6:'报告',a7:'推荐',a8:'知识卡片'};
+    const genType = typeMap[aid]||'文档';
+    const genSize = (Math.random()*5+1).toFixed(1)+'MB';
+    
+    aiGenerated.unshift({id:genId, name:aname+' - '+genType+'（'+now+'）', type:genType, date:now, size:genSize});
+    
+    const selectedOptions = [];
+    document.querySelectorAll('.ai-option-chip.selected').forEach(c=>{selectedOptions.push(c.dataset.val);});
+    const inputs = document.querySelectorAll('.ai-option-input');
+    inputs.forEach(inp=>{if(inp.value) selectedOptions.push(inp.value);});
+    
+    const contentPreviews = {
+      a1:`<b>[教案] 教案大纲</b><br><br>
+<b>课程名称：</b>${selectedOptions[0]||'数据结构'}<br>
+<b>课时安排：</b>2学时（90分钟）<br>
+<b>难度等级：</b>${selectedOptions[1]||'进阶'}<br>
+<b>教学风格：</b>${selectedOptions[2]||'案例分析'}<br><br>
+<b>一、教学目标</b><br>
+1. 理解${selectedOptions[0]||'数据结构'}的核心概念与基本原理<br>
+2. 掌握典型算法的设计与分析方法<br>
+3. 能够运用所学知识解决实际工程问题<br><br>
+<b>二、教学重点</b><br>
+• 核心数据结构的定义与特性<br>
+• 算法的时间复杂度与空间复杂度分析<br>
+• 典型应用场景的代码实现<br><br>
+<b>三、教学难点</b><br>
+• 抽象数据类型的理解与运用<br>
+• 复杂算法设计的思维过程<br>
+• 实际问题的建模与求解<br><br>
+<b>四、教学过程</b><br>
+1. 导入（10分钟）：通过实际案例引入<br>
+2. 讲授（40分钟）：核心概念与算法原理<br>
+3. 练习（25分钟）：课堂练习与讨论<br>
+4. 总结（15分钟）：知识点回顾与拓展<br><br>
+<b>五、课后作业</b><br>
+• 完成配套习题集中的相关练习<br>
+• 阅读教材第X章相关内容<br>
+• 动手实现课堂讲解的算法<br><br>
+<b>六、课件关键页</b><br>
+共15页PPT已生成，包含概念图、流程图、代码示例和总结页`,
+      a2:`<b>[题库] 题库内容</b><br><br>
+<b>知识点：</b>${selectedOptions[0]||'线性表'}<br>
+<b>题型：</b>${selectedOptions[1]||'选择题'}<br>
+<b>难度：</b>${selectedOptions[2]||'中等'}<br>
+<b>题量：</b>${document.querySelector('.ai-option-input')?.value||'10'}题<br><br>
+<b>【示例题目】</b><br><br>
+<b>1. 在长度为n的顺序表中，在第i个位置插入一个元素需要移动多少个元素？</b><br>
+A. n-i+1  B. n-i  C. i  D. n<br>
+<b>正确答案：</b>B<br>
+<b>解析：</b>在第i个位置插入元素时，需要将第i个到第n个元素向后移动一位，共移动n-i个元素。<br><br>
+<b>2. 单链表中删除一个节点的时间复杂度为？</b><br>
+A. O(1)  B. O(n)  C. O(log n)  D. O(n²)<br>
+<b>正确答案：</b>A（已知前驱节点时）<br>
+<b>解析：</b>若已知要删除节点的前驱节点，只需修改指针即可完成删除，时间复杂度为O(1)。<br><br>
+<i style="color:var(--text-light)">... 共${document.querySelector('.ai-option-input')?.value||'10'}题，包含完整答案与解析</i>`,
+      a3:`<b>[总结] 学习总结</b><br><br>
+<b>范围：</b>${selectedOptions[0]||'整门课程'}<br>
+<b>格式：</b>${selectedOptions[1]||'思维导图'}<br>
+<b>侧重点：</b>${selectedOptions[2]||'重点难点'}<br><br>
+<b>知识框架总览</b><br>
+├── 数据结构基础<br>
+│   ├── 线性表（顺序表、链表）<br>
+│   ├── 栈与队列<br>
+│   └── 数组与广义表<br>
+├── 树与二叉树<br>
+│   ├── 二叉搜索树<br>
+│   ├── 平衡二叉树（AVL）<br>
+│   └── 堆与优先队列<br>
+├── 图论<br>
+│   ├── 图的存储与遍历<br>
+│   ├── 最短路径（Dijkstra、Floyd）<br>
+│   └── 最小生成树（Prim、Kruskal）<br>
+├── 排序算法<br>
+│   ├── 比较排序（快排、归并、堆排）<br>
+│   └── 非比较排序（计数、基数、桶排）<br>
+└── 查找算法<br>
+    ├── 二分查找<br>
+│   └── 哈希表<br><br>
+<b>核心要点：</b><br>
+• 时间复杂度是衡量算法效率的核心指标<br>
+• 空间换时间是常见的优化策略<br>
+• 不同数据结构适用于不同场景，需灵活选择<br>
+• 掌握经典算法思想（分治、贪心、动态规划）是解题关键`,
+      a4:`<b>[论文] 论文辅助结果</b><br><br>
+<b>服务类型：</b>${selectedOptions[0]||'文献综述'}<br>
+<b>学术层次：</b>${selectedOptions[1]||'本科'}<br>
+<b>研究领域：</b>${selectedOptions[2]||document.querySelector('.ai-option-input')?.value||'人工智能'}<br><br>
+<b>文献综述框架</b><br><br>
+<b>一、引言</b><br>
+近年来，随着${selectedOptions[2]||'人工智能'}技术的快速发展，相关研究引起了学术界和工业界的广泛关注。本文旨在系统梳理该领域的研究现状与发展趋势。<br><br>
+<b>二、国内外研究现状</b><br>
+1. 国外研究进展：简述主要研究机构与代表性成果<br>
+2. 国内研究进展：分析国内学者的贡献与特色<br><br>
+<b>三、关键技术与方法</b><br>
+• 技术路线一：深度学习驱动的方案<br>
+• 技术路线二：知识图谱增强的方法<br>
+• 技术路线三：多模态融合的策略<br><br>
+<b>四、存在的问题与挑战</b><br>
+• 数据质量与标注成本<br>
+• 模型可解释性不足<br>
+• 跨领域迁移能力有限<br><br>
+<b>五、未来研究方向</b><br>
+• 结合大语言模型的新范式<br>
+• 端侧部署与实时推理<br>
+• 联邦学习与隐私保护<br><br>
+<b>六、参考文献</b><br>
+[1] Zhang W, et al. "Deep Learning for Code Generation." 计算机学报, 2024.<br>
+[2] Li M, et al. "Knowledge Graph Construction Methods." 软件学报, 2024.<br>
+[3] Zhao L, et al. "AI Applications in Education." 教育研究, 2024.`,
+      a6:`<b>[分析] 学情分析报告</b><br><br>
+<b>分析对象：</b>${selectedOptions[0]||'班级整体'}<br>
+<b>分析维度：</b>${selectedOptions[1]||'完成率'}<br>
+<b>时间范围：</b>${selectedOptions[2]||'本学期'}<br><br>
+<b>数据概览</b><br>
+• 班级平均完成率：78%<br>
+• 最高完成率：95%（赵敏）<br>
+• 最低完成率：60%（周磊）<br>
+• 掌握率标准差：12.4<br><br>
+<b>学业预警</b><br>
+• 周磊（60%）：完成率低于班级平均水平，建议重点关注<br>
+• 陈静（70%）：处于临界状态，需加强课后辅导<br><br>
+<b>趋势分析</b><br>
+班级整体完成率呈上升趋势，从期初的62%提升至目前的78%，进步明显。但个体差异较大，需因材施教。<br><br>
+<b>教学建议</b><br>
+• 对后进学生实施\"一对一\"帮扶计划<br>
+• 增加课堂互动与实践环节<br>
+• 定期开展阶段测验，及时发现问题`,
+      a7:`<b>[推荐] 资源推荐结果</b><br><br>
+<b>学习目标：</b>${selectedOptions[0]||'考试备考'}<br>
+<b>资源类型：</b>${selectedOptions[1]||'综合'}<br>
+<b>难度等级：</b>${selectedOptions[2]||'基础'}<br><br>
+<b>推荐资源列表</b><br><br>
+1. <b>数据结构与算法分析</b> — PDF文档<br>
+   <span style="color:var(--text-light)">适合入门学习，内容全面，配合大量图示讲解</span><br><br>
+2. <b>算法导论（第三版）</b> — 经典教材<br>
+   <span style="color:var(--text-light)">深入理解算法原理，适合进阶学习</span><br><br>
+3. <b>排序算法可视化视频</b> — 视频教程<br>
+   <span style="color:var(--text-light)">通过动画直观理解排序过程</span><br><br>
+4. <b>LeetCode算法题解汇总</b> — 习题集<br>
+   <span style="color:var(--text-light)">涵盖常见面试算法题，含详细解析</span><br><br>
+5. <b>动态规划经典例题解析</b> — 专题文档<br>
+   <span style="color:var(--text-light)">从入门到精通动态规划思想的必读资料</span><br><br>
+<b>学习路径建议：</b>1→2→4→5→3`,
+      a8:`<b>[抽取] 知识抽取结果</b><br><br>
+<b>来源类型：</b>${selectedOptions[0]||'论文PDF'}<br>
+<b>抽取粒度：</b>${selectedOptions[1]||'中等粒度'}<br>
+<b>输出格式：</b>${selectedOptions[2]||'知识卡片'}<br><br>
+<b>抽取的知识卡片</b><br><br>
+<div style="background:#fff;padding:12px;border-radius:6px;margin-bottom:8px;border:1px solid var(--border)">
+<b>【概念】</b>数据结构<br>
+<b>定义：</b>相互之间存在一种或多种特定关系的数据元素的集合<br>
+<b>分类：</b>逻辑结构（集合、线性、树形、图形）与物理结构（顺序、链式）<br>
+<b>关联：</b>算法设计、程序优化、系统架构
+</div>
+<div style="background:#fff;padding:12px;border-radius:6px;margin-bottom:8px;border:1px solid var(--border)">
+<b>【概念】</b>时间复杂度<br>
+<b>定义：</b>算法执行时间随输入规模增长的变化趋势<br>
+<b>常见级别：</b>O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2^n)<br>
+<b>关联：</b>空间复杂度、算法优化、性能分析
+</div>
+<div style="background:#fff;padding:12px;border-radius:6px;margin-bottom:8px;border:1px solid var(--border)">
+<b>【概念】</b>动态规划<br>
+<b>定义：</b>将复杂问题分解为子问题，通过保存子问题解避免重复计算<br>
+<b>核心要素：</b>最优子结构、重叠子问题、状态转移方程<br>
+<b>关联：</b>分治算法、贪心算法、记忆化搜索
+</div>
+<i style="color:var(--text-light)">共抽取 12 个结构化知识点，可导出为JSON或Markdown格式</i>`
+    };
+    
+    resultEl.innerHTML = `<div class="gen-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" style="vertical-align:middle;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg>生成完成</div>
+      <div class="gen-content">${contentPreviews[aid]||'<b>内容生成成功！</b><br><br>根据您的配置，AI已生成对应的内容。请查看生成结果，如需修改可返回调整配置后重新生成。<br><br>生成时间：'+now+'<br>内容类型：'+genType}</div>
+      <div class="gen-meta">生成时间：${now} · 类型：${genType} · 大小：${genSize}</div>`;
+    
+    if(syncBtn){syncBtn.disabled = false;}
+    renderAIGenerated();
+  }, 1500+Math.random()*1000);
+}
+
+function syncAIGenerate(aid, aname){
+  if(!lastAIGeneratedId){showToast('请先生成内容');return;}
+  const g = aiGenerated.find(x=>x.id===lastAIGeneratedId);
+  if(!g){showToast('生成内容已失效，请重新生成');return;}
+  if(myResources.find(r=>r.name===g.name+'.pdf')){showToast('该内容已在知识库中');return;}
+  myResources.unshift({id:'r'+(myResources.length+1),name:g.name+'.pdf',type:'document',from:'AI生成同步',date:g.date,size:g.size});
+  renderMyResources();renderAIGenerated();
+  const syncBtn = document.getElementById('btnSyncAI');
+  if(syncBtn){syncBtn.disabled = true;syncBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg>已同步至知识库';}
+  showToast('已同步至个人AI知识库','success');
+}
+
+function backToAIList(){
+  currentAIApp = null;
+  lastAIGeneratedId = null;
+  document.getElementById('aiDetailPanel').classList.remove('active');
+  document.getElementById('aiListView').style.display = 'block';
+  renderAIGenerated();
+}
+
+// ==================== AI CHAT ====================
+const chatReplies = {
+  '数据结构':'数据结构是计算机存储、组织数据的方式。常见的数据结构包括：\n\n1. <b>线性表</b>：顺序表、链表（单链表、双向链表、循环链表）\n2. <b>栈与队列</b>：LIFO和FIFO结构\n3. <b>树</b>：二叉树、二叉搜索树、平衡二叉树、堆\n4. <b>图</b>：有向图、无向图、带权图\n5. <b>哈希表</b>：基于哈希函数的快速查找\n\n选择合适的数据结构可以显著提高程序的效率。您想了解哪种数据结构的具体实现吗？',
+  '排序':'排序算法是计算机科学中最基础的算法之一，主要分为：\n\n<b>比较排序：</b>\n• 快速排序：平均O(n log n)，最坏O(n²)\n• 归并排序：稳定O(n log n)，需要额外空间\n• 堆排序：O(n log n)，原地排序\n\n<b>非比较排序：</b>\n• 计数排序：O(n+k)，适合整数范围小的场景\n• 基数排序：O(d×(n+k))，适合多位数字\n• 桶排序：O(n+k)，数据均匀分布时效率高\n\n<a href="javascript:void(0)" style="color:var(--primary)" onclick="switchTab(\'teaching\')">点击进入教学学习模块 >></a>',
+  '算法':'算法是解决特定问题的一系列清晰指令。评价算法优劣的主要指标：\n\n<b>1. 时间复杂度：</b>衡量算法执行时间随输入规模增长的趋势\n• O(1) 常数级 → 最优\n• O(log n) 对数级 → 二分查找\n• O(n) 线性级 → 遍历\n• O(n log n) → 快速排序\n• O(n²) 平方级 → 冒泡排序\n\n<b>2. 空间复杂度：</b>算法运行所需的额外存储空间\n\n<b>3. 稳定性：</b>相等元素的相对位置是否保持不变\n\n<b>经典算法设计思想：</b>\n• 分治法（Divide and Conquer）\n• 动态规划（Dynamic Programming）\n• 贪心算法（Greedy）\n• 回溯法（Backtracking）\n\n需要我详细讲解某个具体算法吗？',
+  '二叉树':'二叉树是一种每个节点最多有两个子节点的树形结构。\n\n<b>常见类型：</b>\n• <b>满二叉树</b>：所有层节点数达到最大\n• <b>完全二叉树</b>：除最后一层外各层节点数满\n• <b>二叉搜索树(BST)</b>：左子树 < 根 < 右子树\n• <b>平衡二叉树(AVL)</b>：左右子树高度差不超过1\n\n<b>遍历方式：</b>\n• 前序遍历：根→左→右\n• 中序遍历：左→根→右（BST得到有序序列）\n• 后序遍历：左→右→根\n• 层序遍历：逐层从左到右\n\n<b>应用场景：</b>\n• 表达式树（编译器）\n• 哈夫曼编码（数据压缩）\n• 数据库索引（B+树）\n\n您想了解二叉树的哪种具体操作？',
+  '哈希':'哈希表（Hash Table）是通过哈希函数将键映射到存储位置的数据结构，实现O(1)的平均查找时间。\n\n<b>哈希函数设计原则：</b>\n• 计算简单高效\n• 哈希地址分布均匀\n\n<b>常见哈希函数：</b>\n• 直接定址法：H(key) = key 或 H(key) = a×key + b\n• 除留余数法：H(key) = key % p（p为质数）\n• 平方取中法、折叠法等\n\n<b>冲突解决方法：</b>\n• <b>开放定址法</b>：线性探测、二次探测、双重哈希\n• <b>链地址法</b>：每个桶维护一个链表\n• <b>再哈希法</b>：准备多个哈希函数备用\n\n<b>负载因子</b>α = 表中记录数/表长，通常控制在0.7-0.8以内。\n\n需要我详细讲解某种冲突解决策略吗？',
+  '图论':'图是表示对象之间关系的数据结构，由顶点集和边集组成。\n\n<b>图的分类：</b>\n• 有向图 / 无向图\n• 带权图 / 无权图\n• 连通图 / 非连通图\n\n<b>存储方式：</b>\n• 邻接矩阵：O(V²)空间，适合稠密图\n• 邻接表：O(V+E)空间，适合稀疏图\n\n<b>经典算法：</b>\n• 最短路径：Dijkstra（单源）、Floyd-Warshall（多源）\n• 最小生成树：Prim（加点法）、Kruskal（加边法）\n• 拓扑排序：有向无环图的应用\n• 关键路径：项目管理中的最长路径\n\n<b>应用场景：</b>\n• 社交网络分析\n• 地图导航系统\n• 网络路由协议\n\n您想了解哪个图论算法的具体实现？'
+};
+
+function sendAIChat(){
+  const input = document.getElementById('aiChatInput');
+  if(!input) return;
+  const msg = input.value.trim();
+  if(!msg) return;
+  
+  const msgsContainer = document.getElementById('aiChatMsgs');
+  if(!msgsContainer) return;
+  
+  msgsContainer.innerHTML += `<div class="ai-chat-msg user">${msg}</div>`;
+  input.value = '';
+  
+  msgsContainer.innerHTML += `<div class="ai-chat-msg bot"><div class="bot-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="vertical-align:middle;margin-right:4px"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="8" cy="6" r="1" fill="var(--primary)"/><circle cx="16" cy="6" r="1" fill="var(--primary)"/><circle cx="8" cy="18" r="1" fill="var(--primary)"/><circle cx="16" cy="18" r="1" fill="var(--primary)"/></svg>AI助教</div><div style="color:var(--text-light)">思考中...</div></div>`;
+  msgsContainer.scrollTop = msgsContainer.scrollHeight;
+  
+  setTimeout(()=>{
+    const lastBotMsg = msgsContainer.querySelectorAll('.ai-chat-msg.bot');
+    const lastMsg = lastBotMsg[lastBotMsg.length-1];
+    if(!lastMsg) return;
+    
+    let reply = '';
+    const lowerMsg = msg.toLowerCase();
+    for(const [keyword, answer] of Object.entries(chatReplies)){
+      if(lowerMsg.includes(keyword)){
+        reply = answer;
+        break;
+      }
+    }
+    
+    if(!reply){
+      reply = `感谢您的提问！关于"<b>${msg}</b>"，这是一个很好的问题。\n\n基于当前知识库的分析：\n\n该问题涉及数据结构与算法领域的核心概念。建议您从以下几个方面入手：\n\n1. <b>理解基础概念</b>：先掌握相关的基本定义和原理\n2. <b>动手实践</b>：通过编写代码加深理解\n3. <b>参考学习资源</b>：查看个人知识库中的相关文档\n\n如果您能提供更具体的问题细节，我可以给出更精准的解答。您也可以：\n\n• <a href="javascript:void(0)" style="color:var(--primary)" onclick="switchTab('teaching')">进入教学学习模块</a>
+• <a href="javascript:void(0)" style="color:var(--primary)" onclick="switchTab('graph')">查看知识图谱</a>
+• <a href="javascript:void(0)" style="color:var(--primary)" onclick="switchTab('knowledge')">浏览个人知识库</a>`;
+    }
+    
+    lastMsg.innerHTML = `<div class="bot-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="vertical-align:middle;margin-right:4px"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="8" cy="6" r="1" fill="var(--primary)"/><circle cx="16" cy="6" r="1" fill="var(--primary)"/><circle cx="8" cy="18" r="1" fill="var(--primary)"/><circle cx="16" cy="18" r="1" fill="var(--primary)"/></svg>AI助教</div><div style="line-height:1.8">${reply.replace(/\n/g,'<br>')}</div>`;
+    msgsContainer.scrollTop = msgsContainer.scrollHeight;
+  }, 800+Math.random()*600);
+}
+
+function syncChatToKnowledgeBase(){
+  const msgsContainer = document.getElementById('aiChatMsgs');
+  if(!msgsContainer) return;
+  const msgs = msgsContainer.querySelectorAll('.ai-chat-msg');
+  if(msgs.length<=1){showToast('暂无对话内容，请先进行问答');return;}
+  
+  const now = new Date().toISOString().split('T')[0];
+  const chatContent = Array.from(msgs).map((m,i)=>{
+    const isBot = m.classList.contains('bot');
+    return (isBot?'[AI助教] ':'[用户] ')+m.textContent.replace(/\s+/g,' ').trim();
+  }).join('\\n\\n');
+  
+  const genName = 'AI答疑对话记录（'+now+'）';
+  if(myResources.find(r=>r.name===genName+'.pdf')){showToast('该对话记录已在知识库中');return;}
+  
+  myResources.unshift({id:'r'+(myResources.length+1),name:genName+'.pdf',type:'document',from:'AI对话同步',date:now,size:'0.5MB'});
+  renderMyResources();
+  showToast('对话记录已同步至个人知识库','success');
+}
+
+// ==================== KNOWLEDGE GRAPH ====================
+function generateGraphData(centerWord, attribute, nodeCount){
+  const coreKeywords = {
+    '数据结构':['线性表','链表','栈','队列','树','二叉树','图','哈希表','排序','查找','算法','时间复杂度','空间复杂度','数组','堆','B树','红黑树','散列表','递归','动态规划'],
+    '算法':['排序','搜索','动态规划','贪心','分治','回溯','递归','迭代','复杂度','图论','字符串','数列','树','哈希','堆','栈','队列','指针','状态','优化'],
+    '操作系统':['进程','线程','内存','文件系统','调度','死锁','同步','互斥','信号量','虚拟内存','缓存','IO','中断','系统调用','内核','Shell','管道','并发','分布式','实时'],
+    '计算机网络':['TCP','IP','HTTP','DNS','路由','交换','OSI','协议','子网','防火墙','VPN','Socket','加密','SSL','TCP/IP','UDP','ARP','ICMP','NAT','网关'],
+    '数据库':['SQL','事务','索引','范式','锁','ACID','NoSQL','MySQL','Redis','查询','连接','视图','触发器','存储过程','分区','复制','分片','CAP','BASE','日志']
+  };
+  const keywords = coreKeywords[centerWord]||coreKeywords['数据结构'];
+  const colors = {prerequisite:'#EF4444',extension:'#10B981',application:'#F59E0B',core:'#10B981'};
+  const nodes = [{id:'center',label:centerWord,color:colors.core,x:0,y:0,size:14}];
+  const edges = [];
+  const usedKeys = new Set();
+  const count = Math.min(nodeCount-1, keywords.length);
+  for(let i=0;i<count;i++){
+    const kw = keywords[i];
+    if(usedKeys.has(kw)) continue;
+    usedKeys.add(kw);
+    const angle = (i/count)*Math.PI*2;
+    const radius = 120+Math.random()*180;
+    const attr = attribute==='all'?['prerequisite','extension','application'][i%3]:attribute;
+    nodes.push({id:'n'+i,label:kw,color:colors[attr]||colors.extension,x:Math.cos(angle)*radius,y:Math.sin(angle)*radius,size:8+Math.random()*4});
+    edges.push({from:'center',to:'n'+i,label:attr==='prerequisite'?'前置':attr==='extension'?'扩展':'应用'});
+    if(i>0&&Math.random()>0.6){
+      const j = Math.floor(Math.random()*i);
+      edges.push({from:'n'+j,to:'n'+i,label:'关联'});
+    }
+  }
+  return {nodes,edges};
+}
+
+function drawGraph(canvasId, wrapId, graphData, nodeMapRef, offsetX, offsetY, scale){
+  const canvas = document.getElementById(canvasId);
+  const wrap = document.getElementById(wrapId);
+  if(!canvas||!wrap) return;
+  const dpr = window.devicePixelRatio||1;
+  const rect = wrap.getBoundingClientRect();
+  const w = rect.width, h = rect.height;
+  canvas.width = w*dpr;canvas.height = h*dpr;canvas.style.width = w+'px';canvas.style.height = h+'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+  ctx.save();
+  ctx.translate(w/2+offsetX, h/2+offsetY);
+  ctx.scale(scale,scale);
+  
+  const nodeMap = {};
+  graphData.nodes.forEach(n=>{
+    const nx = n.x||0, ny = n.y||0;
+    nodeMap[n.id] = {x:nx, y:ny, label:n.label, color:n.color, size:n.size};
+  });
+  if(nodeMapRef) Object.assign(nodeMapRef, nodeMap);
+  
+  // Draw edges
+  graphData.edges.forEach(e=>{
+    const from = nodeMap[e.from], to = nodeMap[e.to];
+    if(!from||!to) return;
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.strokeStyle = '#E2E8F0';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    if(e.label){
+      const mx = (from.x+to.x)/2, my = (from.y+to.y)/2;
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(e.label, mx, my-4);
+    }
+  });
+  
+  // Draw nodes
+  graphData.nodes.forEach(n=>{
+    const nd = nodeMap[n.id];
+    if(!nd) return;
+    ctx.beginPath();
+    ctx.arc(nd.x, nd.y, nd.size, 0, Math.PI*2);
+    ctx.fillStyle = nd.color;
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(nd.label, nd.x, nd.y+nd.size+14);
+  });
+  
+  ctx.restore();
+}
+
+function updateKnowledgeGraph(){
+  const centerWord = document.getElementById('kgCenterWord')?.value||'数据结构';
+  const attribute = document.getElementById('kgAttribute')?.value||'all';
+  const nodeCount = parseInt(document.getElementById('kgNodeCount')?.value||'15');
+  const layout = document.getElementById('kgLayout')?.value||'force';
+  currentMainGraphData = generateGraphData(centerWord, attribute, nodeCount);
+  kgOffsetX = 0; kgOffsetY = 0; kgScale = 1;
+  setTimeout(()=>drawGraph('mainKgCvs','mainKgWrap',currentMainGraphData,mainGraphNodeMap,0,0,1),100);
+}
+
+function updateTeachingGraph(){
+  const data = generateGraphData('数据结构','all',20);
+  currentTeachingGraphData = data;
+  kgOffsetX = 0; kgOffsetY = 0; kgScale = 1;
+  setTimeout(()=>drawGraph('teachingKgCvs','teachingKgWrap',data,teachingGraphNodeMap,0,0,1),100);
+}
+
+// ==================== CANVAS INTERACTIONS ====================
+let kgMouseMoved = false;
+let kgMouseDownPos = {x:0,y:0};
+
+function hitTestNode(mx, my, nodeMap, wrapEl, cvsId, offX, offY, scl){
+  const rect = wrapEl.getBoundingClientRect();
+  const w = rect.width, h = rect.height;
+  const cx = (mx - rect.left - w/2 - offX) / scl;
+  const cy = (my - rect.top - h/2 - offY) / scl;
+  for(const [id, nd] of Object.entries(nodeMap)){
+    const dx = cx - nd.x, dy = cy - nd.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if(dist <= nd.size + 6){
+      return nd;
+    }
+  }
+  return null;
+}
+
+function findKnowledgePointByLabel(label){
+  const exact = knowledgePoints.find(k=>k.name===label);
+  if(exact) return exact;
+  const partial = knowledgePoints.find(k=>label.includes(k.name)||k.name.includes(label));
+  return partial||null;
+}
+
+function setupCanvasInteractions(){
+  const canvases = [
+    {wrap:'mainKgWrap',cvs:'mainKgCvs',data:()=>currentMainGraphData,nodeMap:()=>mainGraphNodeMap,isTeaching:true},
+    {wrap:'teachingKgWrap',cvs:'teachingKgCvs',data:()=>currentTeachingGraphData,nodeMap:()=>teachingGraphNodeMap,isTeaching:true}
+  ];
+  
+  canvases.forEach(({wrap,cvs,data,nodeMap,isTeaching})=>{
+    const wrapEl = document.getElementById(wrap);
+    if(!wrapEl) return;
+    
+    wrapEl.addEventListener('wheel',function(e){
+      e.preventDefault();
+      kgScale = Math.max(0.3, Math.min(3, kgScale-e.deltaY*0.001));
+      const d = data(); if(d) drawGraph(cvs,wrap,d,nodeMap(),kgOffsetX,kgOffsetY,kgScale);
+    },{passive:false});
+    
+    wrapEl.addEventListener('mousedown',function(e){
+      kgDragging = true;
+      kgMouseMoved = false;
+      kgMouseDownPos = {x:e.clientX, y:e.clientY};
+      kgDragStart = {x:e.clientX-kgOffsetX,y:e.clientY-kgOffsetY};
+      wrapEl.style.cursor = 'grabbing';
+    });
+    
+    wrapEl.addEventListener('mousemove',function(e){
+      if(!kgDragging) return;
+      const dx = e.clientX - kgMouseDownPos.x;
+      const dy = e.clientY - kgMouseDownPos.y;
+      if(Math.abs(dx)>3||Math.abs(dy)>3) kgMouseMoved = true;
+      kgOffsetX = e.clientX-kgDragStart.x;
+      kgOffsetY = e.clientY-kgDragStart.y;
+      const d = data(); if(d) drawGraph(cvs,wrap,d,nodeMap(),kgOffsetX,kgOffsetY,kgScale);
+    });
+    
+    wrapEl.addEventListener('mouseup',function(e){
+      if(!kgMouseMoved && isTeaching){
+        const d = data();
+        const nm = nodeMap();
+        if(d && nm){
+          const hit = hitTestNode(e.clientX, e.clientY, nm, wrapEl, cvs, kgOffsetX, kgOffsetY, kgScale);
+          if(hit){
+            const kp = findKnowledgePointByLabel(hit.label);
+            if(kp) openMicroCourse(kp.id, kp.name);
+          }
+        }
+      }
+      kgDragging=false;wrapEl.style.cursor='grab';
+    });
+    wrapEl.addEventListener('mouseleave',function(){kgDragging=false;wrapEl.style.cursor='grab';});
+    
+    // Touch events
+    let lastTouchDist = 0;
+    let touchStartPos = {x:0,y:0};
+    wrapEl.addEventListener('touchstart',function(e){
+      if(e.touches.length===1){
+        kgDragging=true;
+        kgMouseMoved=false;
+        touchStartPos={x:e.touches[0].clientX,y:e.touches[0].clientY};
+        kgDragStart={x:e.touches[0].clientX-kgOffsetX,y:e.touches[0].clientY-kgOffsetY};
+      }
+      if(e.touches.length===2){lastTouchDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}
+    },{passive:false});
+    wrapEl.addEventListener('touchmove',function(e){
+      e.preventDefault();
+      if(e.touches.length===1&&kgDragging){
+        const dx = e.touches[0].clientX - touchStartPos.x;
+        const dy = e.touches[0].clientY - touchStartPos.y;
+        if(Math.abs(dx)>5||Math.abs(dy)>5) kgMouseMoved = true;
+        kgOffsetX=e.touches[0].clientX-kgDragStart.x;kgOffsetY=e.touches[0].clientY-kgDragStart.y;
+      }
+      if(e.touches.length===2){const dist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);kgScale=Math.max(0.3,Math.min(3,kgScale*(dist/lastTouchDist)));lastTouchDist=dist;}
+      const d = data(); if(d) drawGraph(cvs,wrap,d,nodeMap(),kgOffsetX,kgOffsetY,kgScale);
+    },{passive:false});
+    wrapEl.addEventListener('touchend',function(e){
+      if(!kgMouseMoved && isTeaching){
+        const d = data();
+        const nm = nodeMap();
+        if(d && nm && e.changedTouches.length>0){
+          const hit = hitTestNode(e.changedTouches[0].clientX, e.changedTouches[0].clientY, nm, wrapEl, cvs, kgOffsetX, kgOffsetY, kgScale);
+          if(hit){
+            const kp = findKnowledgePointByLabel(hit.label);
+            if(kp) openMicroCourse(kp.id, kp.name);
+          }
+        }
+      }
+      kgDragging=false;
+    });
+  });
+  
+  window.addEventListener('resize',()=>{
+    if(currentMainGraphData) drawGraph('mainKgCvs','mainKgWrap',currentMainGraphData,mainGraphNodeMap,kgOffsetX,kgOffsetY,kgScale);
+    if(currentTeachingGraphData) drawGraph('teachingKgCvs','teachingKgWrap',currentTeachingGraphData,teachingGraphNodeMap,0,0,1);
+  });
+}
+
+// ==================== CAREER / PLAN ====================
+function setupCareerListeners(){
+  document.querySelectorAll('.career-chip').forEach(chip=>{
+    chip.addEventListener('click',function(){
+      document.querySelectorAll('.career-chip').forEach(c=>c.classList.remove('selected'));
+      this.classList.add('selected');
+      selectCareer(this.dataset.career);
+    });
+  });
+}
+
+function selectCareer(career){
+  const detail = document.getElementById('careerDetail');
+  const coursesEl = document.getElementById('careerCourses');
+  if(!detail||!coursesEl) return;
+  detail.style.display = 'block';
+  
+  const careerCourses = {
+    frontend:['Web前端开发','数据结构与算法','计算机网络','数据库原理','软件工程'],
+    backend:['操作系统原理','数据库原理','计算机网络','软件工程','云计算与分布式系统'],
+    mobile:['移动应用开发','数据结构与算法','操作系统原理','计算机网络','软件工程'],
+    ai:['数据结构与算法','人工智能导论','大数据技术','操作系统原理','数据库原理'],
+    devops:['操作系统原理','计算机网络','云计算与分布式系统','网络安全','软件工程'],
+    architect:['数据结构与算法','操作系统原理','计算机网络','数据库原理','软件工程'],
+    data:['数据结构与算法','数据库原理','大数据技术','人工智能导论','软件工程'],
+    security:['网络安全','操作系统原理','计算机网络','数据库原理','数据结构与算法']
+  };
+  
+  const courses = careerCourses[career]||careerCourses.frontend;
+  coursesEl.innerHTML = courses.map(cn=>{
+    const pc = planCourses.find(c=>c.name===cn);
+    const selected = pc?pc.selected:false;
+    return `<div style="display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span style="flex:1;font-size:13px;font-weight:500">${cn}</span>
+      <span class="tag ${pc&&pc.category==='专业必修'?'tag-primary':'tag-amber'}" style="margin-right:8px">${pc?pc.category:'专业选修'}</span>
+      <span style="font-size:12px;color:var(--text-light);margin-right:8px">${pc?pc.credits:2}学分</span>
+      <span class="tag ${selected?'tag-green':'tag-amber'}">${selected?'已选':'推荐'}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderCustomPlanBuilder(){
+  currentPlanCourses = JSON.parse(JSON.stringify(planCourses));
+  const el = document.getElementById('customPlanBuilder');
+  if(!el) return;
+  el.innerHTML = currentPlanCourses.map((c,i)=>`
+    <div style="display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span style="flex:1;font-size:13px;font-weight:500">${c.name}</span>
+      <span class="tag ${c.category==='专业必修'?'tag-primary':'tag-amber'}" style="margin-right:8px">${c.category}</span>
+      <span style="font-size:12px;color:var(--text-light);margin-right:8px">${c.credits}学分</span>
+      <label style="cursor:pointer;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-light)">
+        <input type="checkbox" ${c.selected?'checked':''} onchange="togglePlanCourse(${i},this.checked)" style="width:16px;height:16px;accent-color:var(--primary)">
+        ${c.selected?'已选':'选择'}
+      </label>
+    </div>`).join('');
+}
+
+function togglePlanCourse(idx, checked){
+  currentPlanCourses[idx].selected = checked;
+}
+
+function saveCustomPlan(){
+  for(let i=0;i<planCourses.length;i++){
+    planCourses[i].selected = currentPlanCourses[i].selected;
+  }
+  const selectedCount = currentPlanCourses.filter(c=>c.selected).length;
+  const totalCredits = currentPlanCourses.filter(c=>c.selected).reduce((s,c)=>s+c.credits,0);
+  showToast('培养方案已保存！已选'+selectedCount+'门课程，共'+totalCredits+'学分','success');
+  if(currentRole==='teacher') renderTeacherPlanTable();
+}
+
+function renderTeacherPlanTable(){
+  const el = document.getElementById('teacherPlanTableBody');
+  if(!el) return;
+  const careers = ['前端开发工程师','后端开发工程师','AI算法工程师','数据分析师','DevOps工程师','系统架构师','信息安全工程师','移动端开发工程师'];
+  el.innerHTML = students.map((s,i)=>{
+    const career = careers[i%careers.length];
+    const planProgress = Math.floor(Math.random()*40+60);
+    const earnedCredits = Math.floor(Math.random()*40+100);
+    return `<tr>
+      <td>${s.no}</td>
+      <td>${s.name}</td>
+      <td>${career}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div class="progress" style="width:50px"><div class="progress-bar" style="width:${planProgress}%"></div></div>${planProgress}%</div></td>
+      <td>${earnedCredits} / 170</td>
+      <td><span class="link" onclick="openStudentPlanDetail('${s.id}')">查看方案详情 &#8250;</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ==================== MODALS ====================
+function openModal(id){
+  const modal = document.getElementById(id);
+  if(modal){modal.classList.add('active');document.body.style.overflow='hidden';}
+}
+
+function closeModal(id){
+  const modal = document.getElementById(id);
+  if(modal){modal.classList.remove('active');document.body.style.overflow='';}
+}
+
+// ==================== TOAST ====================
+function showToast(msg, type){
+  const toast = document.getElementById('toast');
+  if(!toast) return;
+  toast.textContent = msg;
+  toast.className = 'toast '+(type||'');
+  toast.classList.add('show');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(()=>toast.classList.remove('show'), 2000);
+}
+
+// ==================== LOGIN ENTER KEY ====================
+function setupLoginEnterKey(){
+  document.getElementById('password')?.addEventListener('keydown',function(e){
+    if(e.key==='Enter') handleLogin();
+  });
+  document.getElementById('username')?.addEventListener('keydown',function(e){
+    if(e.key==='Enter') document.getElementById('password')?.focus();
+  });
+}
+
+// ==================== INIT ====================
+checkAuth();
+</script>
+</body>
+</html>
