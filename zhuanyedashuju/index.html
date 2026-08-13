@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>专业数据驾驶舱｜浅冰蓝动态科技增强版</title>
+  <style>
+    :root {
+      --ice-top: #eef6ff;
+      --ice-bottom: #d8eaff;
+      --tech-blue: #3b9dff;
+      --ink-blue: #12345d;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(145deg, var(--ice-top), var(--ice-bottom));
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    }
+
+    .stage {
+      position: relative;
+      display: grid;
+      width: 100vw;
+      height: 100vh;
+      place-items: center;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    .stage::before {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      content: "";
+      background:
+        radial-gradient(circle at 18% 16%, rgb(255 255 255 / 68%), transparent 34%),
+        radial-gradient(circle at 84% 82%, rgb(91 169 255 / 13%), transparent 36%);
+      pointer-events: none;
+    }
+
+    .dashboard {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      object-position: center;
+      image-rendering: auto;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-blue);
+      font-size: clamp(14px, 1.2vw, 22px);
+      letter-spacing: .12em;
+      background: linear-gradient(145deg, var(--ice-top), var(--ice-bottom));
+      transition: opacity .3s ease, visibility .3s ease;
+    }
+
+    .loading::before {
+      width: 42px;
+      height: 42px;
+      margin-right: 14px;
+      content: "";
+      border: 3px solid rgb(59 157 255 / 20%);
+      border-top-color: var(--tech-blue);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    .loading-inner {
+      display: block;
+    }
+
+    .is-ready .loading {
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(1turn); } }
+  </style>
+</head>
+<body>
+  <main class="stage" aria-label="专业数据驾驶舱动态展示">
+    <a href="https://naixiai.cn/image/base64-to-image-%281%29.LCTra"><img id="dashboard" class="dashboard" src="https://img.naixiai.cn/2026/08/14/base64-to-image-1.jpg" alt="base64 to image (1)" border="0" draggable="false" decoding="sync" fetchpriority="high"></a>
+    <div class="loading" aria-live="polite">
+      <div class="loading-inner">正在加载高清数据驾驶舱</div>
+    </div>
+  </main>
+  <script>
+    const image = document.getElementById('dashboard');
+    const markReady = () => document.documentElement.classList.add('is-ready');
+    if (image.complete) requestAnimationFrame(markReady);
+    else {
+      image.addEventListener('load', markReady, { once: true });
+      image.addEventListener('error', markReady, { once: true });
+    }
+  </script>
+</body>
+</html>
