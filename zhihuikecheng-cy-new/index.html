@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>医学院智慧教学系统</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- 顶部导航栏 -->
+    <header class="top-header">
+      <div class="top-header-inner">
+        <div class="top-logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span class="logo-text">智慧教学系统</span>
+        </div>
+        <nav class="top-nav" id="topNav">
+          <div class="nav-item active" data-page="dashboard">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+            <span class="nav-text">课程首页</span>
+          </div>
+          <div class="nav-item has-dropdown" data-menu="resources">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+            <span class="nav-text">课程资源</span>
+            <span class="nav-arrow"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span>
+            <div class="nav-dropdown">
+              <div class="dropdown-item" data-page="courses">课程大纲</div>
+              <div class="dropdown-item" data-page="courseDesign">课程设计</div>
+              <div class="dropdown-item" data-page="videoResources">视频资源</div>
+              <div class="dropdown-item" data-page="microCourse">微课中心</div>
+            </div>
+          </div>
+          <div class="nav-item has-dropdown" data-menu="graph">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/></svg></span>
+            <span class="nav-text">知识图谱</span>
+            <span class="nav-arrow"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span>
+            <div class="nav-dropdown">
+              <div class="dropdown-item" data-page="knowledgeGraph">知识图谱</div>
+              <div class="dropdown-item" data-page="problemGraph">问题图谱</div>
+              <div class="dropdown-item" data-page="targetGraph">课程目标</div>
+              <div class="dropdown-item" data-page="ideologyGraph">课程思政</div>
+              <div class="dropdown-item" data-page="personalGraph">个性化图谱</div>
+            </div>
+          </div>
+          <div class="nav-item" data-page="learningTasks">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+            <span class="nav-text">学习任务</span>
+          </div>
+          <div class="nav-item" data-page="learningAnalysis">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+            <span class="nav-text">学情分析</span>
+          </div>
+          <div class="nav-item has-dropdown" data-menu="tools">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg></span>
+            <span class="nav-text">AI教研</span>
+            <span class="nav-arrow"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span>
+            <div class="nav-dropdown">
+              <div class="dropdown-item" data-page="aiResearch">AI科研助手</div>
+              <div class="dropdown-item" data-page="securityReview">安全审核</div>
+              <div class="dropdown-item" data-page="mobile">移动端学习</div>
+            </div>
+          </div>
+          <div class="nav-item has-dropdown" data-menu="settings">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+            <span class="nav-text">系统设置</span>
+            <span class="nav-arrow"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span>
+            <div class="nav-dropdown">
+              <div class="dropdown-item" data-page="digitalHuman">数字人管理</div>
+              <div class="dropdown-item" data-page="settings">平台设置</div>
+            </div>
+          </div>
+        </nav>
+        <div class="top-header-right">
+          <div class="header-user">
+            <div class="avatar" id="userAvatar">管</div>
+            <div>
+              <div class="user-name" id="userName">管理员</div>
+              <div class="user-role" id="userRole">管理员</div>
+            </div>
+          </div>
+          <button class="header-logout" id="logoutBtn">退出</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+      <div class="content-area" id="contentArea"></div>
+    </div>
+  </div>
+
+  <!-- 脚本加载 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+  <script src="js/store.js?v=2"></script>
+  <script src="js/app.js?v=2"></script>
+  <script src="js/pages/dashboard.js?v=2"></script>
+  <script src="js/pages/courses.js?v=2"></script>
+  <script src="js/pages/knowledge-graph.js?v=2"></script>
+  <script src="js/pages/micro-course.js?v=2"></script>
+  <script src="js/pages/learning-analysis.js?v=2"></script>
+  <script src="js/pages/learning-tasks.js?v=2"></script>
+  <script src="js/pages/ai-research.js?v=2"></script>
+  <script src="js/pages/security-review.js?v=2"></script>
+  <script src="js/pages/mobile.js?v=2"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => App.init());
+  </script>
+</body>
+</html>

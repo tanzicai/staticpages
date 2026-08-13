@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>医学院智慧教学系统</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-container">
+      <div class="login-logo">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <h1>智慧教学系统</h1>
+        <p>医学院 · 智慧教学管理平台</p>
+      </div>
+      <form class="login-form" id="loginForm">
+        <div class="form-group">
+          <label>用户名</label>
+          <div class="input-wrapper">
+            <svg class="prefix-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input type="text" id="username" placeholder="请输入用户名" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>密码</label>
+          <div class="input-wrapper">
+            <svg class="prefix-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input type="password" id="password" placeholder="请输入密码" autocomplete="off">
+          </div>
+        </div>
+        <div class="login-error" id="loginError"></div>
+        <button type="submit" class="login-btn">登 录</button>
+      </form>
+      <div class="login-footer">
+        &copy; 2026 医学院智慧教学系统 · 版权所有
+      </div>
+    </div>
+  </div>
+
+  <script src="js/store.js"></script>
+  <script>
+    Store.init();
+
+    // 检查是否已登录
+    if (localStorage.getItem('app_logged_in') === '1') {
+      window.location.href = 'index.html';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorEl = document.getElementById('loginError');
+
+      if (!username || !password) {
+        errorEl.textContent = '请输入用户名和密码';
+        return;
+      }
+
+      const users = Store.getUsers();
+      const user = users.find(u => u.username === username && u.password === password);
+
+      if (user) {
+        // 保存登录状态和用户信息
+        localStorage.setItem('app_logged_in', '1');
+        localStorage.setItem('app_current_user', JSON.stringify({
+          username: user.username,
+          name: user.name,
+          role: user.role,
+          avatar: user.avatar,
+        }));
+        window.location.href = 'index.html';
+      } else {
+        errorEl.textContent = '用户名或密码错误，请重试';
+      }
+    });
+  </script>
+</body>
+</html>
