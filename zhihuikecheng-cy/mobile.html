@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#4f46e5">
+  <title>智慧教学 · 移动端</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ============================================
+       移动端独立页面 - 全屏适配
+       保持原有逻辑不变，仅做容器与样式适配
+       ============================================ */
+    * { -webkit-tap-highlight-color: transparent; }
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+    body {
+      padding: 0;
+      background: #f5f5f5;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* 去除手机模拟器外壳，直接全屏渲染内容 */
+    .mobile-app-wrapper {
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .mobile-app-status-bar {
+      min-height: calc(env(safe-area-inset-top) + 12px);
+      padding-top: env(safe-area-inset-top);
+      background: #1f2937;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-bottom: 6px;
+      font-size: 13px;
+      color: #fff;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .mobile-app-header {
+      height: 48px;
+      min-height: 48px;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .mobile-app-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: #f5f5f5;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .mobile-app-tab-bar {
+      height: 56px;
+      min-height: 56px;
+      padding-bottom: env(safe-area-inset-bottom);
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      flex-shrink: 0;
+    }
+
+    .mobile-app-tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #9ca3af;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .mobile-app-tab-item.active {
+      color: #4f46e5;
+    }
+
+    .mobile-app-tab-item svg {
+      width: 22px;
+      height: 22px;
+      margin-bottom: 2px;
+    }
+
+    /* 移动端内容容器内的卡片增强 */
+    #mobileContent > div:first-child { padding: 0; }
+    #mobileContent .path-map { padding: 20px 12px; }
+    #mobileContent .path-node { width: 100%; max-width: 280px; }
+    #mobileContent .tabs {
+      display: flex;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      -webkit-overflow-scrolling: touch;
+      border-bottom: none;
+      background: #fff;
+      border-radius: 12px 12px 0 0;
+      padding: 0 4px;
+    }
+    #mobileContent .tabs .tab-item {
+      flex-shrink: 0;
+      padding: 10px 14px;
+      font-size: 13px;
+      border-bottom: 2px solid transparent;
+    }
+    #mobileContent .tabs .tab-item.active {
+      border-bottom-color: #4f46e5;
+      background: transparent;
+    }
+    #mobileContent .btn {
+      height: 40px;
+      font-size: 14px;
+    }
+    #mobileContent .btn-sm {
+      height: 32px;
+      font-size: 12px;
+      padding: 0 12px;
+    }
+    #mobileContent .form-input,
+    #mobileContent .form-select,
+    #mobileContent .form-textarea {
+      font-size: 16px; /* 防止iOS缩放 */
+      height: 44px;
+    }
+    #mobileContent .form-textarea { height: auto; min-height: 88px; }
+
+    /* 移动端图谱区域适配 */
+    #mobileGraphArea {
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    /* 进度条在移动端更清晰 */
+    .progress-bar {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    /* Toast 移动端适配 */
+    .toast-container {
+      top: calc(env(safe-area-inset-top) + 60px);
+    }
+
+    /* 模态框移动端适配 */
+    .modal {
+      width: calc(100% - 32px);
+      max-width: none;
+      max-height: 85vh;
+      margin: 16px;
+    }
+    .modal-lg { max-width: none; }
+
+    /* 表格在移动端支持横向滚动 */
+    .table-wrapper { -webkit-overflow-scrolling: touch; }
+    table { font-size: 12px; }
+    table th, table td { padding: 10px 12px; }
+
+    /* 导航列表触控区域放大 */
+    .mobile-nav-item, .outline-item {
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* 自测题单选框触控放大 */
+    .form-check {
+      padding: 8px 0;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+    }
+    .form-check input[type="radio"],
+    .form-check input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+    }
+
+    /* 讨论区输入避免被键盘遮挡 */
+    #mobileDiscussionInput {
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="mobile-app-wrapper">
+  <div class="mobile-app-status-bar">
+    <span id="mobileClock">9:41</span>
+    <span>📶 📶 🔋</span>
+  </div>
+  <div class="mobile-app-header" id="mobileHeader">知识图谱</div>
+  <div class="mobile-app-content" id="mobileContent"></div>
+  <div class="mobile-app-tab-bar">
+    <div class="mobile-app-tab-item active" data-mode="graph">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/>
+        <line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/>
+      </svg>
+      <span>图谱模式</span>
+    </div>
+    <div class="mobile-app-tab-item" data-mode="outline">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+        <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+        <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+      </svg>
+      <span>大纲模式</span>
+    </div>
+    <div class="mobile-app-tab-item" data-mode="map">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+        <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+      </svg>
+      <span>学习地图</span>
+    </div>
+  </div>
+</div>
+
+<!-- 共用 Toast / Modal 样式已在 style.css 定义 -->
+
+<script src="js/store.js"></script>
+<script>
+/* ============================================
+   移动端独立运行环境
+   逻辑完全复用 js/pages/mobile.js，仅替换容器引用
+   ============================================ */
+
+// 时钟更新
+(function updateClock() {
+  const pad = n => String(n).padStart(2, '0');
+  const el = document.getElementById('mobileClock');
+  function tick() {
+    const d = new Date();
+    if (el) el.textContent = `${d.getHours()}:${pad(d.getMinutes())}`;
+  }
+  tick();
+  setInterval(tick, 30000);
+})();
+
+// 最小化模拟 App 对象（复用 store、toast、modal、formatDate）
+const App = {
+  currentUser: { avatar: '学', name: '李明', role: '学生' },
+  showToast(message, type = 'info') {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'toast-container';
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(100%)';
+      setTimeout(() => toast.remove(), 300);
+    }, 2500);
+  },
+  showModal(title, bodyHTML, footerHTML = '', size = '') {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal ${size}">
+        <div class="modal-header"><span class="modal-title">${title}</span><button class="modal-close">&times;</button></div>
+        <div class="modal-body">${bodyHTML}</div>
+        ${footerHTML ? `<div class="modal-footer">${footerHTML}</div>` : ''}
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('.modal-close').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    return overlay;
+  },
+  formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  },
+};
+
+// 初始化数据
+Store.init();
+
+/* ========= 以下内容完全复用 js/pages/mobile.js 的渲染逻辑 =========
+   容器 ID 统一改为 mobile-app-wrapper 对应的：
+   - header  -> #mobileHeader
+   - content -> #mobileContent
+   - tab     -> .mobile-app-tab-item
+   其余 JS 逻辑（图谱/大纲/地图/微课6模块）保持不变
+   ================================================================ */
+
+(function() {
+  const points = Store.get('knowledgePoints') || [];
+  const microCourses = Store.get('microCourses') || [];
+  const header = document.getElementById('mobileHeader');
+  const content = document.getElementById('mobileContent');
+  let currentMode = 'graph';
+
+  function renderGraphMode() {
+    header.textContent = '知识图谱';
+    const ps = points.filter(p => p.courseId === 1);
+    let html = '<div style="padding:12px;position:relative;min-height:calc(100vh - 200px);background:#fafbfc;">';
+    html += '<div style="margin-bottom:10px;font-size:12px;color:#9ca3af;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn btn-outline btn-sm active" id="navModeBtn" style="height:32px;font-size:12px">导航模式</button><button class="btn btn-outline btn-sm" id="globalModeBtn" style="height:32px;font-size:12px">全局模式</button><input type="text" class="form-input" style="width:120px;height:32px;margin-left:auto;font-size:14px" placeholder="搜索知识点..." id="mobileSearch"></div>';
+    html += '<div style="display:flex;gap:8px;min-height:calc(100vh - 280px)"><div style="width:140px;flex-shrink:0;background:#fff;border-radius:8px;padding:8px;max-height:calc(100vh - 300px);overflow-y:auto;-webkit-overflow-scrolling:touch" id="mobileNavList">';
+    // 按层级组织
+    const roots = ps.filter(p => p.level === 1);
+    roots.forEach(root => {
+      html += `<div style="padding:8px 8px;font-weight:600;font-size:13px;border-bottom:1px solid #f3f4f6;cursor:pointer" class="mobile-nav-item" data-id="${root.id}">📁 ${root.name}</div>`;
+      const children = ps.filter(p => p.parentId === root.id);
+      children.forEach(child => {
+        html += `<div style="padding:6px 8px 6px 16px;font-size:12px;cursor:pointer;color:#6b7280" class="mobile-nav-item" data-id="${child.id}">📄 ${child.name}</div>`;
+      });
+    });
+    html += '</div>';
+    html += '<div style="flex:1;position:relative;background:#fff;border-radius:8px;min-height:calc(100vh - 300px);overflow:auto;-webkit-overflow-scrolling:touch" id="mobileGraphArea">';
+    // 简化图谱节点
+    ps.forEach(p => {
+      const cls = p.level === 1 ? 'root' : (p.mastered >= 80 ? 'mastered' : (p.mastered >= 50 ? 'in-progress' : 'not-started'));
+      const bg = p.level === 1 ? '#4f46e5' : (p.mastered >= 80 ? '#10b981' : (p.mastered >= 50 ? '#f59e0b' : '#9ca3af'));
+      html += `<div class="mobile-kg-node" style="left:${(p.x-350)*0.5+20}px;top:${(p.y)*0.5+10}px;font-size:10px;padding:4px 10px;cursor:pointer;background:${bg};color:#fff;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);position:absolute;white-space:nowrap;z-index:2" data-id="${p.id}">${p.name}</div>`;
+    });
+    html += '</div></div></div>';
+    content.innerHTML = html;
+
+    // 连线 (SVG)
+    const graphArea = document.getElementById('mobileGraphArea');
+    if (graphArea) {
+      // 计算 SVG 最大尺寸
+      let maxX = 0, maxY = 0;
+      ps.forEach(p => {
+        const x = (p.x-350)*0.5+20 + 60;
+        const y = (p.y)*0.5+10 + 20;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      });
+      let svgHTML = `<svg style="position:absolute;top:0;left:0;width:${maxX}px;height:${maxY}px;pointer-events:none;z-index:1">`;
+      ps.forEach(p => {
+        if (p.parentId) {
+          const parent = ps.find(pp => pp.id === p.parentId);
+          if (parent) {
+            const x1 = (parent.x-350)*0.5+20 + 25;
+            const y1 = (parent.y)*0.5+10 + 10;
+            const x2 = (p.x-350)*0.5+20 + 25;
+            const y2 = (p.y)*0.5+10 + 10;
+            svgHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#d1d5db" stroke-width="1"/>`;
+          }
+        }
+      });
+      svgHTML += '</svg>';
+      graphArea.innerHTML = svgHTML + graphArea.innerHTML;
+    }
+
+    // 点击事件
+    document.querySelectorAll('#mobileGraphArea .mobile-kg-node, .mobile-nav-item').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = parseInt(el.dataset.id);
+        const pt = ps.find(p => p.id === id);
+        if (pt) showMicroCourse(pt);
+      });
+    });
+
+    document.getElementById('mobileSearch')?.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll('.mobile-nav-item').forEach(el => {
+        el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  }
+
+  function renderOutlineMode() {
+    header.textContent = '课程大纲';
+    const ps = points.filter(p => p.courseId === 1);
+    let html = '<div style="padding:12px"><input type="text" class="form-input" placeholder="搜索知识点..." style="margin-bottom:12px;font-size:16px" id="outlineSearch">';
+    const roots = ps.filter(p => p.level === 1);
+    roots.forEach(root => {
+      html += `<div style="padding:12px;background:#fff;border-radius:12px;margin-bottom:10px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05)"><div style="font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;cursor:pointer" class="outline-item" data-id="${root.id}"><span style="color:#10b981">●</span> ${root.name}<span style="margin-left:auto;font-size:12px;color:#9ca3af">掌握${root.mastered}%</span></div>`;
+      const children = ps.filter(p => p.parentId === root.id);
+      children.forEach(child => {
+        html += `<div style="padding:10px 8px 10px 24px;font-size:14px;border-bottom:1px solid #f3f4f6;cursor:pointer;display:flex;align-items:center;gap:8px" class="outline-item" data-id="${child.id}"><span style="color:${child.mastered>=80?'#10b981':child.mastered>=50?'#f59e0b':'#9ca3af'}">●</span> ${child.name}<span style="margin-left:auto;font-size:12px;color:#9ca3af">完成${child.completed}%</span></div>`;
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+    content.innerHTML = html;
+
+    document.querySelectorAll('.outline-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const pt = ps.find(p => p.id === parseInt(el.dataset.id));
+        if (pt) showMicroCourse(pt);
+      });
+    });
+
+    document.getElementById('outlineSearch')?.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll('.outline-item').forEach(el => {
+        el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  }
+
+  function renderMapMode() {
+    header.textContent = '学习地图';
+    const ps = points.filter(p => p.courseId === 1);
+    let html = '<div style="padding:12px 10px;overflow-y:auto;-webkit-overflow-scrolling:touch"><div class="path-map" style="padding:20px 10px">';
+    const roots = ps.filter(p => p.level === 1);
+    roots.forEach((root, idx) => {
+      const cls = root.mastered >= 80 ? 'completed' : (root.mastered >= 50 ? 'current' : '');
+      html += `<div class="path-node ${cls}" data-id="${root.id}"><b>${root.name}</b><p style="font-size:11px;color:#9ca3af;margin-top:4px">掌握率 ${root.mastered}%</p><div class="progress-bar mt-4" style="width:100%"><div class="progress-fill ${root.mastered>=80?'success':'warning'}" style="width:${root.mastered}%"></div></div></div>`;
+      html += '<div class="path-connector completed"></div>';
+      const children = ps.filter(p => p.parentId === root.id);
+      html += '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%">';
+      children.forEach(child => {
+        const cls2 = child.mastered >= 80 ? 'completed' : (child.mastered >= 50 ? 'current' : '');
+        html += `<div class="path-node ${cls2}" style="width:45%;min-width:140px;padding:12px" data-id="${child.id}"><b style="font-size:12px">${child.name}</b><p style="font-size:10px;color:#9ca3af;margin-top:4px">完成 ${child.completed}%</p></div>`;
+      });
+      html += '</div>';
+      if (idx < roots.length - 1) html += '<div class="path-connector"></div>';
+    });
+    html += '</div></div>';
+    content.innerHTML = html;
+
+    document.querySelectorAll('.path-node').forEach(el => {
+      el.addEventListener('click', () => {
+        const pt = ps.find(p => p.id === parseInt(el.dataset.id));
+        if (pt) showMicroCourse(pt);
+      });
+    });
+  }
+
+  function showMicroCourse(pt) {
+    const mc = microCourses.find(m => m.knowledgeId === pt.id);
+    header.textContent = pt.name;
+    content.innerHTML = `
+      <div style="padding:12px">
+        <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05)">
+          <h4 style="font-size:16px;margin-bottom:8px">${pt.name}</h4>
+          <div style="display:flex;gap:12px;margin-top:8px"><span style="font-size:12px;color:#9ca3af">掌握率: ${pt.mastered}%</span><span style="font-size:12px;color:#9ca3af">完成率: ${pt.completed}%</span></div>
+          <div class="progress-bar mt-4" style="margin-top:8px"><div class="progress-fill ${pt.mastered>=80?'success':'warning'}" style="width:${pt.mastered}%"></div></div>
+        </div>
+        <div class="tabs" style="overflow-x:auto;flex-wrap:nowrap" id="mobileMicroTabs">
+          <div class="tab-item active" data-tab="analysis" style="font-size:13px;padding:10px 14px">分析</div>
+          <div class="tab-item" data-tab="content" style="font-size:13px;padding:10px 14px">学习内容</div>
+          <div class="tab-item" data-tab="selftest" style="font-size:13px;padding:10px 14px">自测</div>
+          <div class="tab-item" data-tab="materials" style="font-size:13px;padding:10px 14px">资料</div>
+          <div class="tab-item" data-tab="errors" style="font-size:13px;padding:10px 14px">错题集</div>
+          <div class="tab-item" data-tab="discussion" style="font-size:13px;padding:10px 14px">讨论</div>
+        </div>
+        <div id="mobileMicroTabContent" style="background:#fff;border-radius:0 0 12px 12px;padding:14px;min-height:240px"></div>
+        <button class="btn btn-ghost btn-sm w-full mt-8" id="mobileBackBtn" style="margin-top:16px">← 返回上一页</button>
+      </div>`;
+
+    const tabContents = {
+      analysis: `<div><b style="font-size:14px">学习分析</b><p style="font-size:13px;color:#9ca3af;margin-top:6px">掌握率: ${pt.mastered}% | 建议学习时长: 15分钟</p><div class="progress-bar mt-4" style="margin-top:8px"><div class="progress-fill success" style="width:${pt.mastered}%"></div></div><div style="margin-top:14px;padding:12px;background:#eef2ff;border-radius:8px"><b style="font-size:13px;color:#4f46e5">📊 班级对比</b><p style="font-size:12px;color:#6b7280;margin-top:4px">班级平均掌握率：${Math.max(0, pt.mastered - 5)}%<br>你的排名：前 ${Math.max(10, 100-pt.mastered)}%</p></div></div>`,
+      content: `<div><b style="font-size:14px">学习内容</b><div style="background:#f0f2f5;border-radius:8px;padding:36px 20px;text-align:center;margin-top:10px"><svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#4f46e5" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><p style="font-size:13px;color:#6b7280;margin-top:8px">${mc ? mc.name : '微课视频学习'}</p><button class="btn btn-primary" style="margin-top:14px;height:40px;font-size:14px">▶ 开始学习</button></div><div style="margin-top:14px;padding:12px;background:#ecfdf5;border-radius:8px"><b style="font-size:13px;color:#10b981">📝 知识点说明</b><p style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.7">本知识点是${pt.system||'医学'}系统的重要组成部分，需要掌握其结构特点、功能定位以及与相邻知识点的关联关系。建议结合图谱可视化与实际案例进行学习。</p></div></div>`,
+      selftest: `<div><b style="font-size:14px">自测练习</b><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><span class="badge badge-info" style="font-size:11px">仅从未尝试题目抽取</span><span class="badge badge-warning" style="font-size:11px">限时：10分钟</span></div><div style="margin-top:12px" id="selftestQuestions"><p style="font-size:13px;margin-bottom:10px"><b>1.</b> 以下哪项是骨骼的主要功能？</p><div style="margin-bottom:14px;padding:8px 0"><label class="form-check"><input type="radio" name="mq1" value="A"> A. 产生热量</label><label class="form-check"><input type="radio" name="mq1" value="B"> B. 支撑身体、保护脏器</label><label class="form-check"><input type="radio" name="mq1" value="C"> C. 消化食物</label></div><p style="font-size:13px;margin-bottom:10px"><b>2.</b> 人体最大的骨骼是？</p><div style="margin-bottom:14px;padding:8px 0"><label class="form-check"><input type="radio" name="mq2" value="A"> A. 肱骨</label><label class="form-check"><input type="radio" name="mq2" value="B"> B. 脊柱</label><label class="form-check"><input type="radio" name="mq2" value="C"> C. 股骨</label></div></div><button class="btn btn-primary btn-sm mt-8" id="mobileSelftestSubmit" style="margin-top:8px;height:40px;font-size:14px;width:100%">提交答案</button><div id="mobileSelftestResult" style="margin-top:12px;display:none"></div></div>`,
+      materials: `<div><b style="font-size:14px">学习资料</b><div style="margin-top:10px"><div style="padding:14px;border-bottom:1px solid #f3f4f6;font-size:13px;display:flex;align-items:center;gap:10px">📄 <span style="flex:1">教材文档 · 解剖学教材第3章.pdf</span><span style="color:#4f46e5">查看</span></div><div style="padding:14px;border-bottom:1px solid #f3f4f6;font-size:13px;display:flex;align-items:center;gap:10px">📊 <span style="flex:1">PPT课件 · ${pt.name}教学课件.pptx</span><span style="color:#4f46e5">查看</span></div><div style="padding:14px;border-bottom:1px solid #f3f4f6;font-size:13px;display:flex;align-items:center;gap:10px">🎬 <span style="flex:1">实验视频 · 标本观察示教.mp4</span><span style="color:#4f46e5">查看</span></div><div style="padding:14px;font-size:13px;display:flex;align-items:center;gap:10px">🔗 <span style="flex:1">拓展阅读 · 相关期刊文献推荐</span><span style="color:#4f46e5">查看</span></div></div></div>`,
+      errors: `<div><b style="font-size:14px">错题集</b><div style="margin-top:10px"><div style="padding:12px;background:#fef2f2;border-radius:10px;margin-bottom:10px"><p style="font-size:13px"><b>错题1：</b>骨骼的主要功能</p><p style="font-size:12px;color:#ef4444;margin-top:4px">你的答案: A · 正确答案: B</p><p style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.7"><b>解析：</b>骨骼的主要功能是支撑身体框架、保护内脏器官、协助运动以及造血。产生热量是肌肉系统的功能，消化食物属于消化系统。</p></div><button class="btn btn-outline btn-sm w-full" style="height:36px;margin-top:4px">🔄 练习同类题目</button></div></div>`,
+      discussion: `<div><b style="font-size:14px">讨论区</b><div style="margin-top:10px" id="mobileDiscussionList"><div style="padding:10px;background:#f9fafb;border-radius:10px;margin-bottom:10px"><p style="font-size:13px"><b>李明：</b>这个知识点讲解很清晰，图谱可视化帮助很大！</p><p style="font-size:11px;color:#9ca3af;margin-top:4px">2026-08-10 14:30</p></div><div style="padding:10px;background:#eef2ff;border-radius:10px;margin-bottom:10px"><p style="font-size:13px"><b>王芳：</b>请问与前置知识点的关联怎么更好地记忆？</p><p style="font-size:11px;color:#9ca3af;margin-top:4px">2026-08-10 15:10</p></div></div><div style="display:flex;gap:8px;margin-top:12px"><input type="text" class="form-input" id="mobileDiscussionInput" style="font-size:16px;flex:1" placeholder="发表讨论..."><button class="btn btn-primary btn-sm" id="mobileDiscussionSend" style="height:44px;padding:0 16px">发送</button></div></div>`,
+    };
+    document.getElementById('mobileMicroTabContent').innerHTML = tabContents.analysis;
+
+    document.querySelectorAll('#mobileMicroTabs .tab-item').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#mobileMicroTabs .tab-item').forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('mobileMicroTabContent').innerHTML = tabContents[tab.dataset.tab] || '';
+        bindMobileTabEvents(tab.dataset.tab);
+        const tabContent = document.getElementById('mobileMicroTabContent');
+        if (tabContent) tabContent.scrollTop = 0;
+      });
+    });
+
+    function bindMobileTabEvents(tabName) {
+      if (tabName === 'selftest') {
+        const submitBtn = document.getElementById('mobileSelftestSubmit');
+        if (submitBtn) {
+          submitBtn.addEventListener('click', () => {
+            const q1 = document.querySelector('input[name="mq1"]:checked');
+            const q2 = document.querySelector('input[name="mq2"]:checked');
+            if (!q1 || !q2) { App.showToast('请完成所有题目', 'warning'); return; }
+
+            const resultDiv = document.getElementById('mobileSelftestResult');
+            const correct = (q1.value === 'B' ? 1 : 0) + (q2.value === 'C' ? 1 : 0);
+            if (correct === 2) {
+              resultDiv.innerHTML = '<div style="background:#ecfdf5;padding:14px;border-radius:10px"><p style="color:#10b981;font-weight:600;font-size:14px">✅ 全部正确！</p><p style="font-size:12px;color:#6b7280;margin-top:4px">2/2 题答对，掌握情况良好。建议继续学习下一个知识点。</p></div>';
+            } else {
+              let detail = '';
+              if (q1.value !== 'B') detail += '<p style="font-size:12px;color:#ef4444;margin-top:4px">第1题错误：骨骼的主要功能是支撑身体、保护脏器，正确答案是B</p>';
+              if (q2.value !== 'C') detail += '<p style="font-size:12px;color:#ef4444;margin-top:4px">第2题错误：人体最大的骨骼是股骨（大腿骨），正确答案是C</p>';
+              resultDiv.innerHTML = `<div style="background:#fef2f2;padding:14px;border-radius:10px"><p style="color:#ef4444;font-weight:600;font-size:14px">❌ 答对 ${correct}/2 题</p>${detail}<button class=\"btn btn-outline btn-sm w-full\" style=\"margin-top:10px;height:36px\">📖 查看解析 & 再练一次</button></div>`;
+            }
+            resultDiv.style.display = 'block';
+            submitBtn.disabled = true;
+            submitBtn.textContent = '已提交';
+            submitBtn.style.opacity = '0.6';
+          });
+        }
+      }
+      if (tabName === 'discussion') {
+        const sendBtn = document.getElementById('mobileDiscussionSend');
+        const input = document.getElementById('mobileDiscussionInput');
+        if (sendBtn && input) {
+          const sendFn = () => {
+            const text = input.value.trim();
+            if (!text) return;
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const timeStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            const list = document.getElementById('mobileDiscussionList');
+            list.innerHTML += `<div style="padding:10px;background:#eff6ff;border-radius:10px;margin-bottom:10px"><p style="font-size:13px"><b>我：</b> ${text}</p><p style="font-size:11px;color:#9ca3af;margin-top:4px">${timeStr}</p></div>`;
+            input.value = '';
+            App.showToast('讨论已发表', 'success');
+            setTimeout(() => list.scrollTop = list.scrollHeight, 50);
+          };
+          sendBtn.addEventListener('click', sendFn);
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendFn();
+          });
+        }
+      }
+      // 学习内容播放按钮
+      if (tabName === 'content') {
+        const playBtn = document.querySelector('#mobileMicroTabContent .btn-primary');
+        if (playBtn) {
+          playBtn.addEventListener('click', () => {
+            App.showToast('开始播放微课视频', 'info');
+            setTimeout(() => {
+              playBtn.textContent = '⏸ 学习中 (8:32)';
+            }, 500);
+          });
+        }
+      }
+    }
+
+    document.getElementById('mobileBackBtn').addEventListener('click', () => {
+      renderCurrentMode();
+    });
+  }
+
+  function renderCurrentMode() {
+    content.scrollTop = 0;
+    if (currentMode === 'graph') renderGraphMode();
+    else if (currentMode === 'outline') renderOutlineMode();
+    else renderMapMode();
+  }
+
+  document.querySelectorAll('.mobile-app-tab-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.mobile-app-tab-item').forEach(i=>i.classList.remove('active'));
+      item.classList.add('active');
+      currentMode = item.dataset.mode;
+      renderCurrentMode();
+    });
+  });
+
+  // 首次渲染
+  renderGraphMode();
+})();
+</script>
+</body>
+</html>
