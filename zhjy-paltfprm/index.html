@@ -46,6 +46,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 .nav-item:hover{background:#f9fafb;color:#1a1a1a}
 .nav-item.active{background:#f5f5f5;color:#1a1a1a;font-weight:500;border-left-color:#1a1a1a}
 .nav-item svg{width:16px;height:16px;flex-shrink:0}
+.nav-group{overflow:hidden}
+.nav-group-header{display:flex;align-items:center;gap:8px;padding:10px 20px;font-size:12px;color:#9ca3af;cursor:pointer;user-select:none;font-weight:500;transition:color .12s}
+.nav-group-header:hover{color:#6b7280}
+.nav-group-header .arrow{width:12px;height:12px;transition:transform .2s;flex-shrink:0}
+.nav-group-header .arrow.collapsed{transform:rotate(-90deg)}
+.nav-group-body{overflow:hidden;transition:max-height .25s ease}
+.nav-group-body.collapsed{max-height:0!important}
+.nav-sub-item{display:flex;align-items:center;gap:10px;padding:8px 20px 8px 36px;font-size:13px;color:#6b7280;cursor:pointer;transition:all .12s;border-left:2px solid transparent}
+.nav-sub-item:hover{background:#f9fafb;color:#1a1a1a}
+.nav-sub-item.active{background:#f5f5f5;color:#1a1a1a;font-weight:500;border-left-color:#1a1a1a}
+.nav-sub-item svg{width:15px;height:15px;flex-shrink:0}
+.nav-sub-item .badge-new{display:inline-block;padding:1px 6px;font-size:10px;background:#f5f3ff;color:#7c3aed;border-radius:3px;margin-left:auto}
 .content-area{margin-left:220px;margin-top:56px;padding:24px;min-height:calc(100vh - 56px)}
 .page-title{font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
 .page-desc{font-size:13px;color:#9ca3af;margin-bottom:24px}
@@ -136,7 +148,9 @@ tr:hover td{background:#fafafa}
 /* Knowledge graph - responsive */
 .mobile-kg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
 .mobile-kg-title{font-size:14px;font-weight:500;color:#1a1a1a}
-.mobile-kg-viewport{width:100%;height:480px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;overflow:auto;position:relative}
+.mobile-kg-viewport{width:100%;height:480px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;overflow:hidden;position:relative;cursor:grab}
+.mobile-kg-viewport:active{cursor:grabbing}
+.mobile-kg-viewport canvas{display:block;width:100%;height:100%}
 .mobile-tree{padding:8px 0}
 .mobile-tree .tree-item{padding:10px 14px;font-size:14px}
 .mobile-tree .tree-children{padding-left:16px}
@@ -199,9 +213,14 @@ bar-row{display:flex;align-items:center;gap:12px}
 ::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:3px}
 ::-webkit-scrollbar-track{background:transparent}
 @media(max-width:768px){
-  .sidebar{width:60px}
+  .sidebar{width:60px;overflow:hidden}
   .nav-item span{display:none}
   .nav-group-title{display:none}
+  .nav-sub-item span{display:none}
+  .nav-sub-item .badge-new{display:none}
+  .nav-sub-item{padding:10px}
+  .nav-group-header{padding:10px;justify-content:center}
+  .nav-group-header span{display:none}
   .content-area{margin-left:60px;padding:16px}
   .stat-grid{grid-template-columns:1fr 1fr}
   .mobile-kg-viewport{height:380px}
@@ -262,32 +281,102 @@ bar-row{display:flex;align-items:center;gap:12px}
     </div>
   </div>
   <div class="sidebar" id="sidebar">
-    <div class="nav-group-title">教学管理</div>
-    <div class="nav-item active" data-module="dashboard" onclick="switchModule('dashboard')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      <span>工作台</span>
+    <div class="nav-group">
+      <div class="nav-group-header" onclick="toggleNavGroup(this)">
+        <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <span>教学中心</span>
+      </div>
+      <div class="nav-group-body" style="max-height:600px">
+        <div class="nav-sub-item active" data-module="dashboard" onclick="switchModule('dashboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>工作台</span>
+        </div>
+        <div class="nav-sub-item" data-module="courses" onclick="switchModule('courses')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>课程管理</span>
+        </div>
+        <div class="nav-sub-item" data-module="mobile" onclick="switchModule('mobile')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+          <span>微课学习</span>
+        </div>
+        <div class="nav-sub-item" data-module="tasks" onclick="switchModule('tasks')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <span>学习任务</span>
+        </div>
+        <div class="nav-sub-item" data-module="homework" onclick="switchModule('homework')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>作业管理</span>
+        </div>
+      </div>
     </div>
-    <div class="nav-item" data-module="mobile" onclick="switchModule('mobile')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
-      <span>移动学习</span>
+    <div class="nav-group">
+      <div class="nav-group-header" onclick="toggleNavGroup(this)">
+        <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <span>智能分析</span>
+      </div>
+      <div class="nav-group-body" style="max-height:600px">
+        <div class="nav-sub-item" data-module="research" onclick="switchModule('research')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>科研助手</span>
+        </div>
+        <div class="nav-sub-item" data-module="analysis" onclick="switchModule('analysis')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>学情分析</span>
+        </div>
+        <div class="nav-sub-item" data-module="video" onclick="switchModule('video')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          <span>视频分析</span>
+          <span class="badge-new">NEW</span>
+        </div>
+        <div class="nav-sub-item" data-module="reports" onclick="switchModule('reports')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>数据报表</span>
+        </div>
+      </div>
     </div>
-    <div class="nav-item" data-module="tasks" onclick="switchModule('tasks')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      <span>学习任务</span>
+    <div class="nav-group">
+      <div class="nav-group-header" onclick="toggleNavGroup(this)">
+        <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <span>资源中心</span>
+      </div>
+      <div class="nav-group-body" style="max-height:600px">
+        <div class="nav-sub-item" data-module="resources" onclick="switchModule('resources')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <span>课程资源</span>
+        </div>
+        <div class="nav-sub-item" data-module="questionbank" onclick="switchModule('questionbank')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <span>题库管理</span>
+        </div>
+        <div class="nav-sub-item" data-module="security" onclick="switchModule('security')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>安全检测</span>
+        </div>
+        <div class="nav-sub-item" data-module="textbooks" onclick="switchModule('textbooks')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <span>教材管理</span>
+        </div>
+      </div>
     </div>
-    <div class="nav-group-title">智能分析</div>
-    <div class="nav-item" data-module="research" onclick="switchModule('research')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <span>科研助手</span>
-    </div>
-    <div class="nav-item" data-module="analysis" onclick="switchModule('analysis')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      <span>学情分析</span>
-    </div>
-    <div class="nav-group-title">系统管理</div>
-    <div class="nav-item" data-module="security" onclick="switchModule('security')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <span>安全检测</span>
+    <div class="nav-group">
+      <div class="nav-group-header" onclick="toggleNavGroup(this)">
+        <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <span>系统管理</span>
+      </div>
+      <div class="nav-group-body" style="max-height:600px">
+        <div class="nav-sub-item" data-module="users" onclick="switchModule('users')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>用户管理</span>
+        </div>
+        <div class="nav-sub-item" data-module="notices" onclick="switchModule('notices')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span>通知公告</span>
+        </div>
+        <div class="nav-sub-item" data-module="settings" onclick="switchModule('settings')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>系统设置</span>
+        </div>
+      </div>
     </div>
   </div>
   <div class="content-area" id="contentArea"></div>
@@ -353,16 +442,57 @@ function checkSession(){
 document.addEventListener('keypress',function(e){if(e.key==='Enter'&&document.getElementById('loginPage').style.display!=='none')doLogin()});
 
 // ============ MODULE SWITCHING ============
+function toggleNavGroup(header){
+  var arrow=header.querySelector('.arrow');
+  var body=header.nextElementSibling;
+  if(!body.classList.contains('nav-group-body'))return;
+  var isCollapsed=body.classList.contains('collapsed');
+  if(isCollapsed){
+    body.classList.remove('collapsed');
+    body.style.maxHeight='600px';
+    arrow.classList.remove('collapsed');
+  }else{
+    body.classList.add('collapsed');
+    body.style.maxHeight='0px';
+    arrow.classList.add('collapsed');
+  }
+}
 function switchModule(name){
   S.currentModule=name;
-  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.module===name)});
+  document.querySelectorAll('.nav-item,.nav-sub-item').forEach(function(n){n.classList.toggle('active',n.dataset.module===name)});
   var area=document.getElementById('contentArea');
-  var renderers={dashboard:renderDashboard,mobile:renderMobile,tasks:renderTasks,research:renderResearch,analysis:renderAnalysis,security:renderSecurity};
+  var renderers={dashboard:renderDashboard,mobile:renderMobile,tasks:renderTasks,research:renderResearch,analysis:renderAnalysis,security:renderSecurity,courses:renderPlaceholder,homework:renderPlaceholder,video:renderPlaceholder,reports:renderPlaceholder,resources:renderPlaceholder,questionbank:renderPlaceholder,textbooks:renderPlaceholder,users:renderPlaceholder,notices:renderPlaceholder,settings:renderPlaceholder};
   area.innerHTML=(renderers[name]||renderDashboard)();
   // Post-render hooks
   if(name==='mobile')initMobile();
   if(name==='tasks')initTasks();
   if(name==='analysis')initAnalysis();
+}
+
+// ============ PLACEHOLDER MODULES ============
+var PLACEHOLDER_INFO={
+  courses:{title:'课程管理',desc:'课程创建、编辑与发布管理，支持课程分类、标签设置及课程封面自定义'},
+  homework:{title:'作业管理',desc:'在线作业布置、批改、成绩统计，支持多种题型与自动评分'},
+  video:{title:'视频分析',desc:'智能视频打点、知识点自动匹配、词云与思维导图分析展示'},
+  reports:{title:'数据报表',desc:'多维教学数据统计与可视化报表，支持导出与定时推送'},
+  resources:{title:'课程资源',desc:'课程相关文档、视频、音频等多媒体资源的上传、分类与共享管理'},
+  questionbank:{title:'题库管理',desc:'试题录入、分类、标签管理，支持批量导入导出与智能组卷'},
+  textbooks:{title:'教材管理',desc:'教材信息录入、版本管理、推荐与审核流程'},
+  users:{title:'用户管理',desc:'教师、学生、管理员账号管理，角色权限配置与批量导入'},
+  notices:{title:'通知公告',desc:'系统通知、课程公告发布，支持定时推送与已读状态追踪'},
+  settings:{title:'系统设置',desc:'平台基础配置、学期管理、日志审计与数据备份'}
+};
+function renderPlaceholder(){
+  var info=PLACEHOLDER_INFO[S.currentModule];
+  if(!info)return '<div style="padding:60px;text-align:center"><div style="font-size:48px;margin-bottom:16px;opacity:0.3">📋</div><div style="font-size:14px;color:#9ca3af">页面未找到</div></div>';
+  return '<div class="page-title">'+info.title+'</div>'+
+    '<div class="page-desc">'+info.desc+'</div>'+
+    '<div class="card" style="text-align:center;padding:60px 40px">'+
+      '<div style="font-size:48px;margin-bottom:16px;opacity:0.2">🚧</div>'+
+      '<div style="font-size:16px;font-weight:500;color:#1a1a1a;margin-bottom:8px">功能开发中</div>'+
+      '<div style="font-size:13px;color:#9ca3af;line-height:1.6">该模块正在紧锣密鼓地开发中，<br>将为您提供完善的'+info.title+'功能体验。</div>'+
+      '<div style="margin-top:20px;color:#9ca3af;font-size:12px">预计上线时间：2026年Q3</div>'+
+    '</div>';
 }
 
 // ============ MODAL ============
@@ -405,6 +535,55 @@ var KG_TREE={
     ]}
   ]
 };
+var COURSE_KG_TREES={
+  c1:KG_TREE,
+  c2:{name:'数据结构与算法',children:[
+    {name:'第一章 线性结构',children:[
+      {name:'1.1 数组与链表',microcourse:true},
+      {name:'1.2 栈与队列',microcourse:true},
+      {name:'1.3 字符串匹配',microcourse:true}
+    ]},
+    {name:'第二章 树结构',children:[
+      {name:'2.1 二叉树遍历',microcourse:true},
+      {name:'2.2 二叉搜索树',microcourse:true},
+      {name:'2.3 平衡二叉树',microcourse:true},
+      {name:'2.4 堆与优先队列',microcourse:true}
+    ]},
+    {name:'第三章 图结构',children:[
+      {name:'3.1 图的存储',microcourse:true},
+      {name:'3.2 深度优先搜索',microcourse:true},
+      {name:'3.3 最短路径算法',microcourse:true}
+    ]},
+    {name:'第四章 算法设计',children:[
+      {name:'4.1 贪心算法',microcourse:true},
+      {name:'4.2 动态规划',microcourse:true},
+      {name:'4.3 回溯与分支限界',microcourse:true}
+    ]}
+  ]},
+  c3:{name:'机器学习基础',children:[
+    {name:'第一章 监督学习',children:[
+      {name:'1.1 线性回归',microcourse:true},
+      {name:'1.2 逻辑回归',microcourse:true},
+      {name:'1.3 决策树与随机森林',microcourse:true}
+    ]},
+    {name:'第二章 无监督学习',children:[
+      {name:'2.1 K-Means聚类',microcourse:true},
+      {name:'2.2 PCA降维',microcourse:true},
+      {name:'2.3 关联规则挖掘',microcourse:true}
+    ]},
+    {name:'第三章 深度学习',children:[
+      {name:'3.1 全连接网络',microcourse:true},
+      {name:'3.2 CNN图像识别',microcourse:true},
+      {name:'3.3 RNN与LSTM',microcourse:true}
+    ]},
+    {name:'第四章 模型评估',children:[
+      {name:'4.1 交叉验证',microcourse:true},
+      {name:'4.2 过拟合与正则化',microcourse:true},
+      {name:'4.3 超参数调优',microcourse:true}
+    ]}
+  ]}
+};
+var MOBILE_STATE={selectedCourse:'c1'};
 
 var STUDENTS=[
   {id:'s1',name:'张明',score:92,videoRate:95,homeworkRate:100,examRate:90,participation:88,knowledge:90,level:'优秀'},
@@ -500,8 +679,59 @@ var ANALYSIS_ASSIGNMENTS=[
     {no:3,type:'编程题',rate:53,avgTime:'20.1分',difficulty:'中',analysis:'CNN图像分类实现，常见错误：①卷积层参数设置不当；②池化层选择错误。'}
   ]}
 ];
-var ANALYSIS_STATE={selectedAssignment:'a1',selectedStudentIdx:0,assignmentFilter:'all',riskFilter:'all'};
+var ANALYSIS_STATE={selectedCourse:'c1',selectedAssignment:'a1',selectedStudentIdx:0,assignmentFilter:'all',riskFilter:'all'};
 var COMMON_QUESTIONS=[];
+
+// Course-specific data for analysis module
+var COURSE_STUDENTS={
+  c1:STUDENTS,
+  c2:[
+    {id:'c2s1',name:'赵明',score:90,videoRate:93,homeworkRate:96,examRate:88,participation:85,knowledge:91,level:'优秀'},
+    {id:'c2s2',name:'钱丽',score:82,videoRate:85,homeworkRate:90,examRate:80,participation:78,knowledge:84,level:'良好'},
+    {id:'c2s3',name:'孙伟',score:75,videoRate:72,homeworkRate:78,examRate:76,participation:68,knowledge:73,level:'中等'},
+    {id:'c2s4',name:'李强',score:60,videoRate:52,homeworkRate:58,examRate:62,participation:48,knowledge:56,level:'待提升'},
+    {id:'c2s5',name:'周芳',score:86,videoRate:88,homeworkRate:92,examRate:84,participation:82,knowledge:87,level:'良好'},
+    {id:'c2s6',name:'吴磊',score:58,videoRate:42,homeworkRate:48,examRate:60,participation:45,knowledge:50,level:'待提升'},
+    {id:'c2s7',name:'郑静',score:94,videoRate:97,homeworkRate:99,examRate:93,participation:90,knowledge:95,level:'优秀'},
+    {id:'c2s8',name:'王涛',score:70,videoRate:65,homeworkRate:72,examRate:68,participation:62,knowledge:71,level:'中等'}
+  ],
+  c3:[
+    {id:'c3s1',name:'陈明',score:88,videoRate:90,homeworkRate:94,examRate:86,participation:83,knowledge:89,level:'良好'},
+    {id:'c3s2',name:'林丽',score:80,videoRate:82,homeworkRate:88,examRate:78,participation:75,knowledge:81,level:'良好'},
+    {id:'c3s3',name:'黄伟',score:72,videoRate:68,homeworkRate:74,examRate:72,participation:65,knowledge:70,level:'中等'},
+    {id:'c3s4',name:'杨强',score:56,videoRate:48,homeworkRate:52,examRate:58,participation:42,knowledge:50,level:'待提升'},
+    {id:'c3s5',name:'刘芳',score:84,videoRate:86,homeworkRate:90,examRate:82,participation:80,knowledge:85,level:'良好'},
+    {id:'c3s6',name:'张磊',score:52,videoRate:38,homeworkRate:45,examRate:54,participation:40,knowledge:48,level:'待提升'},
+    {id:'c3s7',name:'赵静',score:92,videoRate:95,homeworkRate:98,examRate:91,participation:88,knowledge:93,level:'优秀'},
+    {id:'c3s8',name:'孙涛',score:68,videoRate:62,homeworkRate:70,examRate:66,participation:60,knowledge:67,level:'中等'}
+  ]
+};
+var COURSE_ASSIGNMENTS={
+  c1:ANALYSIS_ASSIGNMENTS,
+  c2:[
+    {id:'c2a1',name:'第一次作业 · 算法复杂度',submitted:68,total:72,avgScore:74.2,passRate:86,maxScore:97,maxStudent:'郑静',questions:[
+      {no:1,type:'单选题',rate:90,avgTime:'1.0分',difficulty:'易',analysis:'算法时间复杂度分析基本概念掌握良好。部分学生混淆了O(n)与O(n²)的判定条件。'},
+      {no:2,type:'填空题',rate:70,avgTime:'3.0分',difficulty:'中',analysis:'递归算法复杂度计算存在困难，约30%的学生无法正确推导递归关系式。'},
+      {no:3,type:'简答题',rate:48,avgTime:'9.5分',difficulty:'难',analysis:'关于动态规划与贪心算法的区别，超过半数学生回答不完整。需加强算法设计策略的讲解。'},
+      {no:4,type:'编程题',rate:55,avgTime:'16.5分',difficulty:'中',analysis:'实现二叉搜索树，常见错误：①插入操作未考虑平衡性；②删除节点的三种情况处理不完整。'}
+    ]},
+    {id:'c2a2',name:'期中考试',submitted:70,total:72,avgScore:72.5,passRate:83,maxScore:98,maxStudent:'郑静',questions:[
+      {no:1,type:'单选题',rate:92,avgTime:'1.2分',difficulty:'易',analysis:'栈与队列的基本操作掌握扎实。'},
+      {no:2,type:'编程题',rate:52,avgTime:'18.0分',difficulty:'难',analysis:'实现图的深度优先遍历，约48%的学生无法正确处理非连通图的情况。'}
+    ]}
+  ],
+  c3:[
+    {id:'c3a1',name:'第一次作业 · 线性回归',submitted:60,total:64,avgScore:78.5,passRate:90,maxScore:99,maxStudent:'赵静',questions:[
+      {no:1,type:'单选题',rate:94,avgTime:'0.9分',difficulty:'易',analysis:'线性回归基本原理掌握优秀，仅少数学生混淆了梯度下降的学习率概念。'},
+      {no:2,type:'编程题',rate:62,avgTime:'14.5分',difficulty:'中',analysis:'实现逻辑回归分类器，常见错误：①损失函数计算错误；②梯度更新公式推导遗漏。'},
+      {no:3,type:'简答题',rate:55,avgTime:'8.0分',difficulty:'中',analysis:'过拟合与欠拟合的判断方法，约45%的学生无法准确区分并给出解决方案。'}
+    ]},
+    {id:'c3a2',name:'期中考试',submitted:62,total:64,avgScore:76.8,passRate:88,maxScore:98,maxStudent:'赵静',questions:[
+      {no:1,type:'单选题',rate:91,avgTime:'1.1分',difficulty:'易',analysis:'SVM支持向量机基本原理掌握良好。'},
+      {no:2,type:'编程题',rate:48,avgTime:'20.5分',difficulty:'难',analysis:'实现K-Means聚类算法，约52%的学生无法正确选择初始聚类中心。'}
+    ]}
+  ]
+};
 var SECURITY_KEYWORDS=['违规词A','敏感词B','不当内容C','风险词D'];
 var SECURITY_IGNORE=['常见词','通用术语'];
 var SECURITY_BLACKLIST=['user_spam_001','user_violation_002'];
@@ -517,7 +747,6 @@ var SECURITY_REVIEWS=[
 // ============ DASHBOARD ============
 function renderDashboard(){
   return '<div class="page-title">工作台</div>'+
-    '<div class="page-desc">欢迎使用智慧教育平台，以下是平台核心数据概览</div>'+
     '<div class="stat-grid">'+
       statCard('开设课程','12','本学期共开设12门课程')+
       statCard('注册学生','2,486','较上学期增长8.5%')+
@@ -537,7 +766,7 @@ function renderDashboard(){
       '<div class="card">'+
         cardHeader('快捷入口','')+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-          '<div class="list-item" onclick="switchModule(\'mobile\')"><div class="list-item-icon">📱</div><div class="list-item-body"><div class="list-item-title">移动学习</div><div class="list-item-desc">知识图谱与微课</div></div></div>'+
+          '<div class="list-item" onclick="switchModule(\'mobile\')"><div class="list-item-icon">📱</div><div class="list-item-body"><div class="list-item-title">微课学习</div><div class="list-item-desc">知识图谱与微课</div></div></div>'+
           '<div class="list-item" onclick="switchModule(\'research\')"><div class="list-item-icon">🔍</div><div class="list-item-body"><div class="list-item-title">科研助手</div><div class="list-item-desc">AI研究报告生成</div></div></div>'+
           '<div class="list-item" onclick="switchModule(\'analysis\')"><div class="list-item-icon">📊</div><div class="list-item-body"><div class="list-item-title">学情分析</div><div class="list-item-desc">学生学习数据</div></div></div>'+
           '<div class="list-item" onclick="switchModule(\'security\')"><div class="list-item-icon">🛡</div><div class="list-item-body"><div class="list-item-title">安全检测</div><div class="list-item-desc">资源审核管理</div></div></div>'+
@@ -560,11 +789,19 @@ function cardHeader(title,actions){return '<div class="card-header"><div class="
 
 // ============ MODULE 1: MOBILE LEARNING ============
 function renderMobile(){
-  return '<div class="page-title">移动学习</div>'+
-    '<div class="page-desc">支持微信公众号、移动App访问知识图谱，提供图谱模式、大纲模式和学习地图模式，适应不同学习偏好和场景</div>'+
+  var cid=MOBILE_STATE.selectedCourse;
+  var course=COURSES.find(function(c){return c.id===cid})||COURSES[0];
+  var kgTree=COURSE_KG_TREES[cid]||KG_TREE;
+  return '<div class="page-title">微课学习</div>'+
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">'+
+      '<span style="font-size:13px;color:#6b7280">当前课程：</span>'+
+      '<select class="form-select" style="width:auto" onchange="onMobileCourseChange(this.value)" id="mobileCourseSelect">'+
+        COURSES.map(function(c){return '<option value="'+c.id+'"'+(c.id===cid?' selected':'')+'>'+c.name+'（'+c.teacher+'）</option>'}).join('')+
+      '</select>'+
+    '</div>'+
     '<div class="card">'+
       '<div class="mobile-kg-header">'+
-        '<div class="mobile-kg-title">人工智能导论 · 知识图谱</div>'+
+        '<div class="mobile-kg-title">'+kgTree.name+' · 知识图谱</div>'+
         '<div class="toggle-group" id="mobileModeToggle">'+
           '<button class="toggle-btn active" onclick="setMobileMode(this,\'graph\')">图谱模式</button>'+
           '<button class="toggle-btn" onclick="setMobileMode(this,\'outline\')">大纲模式</button>'+
@@ -572,6 +809,13 @@ function renderMobile(){
         '</div>'+
       '</div>'+
       '<div id="mobileModeDesc" style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:12px">'+getMobileModeDesc('graph')+'</div>'+
+      '<div id="graphStyleBar" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">'+
+        '<span style="font-size:12px;color:#9ca3af;line-height:28px">图谱形态：</span>'+
+        '<button class="toggle-btn active" onclick="setGraphStyle(this,\'ring\')" style="font-size:12px;padding:3px 10px">环状</button>'+
+        '<button class="toggle-btn" onclick="setGraphStyle(this,\'tree\')" style="font-size:12px;padding:3px 10px">树形</button>'+
+        '<button class="toggle-btn" onclick="setGraphStyle(this,\'network\')" style="font-size:12px;padding:3px 10px">网络</button>'+
+        '<button class="toggle-btn" onclick="setGraphStyle(this,\'compact\')" style="font-size:12px;padding:3px 10px">紧凑</button>'+
+      '</div>'+
       '<div class="mobile-kg-viewport" id="mobileKgContent">'+renderMobileGraph()+'</div>'+
     '</div>'+
     '<div class="card" style="margin-top:16px">'+
@@ -584,18 +828,55 @@ function renderMobile(){
       '</div>'+
     '</div>';
 }
+function onMobileCourseChange(cid){
+  MOBILE_STATE.selectedCourse=cid;
+  var kgTree=COURSE_KG_TREES[cid]||KG_TREE;
+  var course=COURSES.find(function(c){return c.id===cid})||COURSES[0];
+  document.querySelector('.mobile-kg-title').textContent=kgTree.name+' · 知识图谱';
+  if(mobileMode==='graph'){
+    document.getElementById('mobileKgContent').innerHTML=renderMobileGraph();
+    initInteractiveGraph();
+  }else if(mobileMode==='outline'){
+    document.getElementById('mobileKgContent').innerHTML=renderMobileOutline();
+  }else{
+    document.getElementById('mobileKgContent').innerHTML=renderMobileMap();
+  }
+  document.getElementById('mobileModeDesc').textContent=getMobileModeDesc(mobileMode);
+  showToast('已切换至：'+course.name);
+}
 var mobileMode='graph';
+var mobileGraphStyle='ring';
+var KG_COLLAPSED={};
 function setMobileMode(btn,mode){
   btn.parentElement.querySelectorAll('.toggle-btn').forEach(function(b){b.classList.remove('active')});
   btn.classList.add('active');
   mobileMode=mode;
+  var styleBar=document.getElementById('graphStyleBar');
+  if(styleBar)styleBar.style.display=mode==='graph'?'flex':'none';
   document.getElementById('mobileModeDesc').textContent=getMobileModeDesc(mode);
   var content=document.getElementById('mobileKgContent');
   if(content){
-    if(mode==='graph')content.innerHTML=renderMobileGraph();
+    if(mode==='graph'){content.innerHTML=renderMobileGraph();initInteractiveGraph();}
     else if(mode==='outline')content.innerHTML=renderMobileOutline();
     else content.innerHTML=renderMobileMap();
   }
+}
+function setGraphStyle(btn,style){
+  mobileGraphStyle=style;
+  btn.parentElement.querySelectorAll('.toggle-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  document.getElementById('mobileKgContent').innerHTML=renderMobileGraph();
+  initInteractiveGraph();
+  document.getElementById('mobileModeDesc').textContent=getGraphStyleDesc(style);
+}
+function getGraphStyleDesc(style){
+  var descs={
+    ring:'环状图谱：以环形结构展示知识点层次，中心为核心课程，章节节点环绕排列，支持展开/收起。',
+    tree:'树形图谱：以层级树结构展示知识点的上下级关系，根节点居中，逐层展开，支持展开/收起。',
+    network:'网络图谱：知识点以网状结构互联，展示跨章节的知识关联与依赖关系。',
+    compact:'紧凑图谱：浓缩知识点视图，适合快速浏览整体知识结构。'
+  };
+  return descs[style]||'';
 }
 function getMobileModeDesc(mode){
   var descs={
@@ -605,28 +886,243 @@ function getMobileModeDesc(mode){
   };
   return descs[mode]||'';
 }
+// ============ INTERACTIVE KNOWLEDGE GRAPH ============
+var KG_STATE={nodes:[],edges:[],panX:0,panY:0,zoom:1,dragging:null,panning:false,lastX:0,lastY:0,canvas:null};
+function toggleKGNode(e,nodeId){
+  e.stopPropagation();
+  if(KG_COLLAPSED[nodeId]){delete KG_COLLAPSED[nodeId]}else{KG_COLLAPSED[nodeId]=true}
+  buildKGState();
+  renderKGCanvas();
+}
+function buildKGState(){
+  var tree=COURSE_KG_TREES[MOBILE_STATE.selectedCourse]||KG_TREE;
+  var style=mobileGraphStyle||'ring';
+  var nodes=[],edges=[];
+  var rootId='root';
+  nodes.push({id:rootId,name:tree.name.slice(0,4),type:'root',collapsed:!!KG_COLLAPSED[rootId]});
+  tree.children.forEach(function(ch,i){
+    var chId='ch'+i;
+    var chCollapsed=!!KG_COLLAPSED[chId];
+    nodes.push({id:chId,name:ch.name,type:'chapter',collapsed:chCollapsed,parentId:rootId});
+    edges.push({from:rootId,to:chId});
+    if(KG_COLLAPSED[rootId]||chCollapsed)return;
+    ch.children.forEach(function(g,j){
+      var leafId=chId+'g'+j;
+      nodes.push({id:leafId,name:g.name,type:'leaf',parentId:chId});
+      edges.push({from:chId,to:leafId});
+    });
+  });
+  // Network: cross-chapter links
+  if(style==='network'){
+    for(var i=0;i<tree.children.length-1;i++){
+      edges.push({from:'ch'+i,to:'ch'+(i+1)});
+    }
+  }
+  KG_STATE.nodes=nodes;
+  KG_STATE.edges=edges;
+  computeLayout();
+}
+function computeLayout(){
+  var style=mobileGraphStyle||'ring';
+  var ns=KG_STATE.nodes;
+  if(style==='ring'){
+    ns.forEach(function(n){if(n.type==='root'){n._x=0;n._y=0}});
+    var chNodes=ns.filter(function(n){return n.type==='chapter'});
+    chNodes.forEach(function(n,i){
+      var angle=-Math.PI/2+(2*Math.PI*i/chNodes.length);
+      n._x=Math.cos(angle)*150;n._y=Math.sin(angle)*150;
+    });
+    ns.forEach(function(n){
+      if(n.type==='leaf'){
+        var p=ns.find(function(x){return x.id===n.parentId});
+        if(p){
+          var leafNodes=ns.filter(function(x){return x.parentId===n.parentId});
+          var li=leafNodes.indexOf(n);
+          var baseAngle=Math.atan2(p._y,p._x);
+          var spread=Math.PI/3;
+          var a=baseAngle-spread/2+spread*li/(leafNodes.length-1||1);
+          n._x=p._x+Math.cos(a)*80;n._y=p._y+Math.sin(a)*80;
+        }
+      }
+    });
+  }else if(style==='tree'){
+    ns.forEach(function(n){if(n.type==='root'){n._x=0;n._y=-220}});
+    var chNodes=ns.filter(function(n){return n.type==='chapter'});
+    var totalW=(chNodes.length-1)*120;
+    chNodes.forEach(function(n,i){n._x=-totalW/2+i*120;n._y=-80});
+    ns.forEach(function(n){
+      if(n.type==='leaf'){
+        var p=ns.find(function(x){return x.id===n.parentId});
+        if(p){
+          var leafNodes=ns.filter(function(x){return x.parentId===n.parentId});
+          var li=leafNodes.indexOf(n);
+          var lw=(leafNodes.length-1)*70;
+          n._x=p._x-lw/2+li*70;n._y=p._y+70;
+        }
+      }
+    });
+  }else if(style==='network'){
+    ns.forEach(function(n){if(n.type==='root'){n._x=0;n._y=-200}});
+    var chNodes=ns.filter(function(n){return n.type==='chapter'});
+    chNodes.forEach(function(n,i){
+      var col=i%2,row=Math.floor(i/2);
+      n._x=(col-0.5)*180;n._y=-60+row*120;
+    });
+    ns.forEach(function(n){
+      if(n.type==='leaf'){
+        var p=ns.find(function(x){return x.id===n.parentId});
+        if(p){
+          var leafNodes=ns.filter(function(x){return x.parentId===n.parentId});
+          var li=leafNodes.indexOf(n);
+          n._x=p._x-25+li*50;n._y=p._y+70;
+        }
+      }
+    });
+  }else{
+    ns.forEach(function(n){if(n.type==='root'){n._x=0;n._y=-240}});
+    var y=0;
+    var chNodes=ns.filter(function(n){return n.type==='chapter'});
+    chNodes.forEach(function(n,i){
+      n._x=0;n._y=y;y+=80;
+      var leafNodes=ns.filter(function(x){return x.parentId===n.id});
+      leafNodes.forEach(function(lf,li){lf._x=(li+1)*80;lf._y=n._y});
+    });
+  }
+}
+function renderKGCanvas(){
+  var canvas=KG_STATE.canvas;
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var dpr=window.devicePixelRatio||1;
+  var rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*dpr;
+  canvas.height=rect.height*dpr;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,rect.width,rect.height);
+  var cx=rect.width/2,cy=rect.height/2;
+  ctx.save();
+  ctx.translate(cx+KG_STATE.panX,cy+KG_STATE.panY);
+  ctx.scale(KG_STATE.zoom,KG_STATE.zoom);
+  // Draw edges
+  KG_STATE.edges.forEach(function(e){
+    var from=KG_STATE.nodes.find(function(n){return n.id===e.from});
+    var to=KG_STATE.nodes.find(function(n){return n.id===e.to});
+    if(!from||!to)return;
+    if(from.collapsed||to.collapsed)return;
+    var p=KG_STATE.nodes.find(function(n){return n.id===to.parentId});
+    if(p&&p.collapsed)return;
+    if(from.type==='root'&&KG_STATE.nodes.find(function(n){return n.id==='root'&&n.collapsed}))return;
+    ctx.beginPath();
+    ctx.moveTo(from._x,from._y);
+    ctx.lineTo(to._x,to._y);
+    ctx.strokeStyle='#e5e7eb';
+    ctx.lineWidth=1.5;
+    ctx.stroke();
+  });
+  // Draw nodes
+  KG_STATE.nodes.forEach(function(n){
+    if(n.collapsed&&n.type!=='root'&&n.type!=='chapter')return;
+    var p=n.type!=='root'?KG_STATE.nodes.find(function(x){return x.id===n.parentId}):null;
+    if(p&&p.collapsed)return;
+    if(n.type!=='root'&&KG_STATE.nodes.find(function(nn){return nn.id==='root'&&nn.collapsed}))return;
+    var r=n.type==='root'?14:n.type==='chapter'?10:7;
+    var fill=n.type==='root'?'#1a1a1a':n.type==='chapter'?'#6366f1':'#9ca3af';
+    ctx.beginPath();
+    ctx.arc(n._x,n._y,r,0,2*Math.PI);
+    ctx.fillStyle=fill;
+    ctx.fill();
+    ctx.strokeStyle='#fff';
+    ctx.lineWidth=1.5;
+    ctx.stroke();
+    if(n.type==='chapter'&&n.collapsed){
+      ctx.fillStyle='#1a1a1a';
+      ctx.font='bold 10px sans-serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText('+',n._x,n._y);
+    }
+    var label=n.name.replace('第','').replace('章','').trim().slice(0,6);
+    ctx.fillStyle='#1a1a1a';
+    ctx.font=(n.type==='root'?'bold ':'')+'10px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(label,n._x,n._y-r-4);
+  });
+  ctx.restore();
+}
+function initInteractiveGraph(){
+  var viewport=document.getElementById('mobileKgContent');
+  if(!viewport)return;
+  viewport.innerHTML='<canvas id="kgCanvas" style="width:100%;height:100%"></canvas>';
+  var canvas=document.getElementById('kgCanvas');
+  KG_STATE.canvas=canvas;
+  buildKGState();
+  renderKGCanvas();
+  canvas.addEventListener('mousedown',function(e){
+    var mx=e.offsetX,my=e.offsetY;
+    var rect=canvas.getBoundingClientRect();
+    var cx=rect.width/2,cy=rect.height/2;
+    var sx=(mx-cx-KG_STATE.panX)/KG_STATE.zoom;
+    var sy=(my-cy-KG_STATE.panY)/KG_STATE.zoom;
+    var hit=KG_STATE.nodes.find(function(n){
+      var dx=sx-n._x,dy=sy-n._y;
+      var r=n.type==='root'?16:n.type==='chapter'?12:9;
+      return dx*dx+dy*dy<r*r;
+    });
+    if(hit){
+      if(hit.type==='chapter'||hit.type==='root'){
+        KG_STATE.dragging=hit.id;
+      }else{
+        openMicroCourse(hit.name);
+        return;
+      }
+    }else{
+      KG_STATE.panning=true;
+    }
+    KG_STATE.lastX=mx;KG_STATE.lastY=my;
+  });
+  canvas.addEventListener('mousemove',function(e){
+    if(KG_STATE.dragging){
+      var rect=canvas.getBoundingClientRect();
+      var cx=rect.width/2,cy=rect.height/2;
+      var sx=(e.offsetX-cx-KG_STATE.panX)/KG_STATE.zoom;
+      var sy=(e.offsetY-cy-KG_STATE.panY)/KG_STATE.zoom;
+      var node=KG_STATE.nodes.find(function(n){return n.id===KG_STATE.dragging});
+      if(node){node._x=sx;node._y=sy;}
+      renderKGCanvas();
+    }else if(KG_STATE.panning){
+      KG_STATE.panX+=e.offsetX-KG_STATE.lastX;
+      KG_STATE.panY+=e.offsetY-KG_STATE.lastY;
+      KG_STATE.lastX=e.offsetX;KG_STATE.lastY=e.offsetY;
+      renderKGCanvas();
+    }
+  });
+  canvas.addEventListener('mouseup',function(e){
+    if(KG_STATE.dragging){
+      var dx=Math.abs(e.offsetX-KG_STATE.lastX);
+      var dy=Math.abs(e.offsetY-KG_STATE.lastY);
+      if(dx<5&&dy<5){
+        var nodeId=KG_STATE.dragging;
+        toggleKGNode(new MouseEvent('click'),nodeId);
+      }
+      KG_STATE.dragging=null;
+    }
+    KG_STATE.panning=false;
+  });
+  canvas.addEventListener('mouseleave',function(){KG_STATE.dragging=null;KG_STATE.panning=false;});
+  canvas.addEventListener('wheel',function(e){
+    e.preventDefault();
+    var delta=e.deltaY>0?0.9:1.1;
+    KG_STATE.zoom=Math.max(0.3,Math.min(3,KG_STATE.zoom*delta));
+    renderKGCanvas();
+  });
+  window.addEventListener('resize',renderKGCanvas);
+}
 function renderMobileGraph(){
-  var nodes=[];
-  var positions=[
-    {x:50,y:20,n:'AI导论',c:true},
-    {x:20,y:65,n:'机器学习',cx:true},{x:50,y:65,n:'深度学习',cx:true},{x:80,y:65,n:'NLP',cx:true},
-    {x:10,y:115,n:'监督学习'},{x:32,y:115,n:'无监督'},{x:50,y:115,n:'CNN'},{x:68,y:115,n:'RNN'},{x:88,y:115,n:'翻译'},
-    {x:15,y:160,n:'分类'},{x:28,y:160,n:'回归'},{x:55,y:160,n:'图像'},{x:70,y:160,n:'序列'}
-  ];
-  var lines='M50,20 L20,65 M50,20 L50,65 M50,20 L80,65 M20,65 L10,115 M20,65 L32,115 M50,65 L50,115 M50,65 L68,115 M80,65 L88,115 M10,115 L15,160 M32,115 L28,160 M50,115 L55,160 M68,115 L70,160';
-  return '<div style="font-size:12px;color:#9ca3af;text-align:center;padding:8px">点击节点进入微课学习</div>'+
-    '<svg viewBox="0 0 100 200" style="width:100%;max-width:500px;height:auto;display:block;margin:0 auto">'+
-    '<path d="'+lines+'" stroke="#e5e7eb" stroke-width="0.5" fill="none"/>'+
-    positions.map(function(p){
-      var r=(p.c||p.cx)?4:3.5;
-      var fill=(p.c?'#1a1a1a':p.cx?'#6366f1':'#9ca3af');
-      return '<circle cx="'+p.x+'" cy="'+p.y+'" r="'+r+'" fill="'+fill+'" stroke="#fff" stroke-width="0.5" onclick="openMicroCourse(\''+escapeHtml(p.n)+'\')" style="cursor:pointer"/>'+
-        '<text x="'+p.x+'" y="'+(p.y-5)+'" text-anchor="middle" font-size="3.5" fill="#1a1a1a">'+escapeHtml(p.n)+'</text>';
-    }).join('')+
-    '</svg>'+
-    '<div style="font-size:11px;color:#9ca3af;text-align:center;padding:12px;border-top:1px solid #f0f0f0;margin-top:8px">● 核心节点 · 点击跳转微课</div>';
+  return '<canvas id="kgCanvas" style="width:100%;height:100%"></canvas>';
 }
 function renderMobileOutline(){
+  var tree=COURSE_KG_TREES[MOBILE_STATE.selectedCourse]||KG_TREE;
   function renderNode(node,level){
     var html='<div class="tree-item" style="padding-left:'+(level*16+12)+'px" onclick="'+(node.microcourse?'openMicroCourse(\''+escapeHtml(node.name)+'\')':'')+'">'+
       '<span class="tree-toggle">'+(node.children?'▾':'●')+'</span>'+
@@ -636,24 +1132,34 @@ function renderMobileOutline(){
     if(node.children)html+='<div class="tree-children">'+node.children.map(function(c){return renderNode(c,level+1)}).join('')+'</div>';
     return html;
   }
-  return '<div class="mobile-tree">'+renderNode(KG_TREE,0)+'</div>';
+  return '<div class="mobile-tree">'+renderNode(tree,0)+'</div>';
 }
 function renderMobileMap(){
-  var nodes=['AI概述','发展历程','应用领域','ML基础','监督学习','无监督','强化学习','DL基础','CNN','RNN','NLP基础','词向量','语言模型','实践项目','综合考核'];
-  var status=['completed','completed','completed','completed','completed','completed','current','locked','locked','locked','locked','locked','locked','locked','locked'];
+  var tree=COURSE_KG_TREES[MOBILE_STATE.selectedCourse]||KG_TREE;
+  var nodes=[tree.name];
+  var statuses=['completed'];
+  tree.children.forEach(function(ch){
+    nodes.push(ch.name);
+    statuses.push('completed');
+    ch.children.forEach(function(g){
+      nodes.push(g.name);
+      statuses.push('locked');
+    });
+  });
+  var completedCount=statuses.filter(function(s){return s==='completed'}).length;
+  var progress=Math.round(completedCount/nodes.length*100);
   return '<div class="mobile-map-grid">'+
     nodes.map(function(n,i){
-      var cls=status[i];
-      var num=i+1;
+      var cls=statuses[i];
       return '<div class="mobile-map-node '+cls+'" onclick="'+(cls!=='locked'?'openMicroCourse(\''+escapeHtml(n)+'\')':'')+'">'+
-        '<div class="map-node-num">'+(cls==='completed'?'✓':num)+'</div>'+
+        '<div class="map-node-num">'+(cls==='completed'?'✓':(i+1))+'</div>'+
         '<div class="map-node-name">'+escapeHtml(n)+'</div>'+
       '</div>';
     }).join('')+
   '</div>'+
-  '<div style="font-size:12px;color:#9ca3af;text-align:center;padding:12px;border-top:1px solid #f0f0f0;margin-top:8px">已完成6/15 · 当前进度40%</div>';
+  '<div style="font-size:12px;color:#9ca3af;text-align:center;padding:12px;border-top:1px solid #f0f0f0;margin-top:8px">已完成'+completedCount+'/'+nodes.length+' · 当前进度'+progress+'%</div>';
 }
-function initMobile(){}
+function initMobile(){initInteractiveGraph();}
 function openMicroCourse(name){
   openModal('微课 · '+name,
     '<div class="micro-tabs" id="microTabs">'+
@@ -862,7 +1368,6 @@ function submitDiscuss(){
 // ============ MODULE 4: LEARNING TASKS ============
 function renderTasks(){
   return '<div class="page-title">学习任务</div>'+
-    '<div class="page-desc">查看学习任务列表，进入任务查看基本信息、达标情况和解锁情况</div>'+
     '<div class="card">'+
       cardHeader('学习路径',
         '<div class="toggle-group"><button class="toggle-btn active" onclick="setTaskMode(this,\'list\')">列表模式</button><button class="toggle-btn" onclick="setTaskMode(this,\'map\')">地图模式</button></div>'
@@ -1105,7 +1610,6 @@ function completeTaskPoint(taskId,pointName){
 // ============ MODULE 2: AI RESEARCH ============
 function renderResearch(){
   return '<div class="page-title">AI科研助手</div>'+
-    '<div class="page-desc">以自然语言描述研究需求，由大模型自动生成分析计划并执行，支持文献分析与报告生成</div>'+
     '<div class="card">'+
       cardHeader('研究需求输入','<button class="btn btn-sm" onclick="loadTemplate()">选择模板</button>')+
       '<textarea class="research-input" id="researchInput" placeholder="请用自然语言描述您的研究需求，例如：分析近年来深度学习在医学影像领域的应用进展，对比不同模型的优势与不足..."></textarea>'+
@@ -1691,8 +2195,15 @@ function downloadReport(format){
 
 // ============ MODULE 3: LEARNING ANALYSIS ============
 function renderAnalysis(){
+  var cid=ANALYSIS_STATE.selectedCourse;
+  var course=COURSES.find(function(c){return c.id===cid})||COURSES[0];
   return '<div class="page-title">AI学情分析</div>'+
-    '<div class="page-desc">针对课程学生学习展开数据统计分析，支持AI智能体问答与个性化评价</div>'+
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">'+
+      '<span style="font-size:13px;color:#6b7280">当前课程：</span>'+
+      '<select class="form-select" style="width:auto" onchange="onCourseChange(this.value)" id="analysisCourseSelect">'+
+        COURSES.map(function(c){return '<option value="'+c.id+'"'+(c.id===cid?' selected':'')+'>'+c.name+'（'+c.teacher+' · '+(COURSE_STUDENTS[c.id]||STUDENTS).length+'人）</option>'}).join('')+
+      '</select>'+
+    '</div>'+
     '<div class="tab-bar">'+
       '<div class="tab-item active" onclick="setAnalysisTab(this,\'overview\')">班级总览</div>'+
       '<div class="tab-item" onclick="setAnalysisTab(this,\'assignment\')">作业/考试分析</div>'+
@@ -1700,6 +2211,15 @@ function renderAnalysis(){
       '<div class="tab-item" onclick="setAnalysisTab(this,\'qa\')">AI学情问答</div>'+
     '</div>'+
     '<div id="analysisContent">'+renderAnalysisOverview()+'</div>';
+}
+function onCourseChange(cid){
+  ANALYSIS_STATE.selectedCourse=cid;
+  ANALYSIS_STATE.selectedAssignment=COURSE_ASSIGNMENTS[cid][0].id;
+  ANALYSIS_STATE.selectedStudentIdx=0;
+  document.getElementById('analysisContent').innerHTML=renderAnalysisOverview();
+  document.querySelectorAll('.tab-bar .tab-item').forEach(function(t){t.classList.remove('active')});
+  document.querySelector('.tab-bar .tab-item').classList.add('active');
+  showToast('已切换至：'+(COURSES.find(function(c){return c.id===cid})||COURSES[0]).name);
 }
 function setAnalysisTab(btn,tab){
   document.querySelectorAll('.tab-bar .tab-item').forEach(function(t){t.classList.remove('active')});
@@ -1709,12 +2229,13 @@ function setAnalysisTab(btn,tab){
   if(tab==='qa')initAnalysisQA();
 }
 function renderAnalysisOverview(){
-  var avgScore=Math.round(STUDENTS.reduce(function(s,st){return s+st.score},0)/STUDENTS.length);
-  var avgVideo=Math.round(STUDENTS.reduce(function(s,st){return s+st.videoRate},0)/STUDENTS.length);
-  var avgHw=Math.round(STUDENTS.reduce(function(s,st){return s+st.homeworkRate},0)/STUDENTS.length);
-  var avgExam=Math.round(STUDENTS.reduce(function(s,st){return s+st.examRate},0)/STUDENTS.length);
-  var avgPart=Math.round(STUDENTS.reduce(function(s,st){return s+st.participation},0)/STUDENTS.length);
-  var avgKnow=Math.round(STUDENTS.reduce(function(s,st){return s+st.knowledge},0)/STUDENTS.length);
+  var students=COURSE_STUDENTS[ANALYSIS_STATE.selectedCourse]||STUDENTS;
+  var avgScore=Math.round(students.reduce(function(s,st){return s+st.score},0)/students.length);
+  var avgVideo=Math.round(students.reduce(function(s,st){return s+st.videoRate},0)/students.length);
+  var avgHw=Math.round(students.reduce(function(s,st){return s+st.homeworkRate},0)/students.length);
+  var avgExam=Math.round(students.reduce(function(s,st){return s+st.examRate},0)/students.length);
+  var avgPart=Math.round(students.reduce(function(s,st){return s+st.participation},0)/students.length);
+  var avgKnow=Math.round(students.reduce(function(s,st){return s+st.knowledge},0)/students.length);
   return '<div class="stat-grid">'+
       statCard('班级平均分',avgScore,'满分100')+
       statCard('视频完成率',avgVideo+'%','班级平均')+
@@ -1734,7 +2255,7 @@ function renderAnalysisOverview(){
     '<div class="card">'+
       cardHeader('学生成绩分布','<button class="btn btn-sm" onclick="showToast(\'已导出\')">导出</button>')+
       '<table><thead><tr><th>学生</th><th>综合成绩</th><th>视频</th><th>作业</th><th>考试</th><th>参与</th><th>知识</th><th>等级</th><th>操作</th></tr></thead><tbody>'+
-        STUDENTS.map(function(s){
+        students.map(function(s){
           return '<tr><td>'+s.name+'</td><td><strong>'+s.score+'</strong></td><td>'+s.videoRate+'%</td><td>'+s.homeworkRate+'%</td><td>'+s.examRate+'%</td><td>'+s.participation+'%</td><td>'+s.knowledge+'%</td><td>'+levelTag(s.level)+'</td><td><button class="btn btn-sm" onclick="viewStudent(\''+s.id+'\')">详情</button></td></tr>';
         }).join('')+
       '</tbody></table>'+
@@ -1742,7 +2263,7 @@ function renderAnalysisOverview(){
     '<div class="card">'+
       cardHeader('关注学生提醒','<button class="btn btn-sm btn-primary" onclick="remindStudents()">一键提醒</button>')+
       '<div style="font-size:13px;color:#6b7280;margin-bottom:12px">以下学生学习表现较差，建议及时提醒</div>'+
-      STUDENTS.filter(function(s){return s.level==='待提升'}).map(function(s){
+      students.filter(function(s){return s.level==='待提升'}).map(function(s){
         return '<div class="list-item"><div class="list-item-icon" style="background:#fef2f2">'+s.name.charAt(0)+'</div><div class="list-item-body"><div class="list-item-title">'+s.name+'</div><div class="list-item-desc">综合成绩：'+s.score+' · 视频完成：'+s.videoRate+'%</div></div><span class="tag tag-danger">待提升</span></div>';
       }).join('')+
     '</div>';
@@ -1758,11 +2279,12 @@ function levelTag(level){
   return '<span class="tag '+(map[level]||'tag-default')+'">'+level+'</span>';
 }
 function renderAnalysisAssignment(){
+  var assignments=COURSE_ASSIGNMENTS[ANALYSIS_STATE.selectedCourse]||ANALYSIS_ASSIGNMENTS;
   var aid=ANALYSIS_STATE.selectedAssignment;
-  var a=ANALYSIS_ASSIGNMENTS.find(function(x){return x.id===aid})||ANALYSIS_ASSIGNMENTS[0];
+  var a=assignments.find(function(x){return x.id===aid})||assignments[0];
   return '<div class="card">'+
     cardHeader('作业/考试选择','<select class="form-select" style="width:auto" onchange="onAssignmentChange(this.value)">'+
-      ANALYSIS_ASSIGNMENTS.map(function(x){return '<option value="'+x.id+'"'+(x.id===aid?' selected':'')+'>'+x.name+'</option>'}).join('')+
+      assignments.map(function(x){return '<option value="'+x.id+'"'+(x.id===aid?' selected':'')+'>'+x.name+'</option>'}).join('')+
     '</select>')+
     '<div style="font-size:13px;color:#6b7280;margin-bottom:16px">分析单份作业/考试中题目作答情况 · 当前：'+a.name+'</div>'+
     '<div class="stat-grid">'+
@@ -1798,7 +2320,8 @@ function getAssignmentConclusion(a){
   return '本次作业整体表现优秀，所有题目正确率均在60%以上，班级平均分'+a.avgScore+'分。可以适度提升难度，引导学生进行拓展学习。';
 }
 function viewQuestionAnalysis(aid,qno){
-  var a=ANALYSIS_ASSIGNMENTS.find(function(x){return x.id===aid});
+  var assignments=COURSE_ASSIGNMENTS[ANALYSIS_STATE.selectedCourse]||ANALYSIS_ASSIGNMENTS;
+  var a=assignments.find(function(x){return x.id===aid});
   if(!a)return;
   var q=a.questions.find(function(x){return x.no===qno});
   if(!q)return;
@@ -1833,9 +2356,10 @@ function getQuestionSuggestion(q){
   return '本题正确率偏低，建议：①安排专题讲解时间（建议20分钟以上）；②设计3-5道同类型课后练习题；③对答错学生进行个别辅导或小组讨论。';
 }
 function renderAnalysisPortrait(){
+  var students=COURSE_STUDENTS[ANALYSIS_STATE.selectedCourse]||STUDENTS;
   var idx=ANALYSIS_STATE.selectedStudentIdx;
-  var s=STUDENTS[idx];
-  if(!s)s=STUDENTS[0];
+  var s=students[idx];
+  if(!s)s=students[0];
   var strengths=[];
   var weaknesses=[];
   if(s.videoRate>=85)strengths.push('视频观看积极（完成率'+s.videoRate+'%）');
@@ -1853,7 +2377,7 @@ function renderAnalysisPortrait(){
   var rankInfo=getStudentRank(s);
   return '<div class="card">'+
     cardHeader('学生画像分析','<select class="form-select" style="width:auto" onchange="onStudentChange(this.value)">'+
-      STUDENTS.map(function(st,i){return '<option value="'+i+'"'+(i===idx?' selected':'')+'>'+st.name+'</option>'}).join('')+
+      students.map(function(st,i){return '<option value="'+i+'"'+(i===idx?' selected':'')+'>'+st.name+'</option>'}).join('')+
     '</select>')+
     '<div style="display:grid;grid-template-columns:200px 1fr;gap:20px">'+
       '<div style="text-align:center">'+
@@ -1901,7 +2425,8 @@ function onStudentChange(idx){
   document.getElementById('analysisContent').innerHTML=renderAnalysisPortrait();
 }
 function getStudentRank(s){
-  var sorted=STUDENTS.slice().sort(function(a,b){return b.score-a.score});
+  var students=COURSE_STUDENTS[ANALYSIS_STATE.selectedCourse]||STUDENTS;
+  var sorted=students.slice().sort(function(a,b){return b.score-a.score});
   var rank=sorted.indexOf(s)+1;
   var improved=s.level==='优秀'?true:s.level==='待提升'?false:Math.random()>0.5;
   return {rank:rank,total:sorted.length,improved:improved};
@@ -2090,7 +2615,6 @@ function addPushRule(){
 // ============ MODULE 5: SECURITY ============
 function renderSecurity(){
   return '<div class="page-title">资源安全检测</div>'+
-    '<div class="page-desc">对课程资源进行智能安全检测，支持关键词配置、多维度审核与文本纠错</div>'+
     '<div class="tab-bar">'+
       '<div class="tab-item active" onclick="setSecurityTab(this,\'config\')">检测配置</div>'+
       '<div class="tab-item" onclick="setSecurityTab(this,\'review\')">资源审核</div>'+
