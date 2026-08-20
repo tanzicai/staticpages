@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>智慧教学平台</title>
+    <!-- ECharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js">
+    </script>
+    <!-- Font Awesome 6 (免费) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* ========== SoybeanAdmin 风格重置 & 全局 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        :root {
+            --primary: #4F6EF7;
+            --primary-light: #7B93FA;
+            --primary-bg: #F0F4FF;
+            --sidebar-width: 240px;
+            --header-height: 60px;
+            --bg-body: #F6F8FC;
+            --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+            --text-main: #1E293B;
+            --text-secondary: #64748B;
+            --border-color: #E9EDF4;
+            --tag-blue: #EFF6FF;
+            --tag-green: #ECFDF5;
+            --tag-orange: #FFFBEB;
+            --tag-red: #FEF2F2;
+        }
+        body {
+            background: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        button {
+            cursor: pointer;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 14px;
+        }
+        input,
+        select,
+        textarea {
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            background: #fff;
+            outline: none;
+            transition: 0.2s;
+        }
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.15);
+        }
+        textarea {
+            resize: vertical;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            text-align: left;
+            padding: 12px 12px;
+            background: #F8FAFC;
+            color: var(--text-secondary);
+            font-weight: 500;
+            border-bottom: 1px solid var(--border-color);
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-blue {
+            background: var(--tag-blue);
+            color: #2563EB;
+        }
+        .badge-green {
+            background: var(--tag-green);
+            color: #059669;
+        }
+        .badge-orange {
+            background: var(--tag-orange);
+            color: #D97706;
+        }
+        .badge-red {
+            background: var(--tag-red);
+            color: #DC2626;
+        }
+
+        /* ===== 布局 ===== */
+        #app {
+            display: flex;
+            height: 100vh;
+        }
+        /* 侧边栏 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #fff;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: 0.3s;
+            z-index: 100;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+        .sidebar .logo {
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sidebar .logo i {
+            margin-right: 10px;
+        }
+        .sidebar .menu {
+            padding: 16px 12px;
+            flex: 1;
+        }
+        .sidebar .menu .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            border-radius: 10px;
+            margin-bottom: 4px;
+            color: var(--text-secondary);
+            transition: 0.2s;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .sidebar .menu .menu-item i {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+        .sidebar .menu .menu-item:hover {
+            background: var(--primary-bg);
+            color: var(--primary);
+        }
+        .sidebar .menu .menu-item.active {
+            background: var(--primary);
+            color: #fff;
+        }
+        .sidebar .menu .menu-group {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 16px 16px 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        /* 主内容 */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .header {
+            height: var(--header-height);
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            flex-shrink: 0;
+        }
+        .header .user {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .header .user .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        .header .user .logout-btn {
+            color: var(--text-secondary);
+            font-size: 14px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            background: #F1F4F9;
+            transition: 0.2s;
+        }
+        .header .user .logout-btn:hover {
+            background: #E2E8F0;
+        }
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px 40px;
+        }
+        /* 页面容器 */
+        .page {
+            display: none;
+            animation: fadeIn 0.25s ease;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== 登录页 ===== */
+        #page-login {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #EEF2FF 0%, #F8FAFC 100%);
+        }
+        #page-login .login-box {
+            background: #fff;
+            padding: 48px 40px;
+            border-radius: 24px;
+            width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+        }
+        #page-login .login-box h1 {
+            font-size: 28px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        #page-login .login-box .sub {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+        #page-login .login-box .form-group {
+            margin-bottom: 20px;
+        }
+        #page-login .login-box .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+        #page-login .login-box .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+        }
+        #page-login .login-box .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+        #page-login .login-box .login-btn:hover {
+            background: #3B56D9;
+        }
+        #page-login .login-box .error-msg {
+            color: #DC2626;
+            font-size: 14px;
+            margin-top: 12px;
+            text-align: center;
+        }
+        #page-login .login-box .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        /* 登录页隐藏主布局 */
+        #page-login .main {
+            display: none;
+        }
+        #page-login .sidebar {
+            display: none;
+        }
+        #app.login-mode {
+            display: block;
+        }
+        #app.login-mode .main {
+            display: none;
+        }
+        #app.login-mode .sidebar {
+            display: none;
+        }
+
+        /* ===== 通用组件 ===== */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .page-header h2 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .page-header .breadcrumb {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .page-header .breadcrumb span {
+            cursor: pointer;
+        }
+        .page-header .breadcrumb span:hover {
+            color: var(--primary);
+        }
+
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #fff;
+            padding: 16px 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .filter-bar input,
+        .filter-bar select {
+            min-width: 160px;
+        }
+        .filter-bar .btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .filter-bar .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .filter-bar .btn-primary:hover {
+            background: #3B56D9;
+        }
+        .filter-bar .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+        }
+        .filter-bar .btn-outline:hover {
+            background: #F1F4F9;
+        }
+
+        .card-table {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
+            padding: 16px 20px 8px;
+            overflow-x: auto;
+        }
+        .card-table .toolbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .card-table .toolbar .left {
+            display: flex;
+            gap: 8px;
+        }
+        .card-table .toolbar .btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .card-table .toolbar .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .card-table .toolbar .btn-primary:hover {
+            background: #3B56D9;
+        }
+        .card-table .toolbar .btn-danger {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+        .card-table .toolbar .btn-danger:hover {
+            background: #FECACA;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 0 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .pagination select {
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        .pagination .page-num {
+            display: flex;
+            gap: 4px;
+        }
+        .pagination .page-num button {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: transparent;
+            font-weight: 500;
+        }
+        .pagination .page-num button.active {
+            background: var(--primary);
+            color: #fff;
+        }
+        .pagination .page-num button:hover:not(.active) {
+            background: #F1F4F9;
+        }
+
+        /* 详情页 */
+        .detail-container {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
+            padding: 24px 28px;
+            margin-bottom: 20px;
+        }
+        .detail-container .detail-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        .detail-container .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-container .detail-label {
+            width: 140px;
+            flex-shrink: 0;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .detail-container .detail-value {
+            flex: 1;
+        }
+        .detail-container .detail-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+        .detail-container .detail-actions .btn {
+            padding: 8px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .detail-container .detail-actions .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .detail-container .detail-actions .btn-outline {
+            border: 1px solid var(--border-color);
+        }
+        .detail-container .detail-actions .btn-outline:hover {
+            background: #F1F4F9;
+        }
+
+        /* 参数配置弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: #fff;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 28px 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-box h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .modal-box .form-group {
+            margin-bottom: 18px;
+        }
+        .modal-box .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--text-secondary);
+        }
+        .modal-box .form-group input,
+        .modal-box .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+        }
+        .modal-box .form-group .hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .modal-box .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        .modal-box .modal-actions .btn {
+            padding: 8px 28px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .modal-box .modal-actions .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .modal-box .modal-actions .btn-outline {
+            border: 1px solid var(--border-color);
+        }
+
+        /* 关联数据 */
+        .rel-table {
+            margin-top: 20px;
+        }
+        .rel-table h4 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* 首页统计卡片 */
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
+            padding: 20px 24px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+        }
+        .stat-card .num {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .stat-card .label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .stat-card .icon {
+            float: right;
+            font-size: 32px;
+            opacity: 0.2;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .chart-box {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
+            padding: 16px;
+            height: 300px;
+        }
+        .chart-box h4 {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+        .chart-box .chart-container {
+            width: 100%;
+            height: calc(100% - 30px);
+        }
+
+        .quick-entry {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .quick-entry .entry-item {
+            background: var(--primary-bg);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            color: var(--primary);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .quick-entry .entry-item:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 64px;
+            }
+            .sidebar .logo span {
+                display: none;
+            }
+            .sidebar .menu .menu-item span {
+                display: none;
+            }
+            .sidebar .menu .menu-item i {
+                margin-right: 0;
+            }
+            .sidebar .menu .menu-group {
+                display: none;
+            }
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+        /* 图片批注占位 */
+        .annotation-area {
+            background: #F8FAFC;
+            border: 2px dashed #D1D9E6;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            color: var(--text-secondary);
+            min-height: 200px;
+            position: relative;
+        }
+        .annotation-area .mock-img {
+            max-width: 100%;
+            max-height: 180px;
+            background: #E9EDF4;
+            border-radius: 8px;
+            display: inline-block;
+            padding: 30px 60px;
+            font-size: 40px;
+        }
+        .annotation-tools {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .annotation-tools .btn {
+            padding: 4px 16px;
+            border-radius: 6px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+        .annotation-tools .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="login-mode">
+        <!-- ========== 登录页 ========== -->
+        <div id="page-login" class="page active">
+            <div class="login-box">
+                <h1><i class="fas fa-graduation-cap" style="color:#4F6EF7;"></i> 智慧教学</h1>
+                <div class="sub">统一身份认证平台</div>
+                <div class="form-group">
+                    <label>账号</label>
+                    <input type="text" id="login-username" value="admin" />
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="login-password" value="123456" />
+                </div>
+                <button class="login-btn" id="login-btn">登 录</button>
+                <div id="login-error" class="error-msg"></div>
+                <div class="footer">© 2026 智慧教学平台 v3.0</div>
+            </div>
+        </div>
+
+        <!-- ========== 主布局 ========== -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>智慧教学</span>
+            </div>
+            <div class="menu" id="menu-container">
+                <!-- 由JS动态生成 -->
+            </div>
+        </div>
+        <div class="main">
+            <div class="header">
+                <div style="font-size:16px;font-weight:500;">工作台</div>
+                <div class="user">
+                    <span id="header-username">admin</span>
+                    <div class="avatar">A</div>
+                    <button class="logout-btn" id="logout-btn"><i class="fas fa-sign-out-alt"></i> 退出</button>
+                </div>
+            </div>
+            <div class="content" id="content-area">
+                <!-- 所有页面由JS渲染 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 全局模态框 ========== -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-box" id="modal-box">
+            <h3 id="modal-title">标题</h3>
+            <div id="modal-body"></div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="modal-cancel">取消</button>
+                <button class="btn btn-primary" id="modal-confirm">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  数据层
+        // ================================================================
+        const STORAGE_KEY = 'teach_platform_data';
+        let DB = {};
+
+        // 默认数据生成
+        function getDefaultDB() {
+            const now = Date.now();
+            const genId = () => Math.random().toString(36).substr(2, 8);
+
+            // 素材库
+            const materials = [];
+            for (let i = 1; i <= 25; i++) {
+                materials.push({
+                    id: 'mat_' + genId(),
+                    name: `教学资源_${i}`,
+                    type: ['视频', '文档', '音频', '图书'][i % 4],
+                    size: (2 + Math.random() * 3).toFixed(2) + 'GB',
+                    uploadTime: new Date(now - i * 86400000 * 3).toLocaleDateString(),
+                    status: ['已完成', '处理中', '已完成', '已完成'][i % 4],
+                    desc: `第${i}批教学素材，用于课程建设`
+                });
+            }
+            // 教师团队
+            const teams = [];
+            for (let i = 1; i <= 18; i++) {
+                teams.push({
+                    id: 'team_' + genId(),
+                    name: `教学团队_${i}`,
+                    leader: `张${i}${i%2?'老师':'教授'}`,
+                    members: Math.floor(3 + Math.random() * 8),
+                    classCount: Math.floor(1 + Math.random() * 5),
+                    status: ['活跃', '停用', '活跃', '活跃'][i % 4],
+                    desc: `负责${['数学','语文','英语','物理','化学'][i%5]}课程建设`
+                });
+            }
+            // 智能批阅 (作业)
+            const smartMarks = [];
+            for (let i = 1; i <= 20; i++) {
+                smartMarks.push({
+                    id: 'sm_' + genId(),
+                    title: `主观题作业_${i}`,
+                    student: `学生${String.fromCharCode(65 + i % 26)}`,
+                    submitTime: new Date(now - i * 3600000 * 2).toLocaleString(),
+                    similarity: (60 + Math.random() * 35).toFixed(1) + '%',
+                    score: Math.floor(40 + Math.random() * 60),
+                    status: ['待批阅', '已批阅', '待批阅', '已批阅'][i % 4],
+                    answer: '这是学生上传的答案内容...'
+                });
+            }
+            // 在线阅卷 (试卷)
+            const onlineMarks = [];
+            for (let i = 1; i <= 22; i++) {
+                onlineMarks.push({
+                    id: 'om_' + genId(),
+                    paperName: `期中考试卷_${i}`,
+                    student: `学生${String.fromCharCode(70 + i % 26)}`,
+                    totalScore: 100,
+                    givenScore: Math.floor(40 + Math.random() * 55),
+                    comment: ['论述清晰，逻辑严谨', '部分要点缺失', '优秀', '需加强基础'][i % 4],
+                    status: ['已阅', '待阅', '已阅', '待阅'][i % 4],
+                    answerImg: true
+                });
+            }
+            // 智能组卷
+            const quizzes = [];
+            for (let i = 1; i <= 16; i++) {
+                quizzes.push({
+                    id: 'qz_' + genId(),
+                    name: `组卷_${i}`,
+                    type: ['知识点组卷', '薄弱点组卷', '综合组卷', '知识点组卷'][i % 4],
+                    questionCount: 10 + i % 20,
+                    difficulty: ['简单', '中等', '困难', '中等'][i % 4],
+                    createTime: new Date(now - i * 86400000 * 2).toLocaleDateString(),
+                    status: ['已发布', '草稿', '已发布', '草稿'][i % 4]
+                });
+            }
+            // 错题本
+            const wrongBooks = [];
+            for (let i = 1; i <= 28; i++) {
+                wrongBooks.push({
+                    id: 'wb_' + genId(),
+                    student: `学生${String.fromCharCode(65 + i % 26)}`,
+                    question: `第${i}题：${['函数求导','牛顿定律','电路分析','化学反应','诗词鉴赏'][i%5]}`,
+                    wrongReason: ['概念模糊', '计算错误', '审题不清', '知识点遗漏'][i % 4],
+                    aiExplain: '本题考察' + ['函数','物理','化学','文学'][i%4] + '核心知识点，需注意...',
+                    videoLink: 'https://example.com/video/' + i,
+                    status: ['已掌握', '未掌握', '已掌握', '未掌握'][i % 4],
+                    addTime: new Date(now - i * 86400000).toLocaleDateString()
+                });
+            }
+            // 教学资源 (教材教参)
+            const resources = [];
+            for (let i = 1; i <= 20; i++) {
+                resources.push({
+                    id: 'res_' + genId(),
+                    title: `教材_${i}`,
+                    type: ['图书', '视频', '学术论文', '图书', '视频'][i % 5],
+                    author: `作者${i}`,
+                    publisher: '高等教育出版社',
+                    year: 2020 + i % 5,
+                    status: ['可在线阅读', '已推荐', '可在线阅读', '已推荐'][i % 4],
+                    pageCount: 200 + i * 10,
+                    readingTime: Math.floor(10 + Math.random() * 40)
+                });
+            }
+            // 课程管理 (含知识点)
+            const courses = [];
+            for (let i = 1; i <= 15; i++) {
+                courses.push({
+                    id: 'crs_' + genId(),
+                    name: `《${['高等数学','大学物理','数据结构','有机化学','文学概论'][i%5]}》`,
+                    teacher: `赵${i}老师`,
+                    semester: '2026春季',
+                    status: ['已建课', '备课中', '已建课', '已建课'][i % 4],
+                    knowledgeCount: 5 + i % 15,
+                    graphStatus: ['已生成', '未生成', '已生成', '已生成'][i % 4],
+                    desc: '基于教材创建，包含视频/音频/文档/测验'
+                });
+            }
+            // 作业中心 (查重+互评)
+            const homeworks = [];
+            for (let i = 1; i <= 18; i++) {
+                homeworks.push({
+                    id: 'hw_' + genId(),
+                    title: `作业_${i}`,
+                    type: ['简答题', '论述题', '简答题', '论述题'][i % 4],
+                    student1: `学生${String.fromCharCode(70 + i % 26)}`,
+                    student2: `学生${String.fromCharCode(80 + i % 26)}`,
+                    similarity: (10 + Math.random() * 60).toFixed(1) + '%',
+                    peerScore: Math.floor(60 + Math.random() * 35),
+                    status: ['待查重', '已查重', '待互评', '已互评'][i % 4],
+                    createTime: new Date(now - i * 86400000).toLocaleDateString()
+                });
+            }
+            // 安全检测
+            const securities = [];
+            for (let i = 1; i <= 14; i++) {
+                securities.push({
+                    id: 'sec_' + genId(),
+                    content: `检测内容_${i}`,
+                    type: ['文本', '图片', '文档', '文本', '图片'][i % 5],
+                    riskLevel: ['低', '中', '高', '低', '低'][i % 5],
+                    sensitiveWords: ['敏感词A', '敏感词B', '无', '敏感词C', '无'][i % 5],
+                    detectTime: new Date(now - i * 3600000 * 3).toLocaleString(),
+                    status: ['安全', '风险', '安全', '风险', '安全'][i % 5]
+                });
+            }
+
+            return {
+                materials,
+                teams,
+                smartMarks,
+                onlineMarks,
+                quizzes,
+                wrongBooks,
+                resources,
+                courses,
+                homeworks,
+                securities,
+                // 参数配置存储
+                params: {
+                    materials: { maxSize: 5, allowTypes: 'mp4,pdf,mp3,doc', storagePath: '/data/materials' },
+                    teams: { defaultRole: '教师', permTemplate: '标准版' },
+                    smartMarks: { threshold: 70, weight: 0.6 },
+                    onlineMarks: { scoreRange: 100, commentTemplate: '通用' },
+                    quizzes: { eachScore: 5, knowledgeWeight: 0.7 },
+                    wrongBooks: { aiExplain: true, recommendCount: 3 },
+                    resources: { defaultReadingTime: 30, searchPrecision: '高' },
+                    courses: { markColor: '#4F6EF7', graphStyle: '力导图' },
+                    homeworks: { checkThreshold: 40, peerOpen: 48 },
+                    securities: { sensitiveLevel: '标准', detectMode: '自动' }
+                }
+            };
+        }
+
+        function loadDB() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                try { DB = JSON.parse(raw); } catch (e) { DB = getDefaultDB(); }
+            } else {
+                DB = getDefaultDB();
+            }
+            // 保证所有key存在
+            const def = getDefaultDB();
+            for (let k in def) {
+                if (!(k in DB)) DB[k] = def[k];
+            }
+            if (!DB.params) DB.params = def.params;
+            for (let k in def.params) {
+                if (!DB.params[k]) DB.params[k] = def.params[k];
+            }
+            saveDB();
+        }
+
+        function saveDB() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+        }
+
+        // ================================================================
+        //  路由 & 菜单
+        // ================================================================
+        const menuConfig = [{
+            id: 'dashboard',
+            label: '工作台',
+            icon: 'fa-chart-pie',
+            group: '概览'
+        }, {
+            id: 'materials',
+            label: '素材库',
+            icon: 'fa-folder-open',
+            group: '资源'
+        }, {
+            id: 'teams',
+            label: '教师团队',
+            icon: 'fa-users',
+            group: '管理'
+        }, {
+            id: 'smartMarks',
+            label: '智能批阅',
+            icon: 'fa-robot',
+            group: '教学'
+        }, {
+            id: 'onlineMarks',
+            label: '在线阅卷',
+            icon: 'fa-pen-fancy',
+            group: '教学'
+        }, {
+            id: 'quizzes',
+            label: '智能组卷',
+            icon: 'fa-file-alt',
+            group: '教学'
+        }, {
+            id: 'wrongBooks',
+            label: '错题本',
+            icon: 'fa-book-open',
+            group: '学情'
+        }, {
+            id: 'resources',
+            label: '教学资源',
+            icon: 'fa-book',
+            group: '资源'
+        }, {
+            id: 'courses',
+            label: '课程管理',
+            icon: 'fa-chalkboard-teacher',
+            group: '资源'
+        }, {
+            id: 'homeworks',
+            label: '作业中心',
+            icon: 'fa-tasks',
+            group: '教学'
+        }, {
+            id: 'securities',
+            label: '安全检测',
+            icon: 'fa-shield-alt',
+            group: '管理'
+        }];
+
+        let currentPage = 'dashboard';
+        let currentDetailId = null;
+        let currentModule = null;
+
+        function renderMenu() {
+            const container = document.getElementById('menu-container');
+            let html = '';
+            let lastGroup = '';
+            for (const item of menuConfig) {
+                if (item.group !== lastGroup) {
+                    if (lastGroup) html += '</div>';
+                    html += `<div class="menu-group">${item.group}</div>`;
+                    lastGroup = item.group;
+                }
+                html += `<div class="menu-item" data-page="${item.id}">
+                    <i class="fas ${item.icon}"></i>
+                    <span>${item.label}</span>
+                </div>`;
+            }
+            container.innerHTML = html;
+            // 点击菜单
+            container.querySelectorAll('.menu-item').forEach(el => {
+                el.addEventListener('click', function() {
+                    const page = this.dataset.page;
+                    navigateTo(page);
+                });
+            });
+            highlightMenu(currentPage);
+        }
+
+        function highlightMenu(page) {
+            document.querySelectorAll('.menu-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.page === page);
+            });
+            // 更新顶栏标题
+            const found = menuConfig.find(m => m.id === page);
+            if (found) {
+                document.querySelector('.header > div:first-child').textContent = found.label;
+            }
+        }
+
+        function navigateTo(page, params) {
+            currentPage = page;
+            highlightMenu(page);
+            if (page === 'dashboard') {
+                renderDashboard();
+            } else {
+                const mod = menuConfig.find(m => m.id === page);
+                if (mod) {
+                    currentModule = mod.id;
+                    renderListPage(mod.id);
+                }
+            }
+            // 关闭所有模态框
+            closeModal();
+            window.scrollTo(0, 0);
+        }
+
+        // ================================================================
+        //  渲染引擎
+        // ================================================================
+        function getData(module) {
+            return DB[module] || [];
+        }
+
+        function setData(module, data) {
+            DB[module] = data;
+            saveDB();
+        }
+
+        function getModuleLabel(module) {
+            const found = menuConfig.find(m => m.id === module);
+            return found ? found.label : module;
+        }
+
+        function renderListPage(module) {
+            const area = document.getElementById('content-area');
+            const data = getData(module);
+            const label = getModuleLabel(module);
+            // 动态生成列（根据模块不同）
+            const columns = getColumns(module);
+
+            let html = `
+                <div class="page active" id="page-${module}">
+                    <div class="page-header">
+                        <h2>${label}</h2>
+                        <div class="breadcrumb"><span onclick="navigateTo('dashboard')">首页</span> / ${label}</div>
+                    </div>
+                    <div class="filter-bar" id="filter-${module}">
+                        <input type="text" placeholder="搜索名称/关键词..." id="search-${module}" />
+                        <select id="status-${module}">
+                            <option value="">全部状态</option>
+                            ${getStatusOptions(module)}
+                        </select>
+                        <button class="btn btn-primary" onclick="doSearch('${module}')">搜索</button>
+                        <button class="btn btn-outline" onclick="resetSearch('${module}')">重置</button>
+                        <span style="flex:1;"></span>
+                        <button class="btn btn-primary" onclick="openAddModal('${module}')"><i class="fas fa-plus"></i> 新增</button>
+                    </div>
+                    <div class="card-table">
+                        <div class="toolbar">
+                            <div class="left">
+                                <span style="color:var(--text-secondary);font-size:14px;">共 ${data.length} 条记录</span>
+                            </div>
+                            <div>
+                                <button class="btn btn-danger" onclick="batchDelete('${module}')"><i class="fas fa-trash"></i> 批量删除</button>
+                            </div>
+                        </div>
+                        <table>
+                            <thead><tr>${columns.map(c => `<th>${c.label}</th>`).join('')}<th style="width:160px;">操作</th></tr></thead>
+                            <tbody id="table-body-${module}">
+                                ${renderTableRows(module, data)}
+                            </tbody>
+                        </table>
+                        <div class="pagination" id="pagination-${module}">
+                            ${renderPagination(module, data.length)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            area.innerHTML = html;
+            // 绑定搜索事件
+            document.getElementById(`search-${module}`).addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') doSearch(module);
+            });
+            // 分页事件
+            attachPaginationEvents(module);
+        }
+
+        function getColumns(module) {
+            const map = {
+                materials: [
+                    { key: 'name', label: '名称' },
+                    { key: 'type', label: '类型' },
+                    { key: 'size', label: '大小' },
+                    { key: 'uploadTime', label: '上传时间' },
+                    { key: 'status', label: '状态' }
+                ],
+                teams: [
+                    { key: 'name', label: '团队名称' },
+                    { key: 'leader', label: '负责人' },
+                    { key: 'members', label: '成员数' },
+                    { key: 'classCount', label: '管理班级' },
+                    { key: 'status', label: '状态' }
+                ],
+                smartMarks: [
+                    { key: 'title', label: '作业标题' },
+                    { key: 'student', label: '学生' },
+                    { key: 'submitTime', label: '提交时间' },
+                    { key: 'similarity', label: '相似度' },
+                    { key: 'status', label: '状态' }
+                ],
+                onlineMarks: [
+                    { key: 'paperName', label: '试卷名称' },
+                    { key: 'student', label: '学生' },
+                    { key: 'totalScore', label: '总分' },
+                    { key: 'givenScore', label: '得分' },
+                    { key: 'status', label: '状态' }
+                ],
+                quizzes: [
+                    { key: 'name', label: '组卷名称' },
+                    { key: 'type', label: '组卷方式' },
+                    { key: 'questionCount', label: '题量' },
+                    { key: 'difficulty', label: '难度' },
+                    { key: 'status', label: '状态' }
+                ],
+                wrongBooks: [
+                    { key: 'student', label: '学生' },
+                    { key: 'question', label: '题目' },
+                    { key: 'wrongReason', label: '错因' },
+                    { key: 'status', label: '掌握状态' },
+                    { key: 'addTime', label: '添加时间' }
+                ],
+                resources: [
+                    { key: 'title', label: '资源名称' },
+                    { key: 'type', label: '类型' },
+                    { key: 'author', label: '作者' },
+                    { key: 'year', label: '年份' },
+                    { key: 'status', label: '状态' }
+                ],
+                courses: [
+                    { key: 'name', label: '课程名称' },
+                    { key: 'teacher', label: '教师' },
+                    { key: 'semester', label: '学期' },
+                    { key: 'knowledgeCount', label: '知识点数' },
+                    { key: 'status', label: '状态' }
+                ],
+                homeworks: [
+                    { key: 'title', label: '作业标题' },
+                    { key: 'type', label: '题型' },
+                    { key: 'similarity', label: '查重率' },
+                    { key: 'peerScore', label: '互评得分' },
+                    { key: 'status', label: '状态' }
+                ],
+                securities: [
+                    { key: 'content', label: '检测内容' },
+                    { key: 'type', label: '类型' },
+                    { key: 'riskLevel', label: '风险等级' },
+                    { key: 'sensitiveWords', label: '命中敏感词' },
+                    { key: 'status', label: '结果' }
+                ]
+            };
+            return map[module] || [{ key: 'name', label: '名称' }, { key: 'status', label: '状态' }];
+        }
+
+        function getStatusOptions(module) {
+            const map = {
+                materials: ['已完成', '处理中'],
+                teams: ['活跃', '停用'],
+                smartMarks: ['待批阅', '已批阅'],
+                onlineMarks: ['已阅', '待阅'],
+                quizzes: ['已发布', '草稿'],
+                wrongBooks: ['已掌握', '未掌握'],
+                resources: ['可在线阅读', '已推荐'],
+                courses: ['已建课', '备课中'],
+                homeworks: ['待查重', '已查重', '待互评', '已互评'],
+                securities: ['安全', '风险']
+            };
+            const opts = map[module] || [];
+            return opts.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
+
+        function renderTableRows(module, data, page = 1, limit = 10) {
+            const start = (page - 1) * limit;
+            const end = start + limit;
+            const slice = data.slice(start, end);
+            const columns = getColumns(module);
+            if (slice.length === 0) {
+                return `<tr><td colspan="${columns.length+1}" style="text-align:center;color:#94A3B8;padding:40px;">暂无数据</td></tr>`;
+            }
+            return slice.map(item => {
+                const cells = columns.map(c => {
+                    let val = item[c.key] ?? '-';
+                    if (c.key === 'status') {
+                        const cls = {
+                            '已完成': 'badge-green',
+                            '处理中': 'badge-orange',
+                            '活跃': 'badge-green',
+                            '停用': 'badge-red',
+                            '待批阅': 'badge-orange',
+                            '已批阅': 'badge-green',
+                            '已阅': 'badge-green',
+                            '待阅': 'badge-orange',
+                            '已发布': 'badge-green',
+                            '草稿': 'badge-orange',
+                            '已掌握': 'badge-green',
+                            '未掌握': 'badge-red',
+                            '可在线阅读': 'badge-blue',
+                            '已推荐': 'badge-green',
+                            '已建课': 'badge-green',
+                            '备课中': 'badge-orange',
+                            '待查重': 'badge-orange',
+                            '已查重': 'badge-blue',
+                            '待互评': 'badge-orange',
+                            '已互评': 'badge-green',
+                            '安全': 'badge-green',
+                            '风险': 'badge-red'
+                        };
+                        return `<span class="badge ${cls[val] || 'badge-blue'}">${val}</span>`;
+                    }
+                    return val;
+                }).join('');
+                return `<tr>
+                    <td><input type="checkbox" class="row-checkbox" data-id="${item.id}" /></td>
+                    ${cells}
+                    <td>
+                        <button class="btn btn-primary" style="padding:2px 12px;font-size:13px;" onclick="viewDetail('${module}','${item.id}')">查看</button>
+                        <button class="btn btn-outline" style="padding:2px 12px;font-size:13px;" onclick="openEditModal('${module}','${item.id}')">编辑</button>
+                        <button class="btn btn-danger" style="padding:2px 12px;font-size:13px;color:#DC2626;" onclick="deleteItem('${module}','${item.id}')">删除</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderPagination(module, total) {
+            const page = getPage(module);
+            const limit = getLimit(module);
+            const totalPages = Math.ceil(total / limit) || 1;
+            let html =
+                `<span>共 ${total} 条</span>
+                <select onchange="changeLimit('${module}',this.value)">
+                    <option value="10" ${limit===10?'selected':''}>10条/页</option>
+                    <option value="20" ${limit===20?'selected':''}>20条/页</option>
+                </select>
+                <div class="page-num">`;
+            for (let i = 1; i <= Math.min(totalPages, 10); i++) {
+                html += `<button class="${i===page?'active':''}" onclick="goPage('${module}',${i})">${i}</button>`;
+            }
+            if (totalPages > 10) html += `<span>...</span>`;
+            html += `</div>`;
+            return html;
+        }
+
+        // 分页状态存储
+        const pageState = {};
+
+        function getPage(module) { return pageState[module]?.page || 1; }
+
+        function getLimit(module) { return pageState[module]?.limit || 10; }
+
+        function goPage(module, p) {
+            if (!pageState[module]) pageState[module] = { page: 1, limit: 10 };
+            pageState[module].page = p;
+            refreshTable(module);
+        }
+
+        function changeLimit(module, val) {
+            if (!pageState[module]) pageState[module] = { page: 1, limit: 10 };
+            pageState[module].limit = parseInt(val);
+            pageState[module].page = 1;
+            refreshTable(module);
+        }
+
+        function attachPaginationEvents(module) {
+            // 已内联
+        }
+
+        function refreshTable(module) {
+            const data = getData(module);
+            const p = getPage(module);
+            const l = getLimit(module);
+            const tbody = document.getElementById(`table-body-${module}`);
+            if (tbody) tbody.innerHTML = renderTableRows(module, data, p, l);
+            const pag = document.getElementById(`pagination-${module}`);
+            if (pag) pag.innerHTML = renderPagination(module, data.length);
+            // 更新总数显示
+            const toolbar = document.querySelector(`#page-${module} .toolbar .left span`);
+            if (toolbar) toolbar.textContent = `共 ${data.length} 条记录`;
+            // 重新绑定分页事件
+            attachPaginationEvents(module);
+        }
+
+        function doSearch(module) {
+            const keyword = document.getElementById(`search-${module}`)?.value?.trim() || '';
+            const status = document.getElementById(`status-${module}`)?.value || '';
+            let data = getData(module);
+            if (keyword) {
+                const cols = getColumns(module);
+                data = data.filter(item => {
+                    return cols.some(c => {
+                        const v = String(item[c.key] || '');
+                        return v.includes(keyword);
+                    });
+                });
+            }
+            if (status) {
+                data = data.filter(item => item.status === status);
+            }
+            // 暂存过滤结果
+            if (!pageState[module]) pageState[module] = { page: 1, limit: 10 };
+            pageState[module].page = 1;
+            pageState[module].filteredData = data;
+            const tbody = document.getElementById(`table-body-${module}`);
+            if (tbody) tbody.innerHTML = renderTableRows(module, data, 1, getLimit(module));
+            const pag = document.getElementById(`pagination-${module}`);
+            if (pag) pag.innerHTML = renderPagination(module, data.length);
+            // 更新总数
+            const toolbar = document.querySelector(`#page-${module} .toolbar .left span`);
+            if (toolbar) toolbar.textContent = `共 ${data.length} 条记录`;
+        }
+
+        function resetSearch(module) {
+            document.getElementById(`search-${module}`).value = '';
+            document.getElementById(`status-${module}`).value = '';
+            delete pageState[module]?.filteredData;
+            refreshTable(module);
+        }
+
+        // ================================================================
+        //  详情页
+        // ================================================================
+        function viewDetail(module, id) {
+            const data = getData(module);
+            const item = data.find(d => d.id === id);
+            if (!item) return alert('记录不存在');
+            currentDetailId = id;
+            currentModule = module;
+            const label = getModuleLabel(module);
+            const area = document.getElementById('content-area');
+
+            // 构建详情字段
+            const fields = getDetailFields(module, item);
+            let html = `
+                <div class="page active">
+                    <div class="page-header">
+                        <h2>${label} - 详情</h2>
+                        <div class="breadcrumb"><span onclick="navigateTo('dashboard')">首页</span> / <span onclick="navigateTo('${module}')">${label}</span> / 详情</div>
+                    </div>
+                    <div class="detail-container">
+                        ${fields.map(f => `
+                            <div class="detail-row">
+                                <div class="detail-label">${f.label}</div>
+                                <div class="detail-value">${f.value}</div>
+                            </div>
+                        `).join('')}
+                        <div class="detail-actions">
+                            <button class="btn btn-primary" onclick="openEditModal('${module}','${id}')"><i class="fas fa-edit"></i> 编辑</button>
+                            <button class="btn btn-outline" onclick="navigateTo('${module}')"><i class="fas fa-arrow-left"></i> 返回列表</button>
+                            <button class="btn btn-outline" onclick="openParamsModal('${module}')"><i class="fas fa-cog"></i> 参数配置</button>
+                            <button class="btn btn-outline" onclick="alert('导出功能已触发（演示）')"><i class="fas fa-download"></i> 导出</button>
+                        </div>
+                    </div>
+                    <!-- 关联数据 -->
+                    <div class="detail-container">
+                        <h4 style="margin-bottom:12px;">关联数据</h4>
+                        ${renderRelated(module, item)}
+                    </div>
+                </div>
+            `;
+            area.innerHTML = html;
+        }
+
+        function getDetailFields(module, item) {
+            const map = {
+                materials: [
+                    { label: '名称', value: item.name },
+                    { label: '类型', value: item.type },
+                    { label: '大小', value: item.size },
+                    { label: '上传时间', value: item.uploadTime },
+                    { label: '状态', value: `<span class="badge ${item.status==='已完成'?'badge-green':'badge-orange'}">${item.status}</span>` },
+                    { label: '描述', value: item.desc || '-' }
+                ],
+                teams: [
+                    { label: '团队名称', value: item.name },
+                    { label: '负责人', value: item.leader },
+                    { label: '成员数', value: item.members },
+                    { label: '管理班级数', value: item.classCount },
+                    { label: '状态', value: `<span class="badge ${item.status==='活跃'?'badge-green':'badge-red'}">${item.status}</span>` },
+                    { label: '描述', value: item.desc || '-' }
+                ],
+                smartMarks: [
+                    { label: '作业标题', value: item.title },
+                    { label: '学生', value: item.student },
+                    { label: '提交时间', value: item.submitTime },
+                    { label: '相似度', value: item.similarity },
+                    { label: '推荐得分', value: item.score },
+                    { label: '状态', value: `<span class="badge ${item.status==='已批阅'?'badge-green':'badge-orange'}">${item.status}</span>` },
+                    { label: '答案内容', value: item.answer || '-' }
+                ],
+                onlineMarks: [
+                    { label: '试卷名称', value: item.paperName },
+                    { label: '学生', value: item.student },
+                    { label: '总分', value: item.totalScore },
+                    { label: '得分', value: item.givenScore },
+                    { label: '评语', value: item.comment || '-' },
+                    { label: '状态', value: `<span class="badge ${item.status==='已阅'?'badge-green':'badge-orange'}">${item.status}</span>` },
+                    { label: '答案图片', value: item.answerImg ? '✅ 已上传' : '无' }
+                ],
+                quizzes: [
+                    { label: '组卷名称', value: item.name },
+                    { label: '组卷方式', value: item.type },
+                    { label: '题量', value: item.questionCount },
+                    { label: '难度', value: item.difficulty },
+                    { label: '创建时间', value: item.createTime },
+                    { label: '状态', value: `<span class="badge ${item.status==='已发布'?'badge-green':'badge-orange'}">${item.status}</span>` }
+                ],
+                wrongBooks: [
+                    { label: '学生', value: item.student },
+                    { label: '题目', value: item.question },
+                    { label: '错因', value: item.wrongReason },
+                    { label: 'AI讲解', value: item.aiExplain || '-' },
+                    { label: '微视频', value: item.videoLink ? `<a href="${item.videoLink}" target="_blank">点击观看</a>` : '-' },
+                    { label: '掌握状态', value: `<span class="badge ${item.status==='已掌握'?'badge-green':'badge-red'}">${item.status}</span>` },
+                    { label: '添加时间', value: item.addTime }
+                ],
+                resources: [
+                    { label: '资源名称', value: item.title },
+                    { label: '类型', value: item.type },
+                    { label: '作者', value: item.author },
+                    { label: '出版社', value: item.publisher },
+                    { label: '年份', value: item.year },
+                    { label: '页数', value: item.pageCount },
+                    { label: '阅读时间(秒)', value: item.readingTime },
+                    { label: '状态', value: `<span class="badge ${item.status==='可在线阅读'?'badge-blue':'badge-green'}">${item.status}</span>` }
+                ],
+                courses: [
+                    { label: '课程名称', value: item.name },
+                    { label: '教师', value: item.teacher },
+                    { label: '学期', value: item.semester },
+                    { label: '知识点数', value: item.knowledgeCount },
+                    { label: '知识图谱', value: item.graphStatus === '已生成' ? '✅ 已生成' : '❌ 未生成' },
+                    { label: '状态', value: `<span class="badge ${item.status==='已建课'?'badge-green':'badge-orange'}">${item.status}</span>` },
+                    { label: '描述', value: item.desc || '-' }
+                ],
+                homeworks: [
+                    { label: '作业标题', value: item.title },
+                    { label: '题型', value: item.type },
+                    { label: '学生1', value: item.student1 },
+                    { label: '学生2', value: item.student2 },
+                    { label: '相似度', value: item.similarity },
+                    { label: '互评得分', value: item.peerScore },
+                    { label: '创建时间', value: item.createTime },
+                    { label: '状态', value: `<span class="badge ${item.status==='已查重'||item.status==='已互评'?'badge-green':'badge-orange'}">${item.status}</span>` }
+                ],
+                securities: [
+                    { label: '检测内容', value: item.content },
+                    { label: '类型', value: item.type },
+                    { label: '风险等级', value: `<span class="badge ${item.riskLevel==='低'?'badge-green':item.riskLevel==='中'?'badge-orange':'badge-red'}">${item.riskLevel}</span>` },
+                    { label: '命中敏感词', value: item.sensitiveWords || '无' },
+                    { label: '检测时间', value: item.detectTime },
+                    { label: '结果', value: `<span class="badge ${item.status==='安全'?'badge-green':'badge-red'}">${item.status}</span>` }
+                ]
+            };
+            return map[module] || [{ label: 'ID', value: item.id }];
+        }
+
+        function renderRelated(module, item) {
+            // 不同模块展示不同的关联数据
+            const map = {
+                materials: `<div class="rel-table"><h4>引用该素材的课程</h4><p style="color:var(--text-secondary);">课程A、课程B（共2个）</p></div>`,
+                teams: `<div class="rel-table"><h4>团队成员</h4><p style="color:var(--text-secondary);">张三、李四、王五 ... 共${item.members}人</p></div>`,
+                smartMarks: `<div class="rel-table"><h4>批阅记录</h4><p style="color:var(--text-secondary);">2026-08-19 批阅人：赵老师</p></div>`,
+                onlineMarks: `<div class="rel-table"><h4>批注列表</h4><div class="annotation-area"><div class="mock-img"><i class="fas fa-image"></i></div><p style="margin-top:12px;">图片答案批注区域（演示）</p><div class="annotation-tools"><button class="btn btn-primary">添加批注</button><button class="btn">画框</button><button class="btn">文字</button></div></div></div>`,
+                quizzes: `<div class="rel-table"><h4>试卷题目列表</h4><p style="color:var(--text-secondary);">共${item.questionCount}题，涵盖${item.difficulty}难度</p></div>`,
+                wrongBooks: `<div class="rel-table"><h4>推荐微视频</h4><p style="color:var(--text-secondary);"><a href="${item.videoLink||'#'}" target="_blank">${item.videoLink?'点击观看教学视频':'暂无推荐'}</a></p></div>`,
+                resources: `<div class="rel-table"><h4>在线阅读</h4><p style="color:var(--text-secondary);">图书内页可预览，支持按页码跳转</p><input type="number" placeholder="输入页码" style="width:120px;"/><button class="btn btn-primary" style="margin-left:8px;padding:6px 16px;">跳转</button></div>`,
+                courses: `<div class="rel-table"><h4>知识图谱</h4><p style="color:var(--text-secondary);">${item.graphStatus==='已生成'?'✅ 已生成知识图谱（力导图布局）':'点击下方按钮一键生成'}</p><button class="btn btn-primary" onclick="alert('知识图谱生成中...')">一键生成图谱</button></div>`,
+                homeworks: `<div class="rel-table"><h4>查重报告</h4><p style="color:var(--text-secondary);">相似度 ${item.similarity}，互评得分 ${item.peerScore}</p></div>`,
+                securities: `<div class="rel-table"><h4>风险统计</h4><p style="color:var(--text-secondary);">用户风险等级：低，垃圾发布率：0.3%</p></div>`
+            };
+            return map[module] || '<p style="color:var(--text-secondary);">无关联数据</p>';
+        }
+
+        // ================================================================
+        //  CRUD 操作
+        // ================================================================
+        function openAddModal(module) {
+            const label = getModuleLabel(module);
+            const fields = getFormFields(module);
+            showModal(`新增${label}`, fields, null, function(data) {
+                const list = getData(module);
+                const newItem = { id: 'id_' + Math.random().toString(36).substr(2, 8) };
+                // 根据字段填充
+                fields.forEach(f => {
+                    newItem[f.key] = data[f.key] || '';
+                });
+                // 补默认值
+                if (!newItem.status) newItem.status = '待处理';
+                list.push(newItem);
+                setData(module, list);
+                refreshTable(module);
+                closeModal();
+                alert('新增成功！');
+            }, '新增');
+        }
+
+        function openEditModal(module, id) {
+            const list = getData(module);
+            const item = list.find(d => d.id === id);
+            if (!item) return alert('记录不存在');
+            const label = getModuleLabel(module);
+            const fields = getFormFields(module);
+            // 填充现有值
+            fields.forEach(f => {
+                if (item[f.key] !== undefined) f.value = item[f.key];
+            });
+            showModal(`编辑${label}`, fields, item, function(data) {
+                const list2 = getData(module);
+                const idx = list2.findIndex(d => d.id === id);
+                if (idx === -1) return alert('记录已删除');
+                fields.forEach(f => {
+                    list2[idx][f.key] = data[f.key];
+                });
+                setData(module, list2);
+                refreshTable(module);
+                closeModal();
+                // 如果当前在详情页，刷新详情
+                if (currentDetailId === id && currentModule === module) {
+                    viewDetail(module, id);
+                }
+                alert('保存成功！');
+            }, '编辑');
+        }
+
+        function deleteItem(module, id) {
+            if (!confirm('确认删除该记录吗？')) return;
+            let list = getData(module);
+            list = list.filter(d => d.id !== id);
+            setData(module, list);
+            refreshTable(module);
+            // 如果当前在详情页且删除的是该记录，回到列表
+            if (currentDetailId === id && currentModule === module) {
+                navigateTo(module);
+            }
+        }
+
+        function batchDelete(module) {
+            const checks = document.querySelectorAll(`#page-${module} .row-checkbox:checked`);
+            if (checks.length === 0) return alert('请先选择要删除的记录');
+            if (!confirm(`确认删除选中的 ${checks.length} 条记录吗？`)) return;
+            const ids = Array.from(checks).map(el => el.dataset.id);
+            let list = getData(module);
+            list = list.filter(d => !ids.includes(d.id));
+            setData(module, list);
+            refreshTable(module);
+        }
+
+        function getFormFields(module) {
+            const map = {
+                materials: [
+                    { key: 'name', label: '名称', type: 'text' },
+                    { key: 'type', label: '类型', type: 'select', options: ['视频', '文档', '音频', '图书'] },
+                    { key: 'size', label: '大小(GB)', type: 'text' },
+                    { key: 'status', label: '状态', type: 'select', options: ['已完成', '处理中'] },
+                    { key: 'desc', label: '描述', type: 'textarea' }
+                ],
+                teams: [
+                    { key: 'name', label: '团队名称', type: 'text' },
+                    { key: 'leader', label: '负责人', type: 'text' },
+                    { key: 'members', label: '成员数', type: 'number' },
+                    { key: 'classCount', label: '管理班级数', type: 'number' },
+                    { key: 'status', label: '状态', type: 'select', options: ['活跃', '停用'] },
+                    { key: 'desc', label: '描述', type: 'textarea' }
+                ],
+                smartMarks: [
+                    { key: 'title', label: '作业标题', type: 'text' },
+                    { key: 'student', label: '学生', type: 'text' },
+                    { key: 'score', label: '推荐得分', type: 'number' },
+                    { key: 'status', label: '状态', type: 'select', options: ['待批阅', '已批阅'] },
+                    { key: 'answer', label: '答案内容', type: 'textarea' }
+                ],
+                onlineMarks: [
+                    { key: 'paperName', label: '试卷名称', type: 'text' },
+                    { key: 'student', label: '学生', type: 'text' },
+                    { key: 'totalScore', label: '总分', type: 'number' },
+                    { key: 'givenScore', label: '得分', type: 'number' },
+                    { key: 'comment', label: '评语', type: 'textarea' },
+                    { key: 'status', label: '状态', type: 'select', options: ['已阅', '待阅'] }
+                ],
+                quizzes: [
+                    { key: 'name', label: '组卷名称', type: 'text' },
+                    { key: 'type', label: '组卷方式', type: 'select', options: ['知识点组卷', '薄弱点组卷', '综合组卷'] },
+                    { key: 'questionCount', label: '题量', type: 'number' },
+                    { key: 'difficulty', label: '难度', type: 'select', options: ['简单', '中等', '困难'] },
+                    { key: 'status', label: '状态', type: 'select', options: ['已发布', '草稿'] }
+                ],
+                wrongBooks: [
+                    { key: 'student', label: '学生', type: 'text' },
+                    { key: 'question', label: '题目', type: 'text' },
+                    { key: 'wrongReason', label: '错因', type: 'select', options: ['概念模糊', '计算错误', '审题不清', '知识点遗漏'] },
+                    { key: 'status', label: '掌握状态', type: 'select', options: ['已掌握', '未掌握'] },
+                    { key: 'aiExplain', label: 'AI讲解', type: 'textarea' }
+                ],
+                resources: [
+                    { key: 'title', label: '资源名称', type: 'text' },
+                    { key: 'type', label: '类型', type: 'select', options: ['图书', '视频', '学术论文'] },
+                    { key: 'author', label: '作者', type: 'text' },
+                    { key: 'publisher', label: '出版社', type: 'text' },
+                    { key: 'year', label: '年份', type: 'number' },
+                    { key: 'status', label: '状态', type: 'select', options: ['可在线阅读', '已推荐'] }
+                ],
+                courses: [
+                    { key: 'name', label: '课程名称', type: 'text' },
+                    { key: 'teacher', label: '教师', type: 'text' },
+                    { key: 'semester', label: '学期', type: 'text' },
+                    { key: 'knowledgeCount', label: '知识点数', type: 'number' },
+                    { key: 'status', label: '状态', type: 'select', options: ['已建课', '备课中'] },
+                    { key: 'desc', label: '描述', type: 'textarea' }
+                ],
+                homeworks: [
+                    { key: 'title', label: '作业标题', type: 'text' },
+                    { key: 'type', label: '题型', type: 'select', options: ['简答题', '论述题'] },
+                    { key: 'student1', label: '学生1', type: 'text' },
+                    { key: 'student2', label: '学生2', type: 'text' },
+                    { key: 'similarity', label: '查重率(%)', type: 'text' },
+                    { key: 'status', label: '状态', type: 'select', options: ['待查重', '已查重', '待互评', '已互评'] }
+                ],
+                securities: [
+                    { key: 'content', label: '检测内容', type: 'text' },
+                    { key: 'type', label: '类型', type: 'select', options: ['文本', '图片', '文档'] },
+                    { key: 'riskLevel', label: '风险等级', type: 'select', options: ['低', '中', '高'] },
+                    { key: 'status', label: '结果', type: 'select', options: ['安全', '风险'] }
+                ]
+            };
+            return map[module] || [{ key: 'name', label: '名称', type: 'text' }];
+        }
+
+        // ================================================================
+        //  模态框
+        // ================================================================
+        let modalCallback = null;
+        let modalData = {};
+
+        function showModal(title, fields, item, callback, mode) {
+            const overlay = document.getElementById('modal-overlay');
+            document.getElementById('modal-title').textContent = title;
+            const body = document.getElementById('modal-body');
+            let html = '';
+            fields.forEach(f => {
+                const val = item ? (item[f.key] !== undefined ? item[f.key] : '') : (f.value || '');
+                let input = '';
+                if (f.type === 'select') {
+                    const opts = f.options.map(o => `<option value="${o}" ${val===o?'selected':''}>${o}</option>`).join('');
+                    input = `<select id="field-${f.key}">${opts}</select>`;
+                } else if (f.type === 'textarea') {
+                    input = `<textarea id="field-${f.key}" rows="3">${val}</textarea>`;
+                } else {
+                    input = `<input type="${f.type||'text'}" id="field-${f.key}" value="${val}" />`;
+                }
+                html += `<div class="form-group"><label>${f.label}</label>${input}</div>`;
+            });
+            body.innerHTML = html;
+            modalCallback = callback;
+            modalData = { fields, item };
+            overlay.classList.add('active');
+            // 绑定确认
+            document.getElementById('modal-confirm').onclick = function() {
+                const data = {};
+                let valid = true;
+                fields.forEach(f => {
+                    const el = document.getElementById(`field-${f.key}`);
+                    if (el) {
+                        const val = el.value;
+                        if (f.key === 'members' || f.key === 'classCount' || f.key === 'score' || f.key ===
+                            'totalScore' || f.key === 'givenScore' || f.key === 'questionCount' || f.key ===
+                            'knowledgeCount') {
+                            data[f.key] = parseInt(val) || 0;
+                        } else {
+                            data[f.key] = val;
+                        }
+                        // 简单必填校验
+                        if (!val && f.key !== 'desc' && f.key !== 'comment' && f.key !== 'answer' && f.key !==
+                            'aiExplain' && f.key !== 'desc') {
+                            valid = false;
+                        }
+                    }
+                });
+                if (!valid) {
+                    alert('请填写所有必填字段');
+                    return;
+                }
+                if (modalCallback) modalCallback(data);
+            };
+            document.getElementById('modal-cancel').onclick = closeModal;
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+            modalCallback = null;
+        }
+
+        // ================================================================
+        //  参数配置（每个模块专属）
+        // ================================================================
+        function openParamsModal(module) {
+            const params = DB.params[module] || {};
+            const label = getModuleLabel(module);
+            const configs = getParamConfigs(module);
+            let html = '';
+            configs.forEach(c => {
+                const val = params[c.key] !== undefined ? params[c.key] : c.default;
+                let input = '';
+                if (c.type === 'select') {
+                    const opts = c.options.map(o => `<option value="${o}" ${val==o?'selected':''}>${o}</option>`).join('');
+                    input = `<select id="param-${c.key}">${opts}</select>`;
+                } else if (c.type === 'switch') {
+                    input =
+                        `<select id="param-${c.key}"><option value="true" ${val===true?'selected':''}>开启</option><option value="false" ${val===false?'selected':''}>关闭</option></select>`;
+                } else if (c.type === 'number') {
+                    input = `<input type="number" id="param-${c.key}" value="${val}" />`;
+                } else {
+                    input = `<input type="text" id="param-${c.key}" value="${val}" />`;
+                }
+                html += `<div class="form-group"><label>${c.label}</label>${input}<div class="hint">${c.hint||''}</div></div>`;
+            });
+            showModal(`${label} - 参数配置`, [], null, function(data) {
+                // 收集参数
+                const newParams = {};
+                configs.forEach(c => {
+                    const el = document.getElementById(`param-${c.key}`);
+                    if (el) {
+                        let v = el.value;
+                        if (c.type === 'number') v = parseFloat(v) || 0;
+                        if (c.type === 'switch') v = v === 'true';
+                        newParams[c.key] = v;
+                    }
+                });
+                DB.params[module] = { ...DB.params[module], ...newParams };
+                saveDB();
+                closeModal();
+                alert('参数保存成功！');
+            }, '参数配置');
+            // 覆盖modal body（因showModal里用了fields，这里用特殊处理）
+            // 直接操作modal-body
+            const body = document.getElementById('modal-body');
+            body.innerHTML = html;
+            document.getElementById('modal-title').textContent = `${label} - 参数配置`;
+            // 重写确认逻辑
+            document.getElementById('modal-confirm').onclick = function() {
+                const newParams = {};
+                configs.forEach(c => {
+                    const el = document.getElementById(`param-${c.key}`);
+                    if (el) {
+                        let v = el.value;
+                        if (c.type === 'number') v = parseFloat(v) || 0;
+                        if (c.type === 'switch') v = v === 'true';
+                        newParams[c.key] = v;
+                    }
+                });
+                DB.params[module] = { ...DB.params[module], ...newParams };
+                saveDB();
+                closeModal();
+                alert('参数保存成功！');
+            };
+            document.getElementById('modal-cancel').onclick = closeModal;
+        }
+
+        function getParamConfigs(module) {
+            const map = {
+                materials: [
+                    { key: 'maxSize', label: '最大上传大小(GB)', type: 'number', default: 5, hint: '支持2G以上超大文件' },
+                    { key: 'allowTypes', label: '允许格式', type: 'text', default: 'mp4,pdf,mp3,doc', hint: '逗号分隔' },
+                    { key: 'storagePath', label: '存储路径', type: 'text', default: '/data/materials', hint: '素材存放目录' }
+                ],
+                teams: [
+                    { key: 'defaultRole', label: '默认角色', type: 'select', options: ['教师', '助教', '管理员'], default: '教师' },
+                    { key: 'permTemplate', label: '权限模板', type: 'select', options: ['标准版', '高级版', '精简版'], default: '标准版' }
+                ],
+                smartMarks: [
+                    { key: 'threshold', label: '相似度阈值(%)', type: 'number', default: 70, hint: '超过此值标记为疑似抄袭' },
+                    { key: 'weight', label: '推荐得分权重', type: 'number', default: 0.6, hint: '0~1之间' }
+                ],
+                onlineMarks: [
+                    { key: 'scoreRange', label: '满分值', type: 'number', default: 100 },
+                    { key: 'commentTemplate', label: '评语模板', type: 'select', options: ['通用', '详细', '简洁'], default: '通用' }
+                ],
+                quizzes: [
+                    { key: 'eachScore', label: '每题分值', type: 'number', default: 5 },
+                    { key: 'knowledgeWeight', label: '知识点权重', type: 'number', default: 0.7, hint: '0~1' }
+                ],
+                wrongBooks: [
+                    { key: 'aiExplain', label: 'AI讲解开关', type: 'switch', default: true },
+                    { key: 'recommendCount', label: '推荐资源数量', type: 'number', default: 3 }
+                ],
+                resources: [
+                    { key: 'defaultReadingTime', label: '默认阅读时间(秒)', type: 'number', default: 30 },
+                    { key: 'searchPrecision', label: '搜索精度', type: 'select', options: ['高', '中', '低'], default: '高' }
+                ],
+                courses: [
+                    { key: 'markColor', label: '知识点标记颜色', type: 'text', default: '#4F6EF7' },
+                    { key: 'graphStyle', label: '图谱样式', type: 'select', options: ['力导图', '环形图', '树形图'], default: '力导图' }
+                ],
+                homeworks: [
+                    { key: 'checkThreshold', label: '查重阈值(%)', type: 'number', default: 40 },
+                    { key: 'peerOpen', label: '互评开放时间(小时)', type: 'number', default: 48 }
+                ],
+                securities: [
+                    { key: 'sensitiveLevel', label: '敏感词等级', type: 'select', options: ['标准', '严格', '宽松'], default: '标准' },
+                    { key: 'detectMode', label: '检测模式', type: 'select', options: ['自动', '手动'], default: '自动' }
+                ]
+            };
+            return map[module] || [];
+        }
+
+        // ================================================================
+        //  首页仪表盘
+        // ================================================================
+        function renderDashboard() {
+            const area = document.getElementById('content-area');
+            // 统计数据
+            const stats = [
+                { label: '素材总量', value: DB.materials.length, icon: 'fa-folder-open', color: '#4F6EF7',
+                module: 'materials' },
+                { label: '教师团队', value: DB.teams.length, icon: 'fa-users', color: '#059669', module: 'teams' },
+                { label: '待批阅作业', value: DB.smartMarks.filter(i => i.status === '待批阅').length, icon: 'fa-robot',
+                    color: '#D97706', module: 'smartMarks' },
+                { label: '待阅试卷', value: DB.onlineMarks.filter(i => i.status === '待阅').length, icon: 'fa-pen-fancy',
+                    color: '#DC2626', module: 'onlineMarks' },
+                { label: '错题总数', value: DB.wrongBooks.length, icon: 'fa-book-open', color: '#7C3AED',
+                module: 'wrongBooks' },
+                { label: '安全风险', value: DB.securities.filter(i => i.status === '风险').length, icon: 'fa-shield-alt',
+                    color: '#DC2626', module: 'securities' }
+            ];
+
+            let html = `
+                <div class="page active">
+                    <div class="page-header"><h2>工作台</h2><div class="breadcrumb">首页</div></div>
+                    <div class="stat-cards">
+                        ${stats.map(s => `
+                            <div class="stat-card" onclick="navigateTo('${s.module}')">
+                                <div class="icon" style="color:${s.color}"><i class="fas ${s.icon}"></i></div>
+                                <div class="num">${s.value}</div>
+                                <div class="label">${s.label}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-box"><h4>各模块数据分布</h4><div class="chart-container" id="chart-bar"></div></div>
+                        <div class="chart-box"><h4>状态占比</h4><div class="chart-container" id="chart-pie"></div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-box"><h4>近7天趋势</h4><div class="chart-container" id="chart-line"></div></div>
+                        <div class="chart-box">
+                            <h4>快捷入口</h4>
+                            <div class="quick-entry">
+                                ${menuConfig.filter(m=>m.id!=='dashboard').map(m => `
+                                    <div class="entry-item" onclick="navigateTo('${m.id}')"><i class="fas ${m.icon}"></i> ${m.label}</div>
+                                `).join('')}
+                            </div>
+                            <div style="margin-top:24px;color:var(--text-secondary);font-size:14px;">
+                                <p><i class="fas fa-clock"></i> 最近动态：${new Date().toLocaleString()} 管理员登录</p>
+                                <p style="margin-top:8px;"><i class="fas fa-tasks"></i> 待办事项：${stats.filter(s=>s.value>0).length}项待处理</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            area.innerHTML = html;
+
+            // 渲染 ECharts
+            setTimeout(() => {
+                // 柱状图
+                const barChart = echarts.init(document.getElementById('chart-bar'));
+                const modules = menuConfig.filter(m => m.id !== 'dashboard');
+                const dataMap = {};
+                modules.forEach(m => { dataMap[m.label] = DB[m.id] ? DB[m.id].length : 0; });
+                barChart.setOption({
+                    tooltip: { trigger: 'axis' },
+                    grid: { left: '10%', right: '5%', top: '10%', bottom: '15%' },
+                    xAxis: { type: 'category', data: modules.map(m => m.label), axisLabel: { rotate: 30 } },
+                    yAxis: { type: 'value' },
+                    series: [{
+                        type: 'bar',
+                        data: modules.map(m => dataMap[m.label] || 0),
+                        itemStyle: { color: '#4F6EF7', borderRadius: [4, 4, 0, 0] }
+                    }]
+                });
+                barChart.on('click', function(params) {
+                    const idx = params.dataIndex;
+                    const mod = modules[idx];
+                    if (mod) navigateTo(mod.id);
+                });
+                window.addEventListener('resize', () => barChart.resize());
+
+                // 饼图 - 状态分布（以课程为例）
+                const pieChart = echarts.init(document.getElementById('chart-pie'));
+                const statusMap = {};
+                DB.courses.forEach(c => { statusMap[c.status] = (statusMap[c.status] || 0) + 1; });
+                pieChart.setOption({
+                    tooltip: { trigger: 'item' },
+                    series: [{
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        data: Object.keys(statusMap).map(k => ({ name: k, value: statusMap[k] })),
+                        color: ['#4F6EF7', '#F59E0B', '#10B981']
+                    }]
+                });
+                window.addEventListener('resize', () => pieChart.resize());
+
+                // 折线图 - 近7天新增
+                const lineChart = echarts.init(document.getElementById('chart-line'));
+                const days = ['8/14', '8/15', '8/16', '8/17', '8/18', '8/19', '8/20'];
+                lineChart.setOption({
+                    tooltip: { trigger: 'axis' },
+                    grid: { left: '10%', right: '5%', top: '10%', bottom: '15%' },
+                    xAxis: { type: 'category', data: days },
+                    yAxis: { type: 'value' },
+                    series: [{
+                        type: 'line',
+                        data: [12, 18, 15, 22, 30, 28, 35],
+                        smooth: true,
+                        lineStyle: { color: '#4F6EF7', width: 3 },
+                        areaStyle: { color: 'rgba(79,110,247,0.1)' }
+                    }]
+                });
+                window.addEventListener('resize', () => lineChart.resize());
+
+                // 点击图表跳转
+                document.querySelectorAll('.chart-box').forEach((box, idx) => {
+                    box.style.cursor = 'pointer';
+                    box.addEventListener('click', function() {
+                        if (idx === 0) navigateTo('materials');
+                        else if (idx === 1) navigateTo('courses');
+                        else if (idx === 2) navigateTo('homeworks');
+                    });
+                });
+
+            }, 100);
+        }
+
+        // ================================================================
+        //  登录/退出
+        // ================================================================
+        function login() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            const error = document.getElementById('login-error');
+            if (username === 'admin' && password === '123456') {
+                error.textContent = '';
+                document.getElementById('app').classList.remove('login-mode');
+                document.getElementById('page-login').style.display = 'none';
+                document.getElementById('header-username').textContent = username;
+                // 初始化数据
+                loadDB();
+                renderMenu();
+                navigateTo('dashboard');
+            } else {
+                error.textContent = '账号或密码错误，请重试';
+            }
+        }
+
+        function logout() {
+            if (confirm('确认退出登录吗？')) {
+                document.getElementById('app').classList.add('login-mode');
+                document.getElementById('page-login').style.display = 'flex';
+                document.getElementById('content-area').innerHTML = '';
+                currentPage = 'dashboard';
+                // 清空敏感数据
+                localStorage.removeItem(STORAGE_KEY);
+            }
+        }
+
+        // ================================================================
+        //  初始化
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // 登录事件
+            document.getElementById('login-btn').addEventListener('click', login);
+            document.getElementById('login-password').addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') login();
+            });
+            document.getElementById('login-username').addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') login();
+            });
+            document.getElementById('logout-btn').addEventListener('click', logout);
+
+            // 如果已登录，自动恢复（演示模式默认未登录）
+            // 但为了演示方便，不自动登录
+        });
+
+        // 暴露全局函数
+        window.navigateTo = navigateTo;
+        window.viewDetail = viewDetail;
+        window.openAddModal = openAddModal;
+        window.openEditModal = openEditModal;
+        window.deleteItem = deleteItem;
+        window.batchDelete = batchDelete;
+        window.doSearch = doSearch;
+        window.resetSearch = resetSearch;
+        window.goPage = goPage;
+        window.changeLimit = changeLimit;
+        window.closeModal = closeModal;
+        window.openParamsModal = openParamsModal;
+        window.renderDashboard = renderDashboard;
+        window.login = login;
+        window.logout = logout;
+
+        // 预置数据初始化
+        loadDB();
+        // 默认显示登录页
+        document.getElementById('page-login').style.display = 'flex';
+        document.getElementById('app').classList.add('login-mode');
+    </script>
+</body>
+</html>
