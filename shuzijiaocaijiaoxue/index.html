@@ -1,0 +1,213 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>知行课程平台 · 总览</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+    <script src="./common.js"></script>
+  </head>
+  <body>
+    <!-- common.js 注入 .platform-bar -->
+    <main class="module-page">
+      <div class="module-wrap">
+        <!-- Hero -->
+        <section class="continue-course" style="margin-bottom: 22px">
+          <img
+            src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=bright%20modern%20university%20campus%20library%20with%20students%20using%20laptops%20and%20large%20screens%20showing%20knowledge%20graphs%2C%20clean%20white%20interior%2C%20realistic%20editorial%20photography%2C%20teal%20and%20white%20palette%2C%20no%20text%2C%20sharp%20details&image_size=landscape_16_9"
+            alt="校园知识学习场景"
+          />
+          <div class="continue-overlay"></div>
+          <div class="continue-body">
+            <span class="continue-kicker">
+              <i data-lucide="blocks"></i> 知行课程平台
+            </span>
+            <h2>贯通知识图谱与在线课程的教学中枢</h2>
+            <p>从课程章节一键生成知识图谱、AI 训练知识库、智能安全审核，到慕课制作、移动学习与教学预警，全流程演示。</p>
+            <div class="continue-actions">
+              <a class="primary-button" href="knowledge-graph.html">
+                <i data-lucide="network"></i>
+                进入知识图谱
+              </a>
+              <span><i data-lucide="database"></i> 数据存储于浏览器缓存</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 平台数据概览 -->
+        <section class="stat-row-3" style="margin-bottom: 26px">
+          <article class="stat-tile">
+            <span class="ic"><i data-lucide="library-big"></i></span>
+            <div>
+              <strong id="statCourses">4</strong>
+              <small>在线课程</small>
+            </div>
+          </article>
+          <article class="stat-tile purple">
+            <span class="ic"><i data-lucide="book-open-text"></i></span>
+            <div>
+              <strong id="statBooks">28</strong>
+              <small>训练书籍</small>
+            </div>
+          </article>
+          <article class="stat-tile blue">
+            <span class="ic"><i data-lucide="layers"></i></span>
+            <div>
+              <strong id="statSlices">3</strong>
+              <small>知识切片</small>
+            </div>
+          </article>
+        </section>
+
+        <!-- 功能模块 -->
+        <section class="module-header" style="margin-bottom: 16px">
+          <div>
+            <p class="kicker">功能模块</p>
+            <h1>七大能力 · 一体化教学</h1>
+            <p>点击任意模块进入对应演示界面，所有交互均在前端完成。</p>
+          </div>
+          <span class="badge badge-info"><i data-lucide="mouse-pointer-click"></i> 前端演示</span>
+        </section>
+
+        <div class="module-grid cols-3" id="moduleGrid"><!-- JS 注入 --></div>
+
+        <!-- 覆盖要求清单 -->
+        <section class="module-header" style="margin: 36px 0 16px">
+          <div>
+            <p class="kicker">需求覆盖</p>
+            <h1>逐项覆盖 · 全功能演示</h1>
+          </div>
+        </section>
+
+        <div class="module-grid cols-2" id="coverList"><!-- JS 注入 --></div>
+
+        <p class="empty-hint" style="margin-top: 30px">
+          <i data-lucide="info" style="width:14px;height:14px;vertical-align:middle"></i>
+          所有数据保存在浏览器 localStorage，可使用顶部“重置演示数据”按钮恢复初始状态。
+        </p>
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        var S = Platform.Store.load();
+        var $ = Platform.$,
+          $$ = Platform.$$,
+          el = Platform.el,
+          R = Platform.refreshIcons;
+
+        // 统计
+        $("#statCourses").textContent = S.courses.length;
+        $("#statBooks").textContent = S.books.length;
+        $("#statSlices").textContent = S.slices.length;
+
+        var MODULES = [
+          {
+            href: "knowledge-graph.html",
+            icon: "network",
+            title: "知识图谱建设",
+            desc: "课程章节一键转化生成图谱并资源关联，AI 智能生成，自定义编辑。",
+            tags: ["章节转化", "AI生成", "资源关联", "可编辑"]
+          },
+          {
+            href: "ai-knowledge-base.html",
+            icon: "database",
+            title: "AI 知识库训练",
+            desc: "一键/增量同步在线课程，导入 25+ 书籍训练，文档切分与规则配置。",
+            tags: ["课程同步", "文献库训练", "知识切片", "切片规则"]
+          },
+          {
+            href: "security-review.html",
+            icon: "shield-check",
+            title: "智能安全检测",
+            desc: "配置关键词与忽略词，对文本/图片/文档/课程在线敏感审核。",
+            tags: ["关键词", "忽略词", "多类型审核"]
+          },
+          {
+            href: "ai-interpretation.html",
+            icon: "sparkles",
+            title: "AI 图书解读",
+            desc: "AI 解读图书与文献，生成词云、摘要、脑图、试题，自然对话问答。",
+            tags: ["词云", "摘要", "脑图", "试题", "问答"]
+          },
+          {
+            href: "mooc-teaching.html",
+            icon: "graduation-cap",
+            title: "慕课制作与教学",
+            desc: "单元化富媒体、视频自动转码、富媒体编辑器、教务课表、一键直播。",
+            tags: ["富媒体", "自动转码", "课表", "直播"]
+          },
+          {
+            href: "mobile-student.html",
+            icon: "smartphone",
+            title: "移动端 · 学生",
+            desc: "随身访问知识图谱，点击知识点跳转微课，学习/资料/作业多功能。",
+            tags: ["图谱随身", "跳转微课", "学习资料作业"]
+          },
+          {
+            href: "mobile-teacher.html",
+            icon: "bar-chart-3",
+            title: "移动端 · 教师",
+            desc: "查看知识点资源数、班级完成率/掌握率，点学生查看学情详情。",
+            tags: ["资源总数", "班级完成率", "掌握率", "学情"]
+          },
+          {
+            href: "teaching-warning.html",
+            icon: "bell-ring",
+            title: "教学预警",
+            desc: "条件预设、督学记录与提醒，移动端按组织机构多渠道发放通知。",
+            tags: ["条件预设", "督学记录", "多渠道提醒", "已读未读"]
+          }
+        ];
+
+        var grid = $("#moduleGrid");
+        MODULES.forEach(function (m) {
+          var card = el("a", { class: "panel", href: m.href, style: "text-decoration:none;color:inherit;display:block" });
+          card.innerHTML =
+            '<div class="panel-body">' +
+            '<span class="ic stat-tile" style="display:inline-grid;width:42px;height:42px;border-radius:9px;place-items:center;background:var(--teal-soft);color:var(--teal);margin-bottom:12px">' +
+            '<i data-lucide="' + m.icon + '"></i></span>' +
+            "<h3 style=\"margin:0 0 6px;font-size:15px\">" + m.title + "</h3>" +
+            "<p style=\"margin:0 0 12px;color:var(--ink-soft);font-size:12px;line-height:1.6\">" + m.desc + "</p>" +
+            '<div class="flex flex-wrap gap-8" style="margin-bottom:14px"></div>' +
+            '<div class="flex-between" style="border-top:1px solid var(--line);padding-top:10px;margin-top:auto">' +
+            '<span class="text-xs muted">进入演示</span>' +
+            '<i data-lucide="arrow-right" style="width:15px;height:15px;color:var(--teal)"></i></div>' +
+            "</div>";
+          var tagWrap = card.querySelector(".flex.flex-wrap");
+          m.tags.forEach(function (t) {
+            var c = el("span", { class: "badge badge-info" });
+            c.textContent = t;
+            tagWrap.appendChild(c);
+          });
+          grid.appendChild(card);
+        });
+
+        // 需求覆盖清单
+        var COVERS = [
+          { n: "01", t: "知识图谱与课程打通、AI知识库、文献库、知识切片", to: "knowledge-graph.html / ai-knowledge-base.html" },
+          { n: "02", t: "教材资源智能安全检测，关键词/忽略词与多类型在线审核", to: "security-review.html" },
+          { n: "03", t: "知识图谱图书 AI 解读，文献解析生成词云/摘要/脑图/试题/问答", to: "ai-interpretation.html" },
+          { n: "04", t: "慕课制作与教学，富媒体编辑、转码、教务课表、腾讯会议与一键直播", to: "mooc-teaching.html" },
+          { n: "05", t: "移动端学生随身学习与跳转微课，教师查看资源/班级/学情", to: "mobile-student.html / mobile-teacher.html" },
+          { n: "06", t: "基于数字教材 AI 自动生成图谱，可直接使用并自定义修改", to: "knowledge-graph.html" },
+          { n: "07", t: "教学预警：条件预设、督学记录、多渠道提醒与通知已读未读统计", to: "teaching-warning.html" }
+        ];
+        var list = $("#coverList");
+        COVERS.forEach(function (c) {
+          var item = el("article", { class: "panel" });
+          item.innerHTML =
+            '<div class="panel-body flex gap-12 items-center">' +
+            '<span style="font-size:22px;font-weight:800;color:var(--teal);flex:0 0 auto">' + c.n + "</span>" +
+            '<div style="min-width:0;flex:1">' +
+            "<p style=\"margin:0 0 4px;font-size:13px;font-weight:700\">" + c.t + "</p>" +
+            '<p class="text-xs muted">' + c.to + "</p></div></div>";
+          list.appendChild(item);
+        });
+
+        R();
+      })();
+    </script>
+  </body>
+</html>

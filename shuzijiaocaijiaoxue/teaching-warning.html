@@ -1,0 +1,603 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>教学预警 · 知行课程平台</title>
+<link rel="stylesheet" href="./styles.css" />
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+<script src="./common.js"></script>
+</head>
+<body>
+  <main class="module-page"><div class="module-wrap">
+
+    <section class="module-header">
+      <div>
+        <p class="kicker">教学预警</p>
+        <h1>督学与预警</h1>
+        <p>按任务点/章节测验/作业/访问/考试/综合成绩预设条件，多渠道提醒，移动端按组织机构发放通知并统计已读未读</p>
+      </div>
+      <div class="flex gap-8 items-center">
+        <span class="badge badge-warn" id="hdrActive">活跃条件 0 条</span>
+      </div>
+    </section>
+
+    <div class="stat-row-3" id="statRow" style="margin-bottom:18px">
+      <div class="stat-tile">
+        <span class="ic"><i data-lucide="filter"></i></span>
+        <span><strong id="statCond">0</strong><small>预警条件数</small></span>
+      </div>
+      <div class="stat-tile warn">
+        <span class="ic"><i data-lucide="alert-triangle"></i></span>
+        <span><strong id="statSup">0</strong><small>督学记录数</small></span>
+      </div>
+      <div class="stat-tile danger">
+        <span class="ic"><i data-lucide="alert-octagon"></i></span>
+        <span><strong id="statUnread">0</strong><small>未读通知人数</small></span>
+      </div>
+    </div>
+
+    <div class="hint-banner" style="margin-bottom:18px">
+      <i data-lucide="megaphone"></i>
+      <span>支持移动端按学校组织机构、课程班级或个人范围发放，短信/电话/微信多渠道提醒确保及时传达</span>
+    </div>
+
+    <!-- 条件预设（全宽） -->
+    <section class="panel" style="margin-bottom:18px">
+      <div class="panel-head">
+        <div>
+          <h2>条件预设</h2>
+          <div class="sub">按维度平均完成度或分数预设预警条件，单条配置启用与多渠道提醒</div>
+        </div>
+        <button class="btn btn-soft btn-sm" id="addCondBtn"><i data-lucide="plus"></i>添加条件</button>
+      </div>
+      <div class="panel-body">
+        <div class="condition-builder" id="condBuilder"></div>
+      </div>
+      <div class="panel-foot">
+        <button class="btn btn-primary" id="saveCondBtn"><i data-lucide="save"></i>保存条件</button>
+      </div>
+    </section>
+
+    <div class="module-grid cols-2-uneven">
+
+      <!-- 左：督学记录 -->
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>督学记录</h2>
+            <div class="sub">按维度与状态筛选，对未触达学生执行多渠道提醒</div>
+          </div>
+          <div class="flex gap-8 items-center">
+            <select class="select" id="supDimFilter" style="width:auto"></select>
+            <select class="select" id="supStatusFilter" style="width:auto"></select>
+          </div>
+        </div>
+        <div class="panel-body flush">
+          <div class="table-wrap">
+            <table class="data-table" id="supTable">
+              <thead>
+                <tr>
+                  <th>学生</th>
+                  <th>班级</th>
+                  <th>维度</th>
+                  <th>数值</th>
+                  <th>时间</th>
+                  <th>渠道</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="supTbody"></tbody>
+            </table>
+          </div>
+          <div class="empty-hint" id="supEmpty" hidden>暂无符合条件的督学记录</div>
+        </div>
+      </section>
+
+      <!-- 右：通知发放 + 已发通知 -->
+      <div style="display:grid;gap:18px">
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>发放通知</h2>
+              <div class="sub">按组织机构/课程班级/个人范围多渠道发放</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="field" style="margin-bottom:14px">
+              <span class="field-label">发放范围</span>
+              <div class="org-tree" id="orgTree"></div>
+              <span class="field-hint">支持按学校组织机构、课程班级或个人范围发放</span>
+            </div>
+            <div class="field" style="margin-bottom:14px">
+              <label class="field-label" for="ntfTitle">通知标题</label>
+              <input class="input" id="ntfTitle" placeholder="请输入通知标题" />
+            </div>
+            <div class="field" style="margin-bottom:14px">
+              <label class="field-label" for="ntfContent">通知内容</label>
+              <textarea class="textarea" id="ntfContent" placeholder="请输入通知内容"></textarea>
+            </div>
+            <div class="field">
+              <span class="field-label">多渠道提醒</span>
+              <div class="channel-grid" id="channelGrid"></div>
+            </div>
+          </div>
+          <div class="panel-foot">
+            <button class="btn btn-primary btn-block" id="sendNtfBtn"><i data-lucide="send"></i>发放通知</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>已发通知</h2>
+              <div class="sub">已读 / 未读统计</div>
+            </div>
+          </div>
+          <div class="panel-body" id="ntfList"></div>
+        </section>
+
+      </div>
+
+    </div>
+
+  </div></main>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    "use strict";
+    var P = window.Platform;
+    var $ = P.$, $$ = P.$$, el = P.el, refresh = P.refreshIcons;
+    var S = P.Store.load();
+    var W = S.warnings;
+
+    var DIMS = ["任务点", "章节测验", "作业", "访问", "考试", "综合成绩"];
+    var OPS = ["<", "≤", ">"];
+    var STATUSES = ["未读", "已提醒", "已触达"];
+    var CHANNELS = [
+      { name: "站内", icon: "message-square" },
+      { name: "短信", icon: "mail" },
+      { name: "微信", icon: "message-circle" },
+      { name: "电话", icon: "phone" }
+    ];
+    var ORG_NODES = [
+      { name: "全校", icon: "school" },
+      { name: "计算机学院", icon: "building-2" },
+      { name: "计科 2301 班", icon: "users" },
+      { name: "计科 2302 班", icon: "users" },
+      { name: "课程班级", icon: "graduation-cap" },
+      { name: "个人", icon: "user" }
+    ];
+
+    var selectedScope = null;
+    var selectedChannels = [];
+
+    function pad(n) { n = +n; return n < 10 ? "0" + n : "" + n; }
+    function nowTime() {
+      var d = new Date();
+      return pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    }
+    function scopeTotal(scope) {
+      if (scope === "全校") return 1280;
+      if (scope === "计算机学院") return 320;
+      if (scope === "计科 2301 班" || scope === "计科 2302 班") return 32;
+      if (scope === "课程班级") return 48;
+      return 1;
+    }
+    function statusBadge(s) {
+      if (s === "已触达") return '<span class="badge badge-ok"><i data-lucide="check"></i>已触达</span>';
+      if (s === "已提醒") return '<span class="badge badge-info"><i data-lucide="bell"></i>已提醒</span>';
+      return '<span class="badge badge-danger"><i data-lucide="alert-triangle"></i>未读</span>';
+    }
+
+    /* ---------- 统计 ---------- */
+    function renderStats() {
+      var unread = W.notifications.reduce(function (a, n) { return a + (n.unread || 0); }, 0);
+      var active = W.conditions.filter(function (c) { return c.enabled; }).length;
+      $("#statCond").textContent = W.conditions.length;
+      $("#statSup").textContent = W.supervision.length;
+      $("#statUnread").textContent = unread;
+      $("#hdrActive").textContent = "活跃条件 " + active + " 条";
+    }
+
+    /* ---------- 条件跨字段校验 ---------- */
+    var DIM_RANGE = {
+      "任务点": { min: 0, max: 100, unit: "%" },
+      "章节测验": { min: 0, max: 100, unit: "分" },
+      "作业": { min: 0, max: 100, unit: "分" },
+      "访问": { min: 0, max: 9999, unit: "次" },
+      "考试": { min: 0, max: 100, unit: "分" },
+      "综合成绩": { min: 0, max: 100, unit: "分" }
+    };
+    var condRefs = []; // 与 W.conditions 顺序一一对应的输入引用
+
+    function validateConditions() {
+      var ok = true;
+      var errs = W.conditions.map(function () { return []; });
+
+      // 单条校验：阈值范围 + 提醒渠道
+      W.conditions.forEach(function (c, i) {
+        var ref = condRefs[i];
+        var rg = DIM_RANGE[c.dim] || { min: 0, max: 100, unit: "" };
+        if (ref) ref.valIn.classList.remove("is-error");
+        if (!(c.value >= rg.min && c.value <= rg.max)) {
+          ok = false;
+          errs[i].push("「" + c.dim + "」阈值需在 " + rg.min + "–" + rg.max + " " + rg.unit + " 之间");
+          if (ref) ref.valIn.classList.add("is-error");
+        }
+        if (!(c.channel || []).length) {
+          ok = false;
+          errs[i].push("请至少选择一个提醒渠道");
+          if (ref) ref.chips.classList.add("err-outline");
+        } else if (ref) {
+          ref.chips.classList.remove("err-outline");
+        }
+      });
+
+      // 跨条件校验：同维度重复 / 阈值区间无交集
+      for (var a = 0; a < W.conditions.length; a++) {
+        for (var b = a + 1; b < W.conditions.length; b++) {
+          var ca = W.conditions[a], cb = W.conditions[b];
+          if (ca.dim !== cb.dim) continue;
+          if (ca.op === cb.op && ca.value === cb.value) {
+            ok = false;
+            errs[b].push("与第 " + (a + 1) + " 条条件完全重复");
+          } else {
+            var upA = ca.op !== ">", upB = cb.op !== ">";
+            var conflict = (upA && !upB) ? cb.value >= ca.value
+                         : (!upA && upB) ? ca.value >= cb.value : false;
+            if (conflict) {
+              ok = false;
+              errs[a].push("与第 " + (b + 1) + " 条条件阈值区间无交集");
+              errs[b].push("与第 " + (a + 1) + " 条条件阈值区间无交集");
+            }
+          }
+        }
+      }
+
+      // 渲染错误提示
+      W.conditions.forEach(function (c, i) {
+        var ref = condRefs[i];
+        if (!ref) return;
+        ref.errBox.innerHTML = "";
+        ref.item.classList.toggle("has-err", errs[i].length > 0);
+        errs[i].forEach(function (m) {
+          var tip = el("div", { class: "field-error" });
+          tip.innerHTML = '<i data-lucide="alert-triangle"></i><span></span>';
+          tip.querySelector("span").textContent = m;
+          ref.errBox.appendChild(tip);
+        });
+      });
+      refresh();
+      return ok;
+    }
+
+    /* ---------- 条件预设 ---------- */
+    function renderConditions() {
+      var box = $("#condBuilder");
+      box.innerHTML = "";
+      condRefs = [];
+      if (!W.conditions.length) {
+        box.innerHTML = '<div class="empty-hint">尚未设置预警条件，点击右上角“添加条件”</div>';
+        refresh();
+        return;
+      }
+      W.conditions.forEach(function (c, idx) {
+        var item = el("div", { class: "condition-item" });
+
+        var row = el("div", { class: "condition-row" });
+
+        var dimSel = el("select", { class: "select" });
+        DIMS.forEach(function (d) {
+          var o = el("option", { value: d }, d);
+          if (d === c.dim) o.selected = true;
+          dimSel.appendChild(o);
+        });
+        dimSel.addEventListener("change", function () { c.dim = dimSel.value; validateConditions(); });
+
+        var opSel = el("select", { class: "select" });
+        OPS.forEach(function (op) {
+          var o = el("option", { value: op }, op);
+          if (op === c.op) o.selected = true;
+          opSel.appendChild(o);
+        });
+        opSel.addEventListener("change", function () { c.op = opSel.value; validateConditions(); });
+
+        var valIn = el("input", { class: "input", type: "number", value: c.value });
+        valIn.addEventListener("input", function () { c.value = +valIn.value || 0; validateConditions(); });
+
+        var del = el("button", { class: "icon-btn", title: "删除条件" });
+        del.innerHTML = '<i data-lucide="trash-2"></i>';
+        del.addEventListener("click", function () {
+          P.confirm({
+            title: "删除预警条件",
+            message: "删除后该条件将不再触发预警，确定删除吗？",
+            danger: true,
+            okText: "删除"
+          }).then(function (ok2) {
+            if (!ok2) return;
+            W.conditions.splice(idx, 1);
+            renderConditions();
+            renderStats();
+            P.toast("预警条件已删除", "trash-2");
+          });
+        });
+
+        row.appendChild(dimSel);
+        row.appendChild(opSel);
+        row.appendChild(valIn);
+        row.appendChild(del);
+        item.appendChild(row);
+
+        var sub = el("div", { class: "flex items-center gap-12 flex-wrap", style: "margin-top:8px" });
+
+        var enLabel = el("label", { class: "flex items-center gap-8" });
+        enLabel.appendChild(el("span", { class: "text-xs muted" }, "启用"));
+        var sw = el("span", { class: "switch" + (c.enabled ? " is-on" : ""), role: "switch" });
+        sw.addEventListener("click", function () {
+          c.enabled = !c.enabled;
+          sw.classList.toggle("is-on");
+          renderStats();
+        });
+        enLabel.appendChild(sw);
+        sub.appendChild(enLabel);
+
+        var chips = el("div", { class: "flex gap-8 flex-wrap" });
+        CHANNELS.forEach(function (ch) {
+          var on = (c.channel || []).indexOf(ch.name) >= 0;
+          var chip = el("button", { type: "button", class: "chip" + (on ? " is-active" : "") });
+          chip.innerHTML = '<i data-lucide="' + ch.icon + '"></i><span>' + ch.name + "</span>";
+          chip.addEventListener("click", function () {
+            c.channel = c.channel || [];
+            var i = c.channel.indexOf(ch.name);
+            if (i >= 0) { c.channel.splice(i, 1); chip.classList.remove("is-active"); }
+            else { c.channel.push(ch.name); chip.classList.add("is-active"); }
+            validateConditions();
+          });
+          chips.appendChild(chip);
+        });
+        sub.appendChild(chips);
+        item.appendChild(sub);
+
+        var errBox = el("div", { class: "cond-errs" });
+        item.appendChild(errBox);
+        condRefs.push({ item: item, valIn: valIn, chips: chips, errBox: errBox });
+
+        box.appendChild(item);
+      });
+      refresh();
+      validateConditions();
+    }
+
+    $("#addCondBtn").addEventListener("click", function () {
+      W.conditions.push({ id: P.uid("w"), dim: "任务点", op: "<", value: 60, channel: ["站内"], enabled: true });
+      renderConditions();
+      renderStats();
+    });
+    $("#saveCondBtn").addEventListener("click", function () {
+      if (!validateConditions()) {
+        P.toast("存在无效或冲突的预警条件，请修正后再保存", "alert-triangle");
+        return;
+      }
+      P.Store.save();
+      P.toast("预警条件已保存", "save");
+    });
+
+    /* ---------- 督学记录 ---------- */
+    function renderSupervision() {
+      var dimF = $("#supDimFilter").value;
+      var stF = $("#supStatusFilter").value;
+      var rows = W.supervision.filter(function (r) {
+        return (dimF === "全部" || r.dim === dimF) && (stF === "全部" || r.status === stF);
+      });
+      var tbody = $("#supTbody");
+      var table = $("#supTable");
+      var empty = $("#supEmpty");
+      tbody.innerHTML = "";
+      if (!rows.length) {
+        table.hidden = true;
+        empty.hidden = false;
+        refresh();
+        return;
+      }
+      table.hidden = false;
+      empty.hidden = true;
+      rows.forEach(function (r) {
+        var tr = el("tr");
+        tr.innerHTML =
+          '<td class="cell-strong">' + r.student + "</td>" +
+          "<td>" + r.cls + "</td>" +
+          "<td>" + r.dim + "</td>" +
+          "<td>" + r.value + "</td>" +
+          '<td class="cell-faint">' + r.time + "</td>" +
+          "<td>" + r.channel + "</td>" +
+          "<td>" + statusBadge(r.status) + "</td>" +
+          '<td><button class="btn btn-sm btn-soft" data-id="' + r.id + '"><i data-lucide="send"></i>执行提醒</button></td>';
+        tr.querySelector("button").addEventListener("click", function () {
+          r.status = "已触达";
+          P.Store.save();
+          renderSupervision();
+          renderStats();
+          P.toast("已通过" + r.channel + "提醒" + r.student, "send");
+        });
+        tbody.appendChild(tr);
+      });
+      refresh();
+    }
+
+    var dimF = $("#supDimFilter");
+    dimF.innerHTML = '<option value="全部">全部维度</option>' +
+      DIMS.map(function (d) { return '<option value="' + d + '">' + d + "</option>"; }).join("");
+    var stF = $("#supStatusFilter");
+    stF.innerHTML = '<option value="全部">全部状态</option>' +
+      STATUSES.map(function (s) { return '<option value="' + s + '">' + s + "</option>"; }).join("");
+    dimF.addEventListener("change", renderSupervision);
+    stF.addEventListener("change", renderSupervision);
+
+    /* ---------- 表单校验反馈 ---------- */
+    function showErr(anchor, msg) {
+      clearErr(anchor);
+      var tip = el("div", { class: "field-error" });
+      tip.innerHTML = '<i data-lucide="alert-triangle"></i><span></span>';
+      tip.querySelector("span").textContent = msg;
+      anchor._errTip = tip;
+      anchor.parentNode.insertBefore(tip, anchor.nextSibling);
+      refresh();
+    }
+    function clearErr(anchor) {
+      if (anchor && anchor._errTip && anchor._errTip.parentNode) {
+        anchor._errTip.parentNode.removeChild(anchor._errTip);
+      }
+      anchor._errTip = null;
+    }
+    $("#ntfTitle").addEventListener("input", function () {
+      this.classList.remove("is-error");
+      clearErr(this);
+    });
+
+    /* ---------- 通知发放 ---------- */
+    function renderOrgTree() {
+      var tree = $("#orgTree");
+      tree.innerHTML = "";
+      ORG_NODES.forEach(function (n) {
+        var node = el("div", { class: "org-node" + (n.name === selectedScope ? " is-selected" : "") });
+        node.innerHTML = '<i data-lucide="' + n.icon + '"></i><span>' + n.name + "</span>";
+        node.addEventListener("click", function () {
+          selectedScope = n.name;
+          tree.classList.remove("err-outline");
+          clearErr(tree);
+          renderOrgTree();
+        });
+        tree.appendChild(node);
+      });
+      refresh();
+    }
+
+    function renderChannelGrid() {
+      var grid = $("#channelGrid");
+      grid.innerHTML = "";
+      selectedChannels = [];
+      CHANNELS.forEach(function (ch) {
+        var card = el("div", { class: "channel-card" });
+        card.innerHTML =
+          '<span class="ic"><i data-lucide="' + ch.icon + '"></i></span>' +
+          "<span><strong>" + ch.name + "</strong><small>多渠道提醒</small></span>";
+        card.addEventListener("click", function () {
+          var i = selectedChannels.indexOf(ch.name);
+          if (i >= 0) { selectedChannels.splice(i, 1); card.classList.remove("is-active"); }
+          else { selectedChannels.push(ch.name); card.classList.add("is-active"); }
+          if (selectedChannels.length) {
+            grid.classList.remove("err-outline");
+            clearErr(grid);
+          }
+        });
+        grid.appendChild(card);
+      });
+      refresh();
+    }
+
+    $("#sendNtfBtn").addEventListener("click", function () {
+      var titleIn = $("#ntfTitle");
+      var title = titleIn.value.trim();
+      var tree = $("#orgTree"), grid = $("#channelGrid");
+      var bad = false;
+      if (!selectedScope) { tree.classList.add("err-outline"); showErr(tree, "请选择发放范围"); bad = true; }
+      if (!title) { titleIn.classList.add("is-error"); showErr(titleIn, "请输入通知标题"); bad = true; }
+      if (!selectedChannels.length) { grid.classList.add("err-outline"); showErr(grid, "请至少选择一个提醒渠道"); bad = true; }
+      if (bad) { P.toast("请完善表单后再发放", "alert-triangle"); return; }
+
+      var total = scopeTotal(selectedScope);
+      var scope = selectedScope;
+      var channels = selectedChannels.slice();
+      P.confirm({
+        title: "确认发放通知",
+        message: "将向「" + scope + "」约 " + total + " 名学生通过 " + channels.join("、") + " 渠道发送《" + title + "》，发放后不可撤回。",
+        okText: "确认发放",
+        cancelText: "再想想"
+      }).then(function (ok) {
+        if (!ok) return;
+        var n = {
+          id: P.uid("n"),
+          scope: scope,
+          title: title,
+          channels: channels,
+          time: nowTime(),
+          total: total,
+          read: 0,
+          unread: total
+        };
+        W.notifications.unshift(n);
+        P.Store.save();
+        renderNotifications();
+        renderStats();
+        titleIn.value = "";
+        $("#ntfContent").value = "";
+        renderChannelGrid();
+        P.toast("通知已发放，预计触达 " + total + " 人", "send");
+      });
+    });
+
+    /* ---------- 已发通知 ---------- */
+    function renderNotifications() {
+      var box = $("#ntfList");
+      box.innerHTML = "";
+      if (!W.notifications.length) {
+        box.innerHTML = '<div class="empty-hint">暂无已发通知</div>';
+        refresh();
+        return;
+      }
+      var sorted = W.notifications.slice().sort(function (a, b) { return b.time.localeCompare(a.time); });
+      sorted.forEach(function (n) {
+        var pct = n.total > 0 ? Math.round(n.read / n.total * 100) : 0;
+        var hasUnread = (n.unread || 0) > 0;
+        var card = el("div", { class: "phone-card", style: "margin-bottom:11px" });
+        card.innerHTML =
+          '<div class="flex-between" style="margin-bottom:6px;gap:10px">' +
+            '<strong style="min-width:0">' + (hasUnread ? '<span class="unread-dot" title="仍有未读"></span>' : "") + n.title + "</strong>" +
+            '<button class="btn btn-soft btn-sm" style="flex:0 0 auto" data-urge="' + n.id + '"' + (hasUnread ? "" : " disabled") + '><i data-lucide="bell-ring"></i>催读</button>' +
+          "</div>" +
+          '<div class="flex gap-8 flex-wrap items-center" style="margin-bottom:8px">' +
+            '<span class="badge badge-purple">' + n.scope + "</span>" +
+            n.channels.map(function (c) { return '<span class="badge">' + c + "</span>"; }).join("") +
+            '<span class="muted text-xs">' + n.time + "</span>" +
+          "</div>" +
+          '<div class="flex-between text-xs" style="margin-bottom:5px">' +
+            '<span class="muted">已读 ' + n.read + "/" + n.total + "</span>" +
+            '<span class="badge' + (hasUnread ? " badge-danger" : " badge-ok") + '">' + (hasUnread ? "未读 " + n.unread : "全部已读") + "</span>" +
+          "</div>" +
+          '<div class="progress-track"><span style="width:' + pct + '%"></span></div>';
+        card.querySelector("[data-urge]").addEventListener("click", function () {
+          P.confirm({
+            title: "发送催读提醒",
+            message: "将向「" + n.scope + "」的 " + n.unread + " 名未读学生再次推送催读提醒，确定发送吗？",
+            okText: "发送催读"
+          }).then(function (ok) {
+            if (!ok) return;
+            var done = Math.min(n.unread, Math.ceil(n.unread * 0.6));
+            n.read += done;
+            n.unread -= done;
+            P.Store.save();
+            renderNotifications();
+            renderStats();
+            P.toast("催读提醒已发送，" + done + " 人确认阅读", "bell-ring");
+          });
+        });
+        box.appendChild(card);
+      });
+      refresh();
+    }
+
+    /* ---------- 初始化 ---------- */
+    renderStats();
+    renderConditions();
+    renderSupervision();
+    renderOrgTree();
+    renderChannelGrid();
+    renderNotifications();
+    refresh();
+  });
+  </script>
+</body>
+</html>

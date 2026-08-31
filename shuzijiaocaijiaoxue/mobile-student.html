@@ -1,0 +1,476 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>移动端 · 学生 · 知行课程平台</title>
+<link rel="stylesheet" href="./styles.css" />
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+<script src="./common.js"></script>
+</head>
+<body>
+  <main class="module-page"><div class="module-wrap">
+    <section class="module-header">
+      <div>
+        <p class="kicker">移动端 · 学生</p>
+        <h1>知识图谱随身学</h1>
+        <p>移动端访问知识图谱，点击知识点跳转微课深入学习，提供学习内容、资料、作业多功能。</p>
+      </div>
+      <div class="muted text-xs">学生端 · 移动演示</div>
+    </section>
+
+    <div class="phone-stage">
+      <div class="phone-frame">
+        <div class="phone-screen" id="phoneScreen">
+          <div class="phone-notch"></div>
+          <div class="phone-statusbar">
+            <span>9:41</span>
+            <span style="display:flex;align-items:center;gap:5px;">
+              <i data-lucide="signal"></i>
+              <i data-lucide="wifi"></i>
+              <i data-lucide="battery-full"></i>
+            </span>
+          </div>
+          <div class="phone-header" id="phoneHeader"></div>
+          <div class="phone-body" id="phoneBody"></div>
+          <div class="phone-tabbar" id="phoneTabbar"></div>
+        </div>
+      </div>
+    </div>
+  </div></main>
+
+  <script>
+  (function () {
+    "use strict";
+    var P = window.Platform;
+    var $ = P.$, el = P.el, toast = P.toast, refreshIcons = P.refreshIcons;
+    var S = P.Store.load();
+
+    /* ---------- 学生端种子数据（缺失时补建） ---------- */
+    function ensureMstu() {
+      if (!S.mstu) {
+        S.mstu = {
+          assignments: [
+            { id: "a1", name: "栈与队列课后作业", course: "数据结构与算法", due: "2026-09-05", done: false },
+            { id: "a2", name: "进程调度实验报告", course: "操作系统原理", due: "2026-09-08", done: false },
+            { id: "a3", name: "TCP 协议分析", course: "计算机网络", due: "2026-09-02", done: true },
+            { id: "a4", name: "SQL 查询优化练习", course: "数据库系统", due: "2026-09-10", done: false }
+          ],
+          materials: [
+            { id: "m1", name: "算法分析讲义.pdf", type: "doc", course: "数据结构与算法" },
+            { id: "m2", name: "排序算法可视化.mp4", type: "video", course: "数据结构与算法" },
+            { id: "m3", name: "操作系统实验指导.pdf", type: "doc", course: "操作系统原理" },
+            { id: "m4", name: "网络协议抓包演示.mp4", type: "video", course: "计算机网络" },
+            { id: "m5", name: "数据库索引原理.pdf", type: "doc", course: "数据库系统" }
+          ],
+          lessonDone: {}
+        };
+        P.Store.save();
+      }
+      if (!S.mstu.lessonDone) S.mstu.lessonDone = {};
+    }
+    ensureMstu();
+
+    /* ---------- 路由状态 ---------- */
+    var state = {
+      tab: "graph",            // graph | learn | material | assignment
+      view: null,              // micro-lesson | assignment-detail | null
+      nodeId: null,            // 当前微课对应的知识点 id（来自图谱）
+      lessonTitle: null,       // 微课标题（章节或知识点标签）
+      courseTitle: null,       // 微课所属课程
+      assignmentId: null
+    };
+
+    var TABS = [
+      { id: "graph", label: "知识图谱", icon: "network" },
+      { id: "learn", label: "学习", icon: "book-open" },
+      { id: "material", label: "资料", icon: "file-text" },
+      { id: "assignment", label: "作业", icon: "clipboard-list" }
+    ];
+
+    var screenEl, headerEl, bodyEl, tabbarEl;
+
+    function icon(name) { return '<i data-lucide="' + name + '"></i>'; }
+
+    /* ---------- 头部渲染 ---------- */
+    function setHeader(opts) {
+      headerEl.innerHTML = "";
+      var left = el("div", { style: "display:flex;align-items:center;gap:10px;min-width:0;" });
+      if (opts.back) {
+        var back = el("button", { class: "icon-btn", type: "button", title: "返回" });
+        back.innerHTML = icon("chevron-left");
+        back.addEventListener("click", function () { P.haptic(8); backToList(); });
+        left.appendChild(back);
+      }
+      var titleWrap = el("div", { style: "min-width:0;" });
+      var h2 = el("h2"); h2.textContent = opts.title; titleWrap.appendChild(h2);
+      if (opts.subtitle) {
+        var p = el("p"); p.textContent = opts.subtitle; titleWrap.appendChild(p);
+      }
+      left.appendChild(titleWrap);
+      headerEl.appendChild(left);
+    }
+
+    function backToList() {
+      state.view = null;
+      state.nodeId = null;
+      state.assignmentId = null;
+      state.lessonTitle = null;
+      state.courseTitle = null;
+      render();
+    }
+
+    /* ---------- 数据辅助 ---------- */
+    function nodeById(id) {
+      return S.graph.nodes.filter(function (n) { return n.id === id; })[0] || null;
+    }
+    function assignmentById(id) {
+      return S.mstu.assignments.filter(function (a) { return a.id === id; })[0] || null;
+    }
+    function activeCourse() { return S.courses[0]; }
+    function resForNode(id) { return S.graph.resources[id] || mockRes(); }
+    function mockRes() {
+      return [
+        { type: "video", name: "概念讲解微课" },
+        { type: "doc", name: "知识点讲义.pdf" },
+        { type: "quiz", name: "随堂测验" }
+      ];
+    }
+    function resTypeIcon(t) { return t === "video" ? "video" : (t === "doc" ? "file-text" : "clipboard-list"); }
+    function typeLabel(t) { return t === "video" ? "微课" : (t === "doc" ? "文档" : "测验"); }
+    function learnContent(title) {
+      return "本节聚焦「" + title + "」的核心概念与典型应用。建议结合视频讲解与配套资料，理解关键定义并完成随堂测验，巩固对该知识点的掌握。";
+    }
+    function assignmentQuestion(a) {
+      return "请结合《" + a.course + "》课程内容，针对「" + a.name +
+        "」相关知识点，撰写不少于 300 字的分析与解答。要求：结构清晰、论点明确，并结合实例说明。";
+    }
+
+    /* ---------- 主渲染 ---------- */
+    function render() {
+      // header
+      if (state.tab === "graph") {
+        if (state.view === "micro-lesson") {
+          var n = nodeById(state.nodeId);
+          setHeader({
+            back: true,
+            title: state.lessonTitle || (n && n.label) || "微课",
+            subtitle: state.courseTitle || "深入学习本节内容"
+          });
+        } else {
+          setHeader({ title: "知识图谱", subtitle: "点击知识点进入微课学习" });
+        }
+      } else if (state.tab === "learn") {
+        if (state.view === "micro-lesson") {
+          setHeader({
+            back: true,
+            title: state.lessonTitle || "微课",
+            subtitle: state.courseTitle || "继续学习"
+          });
+        } else {
+          var c = activeCourse();
+          setHeader({ title: "学习", subtitle: c.title + " · " + c.teacher });
+        }
+      } else if (state.tab === "material") {
+        setHeader({ title: "资料", subtitle: "课程学习资料下载" });
+      } else if (state.tab === "assignment") {
+        if (state.view === "assignment-detail") {
+          var a = assignmentById(state.assignmentId);
+          setHeader({
+            back: true,
+            title: a ? a.name : "作业",
+            subtitle: a ? (a.course + " · 截止 " + a.due) : ""
+          });
+        } else {
+          setHeader({ title: "作业", subtitle: "按时完成课程作业" });
+        }
+      }
+
+      // body
+      bodyEl.innerHTML = "";
+      if (state.tab === "graph") {
+        state.view === "micro-lesson" ? renderMicroLesson() : renderGraphList();
+      } else if (state.tab === "learn") {
+        state.view === "micro-lesson" ? renderMicroLesson() : renderLearnList();
+      } else if (state.tab === "material") {
+        renderMaterialList();
+      } else if (state.tab === "assignment") {
+        state.view === "assignment-detail" ? renderAssignmentDetail() : renderAssignmentList();
+      }
+
+      renderTabbar();
+      refreshIcons();
+      bodyEl.scrollTop = 0;
+    }
+
+    /* ---------- 底部 tabbar ---------- */
+    function renderTabbar() {
+      tabbarEl.innerHTML = "";
+      TABS.forEach(function (t) {
+        var b = el("button", { type: "button", class: t.id === state.tab ? "is-active" : "" });
+        b.innerHTML = icon(t.icon) + "<span></span>";
+        b.querySelector("span").textContent = t.label;
+        b.addEventListener("click", function () {
+          P.haptic(8);
+          state.tab = t.id;
+          state.view = null;
+          state.nodeId = null;
+          state.assignmentId = null;
+          state.lessonTitle = null;
+          state.courseTitle = null;
+          render();
+        });
+        tabbarEl.appendChild(b);
+      });
+    }
+
+    /* ---------- 知识图谱列表 ---------- */
+    function renderGraphList() {
+      var nodes = S.graph.nodes.filter(function (n) { return n.type === "kp"; });
+      if (!nodes.length) nodes = S.graph.nodes.slice();
+      nodes.forEach(function (n) {
+        var res = resForNode(n.id);
+        var vc = res.filter(function (r) { return r.type === "video"; }).length;
+        var dc = res.filter(function (r) { return r.type === "doc"; }).length;
+        var qc = res.filter(function (r) { return r.type === "quiz"; }).length;
+        var node = el("div", { class: "phone-kp-node", role: "button", tabindex: "0" });
+        node.innerHTML =
+          '<span class="dot"></span>' +
+          '<div style="flex:1;min-width:0;"><strong></strong><small></small></div>' +
+          icon("chevron-right");
+        node.querySelector("strong").textContent = n.label;
+        node.querySelector("small").textContent = "微课 " + vc + " · 资料 " + dc + " · 作业 " + qc;
+        node.addEventListener("click", function () {
+          state.view = "micro-lesson";
+          state.nodeId = n.id;
+          state.lessonTitle = n.label;
+          state.courseTitle = "知识图谱 · 微课";
+          render();
+        });
+        bodyEl.appendChild(node);
+      });
+    }
+
+    /* ---------- 微课详情（图谱 / 学习共用） ---------- */
+    function renderMicroLesson() {
+      var nodeId = state.nodeId;
+      var title = state.lessonTitle || (nodeById(nodeId) || {}).label || "微课";
+      var res = nodeId ? resForNode(nodeId) : mockRes();
+
+      // mini player
+      var player = el("div", {
+        style: "position:relative;aspect-ratio:16/9;background:#14201d;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:12px;"
+      });
+      var playBtn = el("button", {
+        type: "button",
+        title: "播放",
+        style: "display:grid;place-items:center;width:48px;height:48px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.94);color:#0d6257;box-shadow:0 8px 20px rgba(0,0,0,.3);cursor:pointer;"
+      });
+      playBtn.innerHTML = icon("play");
+      playBtn.addEventListener("click", function () { toast("开始播放：" + title, "play"); });
+      player.appendChild(playBtn);
+      bodyEl.appendChild(player);
+
+      // 本节学习内容
+      var c1 = el("div", { class: "phone-card" });
+      c1.innerHTML = '<h3>本节学习内容</h3>';
+      var cp = el("p", { class: "text-xs muted", style: "margin:0;line-height:1.6;" });
+      cp.textContent = learnContent(title);
+      c1.appendChild(cp);
+      bodyEl.appendChild(c1);
+
+      // 学习资料
+      var c2 = el("div", { class: "phone-card" });
+      c2.innerHTML = '<h3>学习资料</h3>';
+      res.forEach(function (r) {
+        var row = el("div", { class: "phone-mini-row" });
+        row.innerHTML =
+          '<span style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">' +
+          icon(resTypeIcon(r.type)) +
+          '<span class="res-name" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>' +
+          '</span><span class="muted text-xs res-type"></span>';
+        row.querySelector(".res-name").textContent = r.name;
+        row.querySelector(".res-type").textContent = typeLabel(r.type);
+        c2.appendChild(row);
+      });
+      bodyEl.appendChild(c2);
+
+      // 作业行
+      var c3 = el("div", { class: "phone-card" });
+      c3.innerHTML = '<h3>本节作业</h3>';
+      var arow = el("div", { class: "phone-mini-row" });
+      arow.innerHTML =
+        '<span style="display:flex;align-items:center;gap:8px;">' + icon("pen") +
+        '<span>章节随堂测验</span></span>' +
+        '<span class="badge badge-info">待完成</span>';
+      c3.appendChild(arow);
+      bodyEl.appendChild(c3);
+
+      // 标记完成
+      var done = nodeId ? !!S.mstu.lessonDone[nodeId] : false;
+      var btn = el("button", { type: "button", class: "btn btn-primary btn-block mt-12" });
+      btn.innerHTML = icon(done ? "circle-check" : "check") + "<span></span>";
+      btn.querySelector("span").textContent = done ? "已完成本节学习" : "标记完成";
+      if (done) btn.disabled = true;
+      btn.addEventListener("click", function () {
+        if (nodeId) {
+          S.mstu.lessonDone[nodeId] = true;
+          P.Store.save();
+        }
+        toast("已完成本节学习", "circle-check");
+        render();
+      });
+      bodyEl.appendChild(btn);
+    }
+
+    /* ---------- 学习列表 ---------- */
+    function renderLearnList() {
+      var c = activeCourse();
+
+      // 课程进度环
+      var ringBox = el("div", {
+        style: "display:flex;align-items:center;gap:14px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;"
+      });
+      var ring = el("div", { class: "ring", style: "--val:" + c.progress + ";--size:74px;" });
+      ring.innerHTML =
+        '<svg viewBox="0 0 74 74" style="width:100%;height:100%;"><circle class="track"></circle><circle class="fill"></circle></svg>' +
+        '<strong>' + c.progress + '%</strong>';
+      var info = el("div", { style: "flex:1;min-width:0;" });
+      info.innerHTML =
+        '<div class="text-xs muted">当前课程</div>' +
+        '<strong class="c-title" style="display:block;font-size:14px;margin:2px 0;"></strong>' +
+        '<div class="text-xs muted">教师：' + c.teacher + ' · 共 ' + c.lessons + ' 课时</div>';
+      info.querySelector(".c-title").textContent = c.title;
+      ringBox.appendChild(ring);
+      ringBox.appendChild(info);
+      bodyEl.appendChild(ringBox);
+
+      // 章节列表
+      c.chapters.forEach(function (ch, i) {
+        var prog = Math.max(0, Math.min(100, Math.round(c.progress * (i + 1) / c.chapters.length)));
+        var card = el("div", { class: "phone-card" });
+        card.innerHTML =
+          '<div class="flex-between"><strong class="ch-title" style="font-size:13px;"></strong>' +
+          '<span class="badge ' + (prog >= 100 ? 'badge-ok' : 'badge-info') + '">' + prog + '%</span></div>' +
+          '<div class="progress-track" style="margin:8px 0;"><span style="width:' + prog + '%;"></span></div>' +
+          '<div class="flex-between"><span class="muted text-xs">第 ' + (i + 1) + ' 节</span>' +
+          '<button class="btn btn-soft btn-sm" type="button">' + icon("play") + '继续学习</button></div>';
+        card.querySelector(".ch-title").textContent = ch.title;
+        card.querySelector("button").addEventListener("click", function () {
+          state.view = "micro-lesson";
+          state.nodeId = null;
+          state.lessonTitle = ch.title;
+          state.courseTitle = c.title;
+          render();
+        });
+        bodyEl.appendChild(card);
+      });
+    }
+
+    /* ---------- 资料列表 ---------- */
+    function renderMaterialList() {
+      S.mstu.materials.forEach(function (m) {
+        var card = el("div", { class: "phone-card" });
+        card.innerHTML =
+          '<div class="flex-between" style="gap:10px;">' +
+          '<span style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">' +
+          icon("file-text") +
+          '<span style="min-width:0;"><strong class="m-name" style="display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></strong>' +
+          '<span class="badge badge-info" style="margin-top:4px;"></span></span>' +
+          '</span><button class="icon-btn dl-btn" type="button" title="下载">' + icon("download") + '</button>' +
+          '</div>';
+        card.querySelector(".m-name").textContent = m.name;
+        card.querySelector(".badge").textContent = m.course;
+        card.querySelector(".dl-btn").addEventListener("click", function (e) {
+          e.stopPropagation();
+          toast("已下载：" + m.name, "download");
+        });
+        bodyEl.appendChild(card);
+      });
+    }
+
+    /* ---------- 作业列表 ---------- */
+    function renderAssignmentList() {
+      S.mstu.assignments.forEach(function (a) {
+        var card = el("div", { class: "phone-card", role: "button", tabindex: "0", style: "cursor:pointer;" });
+        card.innerHTML =
+          '<div class="flex-between"><strong class="a-name" style="font-size:13px;"></strong>' +
+          '<span class="badge ' + (a.done ? 'badge-ok' : 'badge-warn') + '">' + (a.done ? '已完成' : '待完成') + '</span></div>' +
+          '<div class="phone-mini-row" style="padding-top:8px;"><span class="muted">' + a.course + '</span>' +
+          '<span class="muted">截止 ' + a.due + '</span></div>';
+        card.querySelector(".a-name").textContent = a.name;
+        card.addEventListener("click", function () {
+          state.view = "assignment-detail";
+          state.assignmentId = a.id;
+          render();
+        });
+        bodyEl.appendChild(card);
+      });
+    }
+
+    /* ---------- 作业详情 ---------- */
+    function renderAssignmentDetail() {
+      var a = assignmentById(state.assignmentId);
+      if (!a) { backToList(); return; }
+
+      var q = el("div", { class: "phone-card" });
+      q.innerHTML =
+        '<span class="badge ' + (a.done ? 'badge-ok' : 'badge-warn') + '">' + (a.done ? '已完成' : '待完成') + '</span>' +
+        '<h3 style="margin-top:8px;">作业题目</h3>';
+      var qp = el("p", { class: "text-xs muted", style: "line-height:1.7;margin:0;" });
+      qp.textContent = assignmentQuestion(a);
+      q.appendChild(qp);
+      bodyEl.appendChild(q);
+
+      var ans = el("div", { class: "phone-card" });
+      var label = el("div", { class: "field-label", style: "margin-bottom:6px;" });
+      label.textContent = "你的作答";
+      ans.appendChild(label);
+      var ta = el("textarea", {
+        class: "textarea",
+        placeholder: "请在此输入你的答案…",
+        style: "min-height:120px;"
+      });
+      if (a.done) { ta.value = a.answer || ""; ta.disabled = true; }
+      ans.appendChild(ta);
+      bodyEl.appendChild(ans);
+
+      var btn = el("button", { type: "button", class: "btn btn-primary btn-block mt-12" });
+      btn.innerHTML = icon("check") + '<span>提交作业</span>';
+      if (a.done) {
+        btn.disabled = true;
+        btn.querySelector("span").textContent = "已提交";
+      }
+      btn.addEventListener("click", function () {
+        var val = ta.value.trim();
+        if (!val) { toast("请先填写作答内容", "bell"); return; }
+        a.done = true;
+        a.answer = val;
+        P.Store.save();
+        toast("作业已提交", "circle-check");
+        render();
+      });
+      bodyEl.appendChild(btn);
+    }
+
+    /* ---------- 启动 ---------- */
+    function init() {
+      screenEl = $("#phoneScreen");
+      headerEl = $("#phoneHeader");
+      bodyEl = $("#phoneBody");
+      tabbarEl = $("#phoneTabbar");
+      // 边缘右滑返回上一级（详情 → 列表）
+      P.enableSwipeBack(bodyEl, function () {
+        if (state.view) backToList();
+      });
+      render();
+    }
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+</body>
+</html>
