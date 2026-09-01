@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 智能出题 · 知行课程平台</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+    <script src="./common.js"></script>
+  </head>
+  <body>
+    <main class="module-page">
+      <div class="module-wrap">
+        <section class="module-header">
+          <div>
+            <p class="kicker">AI 出题</p>
+            <h1>AI 智能出题与题库组卷</h1>
+            <p>知识点、文本、附件文档、视频、章节多来源组合，搭配出题要求，AI 自动生成选择 / 填空 / 简答多题型试题，不限次数，可加入题库并组卷测验、考试与课堂练习。</p>
+          </div>
+          <div class="flex gap-8 items-center">
+            <span class="badge badge-info"><i data-lucide="database"></i> 题库 <strong id="hdrBankCount">0</strong></span>
+            <span class="badge badge-purple"><i data-lucide="file-stack"></i> 已组卷 <strong id="hdrPaperCount">0</strong></span>
+          </div>
+        </section>
+
+        <div class="tabs" id="aqTabs" style="margin-bottom: 18px">
+          <button class="tab is-active" data-tab="t1">出题工作台</button>
+          <button class="tab" data-tab="t2">题库管理</button>
+          <button class="tab" data-tab="t3">组卷与发布</button>
+        </div>
+
+        <!-- ============ Tab1 出题工作台 ============ -->
+        <div class="tab-panel is-active" id="t1">
+          <div class="module-grid cols-2-uneven">
+            <!-- 左：配置 -->
+            <section class="panel" style="align-self: start">
+              <div class="panel-head">
+                <div>
+                  <h2>出题配置</h2>
+                  <p class="sub">多来源组合 · 不限次数生成</p>
+                </div>
+                <span class="badge badge-info"><i data-lucide="sparkles"></i> AI</span>
+              </div>
+              <div class="panel-body">
+
+                <!-- 来源类型 -->
+                <div class="field" style="margin-bottom: 14px">
+                  <span class="field-label">出题来源（可多选）</span>
+                  <div class="flex gap-8 flex-wrap" id="srcChips"></div>
+                  <span class="field-hint">至少选择 1 种来源，多种来源将自动融合</span>
+                </div>
+
+                <!-- 各来源对应输入区 -->
+                <div class="src-panel" id="srcPanel-kp" hidden>
+                  <div class="field" style="margin-bottom: 14px">
+                    <label class="field-label" for="srcKp">知识点</label>
+                    <select class="select" id="srcKp"></select>
+                  </div>
+                </div>
+                <div class="src-panel" id="srcPanel-chapter" hidden>
+                  <div class="field" style="margin-bottom: 14px">
+                    <label class="field-label" for="srcChapterCourse">课程</label>
+                    <select class="select" id="srcChapterCourse"></select>
+                  </div>
+                  <div class="field" style="margin-bottom: 14px">
+                    <label class="field-label" for="srcChapter">章节</label>
+                    <select class="select" id="srcChapter"></select>
+                  </div>
+                </div>
+                <div class="src-panel" id="srcPanel-text" hidden>
+                  <div class="field" style="margin-bottom: 14px">
+                    <label class="field-label" for="srcText">粘贴文本</label>
+                    <textarea class="textarea" id="srcText" rows="5" placeholder="粘贴课程内容、教材片段或讲义文本，AI 将据此生成相关试题"></textarea>
+                  </div>
+                </div>
+                <div class="src-panel" id="srcPanel-doc" hidden>
+                  <div class="field" style="margin-bottom: 14px">
+                    <span class="field-label">附件文档</span>
+                    <button class="btn btn-soft btn-sm" id="pickDocBtn"><i data-lucide="file-up"></i> 上传文档</button>
+                    <input type="file" id="docInput" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt" hidden />
+                    <div id="docList" style="margin-top: 8px"></div>
+                  </div>
+                </div>
+                <div class="src-panel" id="srcPanel-video" hidden>
+                  <div class="field" style="margin-bottom: 14px">
+                    <span class="field-label">附件视频</span>
+                    <button class="btn btn-soft btn-sm" id="pickVideoBtn"><i data-lucide="video"></i> 上传视频</button>
+                    <input type="file" id="videoInput" accept="video/*" hidden />
+                    <div id="videoList" style="margin-top: 8px"></div>
+                  </div>
+                </div>
+
+                <div class="panel-sep"></div>
+
+                <!-- 题型 -->
+                <div class="field" style="margin-bottom: 14px">
+                  <span class="field-label">题型（可多选）</span>
+                  <div class="flex gap-8 flex-wrap" id="typeChips"></div>
+                </div>
+
+                <!-- 难度 -->
+                <div class="field" style="margin-bottom: 14px">
+                  <span class="field-label">难度</span>
+                  <div class="flex gap-8 flex-wrap" id="diffChips"></div>
+                </div>
+
+                <!-- 数量 -->
+                <div class="field" style="margin-bottom: 14px">
+                  <label class="field-label" for="genCount">本次生成数量</label>
+                  <input class="input" id="genCount" type="number" min="1" max="10" value="5" style="width: 110px" />
+                  <span class="field-hint">单次最多 10 题，可重复生成不限次数</span>
+                </div>
+
+                <!-- 出题要求 -->
+                <div class="field" style="margin-bottom: 14px">
+                  <label class="field-label" for="genReq">补充出题要求</label>
+                  <textarea class="textarea" id="genReq" rows="3" placeholder="例如：侧重应用场景、需要计算过程、覆盖易错点、避免与上次重复……"></textarea>
+                </div>
+              </div>
+              <div class="panel-foot flex gap-8">
+                <button class="btn btn-primary btn-block" id="genBtn"><i data-lucide="sparkles"></i> AI 生成试题</button>
+                <button class="btn btn-ghost" id="clearGenBtn" title="清空生成结果"><i data-lucide="eraser"></i></button>
+              </div>
+            </section>
+
+            <!-- 右：生成结果 -->
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>生成结果</h2>
+                  <p class="sub" id="genResultStat">尚未生成</p>
+                </div>
+                <div class="flex gap-8">
+                  <button class="btn btn-soft btn-sm" id="addAllBtn" disabled><i data-lucide="plus-circle"></i> 全部加入题库</button>
+                </div>
+              </div>
+              <div class="panel-body" id="genResult">
+                <div class="empty-hint"><i data-lucide="wand-2"></i> 配置来源与要求后，点击「AI 生成试题」</div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ============ Tab2 题库管理 ============ -->
+        <div class="tab-panel" id="t2">
+          <div class="hint-banner" style="margin-bottom: 14px">
+            <i data-lucide="database"></i>
+            <span>题库中的题目可随时用于测验、考试与课堂练习；支持按题型、难度、来源筛选与搜索。</span>
+          </div>
+          <div class="flex-between" style="margin-bottom: 14px; flex-wrap: wrap; gap: 10px">
+            <div class="flex gap-8 items-center flex-wrap">
+              <div class="phone-search" style="min-width: 200px">
+                <i data-lucide="search"></i>
+                <input id="bankSearch" type="text" placeholder="搜索题干、关键词" />
+              </div>
+              <select class="select" id="bankTypeFilter" style="width: auto; min-width: 120px"></select>
+              <select class="select" id="bankDiffFilter" style="width: auto; min-width: 120px"></select>
+              <select class="select" id="bankSrcFilter" style="width: auto; min-width: 130px"></select>
+            </div>
+            <div class="flex gap-8 items-center">
+              <span class="text-xs muted" id="bankSelStat">未选择</span>
+              <button class="btn btn-ghost btn-sm" id="bankSelectAllBtn"><i data-lucide="check-check"></i> 全选</button>
+              <button class="btn btn-danger btn-sm" id="bankDelBtn" disabled><i data-lucide="trash-2"></i> 批量删除</button>
+            </div>
+          </div>
+
+          <div class="stat-row-3" style="margin-bottom: 18px" id="bankStats"></div>
+
+          <div id="bankList" style="display: grid; gap: 12px"></div>
+        </div>
+
+        <!-- ============ Tab3 组卷与发布 ============ -->
+        <div class="tab-panel" id="t3">
+          <div class="module-grid cols-2-uneven">
+            <!-- 左：组卷配置 -->
+            <section class="panel" style="align-self: start">
+              <div class="panel-head">
+                <div>
+                  <h2>组卷配置</h2>
+                  <p class="sub">从题库挑选题目 · 选择用途</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="field" style="margin-bottom: 14px">
+                  <label class="field-label" for="paperTitle">卷子标题</label>
+                  <input class="input" id="paperTitle" placeholder="例如：数据结构第 2 章 随堂测验" />
+                </div>
+                <div class="field" style="margin-bottom: 14px">
+                  <span class="field-label">用途</span>
+                  <div class="flex gap-8 flex-wrap" id="useChips"></div>
+                </div>
+                <div class="field" style="margin-bottom: 14px">
+                  <span class="field-label">选题方式</span>
+                  <div class="flex gap-8 flex-wrap">
+                    <button class="btn btn-soft btn-sm" id="pickByFilterBtn"><i data-lucide="filter"></i> 按当前筛选全选</button>
+                    <button class="btn btn-soft btn-sm" id="pickRandomBtn"><i data-lucide="shuffle"></i> 随机抽 5 题</button>
+                    <button class="btn btn-ghost btn-sm" id="pickClearBtn"><i data-lucide="eraser"></i> 清空选择</button>
+                  </div>
+                </div>
+                <div class="field" style="margin-bottom: 4px">
+                  <span class="field-label">卷面统计</span>
+                  <div id="paperStat" class="text-xs muted">尚未选题</div>
+                </div>
+              </div>
+              <div class="panel-foot flex gap-8">
+                <button class="btn btn-primary btn-block" id="publishBtn"><i data-lucide="send"></i> 发布并保存卷子</button>
+              </div>
+            </section>
+
+            <!-- 右：题库选题 -->
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>题库选题</h2>
+                  <p class="sub">勾选要加入本次卷子的题目</p>
+                </div>
+                <span class="badge badge-info"><i data-lucide="check-square"></i> 已选 <strong id="paperSelCount">0</strong></span>
+              </div>
+              <div class="panel-body flush scroll-y" id="paperPickList" style="max-height: 640px"></div>
+            </section>
+          </div>
+
+          <section class="panel" style="margin-top: 18px">
+            <div class="panel-head">
+              <div>
+                <h2>已发布卷子</h2>
+                <p class="sub">可直接用于测验、考试或课堂练习</p>
+              </div>
+            </div>
+            <div class="panel-body" id="paperList"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      "use strict";
+      var P = window.Platform;
+      var $ = P.$, $$ = P.$$, el = P.el, R = P.refreshIcons, toast = P.toast;
+      var S = P.Store.load();
+      var Q = S.questions;
+      var PP = S.papers;
+      var BANK = P.quizBank;
+
+      /* ---------- 通用 ---------- */
+      var TYPE_META = {
+        choice: { label: "选择题", icon: "list-checks" },
+        fill:   { label: "填空题", icon: "text-cursor-input" },
+        short:  { label: "简答题", icon: "align-left" }
+      };
+      var DIFF_META = {
+        easy:   { label: "易", cls: "badge-ok" },
+        medium: { label: "中", cls: "badge-info" },
+        hard:   { label: "难", cls: "badge-danger" }
+      };
+      var SRC_META = {
+        kp:      { label: "知识点", icon: "network" },
+        chapter: { label: "章节", icon: "book-open" },
+        text:    { label: "文本", icon: "file-text" },
+        doc:     { label: "文档", icon: "file-up" },
+        video:   { label: "视频", icon: "video" }
+      };
+
+      function refreshHeader() {
+        $("#hdrBankCount").textContent = Q.length;
+        $("#hdrPaperCount").textContent = PP.length;
+      }
+
+      /* ---------- Tab 切换 ---------- */
+      $$("#aqTabs .tab").forEach(function (t) {
+        t.addEventListener("click", function () {
+          $$("#aqTabs .tab").forEach(function (x) { x.classList.toggle("is-active", x === t); });
+          $$(".tab-panel").forEach(function (p) { p.classList.toggle("is-active", p.id === t.dataset.tab); });
+          if (t.dataset.tab === "t2") renderBank();
+          if (t.dataset.tab === "t3") renderPaperPick();
+          R();
+        });
+      });
+
+      /* ============ Tab1 出题工作台 ============ */
+      var state = {
+        srcs: ["kp"],
+        types: ["choice", "fill", "short"],
+        diff: "medium",
+        gen: [],            // 本次生成的题目
+        uploadedDoc: null,
+        uploadedVideo: null
+      };
+
+      // 来源 chips
+      var SRC_KEYS = ["kp", "chapter", "text", "doc", "video"];
+      function renderSrcChips() {
+        var box = $("#srcChips"); box.innerHTML = "";
+        SRC_KEYS.forEach(function (k) {
+          var on = state.srcs.indexOf(k) >= 0;
+          var c = el("button", { type: "button", class: "chip" + (on ? " is-active" : "") });
+          c.innerHTML = '<i data-lucide="' + SRC_META[k].icon + '"></i><span>' + SRC_META[k].label + "</span>";
+          c.addEventListener("click", function () {
+            var i = state.srcs.indexOf(k);
+            if (i >= 0) state.srcs.splice(i, 1);
+            else state.srcs.push(k);
+            renderSrcChips();
+            syncSrcPanels();
+          });
+          box.appendChild(c);
+        });
+        R();
+      }
+      function syncSrcPanels() {
+        SRC_KEYS.forEach(function (k) {
+          var p = $("#srcPanel-" + k);
+          if (p) p.hidden = state.srcs.indexOf(k) < 0;
+        });
+      }
+
+      // 题型 chips
+      function renderTypeChips() {
+        var box = $("#typeChips"); box.innerHTML = "";
+        Object.keys(TYPE_META).forEach(function (k) {
+          var on = state.types.indexOf(k) >= 0;
+          var c = el("button", { type: "button", class: "chip" + (on ? " is-active" : "") });
+          c.innerHTML = '<i data-lucide="' + TYPE_META[k].icon + '"></i><span>' + TYPE_META[k].label + "</span>";
+          c.addEventListener("click", function () {
+            var i = state.types.indexOf(k);
+            if (i >= 0) state.types.splice(i, 1);
+            else state.types.push(k);
+            if (!state.types.length) state.types.push(k); // 至少一种
+            renderTypeChips();
+          });
+          box.appendChild(c);
+        });
+        R();
+      }
+
+      // 难度 chips
+      function renderDiffChips() {
+        var box = $("#diffChips"); box.innerHTML = "";
+        Object.keys(DIFF_META).forEach(function (k) {
+          var on = state.diff === k;
+          var c = el("button", { type: "button", class: "chip" + (on ? " is-active" : "") });
+          c.innerHTML = "<span>" + DIFF_META[k].label + "</span>";
+          c.addEventListener("click", function () { state.diff = k; renderDiffChips(); });
+          box.appendChild(c);
+        });
+      }
+
+      // 知识点下拉
+      function fillKpSelect() {
+        var sel = $("#srcKp");
+        var kps = (S.graph.nodes || []).filter(function (n) { return n.type === "kp" || n.type === "core"; });
+        sel.innerHTML = kps.map(function (n) {
+          return '<option value="' + n.id + '">' + n.label + "</option>";
+        }).join("");
+      }
+      // 章节：课程联动
+      function fillChapterSelects() {
+        var cSel = $("#srcChapterCourse");
+        cSel.innerHTML = S.courses.map(function (c) {
+          return '<option value="' + c.id + '">' + c.title + "</option>";
+        }).join("");
+        function syncChapters() {
+          var c = S.courses.filter(function (x) { return x.id === cSel.value; })[0];
+          var chSel = $("#srcChapter");
+          chSel.innerHTML = (c && c.chapters || []).map(function (ch) {
+            return '<option value="' + ch.id + '">' + ch.title + "</option>";
+          }).join("");
+        }
+        cSel.addEventListener("change", syncChapters);
+        syncChapters();
+      }
+
+      // 附件上传：本地仅记录文件名
+      $("#pickDocBtn").addEventListener("click", function () { $("#docInput").click(); });
+      $("#docInput").addEventListener("change", function (e) {
+        var f = e.target.files[0]; if (!f) return;
+        state.uploadedDoc = f.name;
+        renderAttachList($("#docList"), "doc", f.name);
+        toast("文档已上传：" + f.name, "file-up");
+      });
+      $("#pickVideoBtn").addEventListener("click", function () { $("#videoInput").click(); });
+      $("#videoInput").addEventListener("change", function (e) {
+        var f = e.target.files[0]; if (!f) return;
+        state.uploadedVideo = f.name;
+        renderAttachList($("#videoList"), "video", f.name);
+        toast("视频已上传：" + f.name, "video");
+      });
+      function renderAttachList(box, kind, name) {
+        box.innerHTML = '';
+        var chip = el("span", { class: "badge badge-info" });
+        chip.innerHTML = '<i data-lucide="' + (kind === "doc" ? "file-text" : "video") + '"></i> ' + name +
+          ' <button type="button" class="icon-btn" style="margin-left:6px;padding:0;width:18px;height:18px" title="移除"><i data-lucide="x"></i></button>';
+        chip.querySelector("button").addEventListener("click", function () {
+          if (kind === "doc") { state.uploadedDoc = null; $("#docInput").value = ""; }
+          else { state.uploadedVideo = null; $("#videoInput").value = ""; }
+          box.innerHTML = "";
+          R();
+        });
+        box.appendChild(chip);
+        R();
+      }
+
+      // 来源汇总标签
+      function currentSourceLabel() {
+        var parts = [];
+        if (state.srcs.indexOf("kp") >= 0) parts.push($("#srcKp").selectedOptions[0].textContent);
+        if (state.srcs.indexOf("chapter") >= 0) {
+          var cTitle = $("#srcChapterCourse").selectedOptions[0].textContent;
+          var chTitle = $("#srcChapter").selectedOptions[0] ? $("#srcChapter").selectedOptions[0].textContent : "";
+          parts.push(cTitle + " · " + chTitle);
+        }
+        if (state.srcs.indexOf("text") >= 0) {
+          var t = $("#srcText").value.trim();
+          parts.push(t ? "文本(" + t.slice(0, 8) + (t.length > 8 ? "…" : "") + ")" : "教师文本");
+        }
+        if (state.srcs.indexOf("doc") >= 0) parts.push(state.uploadedDoc || "教师文档");
+        if (state.srcs.indexOf("video") >= 0) parts.push(state.uploadedVideo || "教师视频");
+        return parts.join(" + ") || "多来源";
+      }
+      function currentSourceKind() { return state.srcs[0] || "kp"; }
+
+      /* ---------- AI 生成核心 ---------- */
+      function genQuiz() {
+        var types = state.types.slice();
+        var count = Math.max(1, Math.min(10, parseInt($("#genCount").value, 10) || 5));
+        var req = $("#genReq").value.trim();
+        var pool = BANK.filter(function (q) { return types.indexOf(q.type) >= 0; });
+
+        // 按题型轮询抽取，确保多题型覆盖
+        var out = [];
+        var i = 0;
+        while (out.length < count) {
+          var t = types[i % types.length];
+          var sub = pool.filter(function (q) { return q.type === t; });
+          if (!sub.length) { i++; if (i > types.length * count) break; continue; }
+          var pick = sub[Math.floor(Math.random() * sub.length)];
+          // 避免本次重复
+          var exists = out.some(function (x) { return x.stem === pick.stem; });
+          if (exists) { i++; continue; }
+          out.push(buildQuestionFromBank(pick, t));
+          i++;
+        }
+        // 标注本次要求
+        if (req) out.forEach(function (q) { q.aiReq = req; });
+        return out;
+      }
+
+      function buildQuestionFromBank(pick, t) {
+        return {
+          id: P.uid("gq"),
+          type: t,
+          stem: pick.stem,
+          options: pick.options ? pick.options.slice() : null,
+          answer: pick.answer,
+          explanation: pick.explanation,
+          difficulty: state.diff,
+          source: currentSourceKind(),
+          sourceLabel: currentSourceLabel(),
+          createdAt: P.fmt.clock()
+        };
+      }
+
+      /* ---------- 生成结果渲染 ---------- */
+      function renderGen() {
+        var box = $("#genResult");
+        box.innerHTML = "";
+        $("#genResultStat").textContent = state.gen.length ? "本次生成 " + state.gen.length + " 题" : "尚未生成";
+        $("#addAllBtn").disabled = state.gen.length === 0;
+        if (!state.gen.length) {
+          box.innerHTML = '<div class="empty-hint"><i data-lucide="wand-2"></i> 配置来源与要求后，点击「AI 生成试题」</div>';
+          R();
+          return;
+        }
+        state.gen.forEach(function (q, idx) {
+          box.appendChild(buildQCard(q, {
+            index: idx + 1,
+            primary: { icon: "plus", text: "加入题库", act: function () { addOne(q); } },
+            danger:  { icon: "trash-2", text: "", act: function () { removeGen(idx); } }
+          }));
+        });
+        R();
+      }
+
+      function buildQCard(q, opts) {
+        opts = opts || {};
+        var card = el("div", { class: "panel q-card", style: "margin-bottom: 10px" });
+        var meta = TYPE_META[q.type] || {};
+        var diff = DIFF_META[q.diff] || DIFF_META.medium;
+        var head = '<div class="panel-body">' +
+          '<div class="flex-between" style="margin-bottom: 8px; gap: 10px">' +
+            '<div class="flex gap-8 items-center flex-wrap">' +
+              (opts.index ? '<span class="badge badge-purple">' + opts.index + '</span>' : '') +
+              '<span class="badge ' + diff.cls + '"><i data-lucide="gauge"></i> ' + diff.label + '</span>' +
+              '<span class="badge badge-info"><i data-lucide="' + (meta.icon || "circle-help") + '"></i> ' + (meta.label || "题") + '</span>' +
+              '<span class="text-xs muted"><i data-lucide="' + (SRC_META[q.source] || SRC_META.kp).icon + '" style="width:12px;height:12px"></i> ' + q.sourceLabel + '</span>' +
+            '</div>' +
+            '<div class="flex gap-8">' +
+              (opts.primary ? '<button class="btn btn-soft btn-sm" data-act="primary"><i data-lucide="' + opts.primary.icon + '"></i> ' + opts.primary.text + '</button>' : '') +
+              (opts.danger ? '<button class="icon-btn" data-act="danger" title="' + (opts.danger.text || '删除') + '"><i data-lucide="' + opts.danger.icon + '"></i></button>' : '') +
+            '</div>' +
+          '</div>' +
+          '<p style="margin: 0 0 10px; font-size: 13px; font-weight: 700; line-height: 1.55">' + escHtml(q.stem) + '</p>';
+
+        var body = "";
+        if (q.type === "choice" && q.options) {
+          body = '<div class="q-opts">' + q.options.map(function (o, oi) {
+            var mk = oi === q.answer ? ' is-correct' : '';
+            return '<div class="quiz-opt' + mk + '"><span style="flex:1">' + escHtml(o) + '</span><span class="mark">' +
+              (oi === q.answer ? '<i data-lucide="circle-check"></i>' : '') + '</span></div>';
+          }).join("") + '</div>';
+        } else if (q.type === "fill") {
+          body = '<div class="quiz-opt is-correct"><span style="flex:1">参考答案：' + escHtml(q.answer) + '</span><span class="mark"><i data-lucide="circle-check"></i></span></div>';
+        } else {
+          body = '<div class="quiz-opt is-correct" style="align-items: flex-start"><span style="flex:1">参考答案：' + escHtml(q.answer) + '</span><span class="mark" style="margin-top:2px"><i data-lucide="circle-check"></i></span></div>';
+        }
+        body += '<p class="text-xs muted" style="margin: 8px 0 0"><i data-lucide="lightbulb" style="width:12px;height:12px"></i> 解析：' + escHtml(q.explanation) + '</p>';
+        body += '</div>';
+        card.innerHTML = head + body;
+
+        if (opts.primary) {
+          card.querySelector('[data-act="primary"]').addEventListener("click", function () { opts.primary.act(); });
+        }
+        if (opts.danger) {
+          card.querySelector('[data-act="danger"]').addEventListener("click", function () { opts.danger.act(); });
+        }
+        return card;
+      }
+
+      function escHtml(s) {
+        return String(s == null ? "" : s).replace(/[&<>"]/g, function (m) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m];
+        });
+      }
+
+      // 操作
+      function addOne(q) {
+        // 避免重复入库
+        if (Q.some(function (x) { return x.id === q.id; })) {
+          toast("该题已在题库", "info");
+          return;
+        }
+        var nq = Object.assign({}, q, { id: P.uid("q"), inBank: true });
+        Q.unshift(nq);
+        P.Store.save();
+        refreshHeader();
+        toast("已加入题库", "plus");
+      }
+      function removeGen(idx) {
+        state.gen.splice(idx, 1);
+        renderGen();
+      }
+
+      // 按钮绑定
+      $("#genBtn").addEventListener("click", function () {
+        if (!state.srcs.length) { toast("请至少选择一种来源", "alert-triangle"); return; }
+        if (!state.types.length) { toast("请至少选择一种题型", "alert-triangle"); return; }
+        // 骨架屏占位
+        var box = $("#genResult");
+        box.innerHTML = "";
+        var sk = el("div", {});
+        for (var i = 0; i < 3; i++) sk.appendChild(P.skeleton(5));
+        box.appendChild(sk);
+        R();
+        $("#genResultStat").textContent = "AI 正在生成…";
+        $("#addAllBtn").disabled = true;
+        // 模拟异步生成
+        setTimeout(function () {
+          state.gen = genQuiz();
+          renderGen();
+          toast("AI 已生成 " + state.gen.length + " 道试题", "sparkles");
+        }, 720);
+      });
+
+      $("#clearGenBtn").addEventListener("click", function () {
+        if (!state.gen.length) return;
+        P.confirm({ title: "清空生成结果", message: "将清空本次生成的全部题目（不影响题库），确定吗？", danger: true, okText: "清空" })
+          .then(function (ok) { if (!ok) return; state.gen = []; renderGen(); toast("已清空本次生成", "eraser"); });
+      });
+
+      $("#addAllBtn").addEventListener("click", function () {
+        if (!state.gen.length) return;
+        var added = 0;
+        state.gen.forEach(function (q) {
+          if (!Q.some(function (x) { return x.id === q.id; })) {
+            Q.unshift(Object.assign({}, q, { id: P.uid("q") }));
+            added++;
+          }
+        });
+        P.Store.save();
+        refreshHeader();
+        toast("已将 " + added + " 题加入题库", "database");
+        state.gen = [];
+        renderGen();
+      });
+
+      /* ============ Tab2 题库管理 ============ */
+      var bankSel = {};   // id -> true
+      var bankFilter = { q: "", type: "all", diff: "all", src: "all" };
+
+      function renderBankFilterControls() {
+        var tSel = $("#bankTypeFilter");
+        tSel.innerHTML = '<option value="all">全部题型</option>' +
+          Object.keys(TYPE_META).map(function (k) { return '<option value="' + k + '">' + TYPE_META[k].label + '</option>'; }).join("");
+        var dSel = $("#bankDiffFilter");
+        dSel.innerHTML = '<option value="all">全部难度</option>' +
+          Object.keys(DIFF_META).map(function (k) { return '<option value="' + k + '">' + DIFF_META[k].label + '</option>'; }).join("");
+        var sSel = $("#bankSrcFilter");
+        sSel.innerHTML = '<option value="all">全部来源</option>' +
+          Object.keys(SRC_META).map(function (k) { return '<option value="' + k + '">' + SRC_META[k].label + '</option>'; }).join("");
+        tSel.value = bankFilter.type; dSel.value = bankFilter.diff; sSel.value = bankFilter.src;
+        tSel.addEventListener("change", function () { bankFilter.type = tSel.value; renderBank(); });
+        dSel.addEventListener("change", function () { bankFilter.diff = dSel.value; renderBank(); });
+        sSel.addEventListener("change", function () { bankFilter.src = sSel.value; renderBank(); });
+        $("#bankSearch").addEventListener("input", function () {
+          bankFilter.q = $("#bankSearch").value.trim(); renderBank();
+        });
+      }
+
+      function filteredBank() {
+        return Q.filter(function (q) {
+          if (bankFilter.type !== "all" && q.type !== bankFilter.type) return false;
+          if (bankFilter.diff !== "all" && q.difficulty !== bankFilter.diff) return false;
+          if (bankFilter.src !== "all" && q.source !== bankFilter.src) return false;
+          if (bankFilter.q && (q.stem + q.explanation + (q.options || []).join("")).indexOf(bankFilter.q) < 0) return false;
+          return true;
+        });
+      }
+
+      function renderBank() {
+        // 统计
+        var stBox = $("#bankStats"); stBox.innerHTML = "";
+        var stTypes = { choice: 0, fill: 0, short: 0 };
+        Q.forEach(function (q) { stTypes[q.type] = (stTypes[q.type] || 0) + 1; });
+        [
+          { ic: "database", n: Q.length, l: "题库总数", cls: "" },
+          { ic: "list-checks", n: stTypes.choice, l: "选择题", cls: "purple" },
+          { ic: "align-left", n: stTypes.short, l: "简答题", cls: "blue" }
+        ].forEach(function (s) {
+          var a = el("article", { class: "stat-tile " + s.cls });
+          a.innerHTML = '<span class="ic"><i data-lucide="' + s.ic + '"></i></span><div><strong>' + s.n + '</strong><small>' + s.l + '</small></div>';
+          stBox.appendChild(a);
+        });
+
+        var box = $("#bankList"); box.innerHTML = "";
+        var list = filteredBank();
+        if (!list.length) {
+          box.innerHTML = '<div class="empty-hint"><i data-lucide="inbox"></i> 没有符合条件的题目</div>';
+          syncBankSelStat(); R(); return;
+        }
+        list.forEach(function (q, idx) {
+          var card = buildQCard(q, {
+            index: 0,
+            primary: null,
+            danger: { icon: "trash-2", text: "删除", act: function () { delBankOne(q); } }
+          });
+          // 加勾选框
+          var sel = el("label", { class: "quiz-opt", style: "margin-bottom: 10px; cursor: pointer" });
+          sel.innerHTML = '<input type="checkbox" style="margin:0;flex:0 0 auto" ' + (bankSel[q.id] ? "checked" : "") + ' /><span style="flex:1">选题（加入组卷）</span>';
+          sel.querySelector("input").addEventListener("change", function () {
+            if (this.checked) bankSel[q.id] = true; else delete bankSel[q.id];
+            syncBankSelStat();
+          });
+          card.querySelector(".panel-body").appendChild(sel);
+          box.appendChild(card);
+        });
+        syncBankSelStat();
+        R();
+      }
+
+      function syncBankSelStat() {
+        var n = Object.keys(bankSel).length;
+        $("#bankSelStat").textContent = n ? "已选 " + n + " 题" : "未选择";
+        $("#bankDelBtn").disabled = n === 0;
+      }
+
+      function delBankOne(q) {
+        P.confirm({ title: "删除题目", message: "将从题库永久删除该题，确定吗？", danger: true, okText: "删除" })
+          .then(function (ok) {
+            if (!ok) return;
+            var i = Q.indexOf(q);
+            if (i >= 0) Q.splice(i, 1);
+            delete bankSel[q.id];
+            P.Store.save();
+            refreshHeader(); renderBank();
+            toast("题目已删除", "trash-2");
+          });
+      }
+
+      $("#bankSelectAllBtn").addEventListener("click", function () {
+        var all = filteredBank();
+        var allOn = all.every(function (q) { return bankSel[q.id]; });
+        if (allOn) all.forEach(function (q) { delete bankSel[q.id]; });
+        else all.forEach(function (q) { bankSel[q.id] = true; });
+        renderBank();
+      });
+      $("#bankDelBtn").addEventListener("click", function () {
+        var ids = Object.keys(bankSel);
+        P.confirm({ title: "批量删除", message: "将删除选中的 " + ids.length + " 道题，确定吗？", danger: true, okText: "删除" })
+          .then(function (ok) {
+            if (!ok) return;
+            ids.forEach(function (id) {
+              var i = Q.findIndex(function (x) { return x.id === id; });
+              if (i >= 0) Q.splice(i, 1);
+            });
+            bankSel = {};
+            P.Store.save();
+            refreshHeader(); renderBank();
+            toast("已批量删除", "trash-2");
+          });
+      });
+
+      /* ============ Tab3 组卷与发布 ============ */
+      var paperUse = "test";
+      var USE_META = {
+        test:    { label: "测验", icon: "clipboard-list" },
+        exam:    { label: "考试", icon: "award" },
+        practice:{ label: "课堂练习", icon: "pencil-ruler" }
+      };
+      function renderUseChips() {
+        var box = $("#useChips"); box.innerHTML = "";
+        Object.keys(USE_META).forEach(function (k) {
+          var on = paperUse === k;
+          var c = el("button", { type: "button", class: "chip" + (on ? " is-active" : "") });
+          c.innerHTML = '<i data-lucide="' + USE_META[k].icon + '"></i><span>' + USE_META[k].label + "</span>";
+          c.addEventListener("click", function () { paperUse = k; renderUseChips(); });
+          box.appendChild(c);
+        });
+        R();
+      }
+
+      function paperSelIds() { return Object.keys(bankSel); }
+
+      function renderPaperPick() {
+        var box = $("#paperPickList"); box.innerHTML = "";
+        if (!Q.length) {
+          box.innerHTML = '<div class="empty-hint"><i data-lucide="inbox"></i> 题库为空，请先在「出题工作台」生成并加入题库</div>';
+          R(); return;
+        }
+        Q.forEach(function (q) {
+          var card = buildQCard(q, { index: 0, primary: null, danger: null });
+          var sel = el("label", { class: "quiz-opt", style: "margin-bottom: 10px; cursor: pointer" });
+          sel.innerHTML = '<input type="checkbox" style="margin:0;flex:0 0 auto" ' + (bankSel[q.id] ? "checked" : "") + ' /><span style="flex:1">加入本次卷子</span>';
+          sel.querySelector("input").addEventListener("change", function () {
+            if (this.checked) bankSel[q.id] = true; else delete bankSel[q.id];
+            syncPaperStat();
+          });
+          card.querySelector(".panel-body").appendChild(sel);
+          box.appendChild(card);
+        });
+        syncPaperStat();
+        R();
+      }
+      function syncPaperStat() {
+        var ids = paperSelIds();
+        $("#paperSelCount").textContent = ids.length;
+        if (!ids.length) { $("#paperStat").textContent = "尚未选题"; return; }
+        var sel = ids.map(function (id) { return Q.filter(function (q) { return q.id === id; })[0]; }).filter(Boolean);
+        var tc = { choice: 0, fill: 0, short: 0 };
+        sel.forEach(function (q) { tc[q.type]++; });
+        $("#paperStat").textContent = "共 " + sel.length + " 题 · 选择 " + tc.choice + " / 填空 " + tc.fill + " / 简答 " + tc.short;
+      }
+
+      $("#pickByFilterBtn").addEventListener("click", function () {
+        var list = filteredBank();
+        list.forEach(function (q) { bankSel[q.id] = true; });
+        syncPaperStat();
+        renderPaperPick();
+        toast("已按当前筛选加入 " + list.length + " 题", "check-check");
+      });
+      $("#pickRandomBtn").addEventListener("click", function () {
+        var pool = Q.slice().sort(function () { return Math.random() - 0.5; });
+        var n = Math.min(5, pool.length);
+        for (var i = 0; i < n; i++) bankSel[pool[i].id] = true;
+        syncPaperStat();
+        renderPaperPick();
+        toast("已随机抽取 " + n + " 题", "shuffle");
+      });
+      $("#pickClearBtn").addEventListener("click", function () {
+        bankSel = {}; syncPaperStat(); renderPaperPick();
+        toast("已清空本次卷子选题", "eraser");
+      });
+
+      $("#publishBtn").addEventListener("click", function () {
+        var title = $("#paperTitle").value.trim();
+        var ids = paperSelIds();
+        if (!title) { P.toast("请输入卷子标题", "alert-triangle"); $("#paperTitle").classList.add("is-error"); return; }
+        $("#paperTitle").classList.remove("is-error");
+        if (!ids.length) { P.toast("请至少选择一道题目", "alert-triangle"); return; }
+        var paper = {
+          id: P.uid("p"),
+          title: title,
+          use: paperUse,
+          items: ids.slice(),
+          count: ids.length,
+          createdAt: P.fmt.clock()
+        };
+        PP.unshift(paper);
+        P.Store.save();
+        refreshHeader();
+        renderPaperList();
+        $("#paperTitle").value = "";
+        bankSel = {};
+        syncPaperStat();
+        renderPaperPick();
+        toast("卷子《" + title + "》已发布，可用于" + USE_META[paperUse].label, "send");
+      });
+
+      function renderPaperList() {
+        var box = $("#paperList"); box.innerHTML = "";
+        if (!PP.length) {
+          box.innerHTML = '<div class="empty-hint"><i data-lucide="inbox"></i> 尚未发布卷子</div>';
+          R(); return;
+        }
+        PP.forEach(function (p) {
+          var card = el("div", { class: "phone-card", style: "margin-bottom: 10px" });
+          card.innerHTML =
+            '<div class="flex-between" style="margin-bottom: 6px; gap: 10px">' +
+              '<strong style="min-width:0">' + escHtml(p.title) + "</strong>" +
+              '<div class="flex gap-8" style="flex:0 0 auto">' +
+                '<span class="badge badge-info"><i data-lucide="' + USE_META[p.use].icon + '"></i> ' + USE_META[p.use].label + "</span>" +
+                '<button class="icon-btn" data-del="' + p.id + '" title="删除"><i data-lucide="trash-2"></i></button>' +
+              "</div>" +
+            "</div>" +
+            '<div class="flex gap-8 flex-wrap items-center text-xs muted">' +
+              '<span><i data-lucide="check-square" style="width:12px;height:12px"></i> ' + p.count + " 题</span>" +
+              '<span><i data-lucide="clock" style="width:12px;height:12px"></i> ' + p.createdAt + "</span>" +
+            "</div>";
+          card.querySelector("[data-del]").addEventListener("click", function () {
+            P.confirm({ title: "删除卷子", message: "将删除《" + p.title + "》，确定吗？", danger: true, okText: "删除" })
+              .then(function (ok) {
+                if (!ok) return;
+                var i = PP.indexOf(p);
+                if (i >= 0) PP.splice(i, 1);
+                P.Store.save(); refreshHeader(); renderPaperList();
+                toast("卷子已删除", "trash-2");
+              });
+          });
+          box.appendChild(card);
+        });
+        R();
+      }
+
+      /* ---------- 启动 ---------- */
+      renderSrcChips();
+      syncSrcPanels();
+      renderTypeChips();
+      renderDiffChips();
+      fillKpSelect();
+      fillChapterSelects();
+      renderGen();
+      renderBankFilterControls();
+      renderUseChips();
+      renderPaperList();
+      refreshHeader();
+    });
+    </script>
+  </body>
+</html>

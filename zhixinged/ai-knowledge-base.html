@@ -1,0 +1,490 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI 知识库训练 · 知行课程平台</title>
+<link rel="stylesheet" href="./styles.css" />
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+<script src="./common.js"></script>
+</head>
+<body>
+  <main class="module-page"><div class="module-wrap">
+    <section class="module-header">
+      <div>
+        <p class="kicker">AI 知识库训练</p>
+        <h1>训练与同步</h1>
+        <p>同步在线课程、对接文献库训练知识库、上传文档生成知识切片并自定义切片规则</p>
+      </div>
+      <div class="stat-row-3" id="kbStats" style="max-width:520px;width:100%"></div>
+    </section>
+
+    <div class="tabs" id="kbTabs" style="margin-bottom:18px">
+      <button class="tab is-active" data-tab="courses"><i data-lucide="refresh-ccw"></i> 课程同步</button>
+      <button class="tab" data-tab="books"><i data-lucide="library"></i> 文献库</button>
+      <button class="tab" data-tab="slices"><i data-lucide="layers"></i> 知识切片</button>
+      <button class="tab" data-tab="rules"><i data-lucide="settings"></i> 切片规则</button>
+    </div>
+
+    <!-- Tab1 课程同步 -->
+    <section class="tab-panel is-active" data-panel="courses">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>在线课程同步</h2>
+            <div class="sub">将课程章节接入知识库，便于后续训练与检索</div>
+          </div>
+          <button class="btn btn-primary" id="syncAllBtn"><i data-lucide="refresh-ccw"></i> 一键同步在线课程</button>
+        </div>
+        <div class="panel-body">
+          <div class="hint-banner"><i data-lucide="sparkles"></i>支持增量同步，仅更新新增或变更的章节，避免重复训练</div>
+          <div class="table-wrap mt-12">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>课程</th>
+                  <th>章节</th>
+                  <th>进度</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="courseTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab2 文献库 -->
+    <section class="tab-panel" data-panel="books">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>课程相关书籍</h2>
+            <div class="sub" id="bookSub">已导入 25/28 本，可批量训练</div>
+          </div>
+          <div class="flex gap-8">
+            <button class="btn btn-ghost" id="importLibBtn"><i data-lucide="database"></i> 对接文献库导入</button>
+            <button class="btn btn-primary" id="trainKbBtn"><i data-lucide="brain"></i> 训练AI知识库</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="trainProgressWrap" style="display:none;margin-bottom:14px">
+            <div class="flex-between text-xs muted mb-12">
+              <span><i data-lucide="sparkles" style="width:13px;height:13px;vertical-align:-2px"></i> 训练中…</span>
+              <span id="trainPct">0%</span>
+            </div>
+            <div class="progress-track"><span id="trainBar" style="width:0%"></span></div>
+          </div>
+          <div class="book-grid" id="bookGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab3 知识切片 -->
+    <section class="tab-panel" data-panel="slices">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>知识切片</h2>
+            <div class="sub">上传文档自动切分，可二次编辑切片内容</div>
+          </div>
+          <button class="btn btn-primary" id="uploadSliceBtn"><i data-lucide="upload"></i> 上传文档生成知识切片</button>
+          <input type="file" id="sliceFileInput" accept=".txt,.md,.pdf,.docx" hidden />
+        </div>
+        <div class="panel-body">
+          <div class="slice-list" id="sliceList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab4 切片规则 -->
+    <section class="tab-panel" data-panel="rules">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>切片规则</h2>
+            <div class="sub">配置分片标识符、分片大小与文本预处理规则</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-row cols-2">
+            <div class="field">
+              <label class="field-label">分片标识符</label>
+              <input class="input" id="ruleDelimiter" placeholder="例如 \n\n" />
+              <span class="field-hint">常用：换行段落 \n\n、句号 。 、分号 ；</span>
+            </div>
+            <div class="field">
+              <label class="field-label">分片大小（字）</label>
+              <input class="input" id="ruleSize" type="number" min="64" max="2048" step="32" placeholder="例如 512" />
+              <span class="field-hint">建议 256–1024 之间，过大影响检索召回</span>
+            </div>
+          </div>
+          <div class="field mt-12">
+            <label class="field-label">文本预处理规则</label>
+            <div class="flex flex-wrap gap-8" id="ruleChips"></div>
+            <span class="field-hint">点击切换启用/禁用，预览将实时反映效果</span>
+          </div>
+        </div>
+      </div>
+      <div class="panel mt-12">
+        <div class="panel-head">
+          <h3>规则预览</h3>
+          <span class="sub" id="rulePreviewMeta">基于首个切片</span>
+        </div>
+        <div class="panel-body">
+          <div class="review-text" id="rulePreviewText" style="white-space:pre-wrap"></div>
+        </div>
+        <div class="panel-foot">
+          <button class="btn btn-ghost" id="resetRulesBtn"><i data-lucide="refresh-ccw"></i> 恢复默认</button>
+          <button class="btn btn-primary" id="saveRulesBtn"><i data-lucide="save"></i> 保存规则</button>
+        </div>
+      </div>
+    </section>
+  </div></main>
+
+  <script>
+  (function () {
+    "use strict";
+    var P = window.Platform;
+    var $ = P.$, $$ = P.$$, el = P.el;
+    var S = P.Store.load();
+
+    // 本地：课程同步状态（默认待同步）
+    var syncedSet = {};
+    S.courses.forEach(function (c) { syncedSet[c.id] = false; });
+
+    // 预处理规则候选
+    var PRE_RULES = ["去空白", "去停用词", "保留标点", "分句", "去重"];
+    var STOP_WORDS = ["的", "了", "是", "与", "和", "及", "在", "为", "或", "等", "之", "于"];
+
+    // 初始化切片规则（如缺）
+    if (!S.sliceRules) {
+      S.sliceRules = { delimiter: "\\n\\n", size: 512, preprocess: ["去空白", "去停用词"] };
+      P.Store.save();
+    }
+    // 训练状态初始化：未训练前将 imported 书籍 trained 置 false 以演示流程
+    if (S.kbTrained !== true) {
+      S.books.forEach(function (b) { if (b.imported) b.trained = false; });
+      P.Store.save();
+    }
+
+    /* ---------- 渲染统计 ---------- */
+    function renderStats() {
+      var imported = S.books.filter(function (b) { return b.imported; }).length;
+      var host = $("#kbStats");
+      host.innerHTML = "";
+      host.appendChild(statTile("已同步课程数", S.courses.length, "graduation-cap", ""));
+      host.appendChild(statTile("已导入书籍", imported + "/28", "library", "warn"));
+      host.appendChild(statTile("已生成切片", S.slices.length, "layers", "purple"));
+      P.refreshIcons();
+    }
+    function statTile(label, value, icon, variant) {
+      return el("div", { class: "stat-tile" + (variant ? " " + variant : "") }, [
+        el("span", { class: "ic", html: '<i data-lucide="' + icon + '"></i>' }),
+        el("div", null, [el("strong", null, String(value)), el("small", null, label)])
+      ]);
+    }
+
+    /* ---------- Tab 切换 ---------- */
+    $$("#kbTabs .tab").forEach(function (t) {
+      t.addEventListener("click", function () {
+        $$("#kbTabs .tab").forEach(function (x) { x.classList.remove("is-active"); });
+        t.classList.add("is-active");
+        var name = t.getAttribute("data-tab");
+        $$(".tab-panel").forEach(function (p) {
+          p.classList.toggle("is-active", p.getAttribute("data-panel") === name);
+        });
+        P.refreshIcons();
+      });
+    });
+
+    /* ---------- Tab1 课程 ---------- */
+    function renderCourses() {
+      var tb = $("#courseTbody");
+      tb.innerHTML = "";
+      S.courses.forEach(function (c) {
+        var synced = syncedSet[c.id];
+        var tr = el("tr", null, [
+          el("td", { class: "cell-strong" }, c.title),
+          el("td", { class: "cell-faint" }, String(c.chapters.length) + " 章"),
+          el("td", null, [
+            el("div", { class: "flex items-center gap-8" }, [
+              el("div", { class: "progress-track", style: "width:90px" }, [
+                el("span", { style: "width:" + c.progress + "%" })
+              ]),
+              el("span", { class: "text-xs muted" }, c.progress + "%")
+            ])
+          ]),
+          el("td", null, [
+            el("span", { class: "badge " + (synced ? "badge-ok" : "badge-warn"), html: '<i data-lucide="' + (synced ? "circle-check" : "clock") + '"></i>' + (synced ? "已同步" : "待同步") })
+          ]),
+          el("td", null, [
+            el("button", {
+              class: "btn btn-ghost btn-sm",
+              onclick: function () { incrementalSync(c); }
+            }, [icon("refresh-ccw"), "增量同步"])
+          ])
+        ]);
+        tb.appendChild(tr);
+      });
+      P.refreshIcons();
+    }
+    function icon(name) {
+      var i = el("i");
+      i.setAttribute("data-lucide", name);
+      return i;
+    }
+    function incrementalSync(c) {
+      var before = c.chapters.length;
+      c.chapters.push({ id: c.id + "-n" + before + "a", title: c.title + "·新增章节 " + (before + 1) });
+      c.chapters.push({ id: c.id + "-n" + before + "b", title: c.title + "·新增章节 " + (before + 2) });
+      syncedSet[c.id] = true;
+      P.Store.save();
+      P.toast("增量同步完成，《" + c.title + "》新增 2 章节", "circle-check");
+      renderCourses();
+      renderStats();
+    }
+    $("#syncAllBtn").addEventListener("click", function () {
+      var n = S.courses.length;
+      S.courses.forEach(function (c) { syncedSet[c.id] = true; });
+      P.toast("已一键同步 " + n + " 门在线课程", "circle-check");
+      renderCourses();
+    });
+
+    /* ---------- Tab2 文献库 ---------- */
+    function renderBooks() {
+      var grid = $("#bookGrid");
+      grid.innerHTML = "";
+      var importedCount = S.books.filter(function (b) { return b.imported; }).length;
+      $("#bookSub").textContent = "已导入 " + importedCount + "/28 本，可批量训练";
+      S.books.forEach(function (b) {
+        var card = el("div", { class: "book-card", onclick: function () { P.toast("《" + b.title + "》已加入训练队列", "book-open"); } });
+        var spine = el("div", { class: "book-spine" });
+        spine.style.background = "linear-gradient(135deg," + b.color + "," + shade(b.color) + ")";
+        spine.style.borderLeft = "5px solid " + shade(b.color, -30);
+        spine.textContent = b.category;
+        var info = el("div", { class: "book-info" }, [
+          el("strong", null, b.title),
+          el("small", null, b.author),
+          el("div", { class: "flex gap-8 mt-12" }, [
+            el("span", { class: "badge " + (b.imported ? "badge-ok" : "badge-warn"), html: '<i data-lucide="' + (b.imported ? "check" : "x") + '"></i>' + (b.imported ? "已导入" : "未导入") }),
+            b.trained
+              ? el("span", { class: "badge badge-info", html: '<i data-lucide="sparkles"></i>已训练' })
+              : el("span", { class: "badge", html: '<i data-lucide="clock"></i>待训练' })
+          ])
+        ]);
+        card.appendChild(spine);
+        card.appendChild(info);
+        grid.appendChild(card);
+      });
+      P.refreshIcons();
+    }
+    function shade(hex, delta) {
+      delta = delta == null ? -20 : delta;
+      var c = hex.replace("#", "");
+      var r = parseInt(c.slice(0, 2), 16), g = parseInt(c.slice(2, 4), 16), b = parseInt(c.slice(4, 6), 16);
+      var f = function (v) { v = Math.max(0, Math.min(255, v + delta)); var s = v.toString(16); return s.length < 2 ? "0" + s : s; };
+      return "#" + f(r) + f(g) + f(b);
+    }
+    $("#importLibBtn").addEventListener("click", function () {
+      var added = 0;
+      S.books.forEach(function (b) { if (!b.imported) { b.imported = true; b.trained = false; b.sliced = 0; added++; } });
+      P.Store.save();
+      P.toast("已对接文献库，新增 " + added + " 本书籍入队", "database");
+      renderBooks();
+      renderStats();
+    });
+    var training = false;
+    $("#trainKbBtn").addEventListener("click", function () {
+      if (training) return;
+      training = true;
+      var wrap = $("#trainProgressWrap"), bar = $("#trainBar"), pct = $("#trainPct");
+      wrap.style.display = "block";
+      bar.style.width = "0%"; pct.textContent = "0%";
+      var p = 0;
+      var timer = setInterval(function () {
+        p += 7 + Math.floor(Math.random() * 9);
+        if (p >= 100) p = 100;
+        bar.style.width = p + "%"; pct.textContent = p + "%";
+        if (p >= 100) {
+          clearInterval(timer);
+          S.books.forEach(function (b) { if (b.imported) { b.trained = true; b.sliced = b.sliced || Math.floor(40 + Math.random() * 60); } });
+          S.kbTrained = true;
+          P.Store.save();
+          var n = S.books.filter(function (b) { return b.imported; }).length;
+          P.toast("AI 知识库训练完成，覆盖 " + n + " 本书", "sparkles");
+          training = false;
+          setTimeout(function () { wrap.style.display = "none"; }, 900);
+          renderBooks();
+          renderStats();
+        }
+      }, 160);
+    });
+
+    /* ---------- Tab3 知识切片 ---------- */
+    function renderSlices() {
+      var list = $("#sliceList");
+      list.innerHTML = "";
+      if (!S.slices.length) {
+        list.appendChild(el("div", { class: "empty-hint" }, "暂无切片，上传文档以生成"));
+        return;
+      }
+      S.slices.forEach(function (sl) {
+        var item = el("div", { class: "slice-item", "data-id": sl.id });
+        var head = el("div", { class: "slice-head" });
+        head.appendChild(el("strong", null, sl.source));
+        head.appendChild(el("div", { class: "meta" }, [
+          el("span", null, sl.size + " 字"),
+          el("span", null, "·"),
+          el("span", null, sl.delimiter),
+          el("span", null, "·"),
+          el("span", null, sl.preprocess),
+          el("button", { class: "btn btn-soft btn-sm", onclick: function (e) { e.stopPropagation(); editSlice(sl, body); } }, [icon("pencil"), "二次编辑"]),
+          el("button", { class: "icon-btn", title: "删除", onclick: function (e) { e.stopPropagation(); deleteSlice(sl.id); } }, [icon("trash-2")])
+        ]));
+        head.addEventListener("click", function () { item.classList.toggle("is-open"); });
+        var body = el("div", { class: "slice-body" });
+        body.appendChild(el("p", { style: "margin:10px 0 0" }, sl.text));
+        if (sl.edited) {
+          body.appendChild(el("div", { class: "flex gap-8 mt-12" }, [
+            el("span", { class: "badge badge-info", html: '<i data-lucide="pencil"></i>已二次编辑' })
+          ]));
+        }
+        item.appendChild(head);
+        item.appendChild(body);
+        list.appendChild(item);
+      });
+      P.refreshIcons();
+    }
+    function editSlice(sl, body) {
+      body.innerHTML = "";
+      var ta = el("textarea", { class: "textarea", style: "margin-top:10px" });
+      ta.value = sl.text;
+      body.appendChild(ta);
+      body.appendChild(el("div", { class: "flex gap-8 mt-12" }, [
+        el("button", { class: "btn btn-primary btn-sm", onclick: function () {
+          sl.text = ta.value; sl.edited = true; sl.size = ta.value.length; P.Store.save();
+          P.toast("切片已更新", "save"); renderSlices();
+        } }, [icon("check"), "保存"]),
+        el("button", { class: "btn btn-ghost btn-sm", onclick: function () { renderSlices(); } }, [icon("x"), "取消"])
+      ]));
+      P.refreshIcons();
+      ta.focus();
+    }
+    function deleteSlice(id) {
+      S.slices = S.slices.filter(function (x) { return x.id !== id; });
+      P.Store.save();
+      P.toast("切片已删除", "trash-2");
+      renderSlices();
+      renderStats();
+    }
+    $("#uploadSliceBtn").addEventListener("click", function () { $("#sliceFileInput").click(); });
+    $("#sliceFileInput").addEventListener("change", function (e) {
+      var f = e.target.files && e.target.files[0];
+      if (!f) return;
+      var name = f.name.replace(/\.[^.]+$/, "");
+      var mockText = "本文档为上传的《" + name + "》，系统已按设定的切片规则对其进行自动切分。每个切片保留独立语义边界，便于向量检索与大模型问答召回。教师可在此基础之上进行二次编辑，剔除冗余信息、补充关键术语，从而提升知识库的整体质量与回答准确率。";
+      var sl = {
+        id: P.uid("sl"),
+        source: name,
+        size: mockText.length,
+        delimiter: S.sliceRules ? S.sliceRules.delimiter : "\\n\\n",
+        preprocess: (S.sliceRules && S.sliceRules.preprocess.length) ? S.sliceRules.preprocess.join(" / ") : "去空白 / 去停用词",
+        text: mockText,
+        edited: false
+      };
+      S.slices.unshift(sl);
+      P.Store.save();
+      P.toast("文档已切分为 " + S.slices.length + " 个知识切片", "file-up");
+      renderSlices();
+      renderStats();
+      e.target.value = "";
+    });
+
+    /* ---------- Tab4 切片规则 ---------- */
+    function renderRuleChips() {
+      var host = $("#ruleChips");
+      host.innerHTML = "";
+      PRE_RULES.forEach(function (r) {
+        var active = S.sliceRules.preprocess.indexOf(r) >= 0;
+        var chip = el("button", { class: "chip" + (active ? " is-active" : ""), type: "button" }, [
+          icon(active ? "circle-check" : "plus"), r
+        ]);
+        chip.addEventListener("click", function () {
+          var i = S.sliceRules.preprocess.indexOf(r);
+          if (i >= 0) S.sliceRules.preprocess.splice(i, 1);
+          else S.sliceRules.preprocess.push(r);
+          renderRuleChips();
+          renderRulePreview();
+        });
+        host.appendChild(chip);
+      });
+      $("#ruleDelimiter").value = S.sliceRules.delimiter;
+      $("#ruleSize").value = S.sliceRules.size;
+      P.refreshIcons();
+    }
+    function applyRulesToText(text, rules) {
+      var out = text;
+      if (rules.indexOf("去空白") >= 0) {
+        out = out.replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").replace(/\s+$/gm, "");
+      }
+      if (rules.indexOf("去停用词") >= 0) {
+        out = out.replace(new RegExp("(" + STOP_WORDS.join("|") + ")", "g"), "");
+      }
+      if (rules.indexOf("保留标点") < 0) {
+        out = out.replace(/[，；：、！？·…—]/g, "");
+      }
+      if (rules.indexOf("分句") >= 0) {
+        var parts = out.split(/。/).filter(Boolean);
+        out = parts.map(function (p) { return p.trim() + "。"; }).join("\n");
+      }
+      if (rules.indexOf("去重") >= 0) {
+        var seen = {}, uniq = [];
+        out.split(/(\n)/).forEach(function (seg) {
+          if (seg === "\n") { uniq.push(seg); return; }
+          var k = seg.trim();
+          if (k && !seen[k]) { seen[k] = true; uniq.push(seg); }
+        });
+        out = uniq.join("");
+      }
+      return out;
+    }
+    function renderRulePreview() {
+      var meta = $("#rulePreviewMeta");
+      var box = $("#rulePreviewText");
+      if (!S.slices.length) { meta.textContent = "暂无切片可供预览"; box.textContent = "—"; return; }
+      var first = S.slices[0];
+      var rules = S.sliceRules.preprocess.slice();
+      meta.textContent = "基于切片：" + first.source + " · 已应用 " + rules.length + " 条规则";
+      box.textContent = applyRulesToText(first.text, rules);
+    }
+    $("#ruleDelimiter").addEventListener("input", function () { S.sliceRules.delimiter = $("#ruleDelimiter").value; renderRulePreview(); });
+    $("#ruleSize").addEventListener("input", function () { S.sliceRules.size = parseInt($("#ruleSize").value) || 512; });
+    $("#saveRulesBtn").addEventListener("click", function () {
+      S.sliceRules.delimiter = $("#ruleDelimiter").value || "\\n\\n";
+      S.sliceRules.size = parseInt($("#ruleSize").value) || 512;
+      P.Store.save();
+      P.toast("切片规则已保存，将应用于后续切分", "save");
+    });
+    $("#resetRulesBtn").addEventListener("click", function () {
+      S.sliceRules = { delimiter: "\\n\\n", size: 512, preprocess: ["去空白", "去停用词"] };
+      P.Store.save();
+      renderRuleChips();
+      renderRulePreview();
+      P.toast("已恢复默认切片规则", "refresh-ccw");
+    });
+
+    /* ---------- 初始化 ---------- */
+    renderStats();
+    renderCourses();
+    renderBooks();
+    renderSlices();
+    renderRuleChips();
+    renderRulePreview();
+    P.refreshIcons();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,478 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>知识图谱建设 · 知行课程平台</title>
+<link rel="stylesheet" href="./styles.css" />
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+<script src="./common.js"></script>
+</head>
+<body>
+  <main class="module-page">
+    <div class="module-wrap">
+      <section class="module-header">
+        <div>
+          <p class="kicker">知识图谱 · GRAPH</p>
+          <h1>知识图谱建设</h1>
+          <p>基于课程章节一键转化生成知识图谱，支持 AI 智能生成、自定义编辑与资源关联。</p>
+        </div>
+        <div class="flex flex-wrap gap-8" style="align-items:flex-end">
+          <div class="field" style="min-width:220px">
+            <label class="field-label" for="courseSelect">选择课程</label>
+            <select class="select" id="courseSelect"></select>
+          </div>
+          <button class="btn btn-primary" id="genBtn"><i data-lucide="git-fork"></i>一键转化生成知识图谱</button>
+          <button class="btn btn-soft" id="aiBtn"><i data-lucide="wand-2"></i>AI 智能生成图谱</button>
+        </div>
+      </section>
+
+      <!-- 主体 -->
+      <div class="module-grid cols-2-uneven">
+        <!-- 左：图谱画布 -->
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>知识图谱画布</h2>
+              <div class="sub">拖拽节点调整位置 · 点击节点查看详情</div>
+            </div>
+            <span class="badge badge-info"><i data-lucide="network"></i><span id="nodeCount">0</span> 节点 · <span id="linkCount">0</span> 关联</span>
+          </div>
+          <div class="panel-body flush">
+            <div class="graph-canvas" id="graphCanvas">
+              <svg id="graphLinks" viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;z-index:1;pointer-events:none"></svg>
+
+              <div class="graph-toolbar" style="z-index:4">
+                <button class="btn btn-ghost btn-sm" id="addNodeBtn"><i data-lucide="plus"></i>添加节点</button>
+                <button class="btn btn-ghost btn-sm" id="delNodeBtn"><i data-lucide="trash-2"></i>删除选中</button>
+                <button class="btn btn-ghost btn-sm" id="resetLayoutBtn"><i data-lucide="refresh-ccw"></i>重置布局</button>
+                <button class="btn btn-soft btn-sm" id="saveGraphBtn"><i data-lucide="save"></i>保存</button>
+              </div>
+
+              <div class="graph-legend" style="z-index:4">
+                <span><i style="background:var(--teal)"></i>核心</span>
+                <span><i style="background:#fff;border:1px solid var(--teal)"></i>知识点</span>
+                <span><i style="background:var(--purple-soft);border:1px solid var(--purple)"></i>图书</span>
+              </div>
+
+              <div id="aiOverlay" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(255,255,255,0.82);backdrop-filter:blur(3px);z-index:6">
+                <i data-lucide="sparkles" style="width:32px;height:32px;color:var(--teal)"></i>
+                <strong style="font-size:14px">AI 分析中…</strong>
+                <div class="typing"><span></span><span></span><span></span></div>
+                <span class="muted text-xs">正在基于数字教材抽取知识点</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 右：节点详情 -->
+        <aside class="panel">
+          <div class="panel-head">
+            <h3>节点详情</h3>
+            <span class="sub">资源关联 · 跳转微课</span>
+          </div>
+          <div class="panel-body" id="detailBody"></div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      var P = window.Platform;
+      var $ = P.$, $$ = P.$$, el = P.el, toast = P.toast, refresh = P.refreshIcons;
+      var S = P.Store.load();
+      var canvas = $('#graphCanvas');
+      var overlay = $('#aiOverlay');
+      var selectedId = null;
+
+      /* ---------- 工具 ---------- */
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+      function nodeById(id) {
+        for (var i = 0; i < S.graph.nodes.length; i++) {
+          if (S.graph.nodes[i].id === id) return S.graph.nodes[i];
+        }
+        return null;
+      }
+      function coreNodeId() {
+        var c = S.graph.nodes.filter(function (n) { return n.type === 'core'; })[0];
+        return c ? c.id : null;
+      }
+      function currentCourse() {
+        var id = $('#courseSelect').value;
+        return S.courses.filter(function (c) { return c.id === id; })[0] || S.courses[0];
+      }
+
+      /* ---------- 节点视觉 ---------- */
+      function nodeVisual(node) {
+        var sel = node.id === selectedId;
+        var halo = '0 0 0 3px var(--coral-soft), 0 0 0 5px var(--coral), 0 2px 6px rgba(0,0,0,.12)';
+        var base = '0 2px 6px rgba(0,0,0,.10)';
+        if (node.type === 'core') {
+          return { size: 52, bg: 'var(--teal)', border: 'var(--teal-dark)', color: '#fff', icon: 'graduation-cap', shadow: sel ? halo : base };
+        }
+        if (node.type === 'book') {
+          return { size: 46, bg: 'var(--purple-soft)', border: 'var(--purple)', color: 'var(--purple)', icon: 'book', shadow: sel ? halo : base };
+        }
+        return { size: 40, bg: '#fff', border: 'var(--teal)', color: 'var(--teal)', icon: null, shadow: sel ? halo : base };
+      }
+
+      /* ---------- 课程下拉 ---------- */
+      function renderCourseOptions() {
+        var sel = $('#courseSelect');
+        sel.innerHTML = '';
+        S.courses.forEach(function (c) {
+          sel.appendChild(el('option', { value: c.id, textContent: c.title + ' · ' + c.teacher }));
+        });
+        sel.value = S.activeCourseId || (S.courses[0] && S.courses[0].id);
+      }
+
+      /* ---------- 渲染连线 ---------- */
+      function renderLinks() {
+        var svg = $('#graphLinks');
+        var html = '';
+        S.graph.links.forEach(function (pair) {
+          var a = nodeById(pair[0]), b = nodeById(pair[1]);
+          if (!a || !b) return;
+          var cls = 'graph-link';
+          if (selectedId && (pair[0] === selectedId || pair[1] === selectedId)) cls += ' is-active';
+          html += '<line class="' + cls + '" x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" vector-effect="non-scaling-stroke" />';
+        });
+        svg.innerHTML = html;
+      }
+
+      /* ---------- 渲染节点 ---------- */
+      function renderNodes() {
+        $$('.graph-node', canvas).forEach(function (n) { n.remove(); });
+        S.graph.nodes.forEach(function (node) {
+          var v = nodeVisual(node);
+          var dot = el('div', { class: 'gn-dot' });
+          var iconSize = Math.round(v.size * 0.42);
+          dot.style.cssText = 'width:' + v.size + 'px;height:' + v.size + 'px;border-radius:50%;border:2px solid ' + v.border + ';background:' + v.bg + ';color:' + v.color + ';display:grid;place-items:center;box-shadow:' + v.shadow + ';transition:box-shadow 140ms ease, transform 140ms ease';
+          if (v.icon) dot.innerHTML = '<i data-lucide="' + v.icon + '" style="width:' + iconSize + 'px;height:' + iconSize + 'px"></i>';
+
+          var label = el('span', { class: 'gn-label', textContent: node.label });
+          label.style.cssText = 'font-size:12px;font-weight:600;color:var(--ink);background:rgba(255,255,255,.94);padding:2px 7px;border-radius:5px;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;border:1px solid var(--line);box-shadow:0 1px 3px rgba(0,0,0,.04)';
+
+          var wrap = el('div', { class: 'graph-node', 'data-id': node.id, 'data-type': node.type }, [dot, label]);
+          wrap.style.cssText = 'position:absolute;left:' + node.x + '%;top:' + node.y + '%;transform:translate(-50%,-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px;touch-action:none;user-select:none';
+          canvas.appendChild(wrap);
+          makeNodeDraggable(wrap, node);
+        });
+        refresh();
+      }
+
+      /* ---------- 拖拽 ---------- */
+      function makeNodeDraggable(nodeEl, node) {
+        nodeEl.addEventListener('pointerdown', function (e) {
+          if (e.button !== undefined && e.button !== 0) return;
+          e.preventDefault();
+          var moved = false;
+          var rect = canvas.getBoundingClientRect();
+          var onMove = function (ev) {
+            var dx = ev.clientX - e.clientX, dy = ev.clientY - e.clientY;
+            if (!moved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) moved = true;
+            if (!moved) return;
+            var nx = (ev.clientX - rect.left) / rect.width * 100;
+            var ny = (ev.clientY - rect.top) / rect.height * 100;
+            nx = Math.max(5, Math.min(95, nx));
+            ny = Math.max(8, Math.min(92, ny));
+            node.x = nx; node.y = ny;
+            nodeEl.style.left = nx + '%';
+            nodeEl.style.top = ny + '%';
+            renderLinks();
+          };
+          var onUp = function () {
+            document.removeEventListener('pointermove', onMove);
+            document.removeEventListener('pointerup', onUp);
+            canvas.classList.remove('grabbing');
+            if (moved) {
+              P.Store.save();
+            } else {
+              selectNode(node.id);
+            }
+          };
+          document.addEventListener('pointermove', onMove);
+          document.addEventListener('pointerup', onUp);
+          canvas.classList.add('grabbing');
+        });
+      }
+
+      /* ---------- 选中 ---------- */
+      function selectNode(id) {
+        selectedId = id;
+        render();
+      }
+
+      /* ---------- 右侧详情 ---------- */
+      function renderDetail() {
+        var body = $('#detailBody');
+        var node = selectedId ? nodeById(selectedId) : null;
+        if (!node) {
+          body.innerHTML = '<div class="empty-hint"><i data-lucide="mouse-pointer-click" style="width:28px;height:28px;margin-bottom:10px"></i><div>点击或拖拽节点查看详情</div><div class="muted text-xs" style="margin-top:4px">可编辑名称、关联资源、跳转微课</div></div>';
+          refresh();
+          return;
+        }
+        var typeBadge = node.type === 'core'
+          ? '<span class="badge badge-info"><i data-lucide="graduation-cap"></i>核心</span>'
+          : node.type === 'book'
+            ? '<span class="badge badge-purple"><i data-lucide="book"></i>图书</span>'
+            : '<span class="badge"><i data-lucide="circle"></i>知识点</span>';
+        var linkCount = S.graph.links.filter(function (l) { return l[0] === node.id || l[1] === node.id; }).length;
+        var res = S.graph.resources[node.id] || [];
+        var resHtml = res.length ? '' : '<div class="muted text-xs">暂无关联资源</div>';
+        res.forEach(function (r, i) {
+          var icon = r.type === 'video' ? 'video' : r.type === 'doc' ? 'file-text' : 'pen';
+          var bg = r.type === 'video' ? 'var(--teal-soft)' : r.type === 'doc' ? 'var(--blue-soft)' : 'var(--amber-soft)';
+          var col = r.type === 'video' ? 'var(--teal)' : r.type === 'doc' ? 'var(--blue)' : 'var(--amber)';
+          resHtml += '<div class="kp-resource"><span class="ic" style="background:' + bg + ';color:' + col + '"><i data-lucide="' + icon + '"></i></span>' +
+            '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.name) + '</span>' +
+            '<button class="icon-btn" data-del="' + i + '" title="移除"><i data-lucide="trash-2"></i></button></div>';
+        });
+
+        body.innerHTML =
+          '<div class="kp-detail">' +
+            '<h3>' + esc(node.label) + '</h3>' +
+            '<div class="meta">' + typeBadge + '<span class="badge"><i data-lucide="link"></i>' + linkCount + ' 关联</span></div>' +
+            '<div class="kp-section">' +
+              '<h4>节点名称</h4>' +
+              '<div class="flex gap-8">' +
+                '<input class="input" id="detName" value="' + esc(node.label) + '" />' +
+                '<button class="btn btn-soft btn-sm" id="saveNameBtn"><i data-lucide="save"></i>保存</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="kp-section">' +
+              '<h4>关联资源 (' + res.length + ')</h4>' +
+              '<div id="resList">' + resHtml + '</div>' +
+              '<button class="btn btn-ghost btn-sm btn-block mt-12" id="addResBtn"><i data-lucide="plus"></i>关联资源</button>' +
+              '<div id="resForm" style="display:none;flex-direction:column;gap:8px;margin-top:8px">' +
+                '<div class="flex gap-8">' +
+                  '<select class="select" id="resType" style="flex:0 0 92px"><option value="video">微课</option><option value="doc">文档</option><option value="quiz">测验</option></select>' +
+                  '<input class="input" id="resName" placeholder="资源名称" />' +
+                '</div>' +
+                '<button class="btn btn-soft btn-sm btn-block" id="resAddConfirm"><i data-lucide="check"></i>添加</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="kp-section">' +
+              '<button class="btn btn-primary btn-block" id="jumpBtn"><i data-lucide="play"></i>跳转微课</button>' +
+            '</div>' +
+          '</div>';
+
+        $('#saveNameBtn').addEventListener('click', saveName);
+        $('#addResBtn').addEventListener('click', function () {
+          var f = $('#resForm');
+          f.style.display = f.style.display === 'flex' ? 'none' : 'flex';
+          if (f.style.display === 'flex') $('#resName').focus();
+        });
+        $('#resAddConfirm').addEventListener('click', addResource);
+        $('#resName').addEventListener('keydown', function (e) { if (e.key === 'Enter') addResource(); });
+        $('#jumpBtn').addEventListener('click', function () {
+          var n = nodeById(selectedId);
+          toast('已跳转微课：' + (n ? n.label : ''), 'play');
+        });
+        $$('[data-del]', body).forEach(function (b) {
+          b.addEventListener('click', function () { delResource(Number(b.dataset.del)); });
+        });
+        refresh();
+      }
+
+      /* ---------- 总渲染 ---------- */
+      function render() {
+        renderLinks();
+        renderNodes();
+        $('#nodeCount').textContent = S.graph.nodes.length;
+        $('#linkCount').textContent = S.graph.links.length;
+        renderDetail();
+      }
+
+      /* ---------- 一键转化生成知识图谱 ---------- */
+      function genFromCourse() {
+        var course = currentCourse();
+        var coreId = 'k-core';
+        var nodes = [{ id: coreId, label: course.title, x: 50, y: 50, type: 'core' }];
+        var links = [];
+        var resources = {};
+        resources[coreId] = [{ type: 'video', name: course.title + ' · 导学微课' }];
+        var chs = course.chapters || [];
+        var R = 33;
+        chs.forEach(function (ch, i) {
+          var angle = (i / chs.length) * Math.PI * 2 - Math.PI / 2;
+          var x = 50 + R * Math.cos(angle);
+          var y = 50 + R * Math.sin(angle);
+          var nid = 'k-' + ch.id;
+          nodes.push({ id: nid, label: ch.title, x: x, y: y, type: 'kp' });
+          links.push([coreId, nid]);
+          var rtype = ['video', 'doc', 'quiz'][i % 3];
+          var rname = ch.title + (rtype === 'video' ? ' · 微课' : rtype === 'doc' ? ' · 讲义' : ' · 测验');
+          resources[nid] = [{ type: rtype, name: rname }];
+        });
+        S.graph = { nodes: nodes, links: links, resources: resources };
+        S.activeCourseId = course.id;
+        selectedId = coreId;
+        P.Store.save();
+        render();
+        toast('已基于《' + course.title + '》章节生成知识图谱并完成资源关联', 'git-fork');
+      }
+
+      /* ---------- AI 智能生成图谱 ---------- */
+      function aiGen() {
+        var course = currentCourse();
+        var bookMap = { c1: 'b1', c2: 'b7', c3: 'b9', c4: 'b11' };
+        var book = S.books.filter(function (b) { return b.id === (bookMap[course.id] || 'b1'); })[0] || S.books[0];
+        overlay.style.display = 'flex';
+        setTimeout(function () {
+          overlay.style.display = 'none';
+          var coreId = 'k-core';
+          var chs = course.chapters || [];
+          var topics = chs.slice(0, 6).map(function (c) { return c.title; });
+          while (topics.length < 6) topics.push('知识点 ' + (topics.length + 1));
+          var nodes = [{ id: coreId, label: course.title + ' · AI图谱', x: 50, y: 50, type: 'core' }];
+          var links = [];
+          var resources = {};
+          resources[coreId] = [
+            { type: 'video', name: 'AI 生成导学微课' },
+            { type: 'doc', name: '知识结构图.pdf' }
+          ];
+          var R = 30;
+          topics.forEach(function (t, i) {
+            var angle = (i / topics.length) * Math.PI * 2 - Math.PI / 2;
+            var x = 50 + R * Math.cos(angle);
+            var y = 50 + R * Math.sin(angle);
+            var nid = 'ai-' + i;
+            nodes.push({ id: nid, label: t, x: x, y: y, type: 'kp' });
+            links.push([coreId, nid]);
+            resources[nid] = [{ type: ['video', 'doc', 'quiz'][i % 3], name: t + ' · 资料' }];
+          });
+          nodes.push({ id: 'ai-book', label: '《' + book.title + '》', x: 91, y: 50, type: 'book' });
+          links.push([coreId, 'ai-book']);
+          resources['ai-book'] = [{ type: 'doc', name: book.title + ' · 数字教材' }];
+
+          S.graph = { nodes: nodes, links: links, resources: resources };
+          S.activeCourseId = course.id;
+          selectedId = coreId;
+          P.Store.save();
+          render();
+          toast('AI 已基于数字教材生成知识图谱，可直接使用或自定义修改', 'sparkles');
+        }, 1200);
+      }
+
+      /* ---------- 添加节点 ---------- */
+      function addNode() {
+        var name = prompt('输入新知识点名称：', '新知识点');
+        if (!name || !name.trim()) return;
+        var id = P.uid('k');
+        var hasCore = S.graph.nodes.some(function (n) { return n.type === 'core'; });
+        var pos = hasCore ? { x: 50, y: 36 } : { x: 50, y: 50 };
+        S.graph.nodes.push({ id: id, label: name.trim(), x: pos.x, y: pos.y, type: 'kp' });
+        var linkTo = coreNodeId() || selectedId;
+        if (linkTo) S.graph.links.push([linkTo, id]);
+        if (!S.graph.resources[id]) S.graph.resources[id] = [];
+        selectedId = id;
+        P.Store.save();
+        render();
+        toast('已添加节点「' + name.trim() + '」', 'plus');
+      }
+
+      /* ---------- 删除选中 ---------- */
+      function delNode() {
+        if (!selectedId) { toast('请先选中一个节点', 'info'); return; }
+        var node = nodeById(selectedId);
+        if (!node) return;
+        S.graph.nodes = S.graph.nodes.filter(function (n) { return n.id !== selectedId; });
+        S.graph.links = S.graph.links.filter(function (l) { return l[0] !== selectedId && l[1] !== selectedId; });
+        delete S.graph.resources[selectedId];
+        selectedId = null;
+        P.Store.save();
+        render();
+        toast('已删除节点', 'trash-2');
+      }
+
+      /* ---------- 重置布局 ---------- */
+      function resetLayout() {
+        var nodes = S.graph.nodes;
+        var core = nodes.filter(function (n) { return n.type === 'core'; })[0];
+        var others = nodes.filter(function (n) { return n.type !== 'core'; });
+        if (core) { core.x = 50; core.y = 50; }
+        var R = 32, cx = 50, cy = 50;
+        others.forEach(function (n, i) {
+          var angle = (i / others.length) * Math.PI * 2 - Math.PI / 2;
+          n.x = cx + R * Math.cos(angle);
+          n.y = cy + R * Math.sin(angle);
+        });
+        P.Store.save();
+        render();
+        toast('已重置布局', 'refresh-ccw');
+      }
+
+      /* ---------- 保存图谱 ---------- */
+      function saveGraph() {
+        P.Store.save();
+        toast('图谱已保存', 'save');
+      }
+
+      /* ---------- 保存节点名称 ---------- */
+      function saveName() {
+        if (!selectedId) return;
+        var node = nodeById(selectedId);
+        var v = $('#detName').value.trim();
+        if (!v) { toast('名称不能为空', 'info'); return; }
+        node.label = v;
+        P.Store.save();
+        render();
+        toast('节点名称已更新', 'save');
+      }
+
+      /* ---------- 关联资源 ---------- */
+      function addResource() {
+        if (!selectedId) return;
+        var type = $('#resType').value;
+        var name = $('#resName').value.trim();
+        if (!name) { toast('请输入资源名称', 'info'); return; }
+        if (!S.graph.resources[selectedId]) S.graph.resources[selectedId] = [];
+        S.graph.resources[selectedId].push({ type: type, name: name });
+        P.Store.save();
+        renderDetail();
+        toast('已关联资源「' + name + '」', 'link');
+      }
+
+      function delResource(idx) {
+        if (!selectedId) return;
+        var arr = S.graph.resources[selectedId];
+        if (!arr || !arr[idx]) return;
+        arr.splice(idx, 1);
+        P.Store.save();
+        renderDetail();
+        toast('已移除资源', 'trash-2');
+      }
+
+      /* ---------- 事件绑定 ---------- */
+      function bindEvents() {
+        $('#genBtn').addEventListener('click', genFromCourse);
+        $('#aiBtn').addEventListener('click', aiGen);
+        $('#addNodeBtn').addEventListener('click', addNode);
+        $('#delNodeBtn').addEventListener('click', delNode);
+        $('#resetLayoutBtn').addEventListener('click', resetLayout);
+        $('#saveGraphBtn').addEventListener('click', saveGraph);
+        $('#courseSelect').addEventListener('change', function () {
+          S.activeCourseId = this.value;
+          P.Store.save();
+        });
+        canvas.addEventListener('pointerdown', function (e) {
+          if (e.target.closest('.graph-node')) return;
+          if (e.target.closest('.graph-toolbar') || e.target.closest('.graph-legend') || e.target.closest('#aiOverlay')) return;
+          selectNode(null);
+        });
+      }
+
+      /* ---------- 启动 ---------- */
+      renderCourseOptions();
+      bindEvents();
+      render();
+    });
+  </script>
+</body>
+</html>

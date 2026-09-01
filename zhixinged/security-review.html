@@ -1,0 +1,392 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>智能安全检测 · 知行课程平台</title>
+<link rel="stylesheet" href="./styles.css" />
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+<script src="./common.js"></script>
+<style>
+  .left-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+  .config-sticky { position: sticky; top: 74px; }
+  #queueBox { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+  #queueBox .review-card { margin-bottom: 0; }
+  .review-thumb-icon { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--ink-faint); width: 100%; height: 100%; }
+  .review-thumb-icon svg { width: 24px; height: 24px; }
+  .review-thumb-icon span { font-size: 11px; }
+  .review-main { display: flex; flex-direction: column; min-width: 0; }
+  .review-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .flag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <main class="module-page"><div class="module-wrap">
+
+    <section class="module-header">
+      <div>
+        <p class="kicker">智能安全检测</p>
+        <h1>教材资源安全审核</h1>
+        <p>配置关键词与忽略词，对文本、图片、文档、课程进行在线敏感检测</p>
+      </div>
+      <div class="flex gap-8">
+        <button class="btn btn-soft" id="rescanBtn"><i data-lucide="scan-search"></i>重新扫描</button>
+        <button class="btn btn-primary" id="saveRulesBtnTop"><i data-lucide="save"></i>保存审核规则</button>
+      </div>
+    </section>
+
+    <section class="stat-row-3">
+      <div class="stat-tile">
+        <div class="ic"><i data-lucide="scan-text"></i></div>
+        <div><strong id="statPending">0</strong><small>待审核</small></div>
+      </div>
+      <div class="stat-tile danger">
+        <div class="ic"><i data-lucide="alert-triangle"></i></div>
+        <div><strong id="statHit">0</strong><small>命中关键词队列</small></div>
+      </div>
+      <div class="stat-tile purple">
+        <div class="ic"><i data-lucide="circle-check"></i></div>
+        <div><strong id="statDone">0</strong><small>已处理</small></div>
+      </div>
+    </section>
+
+    <section class="module-grid cols-2-uneven">
+      <div class="left-col">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>审核队列</h2>
+            <div class="flex gap-8" id="filterChips">
+              <button class="chip is-active" data-filter="all">全部</button>
+              <button class="chip" data-filter="text">文本</button>
+              <button class="chip" data-filter="image">图片</button>
+              <button class="chip" data-filter="doc">文档</button>
+              <button class="chip" data-filter="course">课程</button>
+            </div>
+          </div>
+          <div class="panel-body flush" id="queueBox"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>审核历史</h2>
+            <span class="muted text-xs">处理记录留存可追溯</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>资源</th><th>类型</th><th>处理动作</th><th>时间</th></tr>
+              </thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel config-sticky">
+        <div class="panel-head"><h2>审核规则配置</h2></div>
+        <div class="panel-body">
+          <div class="field">
+            <span class="field-label">关键词</span>
+            <span class="field-hint">命中即标记，提交审核重点关注</span>
+            <div class="tag-input" id="kwTagInput">
+              <input id="kwInput" class="tag-input-field" placeholder="输入关键词，回车或逗号添加" />
+            </div>
+          </div>
+          <div class="field mt-12">
+            <span class="field-label">忽略词</span>
+            <span class="field-hint">出现即跳过，降低人工审核误报</span>
+            <div class="tag-input" id="igTagInput">
+              <input id="igInput" class="tag-input-field" placeholder="输入忽略词，回车或逗号添加" />
+            </div>
+          </div>
+          <button class="btn btn-primary btn-block mt-12" id="saveRulesBtn"><i data-lucide="save"></i>保存审核规则</button>
+          <div class="hint-banner mt-12">
+            <i data-lucide="shield-check"></i>
+            <span>系统将自动屏蔽关键词、忽略忽略词，降低人工审核错误率</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div></main>
+
+  <script>
+  (function () {
+    function init() {
+      var P = window.Platform;
+      if (!P) return;
+      var $ = P.$, $$ = P.$$, el = P.el, toast = P.toast, refreshIcons = P.refreshIcons;
+      var S = P.Store.load();
+      if (!S.review) S.review = { keywords: [], ignore: [], queue: [], history: [] };
+      var R = S.review;
+      ["keywords", "ignore", "queue", "history"].forEach(function (k) {
+        if (!Array.isArray(R[k])) R[k] = [];
+      });
+
+      var state = { filter: "all" };
+
+      /* ---------- 工具 ---------- */
+      function escapeHtml(s) {
+        return String(s == null ? "" : s)
+          .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+      function escapeRe(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+      function nowStr() {
+        var d = new Date();
+        function p(n) { return n < 10 ? "0" + n : "" + n; }
+        return p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+      }
+      function typeMeta(t) {
+        var map = {
+          text: { icon: "file-text", label: "文本", cls: "badge-info" },
+          image: { icon: "image", label: "图片", cls: "badge-purple" },
+          doc: { icon: "file", label: "文档", cls: "badge-warn" },
+          course: { icon: "book-open", label: "课程", cls: "badge-ok" }
+        };
+        return map[t] || { icon: "file", label: t || "资源", cls: "badge" };
+      }
+
+      /* ---------- 检测 / 高亮 ---------- */
+      function detect(content) {
+        if (!content) return [];
+        var lower = content.toLowerCase();
+        var found = [];
+        var seen = {};
+        (R.keywords || []).forEach(function (k) {
+          if (!k) return;
+          if ((R.ignore || []).indexOf(k) !== -1) return; // 关键词在忽略词中 → 跳过
+          var key = k.toLowerCase();
+          if (seen[key]) return;
+          if (lower.indexOf(key) !== -1) { found.push(k); seen[key] = true; }
+        });
+        return found;
+      }
+      function highlight(content) {
+        if (!content) return "";
+        var ig = R.ignore || [], kw = R.keywords || [];
+        var ignoreSet = {};
+        ig.forEach(function (t) { if (t) ignoreSet[t.toLowerCase()] = true; });
+        var kwActive = kw.filter(function (k) { return k && !ignoreSet[k.toLowerCase()]; });
+        var terms = ig.concat(kwActive).filter(Boolean);
+        var seen = {};
+        terms = terms.filter(function (t) { var k = t.toLowerCase(); if (seen[k]) return false; seen[k] = true; return true; });
+        terms.sort(function (a, b) { return b.length - a.length; });
+        if (!terms.length) return escapeHtml(content);
+        var re;
+        try { re = new RegExp(terms.map(escapeRe).join("|"), "gi"); }
+        catch (e) { return escapeHtml(content); }
+        var html = "", last = 0, m;
+        while ((m = re.exec(content)) !== null) {
+          html += escapeHtml(content.slice(last, m.index));
+          var match = m[0], esc = escapeHtml(match);
+          html += ignoreSet[match.toLowerCase()] ? esc : '<mark class="danger">' + esc + "</mark>";
+          last = m.index + match.length;
+          if (match.length === 0) re.lastIndex++;
+        }
+        html += escapeHtml(content.slice(last));
+        return html;
+      }
+
+      /* ---------- 渲染：统计 ---------- */
+      function renderStats() {
+        var pending = R.queue.filter(function (it) { return it.status === "pending"; }).length;
+        var hit = R.queue.filter(function (it) {
+          return it.status === "pending" && detect(it.content).length > 0;
+        }).length;
+        $("#statPending").textContent = pending;
+        $("#statHit").textContent = hit;
+        $("#statDone").textContent = R.history.length;
+      }
+
+      /* ---------- 渲染：队列 ---------- */
+      function renderCard(it) {
+        var meta = typeMeta(it.type);
+        var flags = detect(it.content);
+        var thumb;
+        if (it.type === "image" && it.href) {
+          thumb = '<img src="' + escapeHtml(it.href) + '" alt="" />';
+        } else {
+          thumb = '<div class="review-thumb-icon"><i data-lucide="' + meta.icon + '"></i><span>' + meta.label + "</span></div>";
+        }
+        var flagBadges = flags.map(function (f) {
+          return '<span class="badge badge-danger"><i data-lucide="alert-triangle"></i>' + escapeHtml(f) + "</span>";
+        }).join("");
+        return (
+          '<div class="review-card" data-id="' + escapeHtml(it.id) + '">' +
+            '<div class="review-thumb">' + thumb + "</div>" +
+            '<div class="review-main">' +
+              '<div class="review-head">' +
+                "<strong>" + escapeHtml(it.title) + "</strong>" +
+                '<span class="badge ' + meta.cls + '">' + meta.label + "</span>" +
+              "</div>" +
+              (flagBadges ? '<div class="flag-row">' + flagBadges + "</div>" : "") +
+              '<div class="review-text mt-12">' + highlight(it.content) + "</div>" +
+              '<div class="review-actions">' +
+                '<button class="btn btn-soft btn-sm" data-act="pass"><i data-lucide="circle-check"></i>通过</button>' +
+                '<button class="btn btn-danger btn-sm" data-act="reject"><i data-lucide="x"></i>驳回</button>' +
+                '<button class="btn btn-ghost btn-sm" data-act="ignore"><i data-lucide="ban"></i>忽略</button>' +
+              "</div>" +
+            "</div>" +
+          "</div>"
+        );
+      }
+      function renderQueue() {
+        var box = $("#queueBox");
+        var items = R.queue.filter(function (it) { return it.status === "pending"; });
+        if (state.filter !== "all") items = items.filter(function (it) { return it.type === state.filter; });
+        if (!items.length) {
+          var msg = state.filter !== "all" ? "当前分类暂无待审核资源" : "审核队列已清空，可点击重新扫描";
+          box.innerHTML = '<div class="empty-hint">' + msg + "</div>";
+          refreshIcons();
+          return;
+        }
+        box.innerHTML = items.map(renderCard).join("");
+        refreshIcons();
+        $$("#queueBox .review-card").forEach(function (card) {
+          var id = card.getAttribute("data-id");
+          $$("[data-act]", card).forEach(function (btn) {
+            btn.addEventListener("click", function () { handleAction(id, btn.getAttribute("data-act")); });
+          });
+        });
+      }
+
+      /* ---------- 处理动作 ---------- */
+      function handleAction(id, act) {
+        var it = R.queue.filter(function (x) { return x.id === id; })[0];
+        if (!it) return;
+        var map = { pass: "pass", reject: "reject", ignore: "ignore" };
+        var label = { pass: "通过", reject: "驳回", ignore: "忽略" }[act];
+        it.status = map[act];
+        R.history.unshift({
+          id: it.id, title: it.title, type: it.type, action: label, time: nowStr()
+        });
+        P.Store.save();
+        var toastMsg = act === "pass" ? "已通过" : act === "reject" ? "已驳回" : "已忽略";
+        var toastIcon = act === "pass" ? "circle-check" : act === "reject" ? "circle-x" : "ban";
+        toast(toastMsg, toastIcon);
+        renderAll();
+      }
+
+      /* ---------- 重新扫描 ---------- */
+      function rescan() {
+        R.queue.forEach(function (it) { it.status = "pending"; });
+        var hit = R.queue.filter(function (it) { return detect(it.content).length > 0; }).length;
+        P.Store.save();
+        renderAll();
+        toast("检测完成，发现 " + hit + " 处敏感内容", "scan-search");
+      }
+
+      /* ---------- 渲染：历史 ---------- */
+      function renderHistory() {
+        var body = $("#historyBody");
+        if (!R.history.length) {
+          body.innerHTML = '<tr><td colspan="4"><div class="empty-hint">暂无审核记录</div></td></tr>';
+          return;
+        }
+        body.innerHTML = R.history.map(function (h) {
+          var meta = typeMeta(h.type);
+          var actCls = h.action === "通过" ? "badge-ok" : h.action === "驳回" ? "badge-danger" : "badge";
+          return (
+            "<tr>" +
+              '<td class="cell-strong">' + escapeHtml(h.title) + "</td>" +
+              '<td><span class="badge ' + meta.cls + '">' + meta.label + "</span></td>" +
+              '<td><span class="badge ' + actCls + '">' + h.action + "</span></td>" +
+              '<td class="cell-faint">' + escapeHtml(h.time) + "</td>" +
+            "</tr>"
+          );
+        }).join("");
+      }
+
+      /* ---------- 渲染：标签输入 ---------- */
+      function buildPills(host, input, list, pillCls, onRemove) {
+        $$(".tag-pill", host).forEach(function (p) { p.remove(); });
+        list.forEach(function (val) {
+          var pill = el("span", { class: "tag-pill " + pillCls });
+          pill.innerHTML = "<span>" + escapeHtml(val) + "</span>";
+          var x = el("button", { type: "button" });
+          x.innerHTML = '<i data-lucide="x"></i>';
+          x.addEventListener("click", function () { onRemove(val); });
+          pill.appendChild(x);
+          host.insertBefore(pill, input);
+        });
+        refreshIcons();
+      }
+      function renderKwPills() {
+        buildPills($("#kwTagInput"), $("#kwInput"), R.keywords, "danger", function (v) {
+          R.keywords = R.keywords.filter(function (x) { return x !== v; });
+          P.Store.save(); renderKwPills(); renderAll();
+        });
+      }
+      function renderIgPills() {
+        buildPills($("#igTagInput"), $("#igInput"), R.ignore, "ignore", function (v) {
+          R.ignore = R.ignore.filter(function (x) { return x !== v; });
+          P.Store.save(); renderIgPills(); renderAll();
+        });
+      }
+      function bindTagInput(input, list, otherList, rerender) {
+        input.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === ",") {
+            e.preventDefault();
+            var v = this.value.replace(/,$/, "").trim();
+            if (!v) { this.value = ""; return; }
+            if (list.indexOf(v) !== -1 || otherList.indexOf(v) !== -1) { this.value = ""; return; }
+            list.push(v);
+            P.Store.save();
+            this.value = "";
+            rerender();
+            renderAll();
+          }
+        });
+      }
+
+      /* ---------- 渲染：筛选 ---------- */
+      function renderChips() {
+        $$("#filterChips .chip").forEach(function (c) {
+          c.classList.toggle("is-active", c.getAttribute("data-filter") === state.filter);
+        });
+      }
+
+      function renderAll() {
+        renderStats();
+        renderQueue();
+        renderHistory();
+        refreshIcons();
+      }
+
+      /* ---------- 绑定 ---------- */
+      $("#rescanBtn").addEventListener("click", rescan);
+      $("#saveRulesBtn").addEventListener("click", function () {
+        P.Store.save();
+        toast("审核规则已更新", "save");
+      });
+      $("#saveRulesBtnTop").addEventListener("click", function () {
+        P.Store.save();
+        toast("审核规则已更新", "save");
+      });
+      $$("#filterChips .chip").forEach(function (c) {
+        c.addEventListener("click", function () {
+          state.filter = c.getAttribute("data-filter");
+          renderChips();
+          renderQueue();
+        });
+      });
+      bindTagInput($("#kwInput"), R.keywords, R.ignore, renderKwPills);
+      bindTagInput($("#igInput"), R.ignore, R.keywords, renderIgPills);
+
+      /* ---------- 启动 ---------- */
+      renderChips();
+      renderKwPills();
+      renderIgPills();
+      renderAll();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+</body>
+</html>
