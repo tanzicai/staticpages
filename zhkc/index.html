@@ -1,0 +1,3726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智学云教育平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#1a56db;--primary-light:#2563eb;--primary-dark:#1e40af;
+  --primary-bg:#eff6ff;--primary-border:#bfdbfe;
+  --bg:#f8fafc;--white:#fff;--text:#1e293b;--text-secondary:#64748b;
+  --text-light:#94a3b8;--border:#e2e8f0;--border-light:#f1f5f9;
+  --success:#059669;--warning:#d97706;--danger:#dc2626;--info:#0284c7;
+  --shadow:0 1px 3px rgba(0,0,0,.08);--shadow-md:0 4px 12px rgba(0,0,0,.1);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.12);
+  --radius:6px;--radius-lg:10px;--radius-xl:14px;
+  --sidebar-w:240px;--topbar-h:56px;
+  --transition:all .2s ease;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow:hidden;height:100vh}
+a{text-decoration:none;color:var(--primary)}
+ul{list-style:none}
+
+/* Login Overlay */
+.login-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#1a56db 100%)}
+.login-overlay.hidden{display:none}
+.login-bg{position:absolute;inset:0;overflow:hidden}
+.login-bg::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:rgba(255,255,255,.03);top:-200px;right:-100px}
+.login-bg::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:rgba(255,255,255,.03);bottom:-150px;left:-100px}
+.login-container{position:relative;z-index:1;width:420px;background:rgba(255,255,255,.98);border-radius:16px;padding:48px 40px;box-shadow:0 25px 60px rgba(0,0,0,.3)}
+.login-header{text-align:center;margin-bottom:36px}
+.login-logo{width:56px;height:56px;background:linear-gradient(135deg,#1a56db,#3b82f6);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#fff;font-size:24px;font-weight:700}
+.login-header h2{font-size:22px;color:#1e293b;font-weight:600}
+.login-header p{color:#64748b;font-size:13px;margin-top:6px}
+.login-subtitle{font-size:12px;color:#94a3b8;margin-top:4px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-size:13px;font-weight:500;color:#475569;margin-bottom:6px}
+.form-group input{width:100%;height:44px;padding:0 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;outline:none;transition:var(--transition);background:#f8fafc}
+.form-group input:focus{border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.login-btn{width:100%;height:44px;background:linear-gradient(135deg,#1a56db,#2563eb);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:var(--transition);margin-top:8px}
+.login-btn:hover{background:linear-gradient(135deg,#1e40af,#1d4ed8);transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,86,219,.35)}
+.login-error{color:#dc2626;font-size:12px;text-align:center;margin-top:10px;min-height:20px}
+.login-footer{text-align:center;margin-top:24px;font-size:12px;color:#94a3b8}
+
+/* Main Layout */
+.app-layout{display:flex;height:100vh;overflow:hidden}
+.app-layout.hidden{display:none}
+.sidebar{width:var(--sidebar-w);background:linear-gradient(180deg,#0f172a 0%,#1e293b 100%);color:#fff;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;overflow-x:hidden}
+.sidebar-brand{padding:16px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo{width:36px;height:36px;background:linear-gradient(135deg,#3b82f6,#60a5fa);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0}
+.sidebar-brand-text{font-size:15px;font-weight:600;white-space:nowrap}
+.sidebar-nav{flex:1;padding:12px 0}
+.nav-section{padding:0 12px;margin-bottom:4px}
+.nav-section-title{font-size:11px;color:rgba(255,255,255,.35);text-transform:uppercase;padding:8px 12px 4px;letter-spacing:.5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;cursor:pointer;font-size:13.5px;color:rgba(255,255,255,.7);transition:var(--transition);margin-bottom:2px;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-item.active{background:rgba(59,130,246,.25);color:#fff;font-weight:500}
+.nav-item .nav-icon{width:20px;text-align:center;font-size:15px;flex-shrink:0}
+.nav-item .nav-badge{position:absolute;right:12px;background:#ef4444;color:#fff;font-size:10px;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center}
+.sidebar-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;cursor:pointer}
+.sidebar-avatar{width:32px;height:32px;background:#3b82f6;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600}
+.sidebar-user-info{flex:1;min-width:0}
+.sidebar-user-name{font-size:13px;color:#fff;font-weight:500}
+.sidebar-user-role{font-size:11px;color:rgba(255,255,255,.45)}
+.sidebar-logout{color:rgba(255,255,255,.5);cursor:pointer;font-size:12px;padding:4px 8px;border-radius:4px;transition:var(--transition)}
+.sidebar-logout:hover{color:#fff;background:rgba(255,255,255,.1)}
+
+/* Main Content */
+.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:var(--topbar-h);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:600;color:var(--text)}
+.topbar-breadcrumb{font-size:12px;color:var(--text-light)}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:12px}
+.topbar-btn{width:34px;height:34px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--text-secondary);transition:var(--transition)}
+.topbar-btn:hover{background:var(--primary-bg);color:var(--primary)}
+.page-content{flex:1;overflow-y:auto;padding:24px}
+
+/* Cards */
+.card{background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow)}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between}
+.card-header h3{font-size:15px;font-weight:600}
+.card-body{padding:20px}
+.card-footer{padding:14px 20px;border-top:1px solid var(--border-light);background:var(--bg)}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);padding:20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px}
+.stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.stat-icon.blue{background:#eff6ff;color:#2563eb}
+.stat-icon.green{background:#ecfdf5;color:#059669}
+.stat-icon.orange{background:#fffbeb;color:#d97706}
+.stat-icon.red{background:#fef2f2;color:#dc2626}
+.stat-info h4{font-size:13px;color:var(--text-secondary);font-weight:400}
+.stat-info .stat-value{font-size:24px;font-weight:700;color:var(--text);margin-top:2px}
+.stat-info .stat-change{font-size:11px;color:var(--text-light);margin-top:2px}
+
+/* Grid */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+/* Buttons */
+.btn{padding:8px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:var(--transition);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-outline{background:var(--white);color:var(--primary);border-color:var(--primary)}
+.btn-outline:hover{background:var(--primary-bg)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:#b91c1c}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-lg{padding:10px 24px;font-size:14px}
+
+/* Forms */
+.form-input,.form-select,.form-textarea{width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text);outline:none;transition:var(--transition);font-family:inherit;background:var(--white)}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.08)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+.form-label{display:block;font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.form-hint{font-size:11px;color:var(--text-light);margin-top:3px}
+
+/* Tags */
+.tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.tag-success{background:#ecfdf5;color:#059669}
+.tag-warning{background:#fffbeb;color:#d97706}
+.tag-danger{background:#fef2f2;color:#dc2626}
+.tag-info{background:#eff6ff;color:#2563eb}
+.tag-default{background:#f1f5f9;color:#64748b}
+
+/* Table */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{text-align:left;padding:10px 14px;font-size:12px;font-weight:600;color:var(--text-secondary);background:var(--bg);border-bottom:1px solid var(--border);white-space:nowrap}
+.data-table td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border-light);vertical-align:middle}
+.data-table tr:hover td{background:#f8fafc}
+
+/* Tabs */
+.tabs{display:flex;border-bottom:2px solid var(--border);gap:0;margin-bottom:20px}
+.tab-item{padding:10px 20px;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:var(--transition)}
+.tab-item:hover{color:var(--primary)}
+.tab-item.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--white);border-radius:var(--radius-xl);width:90%;max-width:640px;max-height:85vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-size:16px;font-weight:600}
+.modal-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--bg);cursor:pointer;font-size:16px;color:var(--text-secondary);display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.modal-close:hover{background:#fee2e2;color:var(--danger)}
+.modal-body{flex:1;overflow-y:auto;padding:20px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+
+/* Progress Bar */
+.progress-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#2563eb,#3b82f6);border-radius:4px;transition:width .4s ease}
+.progress-text{font-size:12px;color:var(--text-secondary);margin-top:4px}
+
+/* Quiz */
+.quiz-card{background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);padding:24px;margin-bottom:16px;box-shadow:var(--shadow)}
+.quiz-card.locked{opacity:.6;pointer-events:none;position:relative}
+.quiz-card.locked::after{content:'🔒';position:absolute;top:16px;right:16px;font-size:20px}
+.area-card.locked{opacity:.55;pointer-events:none;position:relative;filter:grayscale(30%)}
+.area-card.locked::after{content:'🔒';position:absolute;top:12px;right:12px;font-size:22px;z-index:2}
+.area-card.locked::before{content:'';position:absolute;inset:0;background:rgba(148,163,184,.08);border-radius:var(--radius-lg);z-index:1}
+.quiz-question{font-size:15px;font-weight:600;margin-bottom:16px;color:var(--text)}
+.quiz-options{display:flex;flex-direction:column;gap:8px}
+.quiz-option{padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:var(--transition);font-size:13px;display:flex;align-items:center;gap:10px}
+.quiz-option:hover{border-color:var(--primary);background:var(--primary-bg)}
+.quiz-option.selected{border-color:var(--primary);background:var(--primary-bg);font-weight:500}
+.quiz-option.correct{border-color:var(--success);background:#ecfdf5;color:var(--success)}
+.quiz-option.wrong{border-color:var(--danger);background:#fef2f2;color:var(--danger)}
+.quiz-option.disabled{pointer-events:none}
+.quiz-feedback{margin-top:12px;padding:12px;border-radius:var(--radius);font-size:13px;font-weight:500}
+.quiz-feedback.success{background:#ecfdf5;color:#059669}
+.quiz-feedback.error{background:#fef2f2;color:#dc2626}
+
+/* Area/Course Cards */
+.area-card{background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);padding:20px;box-shadow:var(--shadow);transition:var(--transition);cursor:pointer}
+.area-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.area-card.completed{border-color:#05966940}
+.area-card h4{font-size:14px;font-weight:600;margin-bottom:6px}
+.area-card p{font-size:12px;color:var(--text-secondary);margin-bottom:10px}
+.area-card .area-meta{display:flex;align-items:center;gap:12px;font-size:11px;color:var(--text-light)}
+
+/* Alert / Notification */
+.alert{padding:12px 16px;border-radius:var(--radius);font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.alert-info{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+.alert-warning{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.alert-danger{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.alert-success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+
+/* Empty State */
+.empty-state{text-align:center;padding:48px 20px;color:var(--text-light)}
+.empty-state .empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.empty-state p{font-size:13px}
+
+/* Switch */
+.switch{position:relative;display:inline-block;width:40px;height:22px}
+.switch input{opacity:0;width:0;height:0}
+.switch-slider{position:absolute;cursor:pointer;inset:0;background:#cbd5e1;border-radius:22px;transition:var(--transition)}
+.switch-slider::before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:var(--transition)}
+.switch input:checked+.switch-slider{background:var(--primary)}
+.switch input:checked+.switch-slider::before{transform:translateX(18px)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+
+/* Rich Editor */
+.rich-editor{border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.rich-toolbar{display:flex;gap:2px;padding:8px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.rich-toolbar button{width:30px;height:30px;border:1px solid transparent;background:transparent;border-radius:4px;cursor:pointer;font-size:14px;color:var(--text-secondary);display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.rich-toolbar button:hover{background:var(--white);border-color:var(--border)}
+.rich-editor textarea{width:100%;min-height:180px;border:none;padding:14px;font-size:14px;font-family:inherit;resize:vertical;outline:none;line-height:1.8}
+
+/* Schedule Table */
+.schedule-table{width:100%;border-collapse:collapse}
+.schedule-table th,.schedule-table td{border:1px solid var(--border);padding:8px;text-align:center;font-size:12px}
+.schedule-table th{background:var(--primary-bg);font-weight:600;color:var(--primary-dark)}
+.schedule-table .course-cell{background:#eff6ff;border-radius:4px;padding:6px;font-size:11px;cursor:pointer;transition:var(--transition)}
+.schedule-table .course-cell:hover{background:#dbeafe}
+
+/* Keyword Tags Input */
+.keyword-input-wrap{display:flex;flex-wrap:wrap;gap:6px;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius);min-height:42px;align-items:center;background:var(--white)}
+.keyword-input-wrap:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.08)}
+.keyword-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:var(--primary-bg);color:var(--primary);border-radius:20px;font-size:12px;font-weight:500}
+.keyword-tag .kw-remove{cursor:pointer;font-size:14px;line-height:1;opacity:.6}
+.keyword-tag .kw-remove:hover{opacity:1}
+.keyword-input-wrap input{border:none;outline:none;flex:1;min-width:80px;font-size:13px;padding:4px;background:transparent}
+
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+  .login-container{width:90%;padding:32px 24px}
+}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+/* Page sections */
+.page-section{display:none}
+.page-section.active{display:block}
+
+/* Task Device Cards */
+.task-device-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.task-device-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-lg);padding:16px;text-align:center;cursor:pointer;transition:var(--transition);position:relative}
+.task-device-card:hover{border-color:var(--primary);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.task-device-card.bound{border-color:var(--success);background:#f0fdf6}
+.task-device-card .device-icon{font-size:36px;margin-bottom:8px}
+.task-device-card .device-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.task-device-card .device-desc{font-size:11px;color:var(--text-secondary)}
+.task-device-card .device-badge{position:absolute;top:8px;right:8px;background:var(--success);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px}
+.task-device-card .device-badge.unbound{background:var(--text-light)}
+
+/* Question Bank Editor */
+.qb-editor-row{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.qb-editor-row .form-group{flex:1;margin-bottom:0}
+.qb-option-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.qb-option-row .form-input{flex:1}
+.qb-option-row .btn-remove-opt{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--danger);font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--transition)}
+.qb-option-row .btn-remove-opt:hover{background:#fef2f2;border-color:var(--danger)}
+.qb-answer-indicator{width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;color:var(--text-light)}
+
+/* Import Area */
+.import-area{border:2px dashed var(--border);border-radius:var(--radius-lg);padding:32px;text-align:center;transition:var(--transition);cursor:pointer;background:var(--bg)}
+.import-area:hover{border-color:var(--primary);background:var(--primary-bg)}
+.import-area .import-icon{font-size:40px;margin-bottom:8px;opacity:.6}
+.import-area p{font-size:13px;color:var(--text-secondary)}
+.import-area .import-hint{font-size:11px;color:var(--text-light);margin-top:4px}
+
+/* Bank Card */
+.bank-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:var(--transition);margin-bottom:8px}
+.bank-card:hover{border-color:var(--primary);background:var(--primary-bg)}
+.bank-card.selected{border-color:var(--primary);background:var(--primary-bg);box-shadow:0 0 0 2px rgba(26,86,219,.15)}
+.bank-card h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.bank-card .bank-meta{font-size:11px;color:var(--text-light);display:flex;gap:12px}
+
+/* Chapter Test Config */
+.chapter-test-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;background:var(--white)}
+.chapter-test-item .chapter-info{flex:1;min-width:0}
+.chapter-test-item .chapter-name{font-size:13px;font-weight:500}
+.chapter-test-item .chapter-meta{font-size:11px;color:var(--text-light)}
+
+/* Task Device Detail Modal */
+.device-detail{text-align:center;padding:10px}
+.device-detail .device-hero{font-size:64px;margin-bottom:12px}
+.device-detail h4{font-size:18px;margin-bottom:4px}
+.device-detail p{color:var(--text-secondary);font-size:13px;margin-bottom:16px}
+
+/* Question list item */
+.q-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:6px;background:var(--white);transition:var(--transition)}
+.q-item:hover{border-color:var(--primary)}
+.q-item .q-type{flex-shrink:0;font-size:12px;padding:2px 8px;border-radius:4px;font-weight:500}
+.q-item .q-type.single{background:#eff6ff;color:#2563eb}
+.q-item .q-type.multi{background:#fef3c7;color:#92400e}
+.q-item .q-type.truefalse{background:#ecfdf5;color:#059669}
+.q-item .q-content{flex:1;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q-item .q-actions{flex-shrink:0;display:flex;gap:4px}
+</style>
+</head>
+<body>
+
+<!-- ==================== LOGIN OVERLAY ==================== -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-bg"></div>
+  <div class="login-container">
+    <div class="login-header">
+      <div class="login-logo">智</div>
+      <h2>智学云教育平台</h2>
+      <p>ZhiXue Cloud Education Platform</p>
+      <div class="login-subtitle">教学管理与智能学习一体化解决方案</div>
+    </div>
+    <form id="loginForm" onsubmit="return false;">
+      <div class="form-group">
+        <label>用户名</label>
+        <input type="text" id="loginUsername" placeholder="请输入用户名" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="off">
+      </div>
+      <button type="submit" class="login-btn" onclick="handleLogin()">登 录</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+    <div class="login-footer">智学云教育平台 v3.2.1 &copy; 2026 版权所有</div>
+  </div>
+</div>
+
+<!-- ==================== MAIN APP ==================== -->
+<div class="app-layout hidden" id="appLayout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">智</div>
+      <div class="sidebar-brand-text">智学云教育平台</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">教学中心</div>
+        <div class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard',this)">
+          <span class="nav-icon">📊</span> 工作台
+        </div>
+        <div class="nav-item" data-page="quiz" onclick="switchPage('quiz',this)">
+          <span class="nav-icon">🏆</span> 答题闯关
+        </div>
+        <div class="nav-item" data-page="mooc" onclick="switchPage('mooc',this)">
+          <span class="nav-icon">📚</span> 慕课制作
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">教务管理</div>
+        <div class="nav-item" data-page="academic" onclick="switchPage('academic',this)">
+          <span class="nav-icon">📋</span> 教务管理
+        </div>
+        <div class="nav-item" data-page="courses" onclick="switchPage('courses',this)">
+          <span class="nav-icon">📖</span> 课程中心
+        </div>
+        <div class="nav-item" data-page="students" onclick="switchPage('students',this)">
+          <span class="nav-icon">👥</span> 学员管理
+        </div>
+        <div class="nav-item" data-page="exams" onclick="switchPage('exams',this)">
+          <span class="nav-icon">📝</span> 考试管理
+        </div>
+        <div class="nav-item" data-page="ai-question" onclick="switchPage('ai-question',this)">
+          <span class="nav-icon">🤖</span> AI智能出题
+        </div>
+        <div class="nav-item" data-page="alert" onclick="switchPage('alert',this)">
+          <span class="nav-icon">⚠️</span> 教学预警
+          <span class="nav-badge">3</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">资源与安全</div>
+        <div class="nav-item" data-page="safety" onclick="switchPage('safety',this)">
+          <span class="nav-icon">🛡️</span> 安全检测
+        </div>
+        <div class="nav-item" data-page="resources" onclick="switchPage('resources',this)">
+          <span class="nav-icon">📁</span> 资源中心
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">数据分析</div>
+        <div class="nav-item" data-page="statistics" onclick="switchPage('statistics',this)">
+          <span class="nav-icon">📈</span> 数据统计
+        </div>
+        <div class="nav-item" data-page="reports" onclick="switchPage('reports',this)">
+          <span class="nav-icon">📄</span> 报表中心
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">系统管理</div>
+        <div class="nav-item" data-page="settings" onclick="switchPage('settings',this)">
+          <span class="nav-icon">⚙️</span> 系统设置
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-avatar">管</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">管理员</div>
+        <div class="sidebar-user-role">系统管理员</div>
+      </div>
+      <div class="sidebar-logout" onclick="handleLogout()" title="退出登录">退出</div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="topbar">
+      <span class="topbar-title" id="topbarTitle">工作台</span>
+      <span class="topbar-breadcrumb" id="topbarBreadcrumb">首页 / 工作台</span>
+      <div class="topbar-actions">
+        <button class="topbar-btn" title="消息">🔔</button>
+        <button class="topbar-btn" title="帮助">❓</button>
+      </div>
+    </div>
+    <div class="page-content" id="pageContent">
+      <!-- Page content rendered dynamically -->
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DATA STORE ====================
+const STORE_VERSION = 4;
+const Store = {
+  user: null,
+  quizAreas: [
+    {id:1,name:'基础知识区',desc:'涵盖教育学基础理论与核心概念',totalQuestions:8,unlockRule:'默认解锁',icon:'📘'},
+    {id:2,name:'教学设计区',desc:'教学目标、策略与评价方法',totalQuestions:6,unlockRule:'完成基础知识区',icon:'📐'},
+    {id:3,name:'教育技术区',desc:'现代教育技术应用与创新',totalQuestions:7,unlockRule:'完成教学设计区',icon:'💻'},
+    {id:4,name:'学科融合区',desc:'跨学科教学设计与实践',totalQuestions:5,unlockRule:'完成教育技术区',icon:'🔬'}
+  ],
+  quizQuestions: {
+    1:[
+      {id:1,type:'single',question:'教育学的研究对象是什么？',options:['教育现象','教育规律','教育现象和教育问题','教育方法'],answer:2,userAnswer:null,result:null},
+      {id:2,type:'single',question:'"教学相长"这一概念最早出自哪部著作？',options:['《论语》','《学记》','《大学》','《中庸》'],answer:1,userAnswer:null,result:null},
+      {id:3,type:'truefalse',question:'教育目的就是培养目标，两者概念完全相同。',options:['正确','错误'],answer:1,userAnswer:null,result:null},
+      {id:4,type:'multi',question:'以下哪些属于课程的基本类型？（多选）',options:['学科课程','活动课程','综合课程','核心课程'],answer:[0,1,2,3],userAnswer:null,result:null},
+      {id:5,type:'single',question:'提出"最近发展区"理论的教育家是？',options:['皮亚杰','维果茨基','布鲁纳','杜威'],answer:1,userAnswer:null,result:null},
+      {id:6,type:'truefalse',question:'形成性评价是在教学活动结束后进行的评价。',options:['正确','错误'],answer:1,userAnswer:null,result:null},
+      {id:7,type:'single',question:'教育心理学的创始人是？',options:['桑代克','冯特','斯金纳','班杜拉'],answer:0,userAnswer:null,result:null},
+      {id:8,type:'multi',question:'以下哪些属于学习动机理论？（多选）',options:['需要层次理论','成就动机理论','归因理论','自我效能理论'],answer:[0,1,2,3],userAnswer:null,result:null}
+    ],
+    2:[
+      {id:1,type:'single',question:'布鲁姆将认知领域的教学目标分为几个层次？',options:['4个','5个','6个','7个'],answer:2,userAnswer:null,result:null},
+      {id:2,type:'single',question:'教学设计的核心要素不包括以下哪项？',options:['教学目标','教学策略','教学评价','教学经费'],answer:3,userAnswer:null,result:null},
+      {id:3,type:'truefalse',question:'翻转课堂模式中，知识传授在课前完成，知识内化在课堂中完成。',options:['正确','错误'],answer:0,userAnswer:null,result:null},
+      {id:4,type:'multi',question:'有效的教学目标应具备哪些特征？（多选）',options:['具体明确','可测量','可达成','有相关性'],answer:[0,1,2,3],userAnswer:null,result:null},
+      {id:5,type:'single',question:'ADDIE教学设计模型中的"D"代表什么？',options:['开发(Development)','设计(Design)','交付(Delivery)','诊断(Diagnosis)'],answer:1,userAnswer:null,result:null},
+      {id:6,type:'truefalse',question:'过程性评价只关注学生的学习结果。',options:['正确','错误'],answer:1,userAnswer:null,result:null}
+    ],
+    3:[
+      {id:1,type:'single',question:'混合式学习（Blended Learning）的核心特征是什么？',options:['纯在线学习','纯面授教学','线上与线下相结合','自主阅读学习'],answer:2,userAnswer:null,result:null},
+      {id:2,type:'truefalse',question:'微课视频时长通常控制在5-10分钟以内。',options:['正确','错误'],answer:0,userAnswer:null,result:null},
+      {id:3,type:'multi',question:'以下哪些属于数字化学习工具？（多选）',options:['学习管理系统(LMS)','电子白板','在线测评系统','虚拟仿真实验室'],answer:[0,1,2,3],userAnswer:null,result:null},
+      {id:4,type:'single',question:'TPACK框架中不包括以下哪个知识领域？',options:['技术知识','教学知识','学科知识','管理知识'],answer:3,userAnswer:null,result:null},
+      {id:5,type:'single',question:'哪种技术最适合实现沉浸式虚拟实验教学？',options:['PPT演示','VR/AR技术','视频播放','在线文档'],answer:1,userAnswer:null,result:null},
+      {id:6,type:'truefalse',question:'大数据在教育中的应用仅限于学生成绩分析。',options:['正确','错误'],answer:1,userAnswer:null,result:null},
+      {id:7,type:'multi',question:'智慧教室通常包含哪些技术设备？（多选）',options:['交互式显示屏','录播系统','学生应答系统','环境传感设备'],answer:[0,1,2,3],userAnswer:null,result:null}
+    ],
+    4:[
+      {id:1,type:'single',question:'STEM教育代表的四个学科领域是？',options:['科学、技术、工程、数学','科学、教学、英语、音乐','社会、技术、经济、管理','体育、艺术、文学、历史'],answer:0,userAnswer:null,result:null},
+      {id:2,type:'truefalse',question:'项目式学习(PBL)强调以教师为中心的教学模式。',options:['正确','错误'],answer:1,userAnswer:null,result:null},
+      {id:3,type:'multi',question:'跨学科教学的主要优势包括？（多选）',options:['培养综合思维','促进知识迁移','增强解决实际问题的能力','提高学习兴趣'],answer:[0,1,2,3],userAnswer:null,result:null},
+      {id:4,type:'single',question:'创客教育理念的核心是什么？',options:['记忆知识','实践创造','考试训练','被动听讲'],answer:1,userAnswer:null,result:null},
+      {id:5,type:'single',question:'以下哪种评价方式最适合跨学科课程？',options:['标准化考试','表现性评价','填空题测验','听写测试'],answer:1,userAnswer:null,result:null}
+    ]
+  },
+  safetyKeywords:['暴力','色情','赌博','毒品','诈骗','人身攻击','歧视','违法','反动','恐怖'],
+  safetyIgnoreWords:['教育','心理学','社会学','法律','医学','公安','安全'],
+  safetyLogs:[],
+  aiQuestions:[],
+  moocCourses:[],
+  moocUnits:[
+    {id:'mu1',name:'第一单元：教育心理学导论',videos:2,docs:3,tests:1,content:'<p>本单元主要介绍教育心理学的基本概念、发展历程及研究方法。</p>'},
+    {id:'mu2',name:'第二单元：学习理论与应用',videos:3,docs:2,tests:1,content:'<p>深入探讨行为主义、认知主义、建构主义等主要学习理论及其在教学中的应用。</p>'},
+    {id:'mu3',name:'第三单元：教学设计与评价',videos:1,docs:4,tests:2,content:'<p>学习教学设计的基本原理与方法，掌握多种教学评价技术。</p>'}
+  ],
+  moocSchedule:[
+    {id:'ms1',name:'教育心理学导论',teacher:'张明远 教授',weeks:'1-16周',weekday:'周一',time:'08:00-09:30',location:'教学楼A-301',type:'线下',onlineLink:''},
+    {id:'ms2',name:'现代教育技术应用',teacher:'李华 副教授',weeks:'1-14周',weekday:'周五',time:'08:00-09:30',location:'线上-腾讯会议',type:'线上',onlineLink:'https://meeting.tencent.com/dm/xxxxxx'},
+    {id:'ms3',name:'教育研究方法',teacher:'王芳 教授',weeks:'3-18周',weekday:'周一',time:'14:00-15:30',location:'线上-腾讯会议',type:'线上',onlineLink:'https://meeting.tencent.com/dm/yyyyyy'},
+    {id:'ms4',name:'课程设计与评价',teacher:'王芳 教授',weeks:'1-16周',weekday:'周三',time:'08:00-09:30',location:'教学楼B-205',type:'线下',onlineLink:''},
+    {id:'ms5',name:'教学评价',teacher:'陈明 讲师',weeks:'2-15周',weekday:'周二',time:'10:00-11:30',location:'教学楼C-102',type:'线下',onlineLink:''},
+    {id:'ms6',name:'学科教学论',teacher:'赵丽 副教授',weeks:'1-14周',weekday:'周四',time:'10:00-11:30',location:'教学楼A-401',type:'线下',onlineLink:''},
+    {id:'ms7',name:'班级管理',teacher:'刘强 教授',weeks:'3-18周',weekday:'周五',time:'14:00-15:30',location:'教学楼B-301',type:'线下',onlineLink:''},
+    {id:'ms8',name:'教育统计学',teacher:'周明 副教授',weeks:'1-16周',weekday:'周三',time:'16:00-17:30',location:'线上-腾讯会议',type:'线上',onlineLink:'https://meeting.tencent.com/dm/zzzzzz'}
+  ],
+  moocLiveRecords:[
+    {date:'2026-08-21',course:'教育技术应用',participants:86,duration:'90分钟',hasReplay:true},
+    {date:'2026-08-18',course:'教育研究方法',participants:72,duration:'90分钟',hasReplay:true},
+    {date:'2026-08-14',course:'教育技术应用',participants:91,duration:'90分钟',hasReplay:true}
+  ],
+  alertRules:[
+    {id:'ar1',name:'任务点完成度预警',metric:'任务点完成度',condition:'低于',threshold:'60%',scope:'全校',status:'enabled'},
+    {id:'ar2',name:'章节测验成绩预警',metric:'章节测验平均分',condition:'低于',threshold:'50分',scope:'计算机学院',status:'enabled'},
+    {id:'ar3',name:'作业提交预警',metric:'作业提交率',condition:'低于',threshold:'70%',scope:'教育学院',status:'enabled'},
+    {id:'ar4',name:'访问频率预警',metric:'平台访问天数',condition:'低于',threshold:'5天/月',scope:'全校',status:'disabled'},
+    {id:'ar5',name:'综合成绩预警',metric:'综合成绩',condition:'低于',threshold:'60分',scope:'全校',status:'enabled'}
+  ],
+  alertLogs:[
+    {id:'al1',student:'张明远',org:'计算机学院/软件工程2101',metric:'任务点完成度',value:'45%',threshold:'低于60%',time:'2026-08-25',status:'已预警'},
+    {id:'al2',student:'李思成',org:'教育学院/教育学2202',metric:'章节测验平均分',value:'42分',threshold:'低于50分',time:'2026-08-24',status:'已提醒'},
+    {id:'al3',student:'王雅琴',org:'文学院/汉语言2301',metric:'作业提交率',value:'55%',threshold:'低于70%',time:'2026-08-23',status:'已预警'},
+    {id:'al4',student:'赵志强',org:'计算机学院/计科2203',metric:'综合成绩',value:'52分',threshold:'低于60分',time:'2026-08-22',status:'已预警'},
+    {id:'al5',student:'刘晓燕',org:'教育学院/小教2101',metric:'任务点完成度',value:'38%',threshold:'低于60%',time:'2026-08-20',status:'已提醒'}
+  ],
+  notifications:[],
+  // 自定义题库
+  customQuestionBanks:[
+    {id:'cb1',name:'教育心理学题库',chapter:'教育心理学',questions:[
+      {id:1,type:'single',question:'皮亚杰认知发展理论中，具体运算阶段的年龄范围是？',options:['0-2岁','2-7岁','7-11岁','11岁以上'],answer:2},
+      {id:2,type:'multi',question:'以下哪些属于经典条件反射的基本规律？（多选）',options:['获得与消退','泛化与分化','强化与惩罚','观察与模仿'],answer:[0,1]},
+      {id:3,type:'truefalse',question:'操作性条件反射理论由斯金纳提出。',options:['正确','错误'],answer:0}
+    ]},
+    {id:'cb2',name:'课程与教学论题库',chapter:'课程与教学论',questions:[
+      {id:1,type:'single',question:'学科课程的主要代表人物是？',options:['杜威','赫尔巴特','卢梭','蒙台梭利'],answer:1},
+      {id:2,type:'truefalse',question:'活动课程强调以儿童的兴趣和需要为中心组织课程内容。',options:['正确','错误'],answer:0}
+    ]}
+  ],
+  // 系统默认题库
+  systemDefaultBanks:[
+    {id:'sd1',name:'系统默认题库-教育学基础',chapter:'教育学基础',questions:[
+      {id:1,type:'single',question:'教育学成为一门独立学科的标志是？',options:['夸美纽斯《大教学论》','赫尔巴特《普通教育学》','杜威《民主主义与教育》','卢梭《爱弥儿》'],answer:1},
+      {id:2,type:'single',question:'教育最基本的职能是？',options:['培养人才','传播文化','发展经济','维护稳定'],answer:0},
+      {id:3,type:'truefalse',question:'教育的本质属性是培养人的社会活动。',options:['正确','错误'],answer:0},
+      {id:4,type:'multi',question:'以下哪些属于教育的社会功能？（多选）',options:['经济功能','政治功能','文化功能','个体发展功能'],answer:[0,1,2]}
+    ]},
+    {id:'sd2',name:'系统默认题库-教育技术',chapter:'教育技术',questions:[
+      {id:1,type:'single',question:'多媒体课件设计的基本原则不包括？',options:['教育性原则','科学性原则','艺术性原则','随意性原则'],answer:3},
+      {id:2,type:'truefalse',question:'微课的核心特征是短小精悍。',options:['正确','错误'],answer:0}
+    ]},
+    {id:'sd3',name:'系统默认题库-教育心理学',chapter:'教育心理学',questions:[
+      {id:1,type:'single',question:'马斯洛需要层次理论中最高层次的需要是？',options:['安全需要','归属与爱','尊重需要','自我实现'],answer:3},
+      {id:2,type:'multi',question:'影响学习迁移的因素包括？（多选）',options:['学习材料的相似性','学习者的概括能力','学习的心向与定势','教师的指导'],answer:[0,1,2,3]}
+    ]}
+  ],
+  // 虚拟任务装置
+  taskDevices:[
+    {id:'td1',name:'任务墙',icon:'🧱',desc:'学员完成答题后可在任务墙上张贴成就卡片，集齐一定数量可解锁隐藏奖励关卡。',type:'wall'},
+    {id:'td2',name:'知识光球',icon:'🔮',desc:'每个展区对应一颗知识光球，完成该展区全部题目后光球点亮，照亮知识图谱。',type:'orb'},
+    {id:'td3',name:'智慧宝箱',icon:'📦',desc:'通关每个展区可获得对应宝箱钥匙，开启宝箱赢取虚拟勋章与积分奖励。',type:'chest'},
+    {id:'td4',name:'互动电视',icon:'📺',desc:'展区通关后，互动电视自动解锁该展区的知识回顾视频与拓展学习内容。',type:'tv'},
+    {id:'td5',name:'闯关罗盘',icon:'🧭',desc:'实时显示学员当前答题进度与剩余关卡，指引下一步学习方向。',type:'compass'},
+    {id:'td6',name:'成就徽章墙',icon:'🏅',desc:'完成特定答题挑战可获得专属徽章，展示在个人成就墙上。',type:'badge'},
+    {id:'td7',name:'知识星图',icon:'🌟',desc:'将已掌握的知识点以星座形式可视化呈现，形成个人知识星图。',type:'star'},
+    {id:'td8',name:'答题计时塔',icon:'⏱️',desc:'记录学员每次答题用时，挑战最短通关时间，登上排行榜。',type:'timer'}
+  ],
+  // 展区与任务装置的绑定关系
+  areaTaskBindings:{},
+  // 章节测验配置
+  chapterTests:[
+    {chapter:'第一章：教育理论基础',bank:'系统默认题库-教育学基础',bankId:'sd1',count:4,time:'30分钟',areaId:1},
+    {chapter:'第二章：教育心理学',bank:'教育心理学题库',bankId:'cb1',count:3,time:'45分钟',areaId:2},
+    {chapter:'第三章：课程与教学论',bank:'课程与教学论题库',bankId:'cb2',count:2,time:'25分钟',areaId:3}
+  ],
+  _storeVersion: STORE_VERSION
+};
+
+// Load from localStorage
+function loadStore(){
+  const saved = localStorage.getItem('zhixue_store');
+  if(saved){
+    try{
+      const data = JSON.parse(saved);
+      // 版本检查：版本不匹配则丢弃旧数据
+      if(data._storeVersion !== STORE_VERSION){
+        console.warn('Store version mismatch, resetting. Old:', data._storeVersion, 'New:', STORE_VERSION);
+        localStorage.removeItem('zhixue_store');
+        return;
+      }
+      // 类型校验映射：key -> 期望类型
+      const typeMap = {
+        quizQuestions:'object', quizAreas:'array', moocUnits:'array', moocSchedule:'array',
+        moocCourses:'array', moocLiveRecords:'array', alertRules:'array', alertLogs:'array',
+        aiQuestions:'array', customQuestionBanks:'array', systemDefaultBanks:'array',
+        safetyKeywords:'array', safetyIgnoreWords:'array', safetyLogs:'array',
+        notifications:'array', taskDevices:'array', areaTaskBindings:'object', chapterTests:'array'
+      };
+      for(const key of Object.keys(data)){
+        if(key === '_storeVersion') continue;
+        if(!Store.hasOwnProperty(key)) continue;
+        const val = data[key];
+        const expected = typeMap[key];
+        if(!expected) continue; // 未知字段跳过
+        if(val === null || val === undefined) continue;
+        if(expected === 'array' && !Array.isArray(val)) continue;
+        if(expected === 'object' && (typeof val !== 'object' || Array.isArray(val))) continue;
+        // 对 quizQuestions 做深度校验：值必须是数组
+        if(key === 'quizQuestions'){
+          const clean = {};
+          let valid = true;
+          for(const k of Object.keys(val)){
+            if(Array.isArray(val[k])){
+              clean[k] = val[k];
+            } else {
+              valid = false;
+            }
+          }
+          if(!valid) console.warn('quizQuestions 包含非数组值，已清理');
+          if(Object.keys(clean).length === 0) continue;
+          Store[key] = clean;
+          continue;
+        }
+        Store[key] = val;
+      }
+    }catch(e){
+      console.warn('Store load error, resetting:', e);
+      localStorage.removeItem('zhixue_store');
+    }
+  }
+}
+
+function resetStore(){
+  if(!confirm('确定要清除所有本地数据并重置系统？此操作不可恢复。')) return;
+  localStorage.removeItem('zhixue_store');
+  location.reload();
+}
+function saveStore(){
+  localStorage.setItem('zhixue_store', JSON.stringify(Store));
+}
+
+// ==================== AUTH ====================
+function handleLogin(){
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const errorEl = document.getElementById('loginError');
+
+  if(!username || !password){
+    errorEl.textContent = '请输入用户名和密码';
+    return;
+  }
+
+  if(username === 'root' && password === 'root'){
+    Store.user = {username:'root',role:'admin',name:'管理员',loginTime:new Date().toISOString()};
+    localStorage.setItem('zhixue_auth','true');
+    saveStore();
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('appLayout').classList.remove('hidden');
+    errorEl.textContent = '';
+    renderCurrentPage();
+  }else{
+    errorEl.textContent = '用户名或密码错误，请重试';
+  }
+}
+
+function handleLogout(){
+  Store.user = null;
+  localStorage.removeItem('zhixue_auth');
+  saveStore();
+  document.getElementById('appLayout').classList.add('hidden');
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
+// ==================== NAVIGATION ====================
+let currentPage = 'dashboard';
+
+// Check auth on load
+loadStore();
+if(localStorage.getItem('zhixue_auth') === 'true'){
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('appLayout').classList.remove('hidden');
+  renderCurrentPage();
+}
+
+// Enter key login
+document.addEventListener('keydown',function(e){
+  if(e.key === 'Enter' && !document.getElementById('loginOverlay').classList.contains('hidden')){
+    handleLogin();
+  }
+});
+
+function switchPage(page, el){
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderCurrentPage();
+}
+
+function renderCurrentPage(){
+  const titles = {
+    dashboard:'工作台',quiz:'答题闯关系统',safety:'智能安全检测',
+    'ai-question':'AI智能出题',mooc:'慕课制作中心',alert:'教学预警系统',
+    academic:'教务管理',courses:'课程中心',students:'学员管理',
+    exams:'考试管理',statistics:'数据统计',reports:'报表中心',
+    resources:'资源中心',settings:'系统设置'
+  };
+  try {
+    document.getElementById('topbarTitle').textContent = titles[currentPage] || currentPage;
+    document.getElementById('topbarBreadcrumb').textContent = '首页 / ' + (titles[currentPage] || currentPage);
+  } catch(e) {}
+
+  const content = document.getElementById('pageContent');
+  if(!content) return;
+  try {
+    switch(currentPage){
+      case 'dashboard': content.innerHTML = renderDashboard(); break;
+      case 'quiz': content.innerHTML = renderQuiz(); break;
+      case 'safety': content.innerHTML = renderSafety(); break;
+      case 'ai-question': content.innerHTML = renderAIQuestion(); break;
+      case 'mooc': content.innerHTML = renderMooc(); break;
+      case 'alert': content.innerHTML = renderAlert(); break;
+      default: content.innerHTML = renderPlaceholder(currentPage); break;
+    }
+  } catch(e) {
+    content.innerHTML = '<div class="card"><div class="card-body" style="text-align:center;padding:40px"><div style="font-size:48px;margin-bottom:12px">⚠️</div><h3>页面加载异常</h3><p style="color:var(--text-secondary);margin-top:8px">请刷新页面后重试</p><p style="font-size:12px;color:var(--text-light);margin-top:8px">错误：' + (e.message || e) + '</p><button class="btn btn-primary" style="margin-top:16px" onclick="resetStore()">清除数据并重置</button></div></div>';
+    console.error('Render error:', e);
+  }
+  initPageScripts();
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard(){
+  const totalQuestions = Object.values(Store.quizQuestions || {}).reduce((sum,arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
+  const completedAreas = (Store.quizAreas || []).filter(a => {
+    const qs = Store.quizQuestions && Store.quizQuestions[a.id] || [];
+    return qs.length > 0 && qs.every(q => q.result === 'correct');
+  }).length;
+  return `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">📊</div>
+        <div class="stat-info"><h4>题库总量</h4><div class="stat-value">${totalQuestions}</div><div class="stat-change">覆盖4个知识展区</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-info"><h4>已解锁展区</h4><div class="stat-value">${completedAreas}/4</div><div class="stat-change">完成率 ${Math.round(completedAreas/4*100)}%</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange">🤖</div>
+        <div class="stat-info"><h4>AI生成题目</h4><div class="stat-value">${Store.aiQuestions.length}</div><div class="stat-change">本月新增 ${Store.aiQuestions.length} 题</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">⚠️</div>
+        <div class="stat-info"><h4>预警提醒</h4><div class="stat-value">3</div><div class="stat-change">2条待处理</div></div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-header"><h3>📋 最近答题动态</h3></div>
+        <div class="card-body" style="padding:12px">
+          <table class="data-table">
+            <tr><th>展区</th><th>题目</th><th>结果</th><th>时间</th></tr>
+            ${Store.quizAreas.slice(0,3).map(a => {
+              const qs = Store.quizQuestions[a.id] || [];
+              const answered = qs.filter(q => q.result).length;
+              return `<tr><td>${a.name}</td><td>已完成 ${answered}/${qs.length} 题</td><td><span class="tag tag-${answered===qs.length?'success':'info'}">${answered===qs.length?'全部通过':'进行中'}</span></td><td>${new Date().toLocaleDateString()}</td></tr>`;
+            }).join('')}
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>🛡️ 安全检测概览</h3></div>
+        <div class="card-body" style="padding:12px">
+          <table class="data-table">
+            <tr><th>检测项</th><th>状态</th><th>详情</th></tr>
+            <tr><td>敏感词库</td><td><span class="tag tag-success">运行中</span></td><td>${Store.safetyKeywords.length} 个关键词</td></tr>
+            <tr><td>忽略词库</td><td><span class="tag tag-success">运行中</span></td><td>${Store.safetyIgnoreWords.length} 个忽略词</td></tr>
+            <tr><td>最近审核</td><td><span class="tag tag-info">正常</span></td><td>${Store.safetyLogs.length} 条记录</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>📅 今日课程安排</h3></div>
+      <div class="card-body" style="padding:12px">
+        <table class="data-table">
+          <tr><th>时间</th><th>课程名称</th><th>授课教师</th><th>地点</th><th>状态</th></tr>
+          <tr><td>08:30-10:00</td><td>教育心理学导论</td><td>张明远 教授</td><td>教学楼A-301</td><td><span class="tag tag-success">已完成</span></td></tr>
+          <tr><td>10:20-11:50</td><td>现代教育技术应用</td><td>李华 副教授</td><td>线上-腾讯会议</td><td><span class="tag tag-info">进行中</span></td></tr>
+          <tr><td>14:00-15:30</td><td>课程设计与评价</td><td>王芳 教授</td><td>教学楼B-205</td><td><span class="tag tag-default">待开始</span></td></tr>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ==================== QUIZ SYSTEM ====================
+let quizTab = 'play';
+let quizCurrentArea = null;
+let quizCurrentIndex = 0;
+let qbEditingBankId = null;
+let qbEditingQuestionId = null;
+
+function renderQuiz(){
+  return `
+    <div class="tabs">
+      <div class="tab-item active" data-qtab="play" onclick="switchQuizTab('play',this)">答题闯关</div>
+      <div class="tab-item" data-qtab="bank" onclick="switchQuizTab('bank',this)">题库管理</div>
+      <div class="tab-item" data-qtab="device" onclick="switchQuizTab('device',this)">任务装置</div>
+    </div>
+    <div id="quizContent"></div>
+  `;
+}
+
+function switchQuizTab(tab, el){
+  quizTab = tab;
+  document.querySelectorAll('[data-qtab]').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderQuizContent();
+  // 切换到题库管理时确保数据刷新
+  if(tab === 'bank'){
+    setTimeout(function(){
+      var bmc = document.getElementById('bankManageContent');
+      if(bmc) bmc.innerHTML = renderBankManageContent();
+    }, 50);
+  }
+}
+
+function refreshQuizContent(){
+  const container = document.getElementById('quizContent');
+  if(!container) return;
+  container.innerHTML = renderQuizPlay();
+}
+
+function refreshDeviceContent(){
+  const container = document.getElementById('quizContent');
+  if(!container) return;
+  container.innerHTML = renderQuizDevice();
+}
+
+function renderQuizContent(){
+  const container = document.getElementById('quizContent');
+  if(!container) return;
+  switch(quizTab){
+    case 'play': container.innerHTML = renderQuizPlay(); break;
+    case 'bank':
+      container.innerHTML = renderQuizBank();
+      setTimeout(function(){
+        var bmc = document.getElementById('bankManageContent');
+        if(bmc) bmc.innerHTML = renderBankManageContent();
+      }, 50);
+      break;
+    case 'device': container.innerHTML = renderQuizDevice(); break;
+  }
+}
+
+// ====== TAB 1: 答题闯关 ======
+function renderQuizPlay(){
+  return `
+    <div class="grid-3" style="margin-bottom:16px">
+      ${Store.quizAreas.map((area,idx) => {
+        const qsRaw = Store.quizQuestions[area.id];
+        const qs = Array.isArray(qsRaw) ? qsRaw : [];
+        const prevQsRaw = idx > 0 ? Store.quizQuestions[Store.quizAreas[idx-1].id] : null;
+        const prevQs = Array.isArray(prevQsRaw) ? prevQsRaw : [];
+        const completed = qs.length > 0 && qs.every(q => q.result === 'correct');
+        const locked = idx > 0 && prevQs.length > 0 && !prevQs.every(q => q.result === 'correct');
+        const bindings = Store.areaTaskBindings[area.id] || [];
+        const correctCount = qs.filter(q => q.result === 'correct').length;
+        const progressPct = qs.length > 0 ? Math.round(correctCount/qs.length*100) : 0;
+        return `
+          <div class="area-card ${completed?'completed':''} ${locked?'locked':''}" onclick="${locked?'':'enterQuizArea('+area.id+')'}" style="position:relative">
+            ${completed ? '<div style="position:absolute;top:8px;left:8px;font-size:20px">🏆</div>' : ''}
+            ${locked ? '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;font-size:32px;opacity:.8">🔒</div>' : ''}
+            <div style="font-size:28px;margin-bottom:6px">${area.icon}</div>
+            <h4>${area.name}</h4>
+            <p>${area.desc}</p>
+            <div class="area-meta">
+              <span>📝 ${qs.length} 题</span>
+              <span>${completed?'✅ 已完成':locked?'🔒 需先完成：'+Store.quizAreas[idx-1].name:'🟢 可挑战'}</span>
+            </div>
+            ${!completed && !locked ? `
+              <div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:${progressPct}%"></div></div>
+              <div class="progress-text">${correctCount > 0 ? '已完成 '+correctCount+'/'+qs.length+' 题' : '尚未开始答题'}</div>
+            ` : ''}
+            ${completed ? `<div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:100%;background:linear-gradient(90deg,#059669,#10b981)"></div></div><div class="progress-text" style="color:#059669">全部通过 ✅</div>` : ''}
+            ${bindings.length > 0 ? `<div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap">${bindings.map(bid => {
+              const dev = Store.taskDevices.find(d => d.id === bid);
+              return dev ? `<span style="font-size:10px;background:#f0fdf6;color:#059669;padding:2px 6px;border-radius:10px">${dev.icon} ${dev.name}</span>` : '';
+            }).join('')}</div>` : ''}
+          </div>
+        `;
+      }).join('')}
+    </div>
+    <div id="quizPlayArea"></div>
+  `;
+}
+
+function enterQuizArea(areaId){
+  quizCurrentArea = areaId;
+  quizCurrentIndex = 0;
+  const area = Store.quizAreas.find(a => a.id === areaId);
+  const qsRaw = Store.quizQuestions[areaId];
+  const questions = Array.isArray(qsRaw) ? qsRaw : [];
+  renderQuizQuestion(area, questions);
+}
+
+function renderQuizQuestion(area, questions){
+  if(quizCurrentIndex >= questions.length){
+    const allCorrect = questions.every(q => q.result === 'correct');
+    const bindings = Store.areaTaskBindings[area.id] || [];
+    const correctCount = questions.filter(q=>q.result==='correct').length;
+    document.getElementById('quizPlayArea').innerHTML = `
+      <div class="card" style="text-align:center;padding:40px;animation:fadeInUp .5s ease">
+        <div style="font-size:72px;margin-bottom:16px;animation:${allCorrect?'bounce .6s ease':'pulse 1s ease'}">${allCorrect?'🎉':'📋'}</div>
+        <h3 style="font-size:20px">${allCorrect?'恭喜通关！'+area.name:'展区答题完成'}</h3>
+        <p style="color:var(--text-secondary);margin:12px 0;font-size:14px">
+          ${allCorrect
+            ? `您已成功完成「${area.name}」全部 ${questions.length} 道题目！${area.id < 4 ? '下一展区「' + Store.quizAreas[area.id].name + '」已解锁。' : '所有展区已全部通关！🏆'}`
+            : `您完成了「${area.name}」的答题，正确率 ${Math.round(correctCount/questions.length*100)}%。建议复习错题后重新挑战。`
+          }
+        </p>
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:${allCorrect?'#f0fdf6':'#fffbeb'};border-radius:20px;margin-bottom:8px">
+          <span style="font-size:24px;font-weight:700;color:${allCorrect?'#059669':'#d97706'}">${correctCount}</span>
+          <span style="font-size:14px;color:var(--text-secondary)">/ ${questions.length} 题正确</span>
+          ${allCorrect ? '<span style="font-size:16px">🌟</span>' : ''}
+        </div>
+        ${allCorrect && bindings.length > 0 ? `
+          <div style="margin-top:16px;padding:16px;background:#f0fdf6;border-radius:var(--radius-lg);text-align:left;border:1px solid #a7f3d0">
+            <h4 style="font-size:14px;color:#059669;margin-bottom:8px">🎯 任务装置已触发</h4>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              ${bindings.map(bid => {
+                const dev = Store.taskDevices.find(d => d.id === bid);
+                return dev ? `<span style="background:#fff;border:1px solid #a7f3d0;padding:6px 12px;border-radius:20px;font-size:12px;display:inline-flex;align-items:center;gap:4px">${dev.icon} ${dev.name} <span style="color:#059669;font-weight:600">已激活</span></span>` : '';
+              }).join('')}
+            </div>
+          </div>
+        ` : ''}
+        ${!allCorrect ? `
+          <div style="margin-top:12px;padding:12px;background:#fef2f2;border-radius:var(--radius);text-align:left;border:1px solid #fecaca">
+            <div style="font-size:13px;font-weight:500;color:#991b1b;margin-bottom:6px">❌ 错题回顾</div>
+            ${questions.filter(q=>q.result==='wrong').map(q => `
+              <div style="font-size:12px;color:var(--text);margin-bottom:4px">• ${q.question} <span style="color:#059669">正确答案：${Array.isArray(q.answer)?q.answer.map(i=>String.fromCharCode(65+i)).join('、'):String.fromCharCode(65+q.answer)}</span></div>
+            `).join('')}
+          </div>
+        ` : ''}
+        <div style="margin-top:20px;display:flex;gap:10px;justify-content:center">
+          <button class="btn btn-outline" onclick="refreshQuizContent()">返回展区列表</button>
+          ${!allCorrect ? `<button class="btn btn-primary" onclick="enterQuizArea(${area.id})">重新挑战</button>` : ''}
+          ${allCorrect && area.id < 4 ? `<button class="btn btn-primary" onclick="enterQuizArea(${area.id+1})">进入下一展区 →</button>` : ''}
+        </div>
+      </div>
+    `;
+    saveStore();
+    return;
+  }
+  const q = questions[quizCurrentIndex];
+  const typeLabels = {single:'【单选题】',multi:'【多选题】',truefalse:'【判断题】'};
+  const progress = Math.round((quizCurrentIndex) / questions.length * 100);
+
+  let optionsHtml = '';
+  if(q.type === 'multi'){
+    const selected = Array.isArray(q.userAnswer) ? q.userAnswer : [];
+    optionsHtml = q.options.map((opt,i) => `
+      <div class="quiz-option ${q.result ? 'disabled' : ''} ${selected.includes(i) ? 'selected' : ''} ${q.result === 'correct' && q.answer.includes(i) ? 'correct' : ''} ${q.result === 'wrong' && selected.includes(i) && !q.answer.includes(i) ? 'wrong' : ''}"
+           onclick="${q.result ? '' : 'toggleMultiOption('+i+')'}">
+        <input type="checkbox" ${selected.includes(i)?'checked':''} ${q.result?'disabled':''} style="pointer-events:none">
+        <span>${String.fromCharCode(65+i)}. ${opt}</span>
+      </div>
+    `).join('');
+  }else{
+    optionsHtml = q.options.map((opt,i) => `
+      <div class="quiz-option ${q.result ? 'disabled' : ''} ${q.userAnswer === i ? 'selected' : ''} ${q.result === 'correct' && q.userAnswer === i ? 'correct' : ''} ${q.result === 'wrong' && q.userAnswer === i ? 'wrong' : ''} ${q.result && q.answer === i ? 'correct' : ''}"
+           onclick="${q.result ? '' : 'selectSingleOption('+i+')'}">
+        <span style="width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;${q.userAnswer===i?'background:var(--primary);color:#fff;border-color:var(--primary)':''}">${String.fromCharCode(65+i)}</span>
+        <span>${opt}</span>
+      </div>
+    `).join('');
+  }
+
+  let feedbackHtml = '';
+  if(q.result){
+    feedbackHtml = `<div class="quiz-feedback ${q.result==='correct'?'success':'error'}">${q.result==='correct'?'✅ 回答正确！':'❌ 回答错误。正确答案：'+ (Array.isArray(q.answer)?q.answer.map(i=>String.fromCharCode(65+i)).join('、'):String.fromCharCode(65+q.answer))}</div>`;
+  }
+
+  document.getElementById('quizPlayArea').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <h3>${area.name} - ${typeLabels[q.type] || ''} 第 ${quizCurrentIndex+1}/${questions.length} 题</h3>
+      </div>
+      <div style="padding:0 20px">
+        <div class="progress-bar" style="margin-top:12px"><div class="progress-fill" style="width:${progress}%"></div></div>
+        <div class="progress-text">答题进度：${quizCurrentIndex}/${questions.length}</div>
+      </div>
+      <div class="card-body">
+        <div class="quiz-question">${q.question}</div>
+        <div class="quiz-options">${optionsHtml}</div>
+        ${feedbackHtml}
+        <div style="margin-top:16px;display:flex;gap:10px">
+          ${!q.result ? `<button class="btn btn-primary" onclick="submitQuizAnswer()">提交答案</button>` : ''}
+          ${q.result ? `<button class="btn btn-primary" onclick="nextQuizQuestion()">${quizCurrentIndex < questions.length-1 ? '下一题' : '查看结果'}</button>` : ''}
+          <button class="btn btn-outline" onclick="refreshQuizContent()">返回列表</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function selectSingleOption(idx){
+  const qsRaw = Store.quizQuestions[quizCurrentArea];
+  const questions = Array.isArray(qsRaw) ? qsRaw : [];
+  if(!questions[quizCurrentIndex]) return;
+  questions[quizCurrentIndex].userAnswer = idx;
+  renderQuizQuestion(Store.quizAreas.find(a=>a.id===quizCurrentArea), questions);
+}
+
+function toggleMultiOption(idx){
+  const qsRaw = Store.quizQuestions[quizCurrentArea];
+  const questions = Array.isArray(qsRaw) ? qsRaw : [];
+  const q = questions[quizCurrentIndex];
+  if(!q) return;
+  if(!Array.isArray(q.userAnswer)) q.userAnswer = [];
+  const pos = q.userAnswer.indexOf(idx);
+  if(pos > -1) q.userAnswer.splice(pos,1);
+  else q.userAnswer.push(idx);
+  renderQuizQuestion(Store.quizAreas.find(a=>a.id===quizCurrentArea), questions);
+}
+
+function submitQuizAnswer(){
+  const qsRaw = Store.quizQuestions[quizCurrentArea];
+  const questions = Array.isArray(qsRaw) ? qsRaw : [];
+  const q = questions[quizCurrentIndex];
+  if(q.userAnswer == null || q.userAnswer === undefined || (Array.isArray(q.userAnswer) && q.userAnswer.length === 0)) return;
+  let correct = false;
+  if(q.type === 'multi'){
+    const ans = q.answer.sort().join(',');
+    const ua = [...q.userAnswer].sort().join(',');
+    correct = ans === ua;
+  }else{
+    correct = q.userAnswer === q.answer;
+  }
+  q.result = correct ? 'correct' : 'wrong';
+  saveStore();
+  renderQuizQuestion(Store.quizAreas.find(a=>a.id===quizCurrentArea), questions);
+}
+
+function nextQuizQuestion(){
+  quizCurrentIndex++;
+  const area = Store.quizAreas.find(a => a.id === quizCurrentArea);
+  const questions = Store.quizQuestions[quizCurrentArea] || [];
+  renderQuizQuestion(area, questions);
+}
+
+// ====== TAB 2: 题库管理 ======
+let bankManageTab = 'custom';
+
+function renderQuizBank(){
+  return `
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="btn ${bankManageTab==='custom'?'btn-primary':'btn-outline'} btn-sm" onclick="switchBankManageTab('custom')">自定义题库</button>
+      <button class="btn ${bankManageTab==='system'?'btn-primary':'btn-outline'} btn-sm" onclick="switchBankManageTab('system')">系统默认题库</button>
+      <button class="btn ${bankManageTab==='import'?'btn-primary':'btn-outline'} btn-sm" onclick="switchBankManageTab('import')">外部导入</button>
+      <button class="btn ${bankManageTab==='chapter'?'btn-primary':'btn-outline'} btn-sm" onclick="switchBankManageTab('chapter')">章节测验配置</button>
+    </div>
+    <div id="bankManageContent"></div>
+  `;
+}
+
+function switchBankManageTab(tab){
+  bankManageTab = tab;
+  renderQuizContent();
+  setTimeout(() => { const el = document.getElementById('bankManageContent'); if(el) el.innerHTML = renderBankManageContent(); }, 10);
+}
+
+function renderBankManageContent(){
+  switch(bankManageTab){
+    case 'custom': return renderCustomBanks();
+    case 'system': return renderSystemBanks();
+    case 'import': return renderImportBanks();
+    case 'chapter': return renderChapterConfig();
+    default: return '';
+  }
+}
+
+// -- 自定义题库 --
+function renderCustomBanks(){
+  return `
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><h3>📚 自定义题库列表</h3><button class="btn btn-sm btn-primary" onclick="showCreateBankModal()">+ 新建题库</button></div>
+        <div class="card-body" style="padding:12px;max-height:400px;overflow-y:auto">
+          ${Store.customQuestionBanks.length === 0 ? '<div class="empty-state"><div class="empty-icon">📭</div><p>暂无自定义题库，点击"新建题库"开始创建</p></div>' : ''}
+          ${Store.customQuestionBanks.map(bank => `
+            <div class="bank-card ${qbEditingBankId===bank.id?'selected':''}" onclick="selectBankForEdit('${bank.id}')">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <h4>${bank.name}</h4>
+                  <div class="bank-meta">
+                    <span>📖 ${bank.chapter}</span>
+                    <span>📝 ${bank.questions.length} 题</span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:4px">
+                  <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();showCreateBankModal('${bank.id}')">编辑</button>
+                  <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deleteBank('${bank.id}')">删除</button>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>${qbEditingBankId ? '✏️ 编辑题目 - ' + (Store.customQuestionBanks.find(b=>b.id===qbEditingBankId)||{}).name || '选择题库' : '📋 题目列表'}</h3>
+          ${qbEditingBankId ? `<button class="btn btn-sm btn-primary" onclick="showAddQuestionModal()">+ 添加题目</button>` : ''}
+        </div>
+        <div class="card-body" style="padding:12px;max-height:400px;overflow-y:auto">
+          ${!qbEditingBankId ? '<div class="empty-state"><div class="empty-icon">👈</div><p>请先在左侧选择一个题库进行编辑</p></div>' : ''}
+          ${qbEditingBankId ? (() => {
+            const bank = Store.customQuestionBanks.find(b => b.id === qbEditingBankId);
+            if(!bank || bank.questions.length === 0) return '<div class="empty-state"><div class="empty-icon">📝</div><p>该题库暂无题目，点击"添加题目"开始</p></div>';
+            return bank.questions.map((q,qi) => `
+              <div class="q-item">
+                <span class="q-type ${q.type}">${({single:'单选',multi:'多选',truefalse:'判断'})[q.type]}</span>
+                <span class="q-content">${q.question}</span>
+                <div class="q-actions">
+                  <button class="btn btn-sm btn-outline" onclick="showAddQuestionModal('${bank.id}',${qi})">编辑</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteQuestion('${bank.id}',${qi})">删除</button>
+                </div>
+              </div>
+            `).join('');
+          })() : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function selectBankForEdit(bankId){
+  qbEditingBankId = bankId;
+  qbEditingQuestionId = null;
+  renderQuizContent();
+  setTimeout(() => { const el = document.getElementById('bankManageContent'); if(el) el.innerHTML = renderBankManageContent(); }, 10);
+}
+
+function showCreateBankModal(bankId){
+  const bank = bankId ? Store.customQuestionBanks.find(b => b.id === bankId) : null;
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal">
+      <div class="modal-header"><h3>${bank?'编辑题库':'新建题库'}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">题库名称</label><input class="form-input" id="bankName" value="${bank?bank.name:''}" placeholder="例如：教育心理学题库"></div>
+        <div class="form-group"><label class="form-label">所属章节</label><input class="form-input" id="bankChapter" value="${bank?bank.chapter:''}" placeholder="例如：教育心理学"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+        <button class="btn btn-primary" onclick="saveBank('${bankId||''}')">保存</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function saveBank(bankId){
+  const name = document.getElementById('bankName').value.trim();
+  const chapter = document.getElementById('bankChapter').value.trim();
+  if(!name){alert('请输入题库名称');return;}
+  if(bankId){
+    const bank = Store.customQuestionBanks.find(b => b.id === bankId);
+    if(bank){bank.name = name; bank.chapter = chapter;}
+  }else{
+    Store.customQuestionBanks.push({id:'cb'+Date.now(),name,chapter,questions:[]});
+  }
+  saveStore();
+  document.querySelector('.modal-overlay').remove();
+  renderQuizContent();
+  setTimeout(() => { const el = document.getElementById('bankManageContent'); if(el) el.innerHTML = renderBankManageContent(); }, 10);
+}
+
+function deleteBank(bankId){
+  if(!confirm('确定要删除该题库吗？此操作不可恢复。')) return;
+  Store.customQuestionBanks = Store.customQuestionBanks.filter(b => b.id !== bankId);
+  if(qbEditingBankId === bankId) qbEditingBankId = null;
+  saveStore();
+  renderQuizContent();
+  setTimeout(() => { const el = document.getElementById('bankManageContent'); if(el) el.innerHTML = renderBankManageContent(); }, 10);
+}
+
+function showAddQuestionModal(bankId, questionIdx){
+  const bank = Store.customQuestionBanks.find(b => b.id === (bankId || qbEditingBankId));
+  if(!bank) return;
+  const q = (questionIdx !== undefined && questionIdx >= 0) ? bank.questions[questionIdx] : null;
+  const isEdit = !!q;
+  const qbId = bank.id;
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:700px">
+      <div class="modal-header"><h3>${isEdit?'编辑题目':'添加题目'}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <div class="qb-editor-row">
+          <div class="form-group" style="max-width:120px"><label class="form-label">题型</label><select class="form-select" id="qType" onchange="onQTypeChange()"><option value="single" ${q&&q.type==='single'?'selected':''}>单选题</option><option value="multi" ${q&&q.type==='multi'?'selected':''}>多选题</option><option value="truefalse" ${q&&q.type==='truefalse'?'selected':''}>判断题</option></select></div>
+          <div class="form-group"><label class="form-label">题目内容</label><input class="form-input" id="qQuestion" value="${q?q.question.replace(/"/g,'&quot;'):''}" placeholder="请输入题目内容"></div>
+        </div>
+        <div class="form-group"><label class="form-label">选项列表</label>
+          <div id="qOptionsContainer">
+            ${(q?q.options:['','','','']).map((opt,i) => `
+              <div class="qb-option-row">
+                <span class="qb-answer-indicator">${String.fromCharCode(65+i)}</span>
+                <input class="form-input q-option-input" value="${opt.replace(/"/g,'&quot;')}" placeholder="选项${String.fromCharCode(65+i)}">
+                ${(!q||q.type!=='truefalse'||i>=2) ? `<button class="btn-remove-opt" onclick="this.parentElement.remove()">×</button>` : ''}
+              </div>
+            `).join('')}
+          </div>
+          <button class="btn btn-sm btn-outline" style="margin-top:6px" onclick="addOptionRow()">+ 添加选项</button>
+        </div>
+        <div class="form-group"><label class="form-label">正确答案</label>
+          <div id="qAnswerArea">
+            ${(!q||q.type==='single'||q.type==='truefalse') ? `
+              <select class="form-select" id="qAnswerSingle" style="width:200px">
+                ${(q?q.options:['','','','']).map((opt,i) => `<option value="${i}" ${q&&q.answer===i?'selected':''}>${String.fromCharCode(65+i)}. ${opt||'选项'+String.fromCharCode(65+i)}</option>`).join('')}
+              </select>
+            ` : ''}
+            ${q&&q.type==='multi' ? `
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                ${q.options.map((opt,i) => `
+                  <label style="font-size:13px;display:flex;align-items:center;gap:4px">
+                    <input type="checkbox" value="${i}" ${Array.isArray(q.answer)&&q.answer.includes(i)?'checked':''} class="q-answer-check">
+                    ${String.fromCharCode(65+i)}. ${opt}
+                  </label>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+        <button class="btn btn-primary" onclick="saveQuestion('${qbId}',${isEdit?questionIdx:'null'})">保存题目</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function onQTypeChange(){
+  const type = document.getElementById('qType').value;
+  const answerArea = document.getElementById('qAnswerArea');
+  const container = document.getElementById('qOptionsContainer');
+  const options = Array.from(container.querySelectorAll('.q-option-input')).map(inp => inp.value);
+  if(type === 'truefalse'){
+    container.innerHTML = `
+      <div class="qb-option-row"><span class="qb-answer-indicator">A</span><input class="form-input q-option-input" value="正确" placeholder="选项A"></div>
+      <div class="qb-option-row"><span class="qb-answer-indicator">B</span><input class="form-input q-option-input" value="错误" placeholder="选项B"></div>
+    `;
+    answerArea.innerHTML = `<select class="form-select" id="qAnswerSingle" style="width:200px"><option value="0">A. 正确</option><option value="1">B. 错误</option></select>`;
+  }else{
+    answerArea.innerHTML = type === 'multi'
+      ? `<div style="display:flex;gap:12px;flex-wrap:wrap">${options.map((opt,i) => `<label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox" value="${i}" class="q-answer-check"> ${String.fromCharCode(65+i)}. ${opt||'选项'+String.fromCharCode(65+i)}</label>`).join('')}</div>`
+      : `<select class="form-select" id="qAnswerSingle" style="width:200px">${options.map((opt,i) => `<option value="${i}">${String.fromCharCode(65+i)}. ${opt||'选项'+String.fromCharCode(65+i)}</option>`).join('')}</select>`;
+  }
+}
+
+function addOptionRow(){
+  const container = document.getElementById('qOptionsContainer');
+  const idx = container.children.length;
+  const row = document.createElement('div');
+  row.className = 'qb-option-row';
+  row.innerHTML = `<span class="qb-answer-indicator">${String.fromCharCode(65+idx)}</span><input class="form-input q-option-input" placeholder="选项${String.fromCharCode(65+idx)}"><button class="btn-remove-opt" onclick="this.parentElement.remove()">×</button>`;
+  container.appendChild(row);
+  const type = document.getElementById('qType') ? document.getElementById('qType').value : 'single';
+  if(type === 'single' || type === 'truefalse'){
+    const sel = document.getElementById('qAnswerSingle');
+    if(sel){
+      const opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = String.fromCharCode(65+idx) + '. 选项' + String.fromCharCode(65+idx);
+      sel.appendChild(opt);
+    }
+  }
+}
+
+function saveQuestion(bankId, questionIdx){
+  const bank = Store.customQuestionBanks.find(b => b.id === bankId);
+  if(!bank) return;
+  const type = document.getElementById('qType').value;
+  const question = document.getElementById('qQuestion').value.trim();
+  const options = Array.from(document.querySelectorAll('.q-option-input')).map(inp => inp.value.trim());
+  if(!question){alert('请输入题目内容');return;}
+  if(options.some(o => !o)){alert('请填写所有选项');return;}
+
+  let answer;
+  if(type === 'multi'){
+    answer = Array.from(document.querySelectorAll('.q-answer-check:checked')).map(cb => parseInt(cb.value));
+    if(answer.length === 0){alert('请选择正确答案');return;}
+  }else{
+    answer = parseInt(document.getElementById('qAnswerSingle').value);
+  }
+
+  const qData = {id:bank.questions.length+1,type,question,options,answer};
+
+  if(questionIdx !== null && questionIdx >= 0){
+    qData.id = bank.questions[questionIdx].id;
+    bank.questions[questionIdx] = qData;
+  }else{
+    bank.questions.push(qData);
+  }
+
+  saveStore();
+  document.querySelector('.modal-overlay').remove();
+  renderQuizContent();
+  setTimeout(() => { const el = document.getElementById('bankManageContent'); if(el) el.innerHTML = renderBankManageContent(); }, 10);
+}
+
+function deleteQuestion(bankId, questionIdx){
+  if(!confirm('确定要删除该题目吗？')) return;
+  const bank = Store.customQuestionBanks.find(b => b.id === bankId);
+  if(bank) bank.questions.splice(questionIdx, 1);
+  saveStore();
+  renderQuizContent();
+  setTimeout(() => { const el = document.getElementById('bankManageContent'); if(el) el.innerHTML = renderBankManageContent(); }, 10);
+}
+
+// -- 系统默认题库 --
+function renderSystemBanks(){
+  return `
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><h3>🗄️ 系统默认题库</h3></div>
+        <div class="card-body" style="padding:12px">
+          ${Store.systemDefaultBanks.map(bank => `
+            <div class="bank-card" onclick="toggleSystemBank('${bank.id}')">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <h4>${bank.name}</h4>
+                  <div class="bank-meta"><span>📖 ${bank.chapter}</span><span>📝 ${bank.questions.length} 题</span></div>
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();importSystemBank('${bank.id}')">导入到自定义题库</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>📋 题库预览</h3></div>
+        <div class="card-body" style="padding:12px;max-height:400px;overflow-y:auto" id="systemBankPreview">
+          <div class="empty-state"><div class="empty-icon">👈</div><p>点击左侧题库查看题目详情</p></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleSystemBank(bankId){
+  const bank = Store.systemDefaultBanks.find(b => b.id === bankId);
+  if(!bank) return;
+  const preview = document.getElementById('systemBankPreview');
+  if(!preview) return;
+  preview.innerHTML = `
+    <h4 style="margin-bottom:12px">${bank.name}（${bank.questions.length}题示例）</h4>
+    ${bank.questions.map((q,i) => `
+      <div class="q-item">
+        <span class="q-type ${q.type}">${({single:'单选',multi:'多选',truefalse:'判断'})[q.type]}</span>
+        <span class="q-content">${q.question}</span>
+      </div>
+    `).join('')}
+    <div style="margin-top:8px;color:var(--text-light);font-size:11px">* 题库共 ${bank.questions.length} 题</div>
+  `;
+}
+
+function importSystemBank(bankId){
+  const sysBank = Store.systemDefaultBanks.find(b => b.id === bankId);
+  if(!sysBank) return;
+  const newBank = {
+    id: 'cb'+Date.now(),
+    name: sysBank.name + '（导入）',
+    chapter: sysBank.chapter,
+    questions: JSON.parse(JSON.stringify(sysBank.questions))
+  };
+  Store.customQuestionBanks.push(newBank);
+  saveStore();
+  alert('题库「' + sysBank.name + '」已成功导入到自定义题库！');
+  renderQuizContent();
+  setTimeout(() => { const el = document.getElementById('bankManageContent'); if(el) el.innerHTML = renderBankManageContent(); }, 10);
+}
+
+// -- 外部导入 --
+function renderImportBanks(){
+  return `
+    <div class="card">
+      <div class="card-header"><h3>📥 外部导入课程题库</h3></div>
+      <div class="card-body">
+        <div class="import-area" onclick="document.getElementById('importFileInput').click()">
+          <div class="import-icon">📤</div>
+          <p>点击此处上传题库文件</p>
+          <div class="import-hint">支持 .json、.csv、.xlsx 格式</div>
+          <input type="file" id="importFileInput" accept=".json,.csv,.xlsx" style="display:none" onchange="handleFileImport(this)">
+        </div>
+        <div style="margin-top:16px">
+          <h4 style="font-size:14px;margin-bottom:8px">导入格式说明</h4>
+          <div style="background:var(--bg);padding:12px;border-radius:var(--radius);font-size:12px;font-family:monospace;white-space:pre-wrap;color:var(--text-secondary);line-height:1.6">JSON格式示例：
+[
+  {
+    "type": "single",
+    "question": "题目标题",
+    "options": ["选项A","选项B","选项C","选项D"],
+    "answer": 0
+  },
+  {
+    "type": "multi",
+    "question": "多选题目标题",
+    "options": ["选项A","选项B","选项C","选项D"],
+    "answer": [0, 2]
+  }
+]</div>
+        </div>
+        <div style="margin-top:12px">
+          <label class="form-label">导入到题库</label>
+          <select class="form-select" id="importTargetBank" style="width:250px">
+            <option value="">新建题库</option>
+            ${Store.customQuestionBanks.map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+          </select>
+        </div>
+        <div id="importResult" style="margin-top:12px"></div>
+      </div>
+    </div>
+  `;
+}
+
+function handleFileImport(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      let questions;
+      if(file.name.endsWith('.json')){
+        questions = JSON.parse(e.target.result);
+      }else if(file.name.endsWith('.csv')){
+        questions = parseCSVToQuestions(e.target.result);
+      }else{
+        document.getElementById('importResult').innerHTML = '<div class="alert alert-warning">暂不支持该文件格式，请使用JSON格式</div>';
+        return;
+      }
+      if(!Array.isArray(questions) || questions.length === 0){
+        document.getElementById('importResult').innerHTML = '<div class="alert alert-danger">文件格式错误：需要包含题目数组</div>';
+        return;
+      }
+      const targetBankId = document.getElementById('importTargetBank').value;
+      if(targetBankId){
+        const bank = Store.customQuestionBanks.find(b => b.id === targetBankId);
+        if(bank){
+          questions.forEach((q,i) => { q.id = bank.questions.length + i + 1; });
+          bank.questions.push(...questions);
+        }
+      }else{
+        Store.customQuestionBanks.push({
+          id: 'cb'+Date.now(),
+          name: file.name.replace(/\.[^.]+$/,'') + '（导入）',
+          chapter: '外部导入',
+          questions: questions.map((q,i) => ({...q, id: i+1}))
+        });
+      }
+      saveStore();
+      document.getElementById('importResult').innerHTML = `<div class="alert alert-success">✅ 成功导入 ${questions.length} 道题目！</div>`;
+      setTimeout(() => {
+        renderQuizContent();
+        setTimeout(() => { const el = document.getElementById('bankManageContent'); if(el) el.innerHTML = renderBankManageContent(); }, 10);
+      }, 800);
+    }catch(err){
+      document.getElementById('importResult').innerHTML = '<div class="alert alert-danger">文件解析失败：' + err.message + '</div>';
+    }
+  };
+  reader.readAsText(file);
+}
+
+function parseCSVToQuestions(csv){
+  const lines = csv.split('\n').filter(l => l.trim());
+  const questions = [];
+  for(let i = 1; i < lines.length; i++){
+    const cols = lines[i].split(',');
+    if(cols.length >= 6){
+      questions.push({
+        type: cols[0].trim(),
+        question: cols[1].trim(),
+        options: [cols[2].trim(), cols[3].trim(), cols[4].trim(), cols[5].trim()],
+        answer: cols[0].trim() === 'multi' ? cols[6].trim().split(';').map(Number) : parseInt(cols[6])
+      });
+    }
+  }
+  return questions;
+}
+
+// -- 章节测验配置 --
+function renderChapterConfig(){
+  return `
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><h3>📋 章节测验配置</h3><button class="btn btn-sm btn-primary" onclick="showSaveChapterTestModal()">+ 添加章节测验</button></div>
+      <div class="card-body" style="padding:12px">
+        ${Store.chapterTests.length === 0 ? '<div class="empty-state"><div class="empty-icon">📋</div><p>暂无章节测验配置，请点击右上角按钮添加</p></div>' : ''}
+        ${Store.chapterTests.map((ct,i) => `
+          <div class="chapter-test-item">
+            <div class="chapter-info">
+              <div class="chapter-name">${ct.chapter}</div>
+              <div class="chapter-meta">题库：${ct.bank} | 题量：${ct.count}题 | 限时：${ct.time}</div>
+            </div>
+            <span class="tag tag-success">已配置</span>
+            <button class="btn btn-sm btn-outline" onclick="showSaveChapterTestModal(${i})">编辑</button>
+            <button class="btn btn-sm btn-outline" onclick="previewChapterTest(${i})">预览</button>
+            <button class="btn btn-sm btn-outline" style="color:var(--danger)" onclick="deleteChapterTest(${i})">删除</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>⚡ 快速配置</h3></div>
+      <div class="card-body">
+        <div class="qb-editor-row">
+          <div class="form-group"><label class="form-label">选择章节</label><select class="form-select" id="ctChapter"><option>第一章：教育理论基础</option><option>第二章：教育心理学</option><option>第三章：课程与教学论</option><option>第四章：教育技术</option></select></div>
+          <div class="form-group"><label class="form-label">关联题库</label><select class="form-select" id="ctBank">
+            ${Store.customQuestionBanks.map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+            ${Store.systemDefaultBanks.map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+          </select></div>
+        </div>
+        <div class="qb-editor-row">
+          <div class="form-group"><label class="form-label">题目数量</label><input class="form-input" id="ctCount" type="number" value="10" min="1"></div>
+          <div class="form-group"><label class="form-label">限时（分钟）</label><input class="form-input" id="ctTime" type="number" value="30" min="5"></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveChapterTest()">保存配置</button>
+      </div>
+    </div>
+  `;
+}
+
+function showSaveChapterTestModal(editIdx){
+  const isEdit = editIdx !== undefined;
+  const ct = isEdit ? Store.chapterTests[editIdx] : null;
+  const chapters = ['第一章：教育理论基础','第二章：教育心理学','第三章：课程与教学论','第四章：教育技术','第五章：教育研究方法','第六章：班级管理与德育'];
+  const allBanks = [...Store.customQuestionBanks, ...Store.systemDefaultBanks];
+  const defaultBank = isEdit ? allBanks.find(b => b.id === ct.bankId) : allBanks[0];
+  const defaultCount = isEdit ? ct.count : (defaultBank ? Math.min(10, defaultBank.questions.length) : 10);
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:520px">
+      <div class="modal-header"><h3>${isEdit ? '编辑' : '添加'}章节测验</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">选择章节</label>
+          <select class="form-select" id="modalCtChapter" style="width:100%">
+            ${chapters.map(c => `<option value="${c}" ${isEdit && ct.chapter===c?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">关联题库</label>
+          <select class="form-select" id="modalCtBank" style="width:100%" onchange="updateModalCtCountMax()">
+            ${allBanks.map(b => `<option value="${b.id}" ${isEdit && ct.bankId===b.id?'selected':''}>${b.name}（${b.questions.length}题）</option>`).join('')}
+          </select>
+        </div>
+        <div class="qb-editor-row">
+          <div class="form-group"><label class="form-label">题目数量</label><input class="form-input" id="modalCtCount" type="number" value="${defaultCount}" min="1" max="${defaultBank ? defaultBank.questions.length : 999}"></div>
+          <div class="form-group"><label class="form-label">限时（分钟）</label><input class="form-input" id="modalCtTime" type="number" value="${isEdit ? parseInt(ct.time) : 30}" min="5"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+        <button class="btn btn-primary" onclick="saveChapterTestFromModal(${isEdit ? editIdx : -1}, this)">${isEdit ? '保存修改' : '添加配置'}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function saveChapterTestFromModal(editIdx, btn){
+  const chapter = document.getElementById('modalCtChapter').value;
+  const bankId = document.getElementById('modalCtBank').value;
+  const count = parseInt(document.getElementById('modalCtCount').value) || 10;
+  const time = document.getElementById('modalCtTime').value + '分钟';
+
+  let bank = Store.customQuestionBanks.find(b => b.id === bankId);
+  if(!bank) bank = Store.systemDefaultBanks.find(b => b.id === bankId);
+  if(!bank){ alert('请选择有效的题库'); return; }
+
+  const chapterMap = {
+    '第一章：教育理论基础':1,'第二章：教育心理学':2,
+    '第三章：课程与教学论':3,'第四章：教育技术':4,
+    '第五章：教育研究方法':5,'第六章：班级管理与德育':6
+  };
+  const areaId = chapterMap[chapter] || 1;
+
+  const ctData = {chapter, bank:bank.name, bankId, count:Math.min(count, bank.questions.length), time, areaId};
+
+  if(editIdx >= 0){
+    Store.chapterTests[editIdx] = ctData;
+  }else{
+    Store.chapterTests.push(ctData);
+  }
+  saveStore();
+  btn.closest('.modal-overlay').remove();
+  alert('✅ 章节测验配置已保存！\n\n章节：' + chapter + '\n题库：' + bank.name + '\n题目数量：' + Math.min(count, bank.questions.length) + ' 题\n限时：' + time);
+  switchBankManageTab('chapter');
+}
+
+function updateModalCtCountMax(){
+  const bankId = document.getElementById('modalCtBank').value;
+  let bank = Store.customQuestionBanks.find(b => b.id === bankId);
+  if(!bank) bank = Store.systemDefaultBanks.find(b => b.id === bankId);
+  if(bank){
+    const countInput = document.getElementById('modalCtCount');
+    countInput.max = bank.questions.length;
+    if(parseInt(countInput.value) > bank.questions.length){
+      countInput.value = bank.questions.length;
+    }
+  }
+}
+
+function deleteChapterTest(idx){
+  if(!confirm('确定要删除「' + Store.chapterTests[idx].chapter + '」的章节测验配置吗？')) return;
+  Store.chapterTests.splice(idx, 1);
+  saveStore();
+  switchBankManageTab('chapter');
+}
+
+function previewChapterTest(idx){
+  const ct = Store.chapterTests[idx];
+  if(!ct) return;
+  
+  let bank = Store.customQuestionBanks.find(b => b.id === ct.bankId);
+  if(!bank) bank = Store.systemDefaultBanks.find(b => b.id === ct.bankId);
+  if(!bank || bank.questions.length === 0){ alert('该题库暂无题目，请先添加题目'); return; }
+
+  const previewQuestions = bank.questions.slice(0, ct.count);
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:700px;max-height:85vh;overflow-y:auto">
+      <div class="modal-header"><h3>📋 章节测验预览 - ${ct.chapter}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <div style="margin-bottom:12px;padding:10px;background:var(--bg);border-radius:var(--radius);font-size:13px;display:flex;gap:16px;flex-wrap:wrap">
+          <span>📚 题库：<strong>${ct.bank}</strong></span>
+          <span>📝 题量：<strong>${previewQuestions.length}题</strong></span>
+          <span>⏱ 限时：<strong>${ct.time}</strong></span>
+        </div>
+        ${previewQuestions.map((q,qi) => {
+          let typeLabel = '';
+          if(q.type === 'single') typeLabel = '单选题';
+          else if(q.type === 'multi') typeLabel = '多选题';
+          else if(q.type === 'truefalse') typeLabel = '判断题';
+          else typeLabel = '填空题';
+          const optLabels = ['A','B','C','D','E','F'];
+          return `
+            <div class="quiz-preview-question" style="margin-bottom:16px;padding:14px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <span class="tag" style="background:var(--primary);color:#fff">${typeLabel}</span>
+                <span style="font-weight:600;font-size:14px">${qi+1}. ${q.question}</span>
+              </div>
+              ${q.type !== 'fill' ? q.options.map((opt,oi) => {
+                let isCorrect = false;
+                if(q.type === 'multi') isCorrect = Array.isArray(q.answer) && q.answer.includes(oi);
+                else isCorrect = q.answer === oi;
+                return `<div style="padding:6px 10px;margin:4px 0;border-radius:4px;font-size:13px;background:${isCorrect?'#ecfdf5':'#f9fafb'};border:1px solid ${isCorrect?'#059669':'#e5e7eb'}">
+                  <span style="font-weight:600;margin-right:8px;color:${isCorrect?'#059669':'var(--text-secondary)'}">${optLabels[oi]}</span>
+                  ${opt} ${isCorrect ? '<span style="color:#059669;font-weight:600">✓ 正确答案</span>' : ''}
+                </div>`;
+              }).join('') : `<div style="padding:6px 10px;background:#ecfdf5;border:1px solid #059669;border-radius:4px;font-size:13px">答案：${q.options[0]}</div>`}
+            </div>
+          `;
+        }).join('')}
+        ${previewQuestions.length === 0 ? '<div class="empty-state"><div class="empty-icon">📭</div><p>该题库暂无题目</p></div>' : ''}
+      </div>
+      <div class="modal-footer" style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">关闭预览</button>
+        <button class="btn btn-primary" onclick="startChapterTestQuiz(${idx}, this)">🚀 开始答题</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function startChapterTestQuiz(idx, btn){
+  const ct = Store.chapterTests[idx];
+  if(!ct) return;
+  
+  let bank = Store.customQuestionBanks.find(b => b.id === ct.bankId);
+  if(!bank) bank = Store.systemDefaultBanks.find(b => b.id === ct.bankId);
+  if(!bank || bank.questions.length === 0){ alert('该题库暂无题目'); return; }
+
+  const selectedQuestions = bank.questions.slice(0, ct.count).map(q => ({
+    id: q.id,
+    type: q.type === 'multi' ? 'multi' : q.type === 'truefalse' ? 'truefalse' : 'single',
+    question: q.question,
+    options: q.options || [],
+    answer: q.type === 'multi' ? (Array.isArray(q.answer) ? q.answer : [q.answer]) : q.answer,
+    userAnswer: null,
+    result: null
+  }));
+
+  if(!Store.quizQuestions[ct.areaId]) Store.quizQuestions[ct.areaId] = [];
+  Store.quizQuestions[ct.areaId] = selectedQuestions;
+  saveStore();
+  
+  btn.closest('.modal-overlay').remove();
+  quizCurrentArea = ct.areaId;
+  quizCurrentQuestion = 0;
+  quizAnswers = {};
+  quizTimeLeft = parseInt(ct.time) * 60;
+  quizTimer = null;
+  document.getElementById('quizAreaTitle').textContent = ct.chapter + ' 章节测验';
+  document.getElementById('quizAreaDesc').textContent = '共' + selectedQuestions.length + '题 | 限时' + ct.time;
+  document.getElementById('quizAreaIcon').textContent = '📋';
+  document.getElementById('quizAreaSelector').style.display = 'none';
+  document.getElementById('quizPlayArea').style.display = 'block';
+  document.getElementById('quizResultArea').style.display = 'none';
+  renderQuizQuestion();
+  startQuizTimer();
+  window.scrollTo({top:document.getElementById('quizPlayArea').offsetTop,behavior:'smooth'});
+}
+
+function addChapterTest(){ showSaveChapterTestModal(); }
+function editChapterTest(idx){ showSaveChapterTestModal(idx); }
+function saveChapterTest(){
+  const chapter = document.getElementById('ctChapter').value;
+  const bankId = document.getElementById('ctBank').value;
+  const count = parseInt(document.getElementById('ctCount').value) || 10;
+  const time = parseInt(document.getElementById('ctTime').value) || 30;
+
+  // 从题库中查找题目
+  let bank = Store.customQuestionBanks.find(b => b.id === bankId);
+  if(!bank) bank = Store.systemDefaultBanks.find(b => b.id === bankId);
+  if(!bank){ alert('请选择有效的题库'); return; }
+
+  // 确定章节对应的展区ID
+  const chapterMap = {
+    '第一章：教育理论基础':1,'第二章：教育心理学':2,
+    '第三章：课程与教学论':3,'第四章：教育技术':4
+  };
+  const areaId = chapterMap[chapter] || 1;
+
+  // 从题库中取题目加载到展区
+  const selectedQuestions = bank.questions.slice(0, count).map(q => ({
+    question: q.question,
+    options: q.options || [],
+    answer: q.type === 'multi' ? (Array.isArray(q.answer) ? q.answer : [q.answer]) : q.answer,
+    type: q.type === 'multi' ? 'multi' : q.type === 'truefalse' ? 'truefalse' : 'single',
+    userAnswer: null,
+    result: null
+  }));
+
+  if(!Store.quizQuestions[areaId]) Store.quizQuestions[areaId] = [];
+  Store.quizQuestions[areaId] = selectedQuestions;
+  
+  // 同步保存到章节测验配置
+  const existingIdx = Store.chapterTests.findIndex(ct => ct.chapter === chapter);
+  const ctData = {chapter, bank:bank.name, bankId, count:Math.min(count, bank.questions.length), time:time+'分钟', areaId};
+  if(existingIdx >= 0){
+    Store.chapterTests[existingIdx] = ctData;
+  }else{
+    Store.chapterTests.push(ctData);
+  }
+  
+  saveStore();
+  alert('章节测验已配置！\n\n章节：' + chapter + '\n题库：' + bank.name + '\n题目数量：' + selectedQuestions.length + ' 题\n限时：' + time + ' 分钟\n\n题目已加载到对应展区，学员可前往答题闯关。');
+  switchBankManageTab('chapter');
+}
+
+// ====== TAB 3: 任务装置 ======
+function renderQuizDevice(){
+  return `
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><h3>🎮 虚拟任务装置管理</h3><span style="font-size:12px;color:var(--text-light)">将答题任务与多模态任务触发器绑定，构建游戏化学习体验</span></div>
+      <div class="card-body">
+        <div class="task-device-grid">
+          ${Store.taskDevices.map(dev => {
+            const boundAreas = Object.entries(Store.areaTaskBindings).filter(([aid,devices]) => devices.includes(dev.id)).map(([aid]) => parseInt(aid));
+            const isBound = boundAreas.length > 0;
+            return `
+              <div class="task-device-card ${isBound?'bound':''}" onclick="showDeviceDetail('${dev.id}')">
+                ${isBound ? `<span class="device-badge">已绑定${boundAreas.length}个展区</span>` : `<span class="device-badge unbound">未绑定</span>`}
+                <div class="device-icon">${dev.icon}</div>
+                <div class="device-name">${dev.name}</div>
+                <div class="device-desc">${dev.desc}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>🔗 展区-装置绑定配置</h3></div>
+      <div class="card-body" style="padding:12px">
+        <table class="data-table">
+          <tr><th>展区</th><th>已绑定装置</th><th>操作</th></tr>
+          ${Store.quizAreas.map(area => {
+            const bindings = Store.areaTaskBindings[area.id] || [];
+            return `
+              <tr>
+                <td><strong>${area.icon} ${area.name}</strong></td>
+                <td>
+                  ${bindings.length === 0 ? '<span style="color:var(--text-light);font-size:12px">未绑定任何装置</span>' : ''}
+                  <div style="display:flex;gap:6px;flex-wrap:wrap">
+                    ${bindings.map(bid => {
+                      const dev = Store.taskDevices.find(d => d.id === bid);
+                      return dev ? `<span style="background:#f0fdf6;color:#059669;padding:3px 10px;border-radius:12px;font-size:12px;display:inline-flex;align-items:center;gap:4px">${dev.icon} ${dev.name} <span style="cursor:pointer;font-weight:bold;margin-left:2px" onclick="event.stopPropagation();unbindDevice(${area.id},'${bid}')">×</span></span>` : '';
+                    }).join('')}
+                  </div>
+                </td>
+                <td><button class="btn btn-sm btn-primary" onclick="showBindDeviceModal(${area.id})">绑定装置</button></td>
+              </tr>
+            `;
+          }).join('')}
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function showDeviceDetail(deviceId){
+  const dev = Store.taskDevices.find(d => d.id === deviceId);
+  if(!dev) return;
+  const boundAreas = Object.entries(Store.areaTaskBindings).filter(([aid,devices]) => devices.includes(dev.id)).map(([aid]) => parseInt(aid));
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:500px">
+      <div class="modal-header"><h3>${dev.name}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <div class="device-detail">
+          <div class="device-hero">${dev.icon}</div>
+          <h4>${dev.name}</h4>
+          <p>${dev.desc}</p>
+          <div style="text-align:left;background:var(--bg);padding:12px;border-radius:var(--radius)">
+            <div style="font-size:13px;font-weight:500;margin-bottom:8px">绑定展区：</div>
+            ${boundAreas.length === 0 ? '<span style="color:var(--text-light);font-size:12px">暂未绑定任何展区</span>' : ''}
+            ${boundAreas.map(aid => {
+              const area = Store.quizAreas.find(a => a.id === aid);
+              return area ? `<div style="font-size:12px;padding:4px 0">${area.icon} ${area.name}</div>` : '';
+            }).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">关闭</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function showBindDeviceModal(areaId){
+  const area = Store.quizAreas.find(a => a.id === areaId);
+  if(!area) return;
+  const currentBindings = Store.areaTaskBindings[areaId] || [];
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header"><h3>绑定装置到「${area.name}」</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">选择要绑定的虚拟任务装置，当学员完成该展区答题后，对应装置将被触发。</p>
+        <div class="task-device-grid">
+          ${Store.taskDevices.map(dev => {
+            const isBound = currentBindings.includes(dev.id);
+            return `
+              <div class="task-device-card ${isBound?'bound':''}" onclick="toggleDeviceBinding(${areaId},'${dev.id}',this)" style="cursor:pointer">
+                ${isBound ? '<span class="device-badge">已绑定</span>' : ''}
+                <div class="device-icon">${dev.icon}</div>
+                <div class="device-name">${dev.name}</div>
+                <div class="device-desc" style="font-size:10px">${dev.desc.substring(0,30)}...</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove();refreshDeviceContent()">完成</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function toggleDeviceBinding(areaId, deviceId, el){
+  if(!Store.areaTaskBindings[areaId]) Store.areaTaskBindings[areaId] = [];
+  const idx = Store.areaTaskBindings[areaId].indexOf(deviceId);
+  if(idx > -1){
+    Store.areaTaskBindings[areaId].splice(idx, 1);
+    el.classList.remove('bound');
+    const badge = el.querySelector('.device-badge');
+    if(badge) badge.remove();
+  }else{
+    Store.areaTaskBindings[areaId].push(deviceId);
+    el.classList.add('bound');
+    if(!el.querySelector('.device-badge')){
+      const badge = document.createElement('span');
+      badge.className = 'device-badge';
+      badge.textContent = '已绑定';
+      el.appendChild(badge);
+    }
+  }
+  saveStore();
+}
+
+function unbindDevice(areaId, deviceId){
+  if(!Store.areaTaskBindings[areaId]) return;
+  Store.areaTaskBindings[areaId] = Store.areaTaskBindings[areaId].filter(id => id !== deviceId);
+  saveStore();
+  refreshDeviceContent();
+}
+
+// ==================== SAFETY DETECTION ====================
+let safetyTab = 'keywords';
+
+function renderSafety(){
+  return `
+    <div class="tabs">
+      <div class="tab-item active" data-stab="keywords" onclick="switchSafetyTab('keywords',this)">关键词配置</div>
+      <div class="tab-item" data-stab="review" onclick="switchSafetyTab('review',this)">内容审核</div>
+      <div class="tab-item" data-stab="logs" onclick="switchSafetyTab('logs',this)">审核记录</div>
+    </div>
+    <div id="safetyContent"></div>
+  `;
+}
+
+function switchSafetyTab(tab, el){
+  safetyTab = tab;
+  document.querySelectorAll('[data-stab]').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderSafetyContent();
+}
+
+function renderSafetyContent(){
+  const container = document.getElementById('safetyContent');
+  if(!container) return;
+  switch(safetyTab){
+    case 'keywords':
+      container.innerHTML = `
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h3>🔴 敏感关键词</h3><button class="btn btn-sm btn-primary" onclick="addKeywordFromInput('safetyKeywords','kwInput')">添加关键词</button></div>
+            <div class="card-body">
+              <div class="keyword-input-wrap" id="keywordTags">
+                ${Store.safetyKeywords.map((kw,i) => `<span class="keyword-tag">${kw} <span class="kw-remove" onclick="removeKeyword('safetyKeywords',${i})">×</span></span>`).join('')}
+                <input type="text" placeholder="输入关键词后按回车添加" onkeydown="if(event.key==='Enter'){addKeyword('safetyKeywords',this.value);this.value=''}" id="kwInput">
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>🟢 忽略词</h3><button class="btn btn-sm btn-primary" onclick="addKeywordFromInput('safetyIgnoreWords','iwInput')">添加忽略词</button></div>
+            <div class="card-body">
+              <div class="keyword-input-wrap" id="ignoreTags">
+                ${Store.safetyIgnoreWords.map((kw,i) => `<span class="keyword-tag">${kw} <span class="kw-remove" onclick="removeKeyword('safetyIgnoreWords',${i})">×</span></span>`).join('')}
+                <input type="text" placeholder="输入忽略词后按回车添加" onkeydown="if(event.key==='Enter'){addKeyword('safetyIgnoreWords',this.value);this.value=''}" id="iwInput">
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      break;
+    case 'review':
+      container.innerHTML = `
+        <div class="card">
+          <div class="card-header"><h3>📝 内容审核</h3></div>
+          <div class="card-body">
+            <div class="form-group" style="margin-bottom:12px">
+              <label class="form-label">审核内容类型</label>
+              <select class="form-select" id="reviewType" style="width:200px" onchange="toggleReviewInputType()">
+                <option value="text">文本内容</option>
+                <option value="image">图片审核</option>
+                <option value="document">文档审核</option>
+                <option value="course">课程内容审核</option>
+              </select>
+            </div>
+            <div id="reviewTextArea" class="form-group" style="margin-bottom:12px">
+              <label class="form-label">待审核内容</label>
+              <textarea class="form-textarea" id="reviewContent" placeholder="请输入或粘贴待审核的内容..." style="min-height:120px"></textarea>
+            </div>
+            <div id="reviewFileArea" class="form-group" style="margin-bottom:12px;display:none">
+              <label class="form-label">上传文件</label>
+              <div class="import-area" onclick="document.getElementById('reviewFileInput').click()" style="padding:20px">
+                <div class="import-icon">📤</div>
+                <p>点击上传待审核文件</p>
+                <div class="import-hint">支持图片(.jpg,.png)、文档(.txt,.doc,.pdf)、课程描述</div>
+                <input type="file" id="reviewFileInput" accept=".jpg,.jpeg,.png,.gif,.txt,.doc,.docx,.pdf" style="display:none" onchange="handleReviewFile(this)">
+              </div>
+              <div id="reviewFileInfo" style="margin-top:8px;font-size:12px;color:var(--text-secondary)"></div>
+            </div>
+            <div id="reviewResultArea" style="margin-top:12px;display:none">
+              <div id="reviewResult"></div>
+              <div id="reviewDetail" style="margin-top:12px;padding:12px;background:var(--bg);border-radius:var(--radius);font-size:12px"></div>
+            </div>
+            <button class="btn btn-primary" onclick="doSafetyReview()">🔍 开始审核</button>
+            <button class="btn btn-outline" style="margin-left:8px" onclick="batchSafetyReview()">📋 批量审核</button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-header"><h3>📂 已有资源审核</h3><span style="font-size:12px;color:var(--text-light)">选择平台已有资源进行安全审核</span></div>
+          <div class="card-body" style="padding:12px">
+            <div class="form-group" style="margin-bottom:12px">
+              <label class="form-label">审核已有资源类型</label>
+              <select class="form-select" id="existingResType" style="width:200px" onchange="renderExistingResources()">
+                <option value="course">课程名称</option>
+                <option value="unit">课程单元</option>
+                <option value="schedule">课表课程</option>
+              </select>
+            </div>
+            <div id="existingResList" style="max-height:300px;overflow-y:auto">
+              ${renderExistingResTable('course')}
+            </div>
+            <div id="existingReviewResult" style="margin-top:12px;display:none">
+              <div id="existingReviewStatus"></div>
+              <div id="existingReviewDetail" style="margin-top:8px;padding:12px;background:var(--bg);border-radius:var(--radius);font-size:12px"></div>
+            </div>
+          </div>
+        </div>
+      `;
+      break;
+    case 'logs':
+      container.innerHTML = `
+        <div class="card">
+          <div class="card-header"><h3>📋 审核记录</h3></div>
+          <div class="card-body" style="padding:12px">
+            ${Store.safetyLogs.length === 0 ? '<div class="empty-state"><div class="empty-icon">📭</div><p>暂无审核记录</p></div>' : `
+            <table class="data-table">
+              <tr><th>时间</th><th>类型</th><th>内容摘要</th><th>结果</th><th>命中关键词</th></tr>
+              ${Store.safetyLogs.slice().reverse().map(log => `
+                <tr>
+                  <td>${log.time}</td>
+                  <td>${log.type}</td>
+                  <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${log.content}</td>
+                  <td><span class="tag tag-${log.passed?'success':'danger'}">${log.passed?'通过':'违规'}</span></td>
+                  <td>${log.hits.length > 0 ? log.hits.join(', ') : '无'}</td>
+                </tr>
+              `).join('')}
+            </table>`}
+          </div>
+        </div>
+      `;
+      break;
+  }
+}
+
+function addKeyword(type, value){
+  const val = (typeof value === 'string') ? value.trim() : '';
+  if(!val) return;
+  if(Store[type].includes(val)) return;
+  Store[type].push(val);
+  saveStore();
+  renderSafetyContent();
+}
+
+function addKeywordFromInput(type, inputId){
+  const input = document.getElementById(inputId);
+  if(!input) return;
+  addKeyword(type, input.value);
+  input.value = '';
+}
+
+function renderExistingResTable(filterType){
+  let items = [];
+  if(filterType === 'course' || filterType === 'unit'){
+    items = Store.moocUnits.map(u => ({id:u.id, name:u.name, type:'课程单元', content:u.content||u.name}));
+  }
+  if(filterType === 'schedule'){
+    items = Store.moocSchedule.map(c => ({id:c.id, name:c.name, type:'课表课程', content:c.name+' - '+c.teacher}));
+  }
+  if(items.length === 0) return '<div class="empty-state"><div class="empty-icon">📂</div><p>暂无该类型资源</p></div>';
+  return `
+    <table class="data-table">
+      <tr><th style="width:40px"><input type="checkbox" id="selectAllRes" onchange="toggleSelectAllRes(this)" title="全选/取消全选"></th><th>资源名称</th><th>类型</th><th>状态</th><th>操作</th></tr>
+      ${items.map((item,i) => {
+        const reviewed = Store.safetyLogs.some(l => l.content && l.content.includes(item.id));
+        return `
+          <tr>
+            <td><input type="checkbox" class="res-checkbox" value="${item.id}" data-name="${item.name.replace(/"/g,'&quot;')}" data-type="${item.type}" data-content="${(item.content||'').replace(/"/g,'&quot;').substring(0,200)}" ${reviewed?'disabled':''}></td>
+            <td><strong>${item.name}</strong></td>
+            <td>${item.type}</td>
+            <td><span class="tag ${reviewed?'tag-success':'tag-default'}">${reviewed?'已审核':'待审核'}</span></td>
+            <td><button class="btn btn-sm btn-primary" onclick="reviewExistingRes('${item.id}','${item.name.replace(/'/g,"\\'")}','${item.type}','${(item.content||'').replace(/'/g,"\\'").substring(0,100)}')">审核</button></td>
+          </tr>
+        `;
+      }).join('')}
+    </table>
+    <div id="batchReviewBar" style="margin-top:12px;padding:10px;background:var(--bg);border-radius:var(--radius);display:none;align-items:center;gap:10px;border:1px solid var(--border)">
+      <span style="font-size:13px;font-weight:500">已选 <span id="batchSelectedCount">0</span> 项</span>
+      <button class="btn btn-sm btn-success" style="background:#059669;border-color:#059669;color:#fff" onclick="batchReviewDecision(true)">✅ 批量通过</button>
+      <button class="btn btn-sm btn-danger" onclick="batchReviewDecision(false)">❌ 批量拒绝</button>
+      <button class="btn btn-sm btn-outline" onclick="clearBatchSelection()">取消选择</button>
+    </div>
+  `;
+}
+
+function toggleSelectAllRes(cb){
+  document.querySelectorAll('.res-checkbox:not([disabled])').forEach(c => c.checked = cb.checked);
+  updateBatchBar();
+}
+
+function updateBatchBar(){
+  const checked = document.querySelectorAll('.res-checkbox:checked').length;
+  const bar = document.getElementById('batchSelectedCount');
+  if(bar) bar.textContent = checked;
+  const batchBar = document.getElementById('batchReviewBar');
+  if(batchBar) batchBar.style.display = checked > 0 ? 'flex' : 'none';
+}
+
+function clearBatchSelection(){
+  document.querySelectorAll('.res-checkbox').forEach(c => c.checked = false);
+  updateBatchBar();
+}
+
+function batchReviewDecision(passed){
+  const checked = document.querySelectorAll('.res-checkbox:checked');
+  if(checked.length === 0){ alert('请先勾选要审核的资源'); return; }
+  if(!confirm('确定要批量' + (passed?'通过':'拒绝') + ' ' + checked.length + ' 个资源吗？')) return;
+  
+  checked.forEach(cb => {
+    const id = cb.value;
+    const name = cb.dataset.name;
+    const type = cb.dataset.type;
+    const content = cb.dataset.content;
+    const textToCheck = name + ' ' + (content||'');
+    let hits = [];
+    Store.safetyKeywords.forEach(kw => {
+      if(textToCheck.includes(kw)) hits.push(kw);
+    });
+    Store.safetyLogs.push({
+      time: new Date().toLocaleString(),
+      type: type,
+      content: name + ' (ID:' + id + ')',
+      fullContent: textToCheck.substring(0,200),
+      passed: passed, hits: passed ? [] : hits
+    });
+  });
+  saveStore();
+  alert('已批量' + (passed?'通过':'拒绝') + ' ' + checked.length + ' 个资源');
+  renderExistingResources();
+  renderSafetyContent();
+}
+
+// 监听checkbox变化
+document.addEventListener('change', function(e){
+  if(e.target.classList.contains('res-checkbox') || e.target.id === 'selectAllRes'){
+    updateBatchBar();
+  }
+});
+
+function renderExistingResources(){
+  const type = document.getElementById('existingResType').value;
+  const list = document.getElementById('existingResList');
+  if(list) list.innerHTML = renderExistingResTable(type);
+  const result = document.getElementById('existingReviewResult');
+  if(result) result.style.display = 'none';
+}
+
+function reviewExistingRes(id, name, type, content){
+  let hits = [];
+  const textToCheck = name + ' ' + content;
+  Store.safetyKeywords.forEach(kw => {
+    if(textToCheck.includes(kw)){
+      let ignored = false;
+      Store.safetyIgnoreWords.forEach(iw => {
+        if(textToCheck.includes(iw)) ignored = true;
+      });
+      if(!ignored) hits.push(kw);
+    }
+  });
+  const passed = hits.length === 0;
+  
+  // 显示预览弹窗，让用户决定通过还是拒绝
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header"><h3>📋 内容审核预览</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <div style="display:grid;grid-template-columns:100px 1fr;gap:6px;font-size:13px;margin-bottom:12px">
+          <div style="color:var(--text-secondary)">审核类型：</div><div>${type}</div>
+          <div style="color:var(--text-secondary)">资源名称：</div><div style="font-weight:500">${name}</div>
+          <div style="color:var(--text-secondary)">命中关键词：</div><div style="font-weight:500;color:${hits.length>0?'var(--danger)':'var(--success)'}">${hits.length > 0 ? hits.join('、') : '无'}</div>
+          <div style="color:var(--text-secondary)">忽略词过滤：</div><div>${Store.safetyIgnoreWords.length} 个忽略词已生效</div>
+        </div>
+        <div style="margin-bottom:12px;padding:12px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);max-height:200px;overflow-y:auto">
+          <div style="font-weight:600;margin-bottom:6px;font-size:13px">📄 审核内容全文</div>
+          <div style="font-size:13px;line-height:1.8;white-space:pre-wrap;word-break:break-all">${textToCheck}</div>
+        </div>
+        ${hits.length > 0 ? `<div class="alert alert-danger" style="margin-bottom:12px">⚠️ 检测到 ${hits.length} 个敏感关键词，建议拒绝该内容</div>` : `<div class="alert alert-success" style="margin-bottom:12px">✅ 未检测到敏感内容，可以安全通过</div>`}
+      </div>
+      <div class="modal-footer" style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-danger" onclick="doReviewDecision('${id}','${name.replace(/'/g,"\\'")}','${type}',${JSON.stringify(hits).replace(/"/g,'&quot;')},'${textToCheck.replace(/'/g,"\\'").replace(/\n/g,'\\n')}',false,this)">❌ 拒绝</button>
+        <button class="btn btn-success" style="background:#059669;border-color:#059669;color:#fff" onclick="doReviewDecision('${id}','${name.replace(/'/g,"\\'")}','${type}',${JSON.stringify(hits).replace(/"/g,'&quot;')},'${textToCheck.replace(/'/g,"\\'").replace(/\n/g,'\\n')}',true,this)">✅ 通过</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function doReviewDecision(id, name, type, hitsJson, textToCheck, passed, btn){
+  const hits = JSON.parse(hitsJson.replace(/&quot;/g,'"'));
+  Store.safetyLogs.push({
+    time: new Date().toLocaleString(),
+    type: type,
+    content: name + ' (ID:' + id + ')',
+    fullContent: textToCheck.substring(0,200),
+    passed, hits
+  });
+  saveStore();
+  btn.closest('.modal-overlay').remove();
+  alert((passed ? '✅ 已通过' : '❌ 已拒绝') + '：「' + name + '」');
+  renderExistingResources();
+  renderSafetyContent();
+}
+
+function removeKeyword(type, idx){
+  Store[type].splice(idx, 1);
+  saveStore();
+  renderSafetyContent();
+}
+
+let reviewFileContent = '';
+let reviewFileName = '';
+let reviewFileData = '';
+
+function toggleReviewInputType(){
+  const type = document.getElementById('reviewType').value;
+  const textArea = document.getElementById('reviewTextArea');
+  const fileArea = document.getElementById('reviewFileArea');
+  const resultArea = document.getElementById('reviewResultArea');
+  if(resultArea) resultArea.style.display = 'none';
+  if(type === 'text' || type === 'course'){
+    textArea.style.display = '';
+    fileArea.style.display = 'none';
+    if(type === 'course'){
+      document.getElementById('reviewContent').placeholder = '请输入课程名称及内容描述，系统将审核课程资源中的敏感内容...';
+    }else{
+      document.getElementById('reviewContent').placeholder = '请输入或粘贴待审核的内容...';
+    }
+  }else{
+    textArea.style.display = 'none';
+    fileArea.style.display = '';
+  }
+  reviewFileContent = '';
+  reviewFileName = '';
+  reviewFileData = '';
+  const info = document.getElementById('reviewFileInfo');
+  if(info) info.innerHTML = '';
+}
+
+function handleReviewFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  reviewFileName = file.name;
+  const info = document.getElementById('reviewFileInfo');
+  if(file.name.match(/\.(jpg|jpeg|png|gif)$/i)){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      reviewFileData = e.target.result;
+      info.innerHTML = '<span style="color:#059669">✅ 图片文件已加载：' + file.name + '（' + (file.size/1024).toFixed(1) + 'KB）</span><br><span style="color:var(--text-light)">将使用OCR技术识别图片中的文字内容进行审核</span>';
+    };
+    reader.readAsDataURL(file);
+    reviewFileContent = '模拟图片OCR内容：' + file.name + ' 中的文字信息';
+  }else if(file.name.match(/\.(txt)$/i)){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      reviewFileContent = e.target.result;
+      info.innerHTML = '<span style="color:#059669">✅ 文本文件已加载：' + file.name + '（' + (file.size/1024).toFixed(1) + 'KB）</span>';
+    };
+    reader.readAsText(file);
+  }else{
+    info.innerHTML = '<span style="color:#059669">✅ 文档文件已加载：' + file.name + '（' + (file.size/1024).toFixed(1) + 'KB）</span><br><span style="color:var(--text-light)">将解析文档内容进行审核</span>';
+    reviewFileContent = '模拟文档解析内容：' + file.name + ' 中的文档文本';
+  }
+}
+
+function doSafetyReview(){
+  const type = document.getElementById('reviewType').value;
+  let content = '';
+  if(type === 'text' || type === 'course'){
+    content = document.getElementById('reviewContent').value.trim();
+  }else{
+    content = reviewFileContent;
+    if(!content){
+      alert('请先上传待审核的文件');
+      return;
+    }
+  }
+  if(!content){
+    if(type === 'text' || type === 'course'){
+      alert('请输入待审核的内容');
+    }else{
+      alert('请先上传待审核的文件');
+    }
+    return;
+  }
+
+  let hits = [];
+  // 更全面的关键词匹配
+  Store.safetyKeywords.forEach(kw => {
+    if(content.includes(kw)){
+      let ignored = false;
+      Store.safetyIgnoreWords.forEach(iw => {
+        // 检查是否包含忽略词组合
+        if(content.includes(iw + kw) || content.includes(kw + iw) || content.includes(iw)){
+          // 只有在忽略词和关键词在同一上下文中才忽略
+          const idx = content.indexOf(kw);
+          const before = content.substring(Math.max(0,idx-20), idx);
+          const after = content.substring(idx+kw.length, Math.min(content.length, idx+kw.length+20));
+          if(before.includes(iw) || after.includes(iw)) ignored = true;
+        }
+      });
+      if(!ignored) hits.push(kw);
+    }
+  });
+
+  const passed = hits.length === 0;
+  const typeLabel = {text:'文本内容',image:'图片审核',document:'文档审核',course:'课程内容审核'}[type];
+
+  Store.safetyLogs.push({
+    time: new Date().toLocaleString(),
+    type: typeLabel,
+    content: (type === 'image' || type === 'document') ? reviewFileName : content.substring(0, 50) + (content.length > 50 ? '...' : ''),
+    fullContent: content.substring(0, 200),
+    passed, hits
+  });
+  saveStore();
+
+  const resultArea = document.getElementById('reviewResultArea');
+  if(resultArea) resultArea.style.display = 'block';
+
+  document.getElementById('reviewResult').innerHTML = passed
+    ? '<div class="alert alert-success">✅ 审核通过：未检测到敏感违规内容</div>'
+    : `<div class="alert alert-danger">⚠️ 审核不通过：检测到 ${hits.length} 个敏感关键词 - ${hits.join('、')}</div>`;
+
+  document.getElementById('reviewDetail').innerHTML = `
+    <div style="font-weight:600;margin-bottom:8px;font-size:14px">📋 审核详情</div>
+    <div style="display:grid;grid-template-columns:100px 1fr;gap:6px;font-size:13px">
+      <div style="color:var(--text-secondary)">审核类型：</div><div>${typeLabel}</div>
+      <div style="color:var(--text-secondary)">审核时间：</div><div>${new Date().toLocaleString()}</div>
+      <div style="color:var(--text-secondary)">命中关键词：</div><div style="font-weight:500">${hits.length > 0 ? hits.join('、') : '无'}</div>
+      <div style="color:var(--text-secondary)">忽略词过滤：</div><div>${Store.safetyIgnoreWords.length} 个忽略词已生效</div>
+      <div style="color:var(--text-secondary)">审核结果：</div><div><span style="font-weight:600;padding:2px 10px;border-radius:4px;background:${passed?'#ecfdf5':'#fef2f2'};color:${passed?'#059669':'#dc2626'}">${passed?'✅ 审核通过':'⚠️ 审核不通过'}</span></div>
+    </div>
+    <div style="margin-top:12px;padding:12px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);max-height:300px;overflow-y:auto">
+      <div style="font-weight:600;margin-bottom:6px;font-size:13px">📄 审核内容全文</div>
+      <div style="font-size:13px;line-height:1.8;white-space:pre-wrap;word-break:break-all">${content}</div>
+    </div>
+    ${type==='image' && reviewFileData ? `<div style="margin-top:12px;padding:12px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);text-align:center">
+      <div style="font-weight:600;margin-bottom:8px;font-size:13px">🖼 图片预览</div>
+      <img src="${reviewFileData}" style="max-width:100%;max-height:300px;border-radius:4px" />
+    </div>` : ''}
+  `;
+}
+
+function batchSafetyReview(){
+  const samples = [
+    '这是一段关于教育教学方法的讨论内容，涉及课程设计和评价体系。',
+    '教育心理学研究表明，学习动机对学习效果有重要影响。',
+    '本课程涵盖社会学、法律基础等知识，帮助学生理解社会运行规律。'
+  ];
+  const results = samples.map(s => {
+    let hits = [];
+    Store.safetyKeywords.forEach(kw => {
+      if(s.includes(kw)){
+        let ignored = false;
+        Store.safetyIgnoreWords.forEach(iw => {
+          if(s.includes(iw)) ignored = true;
+        });
+        if(!ignored) hits.push(kw);
+      }
+    });
+    const passed = hits.length === 0;
+    Store.safetyLogs.push({
+      time: new Date().toLocaleString(),
+      type: '文本内容',
+      content: s.substring(0, 50),
+      fullContent: s,
+      passed, hits
+    });
+    return {content: s, passed, hits};
+  });
+  saveStore();
+  const passCount = results.filter(r => r.passed).length;
+  const failCount = results.filter(r => !r.passed).length;
+  alert('批量审核完成！\n\n共审核 3 条内容\n通过：' + passCount + ' 条\n不通过：' + failCount + ' 条');
+}
+
+// ==================== AI QUESTION GENERATION ====================
+function renderAIQuestion(){
+  return `
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><h3>🤖 AI智能出题</h3></div>
+        <div class="card-body">
+          <div class="form-group" style="margin-bottom:12px">
+            <label class="form-label">出题方式</label>
+            <select class="form-select" id="aiInputType" onchange="toggleAIInputType()">
+              <option value="knowledge">知识点输入</option>
+              <option value="text">文本输入</option>
+              <option value="attachment">附件上传</option>
+              <option value="chapter">章节选定</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:12px" id="aiKnowledgeGroup">
+            <label class="form-label">知识点</label>
+            <input class="form-input" id="aiKnowledge" placeholder="例如：二次函数的性质与图像">
+          </div>
+          <div class="form-group" style="margin-bottom:12px;display:none" id="aiTextGroup">
+            <label class="form-label">输入文本</label>
+            <textarea class="form-textarea" id="aiText" placeholder="请输入或粘贴相关教学内容文本..." style="min-height:100px"></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:12px;display:none" id="aiAttachmentGroup">
+            <label class="form-label">上传附件</label>
+            <input type="file" class="form-input" id="aiAttachment" accept=".txt,.doc,.docx,.pdf,.ppt,.pptx,.mp4" style="padding:6px">
+            <div class="form-hint">支持文档、视频等多种格式</div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px;display:none" id="aiChapterGroup">
+            <label class="form-label">选择章节</label>
+            <select class="form-select" id="aiChapter">
+              <option>第一章：教育理论基础</option>
+              <option>第二章：学习心理与发展</option>
+              <option>第三章：教学设计与方法</option>
+              <option>第四章：教育评价与测量</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label class="form-label">题型选择</label>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox" checked> 选择题</label>
+              <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox" checked> 填空题</label>
+              <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox"> 简答题</label>
+              <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox"> 判断题</label>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label class="form-label">出题数量</label>
+            <select class="form-select" id="aiCount" style="width:120px">
+              <option>3</option><option>5</option><option selected>8</option><option>10</option><option>15</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label class="form-label">补充要求说明</label>
+            <textarea class="form-textarea" id="aiRequirement" placeholder="例如：难度中等偏上，适合大二学生，侧重于应用分析..." style="min-height:60px"></textarea>
+          </div>
+          <button class="btn btn-primary btn-lg" onclick="generateAIQuestions()">🚀 开始生成题目</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>📋 生成的题目列表</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:12px;color:var(--text-light)">共 ${Store.aiQuestions.length} 题</span>
+            ${Store.aiQuestions.length > 0 ? `<button class="btn btn-sm btn-primary" onclick="addAllAIToBank()">全部加入题库</button>` : ''}
+          </div>
+        </div>
+        <div class="card-body" style="padding:12px;max-height:500px;overflow-y:auto" id="aiQuestionList">
+          ${Store.aiQuestions.length === 0 ? '<div class="empty-state"><div class="empty-icon">🤖</div><p>点击左侧"开始生成题目"按钮，AI将自动生成试题</p></div>' : ''}
+          ${Store.aiQuestions.map((q,i) => `
+            <div style="padding:12px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;background:${q.addedToBank?'#f0fdf6':'var(--white)'}">
+              <div style="display:flex;justify-content:space-between;align-items:start">
+                <div style="flex:1;min-width:0">
+                  <span style="display:inline-block;padding:1px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:8px;background:${q.type==='选择题'?'#eff6ff':q.type==='填空题'?'#fef3c7':q.type==='判断题'?'#ecfdf5':'#f3e8ff'};color:${q.type==='选择题'?'#2563eb':q.type==='填空题'?'#92400e':q.type==='判断题'?'#059669':'#7c3aed'}">${q.type}</span>
+                  <span style="font-weight:500;font-size:13px">${q.question}</span>
+                </div>
+              </div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:6px;display:flex;justify-content:space-between;align-items:center">
+                <span>答案：${q.answer}${q.options ? ' | 选项：'+q.options.join('、') : ''}</span>
+                <div style="display:flex;gap:4px;flex-shrink:0">
+                  ${q.addedToBank ? '<span class="tag tag-success">已加入题库</span>' : `<button class="btn btn-sm btn-outline" onclick="addAIToBank(${i})">加入题库</button>`}
+                </div>
+              </div>
+              <div style="font-size:10px;color:var(--text-light);margin-top:4px">来源：${q.source} | 生成时间：${q.time}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleAIInputType(){
+  const type = document.getElementById('aiInputType').value;
+  ['aiKnowledgeGroup','aiTextGroup','aiAttachmentGroup','aiChapterGroup'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  const map = {knowledge:'aiKnowledgeGroup',text:'aiTextGroup',attachment:'aiAttachmentGroup',chapter:'aiChapterGroup'};
+  if(map[type]) document.getElementById(map[type]).style.display = '';
+}
+
+function generateAIQuestions(){
+  const count = parseInt(document.getElementById('aiCount').value) || 8;
+  const inputType = document.getElementById('aiInputType').value;
+  let knowledge = '';
+  if(inputType === 'knowledge') knowledge = document.getElementById('aiKnowledge').value.trim();
+  else if(inputType === 'text') knowledge = (document.getElementById('aiText').value.trim() || '通用知识点').substring(0,30);
+  else if(inputType === 'chapter') knowledge = document.getElementById('aiChapter').value;
+  else if(inputType === 'attachment'){
+    const file = document.getElementById('aiAttachment').files[0];
+    knowledge = file ? file.name.replace(/\.[^.]+$/,'') : '附件内容';
+  }
+  if(!knowledge) knowledge = '通用知识点';
+  const requirement = document.getElementById('aiRequirement').value.trim();
+
+  // 根据输入动态生成题库
+  const knowledgeQuestions = {
+    '教育学':[
+      {type:'选择题',question:'教育学成为一门独立学科的标志著作是？',options:['《大教学论》','《普通教育学》','《民主主义与教育》','《爱弥儿》'],answer:'《普通教育学》'},
+      {type:'选择题',question:'教育最基本的职能是什么？',options:['培养人才','传播文化','发展经济','社会服务'],answer:'培养人才'},
+      {type:'填空题',question:'教育的本质属性是____的社会活动。',answer:'培养人'},
+      {type:'判断题',question:'教育目的就是培养目标，两者概念完全相同。',answer:'错误'},
+      {type:'选择题',question:'提出"最近发展区"理论的教育家是？',options:['皮亚杰','维果茨基','布鲁纳','杜威'],answer:'维果茨基'},
+      {type:'填空题',question:'教育学中，____是指教育者根据一定的社会要求，有目的、有计划、有组织地对受教育者施加影响。',answer:'教育过程'},
+      {type:'选择题',question:'课程的类型按内容属性可分为？',options:['学科课程和活动课程','必修课程和选修课程','显性课程和隐性课程','以上都是'],answer:'以上都是'},
+      {type:'判断题',question:'杜威主张"教育即生活"、"学校即社会"。',answer:'正确'},
+      {type:'填空题',question:'泰勒原理中课程开发的四个步骤是：确定目标、选择经验、____、评价结果。',answer:'组织经验'},
+      {type:'选择题',question:'教育心理学的研究对象是？',options:['教育现象','教育规律','学与教的基本心理规律','教学方法'],answer:'学与教的基本心理规律'},
+      {type:'判断题',question:'形成性评价是在教学活动结束后进行的评价。',answer:'错误'},
+      {type:'填空题',question:'马斯洛需要层次理论中，最高层次的需要是____。',answer:'自我实现'},
+      {type:'选择题',question:'教学设计的核心要素不包括？',options:['教学目标','教学策略','教学评价','教学经费'],answer:'教学经费'},
+      {type:'简答题',question:'简述建构主义学习理论的主要观点。',answer:'知识是学习者主动建构的；学习是意义建构的过程；强调情境、协作、会话和意义建构四大要素。'},
+      {type:'判断题',question:'翻转课堂中，知识传授在课前完成，知识内化在课堂中完成。',answer:'正确'}
+    ],
+    '心理学':[
+      {type:'选择题',question:'皮亚杰认知发展理论中具体运算阶段的年龄范围是？',options:['0-2岁','2-7岁','7-11岁','11岁以上'],answer:'7-11岁'},
+      {type:'选择题',question:'行为主义心理学的代表人物是？',options:['弗洛伊德','斯金纳','马斯洛','罗杰斯'],answer:'斯金纳'},
+      {type:'填空题',question:'经典条件反射理论由____提出。',answer:'巴甫洛夫'},
+      {type:'判断题',question:'正强化和负强化都能增加行为发生的概率。',answer:'正确'},
+      {type:'选择题',question:'遗忘曲线规律是由哪位心理学家发现的？',options:['艾宾浩斯','冯特','詹姆斯','华生'],answer:'艾宾浩斯'},
+      {type:'填空题',question:'班杜拉提出的____理论强调观察学习的重要性。',answer:'社会学习'},
+      {type:'选择题',question:'学习动机中，源于内部需要的是？',options:['外部动机','内部动机','附属内驱力','自我提高内驱力'],answer:'内部动机'},
+      {type:'判断题',question:'负强化就是惩罚。',answer:'错误'},
+      {type:'简答题',question:'简述艾宾浩斯遗忘曲线的规律及对教学的启示。',answer:'遗忘进程先快后慢，呈负加速型。启示：及时复习、分散复习、过度学习。'},
+      {type:'填空题',question:'维果茨基提出的"____"是指儿童独立解决问题水平与在成人指导下水平的差距。',answer:'最近发展区'}
+    ],
+    '教学':[
+      {type:'选择题',question:'布鲁姆将认知领域教学目标分为几个层次？',options:['4个','5个','6个','7个'],answer:'6个'},
+      {type:'选择题',question:'ADDIE教学设计模型中"D"代表什么？',options:['开发','设计','交付','诊断'],answer:'设计'},
+      {type:'填空题',question:'教学设计的ADDIE模型包含分析、____、开发、实施、评价五个阶段。',answer:'设计'},
+      {type:'判断题',question:'讲授法是最古老也是最常用的教学方法。',answer:'正确'},
+      {type:'选择题',question:'项目式学习(PBL)的核心特征是什么？',options:['以教师为中心','以真实问题驱动','以考试为导向','以课本为主'],answer:'以真实问题驱动'},
+      {type:'填空题',question:'混合式学习是指____与线下教学相结合的教学模式。',answer:'线上'},
+      {type:'选择题',question:'哪种评价方式最适合考查学生的综合应用能力？',options:['标准化考试','表现性评价','填空题','选择题'],answer:'表现性评价'},
+      {type:'判断题',question:'教学目标越具体越好，不需要考虑可测量性。',answer:'错误'},
+      {type:'简答题',question:'简述有效的课堂提问应具备哪些特征。',answer:'明确性、层次性、启发性、适切性、开放性。'},
+      {type:'填空题',question:'____评价是在教学过程中进行的，目的是改进教学。',answer:'形成性'}
+    ],
+    '技术':[
+      {type:'选择题',question:'TPACK框架不包括以下哪个知识领域？',options:['技术知识','教学知识','学科知识','管理知识'],answer:'管理知识'},
+      {type:'选择题',question:'哪种技术最适合实现沉浸式虚拟实验教学？',options:['PPT','VR/AR','视频','在线文档'],answer:'VR/AR'},
+      {type:'填空题',question:'智慧教室中，____系统可以实现课堂实时互动与反馈。',answer:'学生应答'},
+      {type:'判断题',question:'微课视频时长通常控制在5-10分钟以内。',answer:'正确'},
+      {type:'选择题',question:'学习管理系统(LMS)的核心功能不包括？',options:['课程管理','学习跟踪','财务管理','在线测评'],answer:'财务管理'},
+      {type:'填空题',question:'____技术可以将抽象的知识点以三维形式直观呈现。',answer:'虚拟现实/VR'},
+      {type:'选择题',question:'大数据在教育中的主要应用是？',options:['仅用于成绩分析','优化教学决策和个性化学习','替代教师','仅用于考勤'],answer:'优化教学决策和个性化学习'},
+      {type:'判断题',question:'在线教育可以完全替代传统课堂教学。',answer:'错误'},
+      {type:'简答题',question:'简述人工智能在教育领域的应用场景。',answer:'个性化学习推荐、智能批改、自适应学习系统、虚拟助教、学习分析。'},
+      {type:'填空题',question:'____是指利用技术手段对学习过程数据进行采集、分析和可视化。',answer:'学习分析'}
+    ]
+  };
+
+  // 根据输入匹配知识库
+  let matchedPool = [];
+  const knowLower = knowledge.toLowerCase();
+  if(knowLower.includes('教育') || knowLower.includes('教学') || knowLower.includes('课程')) matchedPool = knowledgeQuestions['教育学'];
+  else if(knowLower.includes('心理') || knowLower.includes('认知') || knowLower.includes('学习')) matchedPool = knowledgeQuestions['心理学'];
+  else if(knowLower.includes('技术') || knowLower.includes('智慧') || knowLower.includes('数字')) matchedPool = knowledgeQuestions['技术'];
+  else if(knowLower.includes('设计') || knowLower.includes('方法') || knowLower.includes('评价')) matchedPool = knowledgeQuestions['教学'];
+  else {
+    // 从所有题库中混合
+    matchedPool = [...knowledgeQuestions['教育学'],...knowledgeQuestions['心理学'],...knowledgeQuestions['教学'],...knowledgeQuestions['技术']];
+  }
+
+  // 根据题型选择过滤
+  const typeChecks = document.querySelectorAll('#aiQuestionRenderArea input[type=checkbox]') || [];
+  // 由于checkbox在render中，我们直接收集所有勾选的题型
+  const allCheckboxes = document.querySelectorAll('input[type=checkbox]');
+  const selectedTypes = [];
+  allCheckboxes.forEach(cb => {
+    const label = cb.parentElement.textContent.trim();
+    if(cb.checked && ['选择题','填空题','简答题','判断题'].includes(label)) selectedTypes.push(label);
+  });
+  if(selectedTypes.length === 0) selectedTypes.push('选择题','填空题','判断题','简答题');
+
+  const filteredPool = matchedPool.filter(q => selectedTypes.includes(q.type));
+  const finalPool = filteredPool.length > 0 ? filteredPool : matchedPool;
+
+  const shuffled = [...finalPool].sort(() => Math.random() - 0.5);
+  const selected = [];
+  for(let i = 0; i < Math.min(count, shuffled.length); i++){
+    selected.push({
+      ...shuffled[i],
+      time: new Date().toLocaleString(),
+      source: inputType==='knowledge'?('知识点：'+knowledge):inputType==='text'?('文本：'+knowledge):inputType==='chapter'?('章节：'+knowledge):('附件：'+knowledge),
+      addedToBank: false
+    });
+  }
+
+  // 如果匹配的题目不够，补充通用题目
+  if(selected.length < count){
+    const genericPool = [
+      {type:'选择题',question:'以下哪种评价方式属于形成性评价？',options:['期末考试','课堂提问','中考','高考'],answer:'课堂提问',addedToBank:false},
+      {type:'填空题',question:'课程标准规定了课程性质、____和内容标准。',answer:'课程目标',addedToBank:false},
+      {type:'判断题',question:'所有的学习都必然导致行为的变化。',answer:'错误',addedToBank:false},
+      {type:'简答题',question:'请简述教学设计的基本流程。',answer:'分析学习者特征→确定教学目标→选择教学内容→设计教学策略→实施教学→评价与反馈。',addedToBank:false}
+    ];
+    const remaining = count - selected.length;
+    const extra = genericPool.filter(q => selectedTypes.includes(q.type));
+    for(let i = 0; i < Math.min(remaining, extra.length); i++){
+      selected.push({...extra[i], time: new Date().toLocaleString(), source: inputType==='knowledge'?('知识点：'+knowledge):('输入：'+knowledge), addedToBank: false});
+    }
+  }
+
+  Store.aiQuestions.push(...selected);
+  saveStore();
+  renderCurrentPage();
+}
+
+function addAIToBank(idx){
+  const q = Store.aiQuestions[idx];
+  if(!q || q.addedToBank) return;
+  showAIBankSelectModal(idx, false);
+}
+
+function addAllAIToBank(){
+  showAIBankSelectModal(-1, true);
+}
+
+function showAIBankSelectModal(idx, isAll){
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  const customBanks = Store.customQuestionBanks;
+  const sysBanks = Store.systemDefaultBanks;
+  const allBanks = customBanks.concat(sysBanks);
+  const qCount = isAll ? Store.aiQuestions.filter(q => !q.addedToBank).length : 1;
+  modal.innerHTML = `
+    <div class="modal" style="max-width:560px">
+      <div class="modal-header"><h3>📚 选择目标题库</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <div style="background:#eff6ff;padding:10px 14px;border-radius:var(--radius);margin-bottom:16px;font-size:13px;display:flex;align-items:center;gap:8px">
+          <span>📌</span><span>即将添加 <strong>${qCount}</strong> 道题目到目标题库</span>
+        </div>
+        <div style="margin-bottom:16px">
+          <div style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--text)">📋 已有题库（请选择）</div>
+          <div style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius)">
+            ${allBanks.length === 0 ? '<div style="padding:16px;text-align:center;color:var(--text-light);font-size:12px">暂无题库，请在下方创建新题库</div>' : allBanks.map(b => {
+              const isCustom = customBanks.includes(b);
+              return `
+              <label style="display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border-light);cursor:pointer;transition:var(--transition);font-size:13px" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
+                <input type="radio" name="targetBank" value="${b.id}" style="margin-right:10px" ${allBanks.indexOf(b)===0?'checked':''}>
+                <div style="flex:1">
+                  <div style="font-weight:500">${b.name} ${isCustom?'<span style="font-size:10px;background:#f3e8ff;color:#7c3aed;padding:1px 6px;border-radius:4px;margin-left:4px">自定义</span>':'<span style="font-size:10px;background:#eff6ff;color:#2563eb;padding:1px 6px;border-radius:4px;margin-left:4px">系统</span>'}</div>
+                  <div style="font-size:11px;color:var(--text-secondary)">章节：${b.chapter} | 题目数：${b.questions.length}题</div>
+                </div>
+              </label>`;
+            }).join('')}
+          </div>
+        </div>
+        <div style="border-top:1px dashed var(--border);padding-top:16px;margin-bottom:16px">
+          <div style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--text)">🆕 或创建新题库</div>
+          <div class="form-group" style="margin-bottom:10px">
+            <input class="form-input" id="newBankName" placeholder="输入新题库名称（如：期中考试题库）" style="width:100%">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <input class="form-input" id="newBankChapter" placeholder="所属章节（如：教育学基础）" style="width:100%">
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="doAIToBank(${idx},${isAll},this)">✅ 确认添加到题库</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function doAIToBank(idx, isAll, btn){
+  const selectedRadio = document.querySelector('input[name="targetBank"]:checked');
+  const bankId = selectedRadio ? selectedRadio.value : null;
+  const newName = document.getElementById('newBankName').value.trim();
+  const newChapter = document.getElementById('newBankChapter').value.trim();
+
+  let bank;
+  let isNewBank = false;
+  if(newName){
+    bank = {id:'cb'+Date.now(), name:newName, chapter:newChapter||'自定义章节', questions:[]};
+    Store.customQuestionBanks.push(bank);
+    isNewBank = true;
+  }else if(bankId){
+    bank = Store.customQuestionBanks.find(b => b.id === bankId);
+    if(!bank) bank = Store.systemDefaultBanks.find(b => b.id === bankId);
+  }
+  if(!bank){ alert('请选择或创建题库'); return; }
+
+  const questions = isAll ? Store.aiQuestions : [Store.aiQuestions[idx]];
+  let added = 0;
+  questions.forEach(q => {
+    if(!q || q.addedToBank) return;
+    const qType = q.type === '选择题' ? 'single' : q.type === '多选题' ? 'multi' : q.type === '判断题' ? 'truefalse' : q.type === '填空题' ? 'fill' : 'single';
+    let answer = 0;
+    if(q.options && q.options.length > 0){
+      answer = q.options.indexOf(q.answer);
+      if(answer === -1) answer = 0;
+    }
+    bank.questions.push({
+      id: Date.now() + Math.random(),
+      type: qType,
+      question: q.question,
+      options: q.options || [q.answer],
+      answer: answer
+    });
+    q.addedToBank = true;
+    added++;
+  });
+  saveStore();
+  btn.closest('.modal-overlay').remove();
+  
+  // 标记题库需要刷新
+  Store._bankRefreshFlag = Date.now();
+  
+  const bankType = isNewBank ? '新建自定义题库' : (Store.customQuestionBanks.includes(bank) ? '自定义题库' : '系统题库');
+  alert('✅ 已成功添加 ' + added + ' 道题目到「' + bank.name + '」（' + bankType + '）\n\n可前往「答题闯关 → 题库管理」查看和管理题目。');
+  renderCurrentPage();
+}
+
+// ==================== MOOC CREATION ====================
+let moocTab = 'units';
+
+function renderMooc(){
+  return `
+    <div class="tabs">
+      <div class="tab-item active" data-mtab="units" onclick="switchMoocTab('units',this)">单元编辑</div>
+      <div class="tab-item" data-mtab="schedule" onclick="switchMoocTab('schedule',this)">个人课表</div>
+      <div class="tab-item" data-mtab="live" onclick="switchMoocTab('live',this)">直播教学</div>
+    </div>
+    <div id="moocContent"></div>
+  `;
+}
+
+function switchMoocTab(tab, el){
+  moocTab = tab;
+  document.querySelectorAll('[data-mtab]').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderMoocContent();
+}
+
+function renderMoocContent(){
+  const container = document.getElementById('moocContent');
+  if(!container) return;
+  switch(moocTab){
+    case 'units':
+      container.innerHTML = `
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h3>📚 课程单元管理</h3><button class="btn btn-sm btn-primary" onclick="showAddUnitModal()">添加单元</button></div>
+            <div class="card-body" style="padding:12px" id="courseUnits">
+              ${Store.moocUnits.length === 0 ? '<div class="empty-state"><div class="empty-icon">📚</div><p>暂无课程单元，点击"添加单元"开始</p></div>' : ''}
+              ${Store.moocUnits.map((unit,i) => `
+                <div style="padding:12px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;${i===0?'background:var(--primary-bg)':''}">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                      <div style="font-weight:600;font-size:14px">${unit.name}</div>
+                      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">视频：${unit.videos}个 | 文档：${unit.docs}个 | 测验：${unit.tests}个</div>
+                    </div>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-sm btn-outline" onclick="editMoocUnit('${unit.id}')">编辑</button>
+                      <button class="btn btn-sm btn-outline" onclick="previewMoocUnit('${unit.id}')">预览</button>
+                      <button class="btn btn-sm btn-danger" onclick="deleteMoocUnit('${unit.id}')">删除</button>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>✏️ 富媒体编辑器</h3><span style="font-size:12px;color:var(--text-light)">支持视频、音频、公式、动画等组件</span></div>
+            <div class="card-body">
+              <input type="file" id="moocMediaInput" style="display:none" onchange="handleMoocMediaUpload(this)">
+              <div id="moocEditorArea">
+                <div class="rich-editor">
+                  <div class="rich-toolbar">
+                    <button title="加粗" onclick="execRichCmd('bold')"><b>B</b></button>
+                    <button title="斜体" onclick="execRichCmd('italic')"><i>I</i></button>
+                    <button title="下划线" onclick="execRichCmd('underline')"><u>U</u></button>
+                    <span style="width:1px;background:var(--border);margin:0 4px"></span>
+                    <button title="标题" onclick="execRichCmd('formatBlock','h3')">H</button>
+                    <button title="无序列表" onclick="execRichCmd('insertUnorderedList')">≡</button>
+                    <button title="有序列表" onclick="execRichCmd('insertOrderedList')">1.</button>
+                    <span style="width:1px;background:var(--border);margin:0 4px"></span>
+                    <button title="插入图片" onclick="insertMedia('image')">🖼</button>
+                    <button title="插入视频" onclick="insertMedia('video')">🎬</button>
+                    <button title="插入公式" onclick="insertMedia('formula')">∑</button>
+                    <button title="插入音频" onclick="insertMedia('audio')">🎵</button>
+                    <button title="插入动画" onclick="insertMedia('animation')">✨</button>
+                    <button title="插入链接" onclick="insertMedia('link')">🔗</button>
+                  </div>
+                  <div id="richContent" contenteditable="true" style="min-height:200px;padding:14px;font-size:14px;font-family:inherit;line-height:1.8;outline:none" placeholder="在此编辑课程内容..."></div>
+                </div>
+                <div style="margin-top:12px;display:flex;gap:10px">
+                  <select class="form-select" id="editorUnitSelect" style="width:200px">
+                    <option value="">选择关联单元</option>
+                    ${Store.moocUnits.map(u => `<option value="${u.id}">${u.name}</option>`).join('')}
+                  </select>
+                  <button class="btn btn-primary" onclick="saveRichContent()">保存内容</button>
+                  <button class="btn btn-outline" onclick="previewRichContent()">预览</button>
+                </div>
+                <div id="richPreview" style="margin-top:12px;display:none;padding:16px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg)"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      break;
+    case 'schedule':{
+      const weekdays = ['周一','周二','周三','周四','周五'];
+      const timeSlots = ['08:00-09:30','10:00-11:30','14:00-15:30','16:00-17:30'];
+      container.innerHTML = `
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><h3>📅 个人课表（2026年秋季学期）</h3><button class="btn btn-sm btn-primary" onclick="showAddCourseModal()">添加课程</button></div>
+          <div class="card-body" style="padding:12px;overflow-x:auto">
+            <table class="schedule-table">
+              <tr><th>时间</th>${weekdays.map(d => `<th>${d}</th>`).join('')}</tr>
+              ${timeSlots.map(ts => `
+                <tr>
+                  <td>${ts}</td>
+                  ${weekdays.map(wd => {
+                    const courses = Store.moocSchedule.filter(c => c.weekday === wd && c.time === ts);
+                    return `<td>${courses.map(c => `
+                      <div class="course-cell" onclick="showCourseDetail('${c.id}')" title="${c.name}\n${c.teacher}\n${c.location}">
+                        ${c.name}<br><small>${c.location}</small>
+                      </div>
+                    `).join('')}</td>`;
+                  }).join('')}
+                </tr>
+              `).join('')}
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>📋 课程列表</h3></div>
+          <div class="card-body" style="padding:12px">
+            <table class="data-table">
+              <tr><th>课程名称</th><th>授课教师</th><th>周次</th><th>时间</th><th>地点</th><th>类型</th><th>操作</th></tr>
+              ${Store.moocSchedule.map(c => `
+                <tr>
+                  <td><strong>${c.name}</strong></td>
+                  <td>${c.teacher}</td>
+                  <td>${c.weeks}</td>
+                  <td>${c.weekday} ${c.time}</td>
+                  <td>${c.location}</td>
+                  <td><span class="tag ${c.type==='线上'?'tag-success':'tag-info'}">${c.type}</span></td>
+                  <td>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-sm btn-outline" onclick="editLessonPlan('${c.id}')">编辑教案</button>
+                      ${c.type==='线上' ? `<button class="btn btn-sm btn-primary" onclick="startLiveClass('${c.id}')">发起直播</button>` : ''}
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </table>
+          </div>
+        </div>
+      `;
+      }
+      break;
+    case 'live':
+      container.innerHTML = `
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h3>🎥 一键发起直播</h3></div>
+            <div class="card-body" style="text-align:center;padding:40px">
+              <div style="font-size:48px;margin-bottom:16px">🎬</div>
+              <h4>选择课程发起直播</h4>
+              <p style="color:var(--text-secondary);margin:8px 0">选择线上课程，一键发起腾讯会议直播教学</p>
+              <div style="margin-top:16px;text-align:left">
+                ${Store.moocSchedule.filter(c => c.type === '线上').map(c => `
+                  <div style="padding:10px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                      <div style="font-weight:500;font-size:13px">${c.name}</div>
+                      <div style="font-size:11px;color:var(--text-secondary)">${c.teacher} | ${c.weekday} ${c.time}</div>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="startLiveClass('${c.id}')">🚀 发起直播</button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>📊 直播统计</h3></div>
+            <div class="card-body" style="padding:12px">
+              <table class="data-table">
+                <tr><th>日期</th><th>课程</th><th>参与人数</th><th>时长</th><th>回放</th></tr>
+                ${Store.moocLiveRecords.map(r => `
+                  <tr>
+                    <td>${r.date}</td><td>${r.course}</td><td>${r.participants}人</td><td>${r.duration}</td>
+                    <td><span class="tag ${r.hasReplay?'tag-success':'tag-warning'}">${r.hasReplay?'已生成':'生成中'}</span></td>
+                  </tr>
+                `).join('')}
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+      break;
+  }
+}
+
+function showAddUnitModal(unitId){
+  const unit = unitId ? Store.moocUnits.find(u => u.id === unitId) : null;
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:550px">
+      <div class="modal-header"><h3>${unit?'编辑单元':'添加课程单元'}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">单元名称</label><input class="form-input" id="unitName" value="${unit?unit.name:''}" placeholder="例如：第一单元：教育心理学导论"></div>
+        <div class="qb-editor-row">
+          <div class="form-group"><label class="form-label">视频数量</label><input class="form-input" id="unitVideos" type="number" value="${unit?unit.videos:0}" min="0"></div>
+          <div class="form-group"><label class="form-label">文档数量</label><input class="form-input" id="unitDocs" type="number" value="${unit?unit.docs:0}" min="0"></div>
+          <div class="form-group"><label class="form-label">测验数量</label><input class="form-input" id="unitTests" type="number" value="${unit?unit.tests:0}" min="0"></div>
+        </div>
+        <div class="form-group"><label class="form-label">单元内容描述</label><textarea class="form-textarea" id="unitContent" style="min-height:80px">${unit?unit.content||'':''}</textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+        <button class="btn btn-primary" onclick="saveMoocUnit('${unitId||''}')">保存</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function saveMoocUnit(unitId){
+  const name = document.getElementById('unitName').value.trim();
+  if(!name){alert('请输入单元名称');return;}
+  const data = {
+    name,
+    videos: parseInt(document.getElementById('unitVideos').value)||0,
+    docs: parseInt(document.getElementById('unitDocs').value)||0,
+    tests: parseInt(document.getElementById('unitTests').value)||0,
+    content: document.getElementById('unitContent').value
+  };
+  if(unitId){
+    const unit = Store.moocUnits.find(u => u.id === unitId);
+    if(unit) Object.assign(unit, data);
+  }else{
+    Store.moocUnits.push({id:'mu'+Date.now(),...data});
+  }
+  saveStore();
+  document.querySelector('.modal-overlay').remove();
+  renderMoocContent();
+}
+
+function editMoocUnit(unitId){ showAddUnitModal(unitId); }
+function deleteMoocUnit(unitId){
+  if(!confirm('确定删除该单元？此操作不可恢复。')) return;
+  Store.moocUnits = Store.moocUnits.filter(u => u.id !== unitId);
+  saveStore();
+  renderMoocContent();
+}
+function previewMoocUnit(unitId){
+  const unit = Store.moocUnits.find(u => u.id === unitId);
+  if(!unit) return;
+  alert('预览单元：' + unit.name + '\n\n视频：' + unit.videos + '个 | 文档：' + unit.docs + '个 | 测验：' + unit.tests + '个\n\n' + (unit.content||'暂无内容'));
+}
+
+function execRichCmd(cmd, val){
+  document.execCommand(cmd, false, val || null);
+  document.getElementById('richContent').focus();
+}
+function insertMedia(type){
+  if(type === 'image' || type === 'video' || type === 'audio'){
+    const input = document.getElementById('moocMediaInput');
+    if(input){
+      input.accept = type === 'image' ? 'image/*' : type === 'video' ? 'video/*' : 'audio/*';
+      input.dataset.mediaType = type;
+      input.click();
+    }
+    return;
+  }
+  const el = document.getElementById('richContent');
+  el.focus();
+  const map = {
+    formula: '<span style="background:#fef3c7;padding:4px 8px;border-radius:4px;font-family:monospace;margin:0 4px">[数学公式区域]</span>',
+    animation: '<div style="background:#f3e8ff;padding:20px;border-radius:8px;text-align:center;margin:8px 0">✨ <span style="color:#64748b">[动画组件]</span> 插入CSS动画或Lottie动画</div>',
+    link: '<a href="#" style="color:#2563eb;text-decoration:underline">[链接文本]</a>'
+  };
+  document.execCommand('insertHTML', false, map[type] || '');
+}
+
+function handleMoocMediaUpload(input){
+  const file = input.files[0];
+  if(!file) return;
+  const type = input.dataset.mediaType || 'image';
+  const el = document.getElementById('richContent');
+  if(!el) return;
+  el.focus();
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const dataUrl = e.target.result;
+    let html = '';
+    if(type === 'image'){
+      html = `<img src="${dataUrl}" style="max-width:100%;border-radius:8px;margin:8px 0" alt="${file.name}">`;
+    }else if(type === 'video'){
+      html = `<div style="background:#f1f5f9;padding:12px;border-radius:8px;margin:8px 0"><video controls style="max-width:100%;border-radius:8px" src="${dataUrl}"><source src="${dataUrl}" type="${file.type}"></video><div style="font-size:11px;color:var(--text-secondary);margin-top:4px">📹 ${file.name}（${(file.size/1024).toFixed(1)}KB）</div></div>`;
+    }else if(type === 'audio'){
+      html = `<div style="background:#f0fdf6;padding:12px;border-radius:8px;margin:8px 0"><audio controls style="width:100%" src="${dataUrl}"><source src="${dataUrl}" type="${file.type}"></audio><div style="font-size:11px;color:var(--text-secondary);margin-top:4px">🎵 ${file.name}（${(file.size/1024).toFixed(1)}KB）</div></div>`;
+    }
+    document.execCommand('insertHTML', false, html);
+    input.value = '';
+  };
+  reader.readAsDataURL(file);
+}
+function saveRichContent(){
+  const unitId = document.getElementById('editorUnitSelect').value;
+  const content = document.getElementById('richContent').innerHTML;
+  if(!unitId){alert('请先选择关联的课程单元');return;}
+  const unit = Store.moocUnits.find(u => u.id === unitId);
+  if(unit){ unit.content = content; saveStore(); alert('内容已保存到「' + unit.name + '」'); }
+}
+function previewRichContent(){
+  const preview = document.getElementById('richPreview');
+  const content = document.getElementById('richContent').innerHTML;
+  preview.innerHTML = content || '<p style="color:var(--text-light)">暂无内容</p>';
+  preview.style.display = preview.style.display === 'none' ? 'block' : 'none';
+}
+
+function showAddCourseModal(courseId){
+  const course = courseId ? Store.moocSchedule.find(c => c.id === courseId) : null;
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header"><h3>${course?'编辑课程':'添加课程'}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">课程名称</label><input class="form-input" id="courseName" value="${course?course.name:''}" placeholder="例如：教育心理学导论"></div>
+        <div class="qb-editor-row">
+          <div class="form-group"><label class="form-label">授课教师</label><input class="form-input" id="courseTeacher" value="${course?course.teacher:''}" placeholder="例如：张明远 教授"></div>
+          <div class="form-group"><label class="form-label">课程类型</label><select class="form-select" id="courseType"><option value="线下" ${course&&course.type==='线下'?'selected':''}>线下</option><option value="线上" ${course&&course.type==='线上'?'selected':''}>线上</option></select></div>
+        </div>
+        <div class="qb-editor-row">
+          <div class="form-group"><label class="form-label">上课周次</label><input class="form-input" id="courseWeeks" value="${course?course.weeks:''}" placeholder="例如：1-16周"></div>
+          <div class="form-group"><label class="form-label">上课星期</label><select class="form-select" id="courseWeekday">
+            ${['周一','周二','周三','周四','周五'].map(d => `<option value="${d}" ${course&&course.weekday===d?'selected':''}>${d}</option>`).join('')}
+          </select></div>
+        </div>
+        <div class="qb-editor-row">
+          <div class="form-group"><label class="form-label">上课时间</label><select class="form-select" id="courseTime">
+            ${['08:00-09:30','10:00-11:30','14:00-15:30','16:00-17:30'].map(t => `<option value="${t}" ${course&&course.time===t?'selected':''}>${t}</option>`).join('')}
+          </select></div>
+          <div class="form-group"><label class="form-label">上课地点</label><input class="form-input" id="courseLocation" value="${course?course.location:''}" placeholder="教学楼A-301 或 线上-腾讯会议"></div>
+        </div>
+        <div class="form-group"><label class="form-label">线上链接（线上课程填写）</label><input class="form-input" id="courseOnlineLink" value="${course?course.onlineLink||'':''}" placeholder="https://meeting.tencent.com/dm/xxxxxx"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+        <button class="btn btn-primary" onclick="saveCourse('${courseId||''}')">保存</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function saveCourse(courseId){
+  const name = document.getElementById('courseName').value.trim();
+  if(!name){alert('请输入课程名称');return;}
+  const data = {
+    name,
+    teacher: document.getElementById('courseTeacher').value.trim(),
+    type: document.getElementById('courseType').value,
+    weeks: document.getElementById('courseWeeks').value.trim(),
+    weekday: document.getElementById('courseWeekday').value,
+    time: document.getElementById('courseTime').value,
+    location: document.getElementById('courseLocation').value.trim(),
+    onlineLink: document.getElementById('courseOnlineLink').value.trim()
+  };
+  if(courseId){
+    const course = Store.moocSchedule.find(c => c.id === courseId);
+    if(course) Object.assign(course, data);
+  }else{
+    Store.moocSchedule.push({id:'ms'+Date.now(),...data});
+  }
+  saveStore();
+  document.querySelector('.modal-overlay').remove();
+  renderMoocContent();
+}
+
+function showCourseDetail(courseId){
+  const c = Store.moocSchedule.find(x => x.id === courseId);
+  if(!c) return;
+  alert('课程详情\n\n课程：' + c.name + '\n教师：' + c.teacher + '\n时间：' + c.weekday + ' ' + c.time + '\n周次：' + c.weeks + '\n地点：' + c.location + '\n类型：' + c.type + (c.onlineLink?'\n线上链接：'+c.onlineLink:''));
+}
+
+function editLessonPlan(courseId){
+  const c = Store.moocSchedule.find(x => x.id === courseId);
+  if(!c) return;
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header"><h3>编辑教案 - ${c.name}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">教学目标</label><textarea class="form-textarea" id="lpObjective" placeholder="请输入教学目标...">知识与技能目标：\n过程与方法目标：\n情感态度与价值观目标：</textarea></div>
+        <div class="form-group"><label class="form-label">教学重点</label><input class="form-input" id="lpKeyPoint" placeholder="教学重点"></div>
+        <div class="form-group"><label class="form-label">教学难点</label><input class="form-input" id="lpDifficulty" placeholder="教学难点"></div>
+        <div class="form-group"><label class="form-label">教学过程</label><textarea class="form-textarea" id="lpProcess" style="min-height:100px" placeholder="1. 导入环节（5分钟）\n2. 新课讲授（30分钟）\n3. 课堂练习（10分钟）\n4. 总结归纳（5分钟）"></textarea></div>
+        <div class="form-group"><label class="form-label">课后作业</label><textarea class="form-textarea" id="lpHW" placeholder="布置课后作业内容..."></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+        <button class="btn btn-primary" onclick="alert('教案已保存！');this.closest('.modal-overlay').remove()">保存教案</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function startLiveClass(courseId){
+  const c = Store.moocSchedule.find(x => x.id === courseId);
+  if(!c) return;
+  const meetingId = Math.floor(Math.random()*9000000+1000000);
+  const meetingPass = Math.floor(Math.random()*900000+100000);
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:580px">
+      <div class="modal-header"><h3>🎥 发起腾讯会议直播</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <div style="background:#eff6ff;padding:12px;border-radius:var(--radius);margin-bottom:16px;font-size:13px">
+          <div style="font-weight:600;margin-bottom:6px">📋 课程信息</div>
+          <div style="display:grid;grid-template-columns:80px 1fr;gap:4px">
+            <div style="color:var(--text-secondary)">课程：</div><div>${c.name}</div>
+            <div style="color:var(--text-secondary)">教师：</div><div>${c.teacher}</div>
+            <div style="color:var(--text-secondary)">时间：</div><div>${c.weekday} ${c.time}</div>
+            <div style="color:var(--text-secondary)">地点：</div><div>${c.location||'线上'}</div>
+          </div>
+        </div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--text)">🔑 会议码设置</div>
+        <div class="qb-editor-row">
+          <div class="form-group" style="margin-bottom:12px">
+            <label class="form-label">会议号</label>
+            <div style="display:flex;gap:8px">
+              <input class="form-input" id="meetingId" value="${meetingId}" style="font-family:monospace;font-size:15px;text-align:center;letter-spacing:2px;flex:1" placeholder="输入会议号">
+              <button class="btn btn-sm btn-outline" onclick="document.getElementById('meetingId').value=Math.floor(Math.random()*9000000+1000000)" title="随机生成">🎲</button>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label class="form-label">会议密码</label>
+            <div style="display:flex;gap:8px">
+              <input class="form-input" id="meetingPass" value="${meetingPass}" style="font-family:monospace;text-align:center;letter-spacing:2px;flex:1" placeholder="输入密码">
+              <button class="btn btn-sm btn-outline" onclick="document.getElementById('meetingPass').value=Math.floor(Math.random()*900000+100000)" title="随机生成">🎲</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">会议链接</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="form-input" id="meetingLink" value="https://meeting.tencent.com/dm/${meetingId}" style="flex:1;font-size:12px" placeholder="或输入自定义链接">
+            <button class="btn btn-sm btn-outline" onclick="const mid=document.getElementById('meetingId').value;document.getElementById('meetingLink').value='https://meeting.tencent.com/dm/'+mid">🔄 同步</button>
+            <button class="btn btn-sm btn-outline" onclick="navigator.clipboard.writeText(document.getElementById('meetingLink').value);alert('会议链接已复制到剪贴板')">📋 复制</button>
+          </div>
+        </div>
+        <div style="border-top:1px dashed var(--border);padding-top:14px;margin-bottom:12px">
+          <div style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--text)">⚙️ 会议设置</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px;background:var(--bg);border-radius:var(--radius)">
+              <input type="checkbox" id="mtMuteOnJoin" checked> 入会时静音
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px;background:var(--bg);border-radius:var(--radius)">
+              <input type="checkbox" id="mtWaitingRoom" checked> 开启等候室
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px;background:var(--bg);border-radius:var(--radius)">
+              <input type="checkbox" id="mtAutoRecord"> 自动云录制
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px;background:var(--bg);border-radius:var(--radius)">
+              <input type="checkbox" id="mtHostKey"> 仅主持人共享
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px;background:var(--bg);border-radius:var(--radius)">
+              <input type="checkbox" id="mtWatermark"> 开启水印
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px;background:var(--bg);border-radius:var(--radius)">
+              <input type="checkbox" id="mtAllowMulti"> 允许多端入会
+            </label>
+          </div>
+        </div>
+        <div style="background:#fef3c7;padding:12px;border-radius:var(--radius);font-size:12px;color:#92400e;margin-bottom:12px">
+          ⚠️ 提示：点击启动后将尝试调用本地腾讯会议客户端。如未安装，将自动跳转网页版。请确保已安装并登录腾讯会议。
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+        <button class="btn btn-primary" onclick="doStartLive('${courseId}',this)">🚀 立即启动直播</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function doStartLive(courseId, btn){
+  const c = Store.moocSchedule.find(x => x.id === courseId);
+  if(!c) return;
+  const meetingId = document.getElementById('meetingId').value.trim();
+  const meetingPass = document.getElementById('meetingPass').value.trim();
+  const meetingLink = document.getElementById('meetingLink').value.trim();
+  if(!meetingId){alert('请输入会议号');return;}
+  
+  // 收集会议设置
+  const settings = {
+    muteOnJoin: document.getElementById('mtMuteOnJoin')?.checked,
+    waitingRoom: document.getElementById('mtWaitingRoom')?.checked,
+    autoRecord: document.getElementById('mtAutoRecord')?.checked,
+    hostKey: document.getElementById('mtHostKey')?.checked,
+    watermark: document.getElementById('mtWatermark')?.checked,
+    allowMulti: document.getElementById('mtAllowMulti')?.checked
+  };
+  
+  Store.moocLiveRecords.push({
+    date: new Date().toISOString().split('T')[0],
+    course: c.name,
+    meetingId: meetingId,
+    participants: Math.floor(Math.random()*50+50),
+    duration: '进行中',
+    hasReplay: settings.autoRecord || false,
+    settings: settings
+  });
+  saveStore();
+  btn.closest('.modal-overlay').remove();
+  
+  // 尝试调用本地腾讯会议客户端（wemeet://协议）
+  const wemeetUrl = 'wemeet://page/inmeeting?meeting_code=' + meetingId + '&meeting_password=' + meetingPass;
+  const webUrl = meetingLink || ('https://meeting.tencent.com/dm/' + meetingId);
+  
+  // 先尝试打开本地客户端
+  const startTime = Date.now();
+  window.open(wemeetUrl, '_blank');
+  
+  // 如果2秒内客户端未响应，打开网页版
+  setTimeout(function(){
+    if(Date.now() - startTime < 2500){
+      // 客户端可能已打开，不额外操作
+    }else{
+      window.open(webUrl, '_blank');
+    }
+  }, 2000);
+  
+  // 同时打开网页版作为备选
+  window.open(webUrl, '_blank');
+  
+  let settingsMsg = '';
+  if(settings.muteOnJoin) settingsMsg += '\n- 入会静音：已开启';
+  if(settings.waitingRoom) settingsMsg += '\n- 等候室：已开启';
+  if(settings.autoRecord) settingsMsg += '\n- 自动录制：已开启';
+  if(settings.watermark) settingsMsg += '\n- 水印：已开启';
+  
+  alert('✅ 直播已成功发起！\n\n课程：' + c.name + '\n会议号：' + meetingId + '\n密码：' + meetingPass + '\n链接：' + webUrl + '\n' + settingsMsg + '\n\n腾讯会议窗口已打开，请登录后开始直播。');
+}
+
+function addCourseUnit(){
+  alert('课程单元添加功能 - 可在此配置单元名称、关联视频、文档、测验等内容');
+}
+
+// ==================== TEACHING ALERT ====================
+let alertTab = 'rules';
+
+function renderAlert(){
+  return `
+    <div class="tabs">
+      <div class="tab-item active" data-atab="rules" onclick="switchAlertTab('rules',this)">预警规则</div>
+      <div class="tab-item" data-atab="records" onclick="switchAlertTab('records',this)">督学记录</div>
+      <div class="tab-item" data-atab="notify" onclick="switchAlertTab('notify',this)">通知管理</div>
+    </div>
+    <div id="alertContent"></div>
+  `;
+}
+
+function switchAlertTab(tab, el){
+  alertTab = tab;
+  document.querySelectorAll('[data-atab]').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderAlertContent();
+}
+
+function renderAlertContent(){
+  const container = document.getElementById('alertContent');
+  if(!container) return;
+  switch(alertTab){
+    case 'rules':
+      container.innerHTML = `
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><h3>⚙️ 预警条件设置</h3><button class="btn btn-sm btn-primary" onclick="showAddAlertRuleModal()">添加规则</button></div>
+          <div class="card-body" style="padding:12px">
+            <table class="data-table">
+              <tr><th>规则名称</th><th>监控指标</th><th>阈值条件</th><th>适用范围</th><th>状态</th><th>操作</th></tr>
+              ${Store.alertRules.map(r => `
+                <tr>
+                  <td><strong>${r.name}</strong></td>
+                  <td>${r.metric}</td>
+                  <td>${r.condition} ${r.threshold}</td>
+                  <td>${r.scope}</td>
+                  <td>
+                    <span class="tag ${r.status==='enabled'?'tag-success':'tag-warning'}" style="cursor:pointer" onclick="toggleAlertRuleStatus('${r.id}')">${r.status==='enabled'?'启用':'暂停'}</span>
+                  </td>
+                  <td>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-sm btn-outline" onclick="showAddAlertRuleModal('${r.id}')">编辑</button>
+                      <button class="btn btn-sm btn-danger" onclick="deleteAlertRule('${r.id}')">删除</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </table>
+          </div>
+        </div>
+      `;
+      break;
+    case 'records':
+      container.innerHTML = `
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><h3>🔍 督学记录查询</h3>
+            <div style="display:flex;gap:8px">
+              <select class="form-select" id="recordMetricFilter" style="width:140px" onchange="filterAlertRecords()">
+                <option value="">全部指标</option>
+                <option value="任务点完成度">任务点完成度</option>
+                <option value="章节测验平均分">章节测验</option>
+                <option value="作业提交率">作业提交</option>
+                <option value="综合成绩">综合成绩</option>
+                <option value="平台访问天数">访问频率</option>
+              </select>
+              <select class="form-select" id="recordOrgFilter" style="width:140px" onchange="filterAlertRecords()">
+                <option value="">全部院系</option>
+                <option value="计算机学院">计算机学院</option>
+                <option value="教育学院">教育学院</option>
+                <option value="文学院">文学院</option>
+              </select>
+              <select class="form-select" id="recordStatusFilter" style="width:120px" onchange="filterAlertRecords()">
+                <option value="">全部状态</option>
+                <option value="已预警">已预警</option>
+                <option value="已提醒">已提醒</option>
+              </select>
+              <button class="btn btn-sm btn-primary" onclick="filterAlertRecords()">查询</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:12px" id="alertRecordsBody">
+            ${renderAlertRecordsTable(Store.alertLogs)}
+          </div>
+        </div>
+      `;
+      break;
+    case 'notify':
+      container.innerHTML = `
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h3>📢 发送通知</h3></div>
+            <div class="card-body">
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="form-label">通知范围（一级：组织层级）</label>
+                <select class="form-select" id="notifyLevel1" onchange="updateNotifyLevel2()" style="width:100%">
+                  <option value="全校">全校</option>
+                  <option value="院系">按院系</option>
+                  <option value="班级">按班级</option>
+                </select>
+                <div style="font-size:11px;color:var(--text-light);margin-top:3px">选择通知范围层级，二级将自动联动筛选对应内容</div>
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="form-label">通知范围（二级：具体对象）</label>
+                <select class="form-select" id="notifyLevel2" style="width:100%">
+                  <option value="">-- 请先选择一级范围 --</option>
+                </select>
+                <div style="font-size:11px;color:var(--text-light);margin-top:3px">选"院系"显示各学院，选"班级"显示您管理的所有班级</div>
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="form-label">通知标题</label>
+                <input class="form-input" id="notifyTitle" placeholder="请输入通知标题">
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="form-label">通知内容</label>
+                <textarea class="form-textarea" id="notifyContent" placeholder="请输入通知内容..." style="min-height:80px"></textarea>
+              </div>
+              <div style="border-top:1px dashed var(--border);padding-top:14px;margin-bottom:12px">
+                <div style="font-weight:600;font-size:13px;margin-bottom:10px;color:var(--text)">📢 多渠道提醒设置</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:10px 12px;background:var(--bg);border-radius:var(--radius);border:1.5px solid var(--border);transition:var(--transition)" onchange="updateChannelDetail()">
+                    <input type="checkbox" checked id="chkMsg" onchange="updateChannelDetail()">
+                    <div>
+                      <div style="font-weight:500;font-size:12px">📬 站内消息</div>
+                      <div style="font-size:10px;color:var(--text-light)">平台内通知</div>
+                    </div>
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:10px 12px;background:var(--bg);border-radius:var(--radius);border:1.5px solid var(--border);transition:var(--transition)" onchange="updateChannelDetail()">
+                    <input type="checkbox" checked id="chkSMS" onchange="updateChannelDetail()">
+                    <div>
+                      <div style="font-weight:500;font-size:12px">📱 短信通知</div>
+                      <div style="font-size:10px;color:var(--text-light)">发送短信到手机</div>
+                    </div>
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:10px 12px;background:var(--bg);border-radius:var(--radius);border:1.5px solid var(--border);transition:var(--transition)" onchange="updateChannelDetail()">
+                    <input type="checkbox" id="chkPhone" onchange="updateChannelDetail()">
+                    <div>
+                      <div style="font-weight:500;font-size:12px">📞 电话提醒</div>
+                      <div style="font-size:10px;color:var(--text-light)">自动语音呼叫</div>
+                    </div>
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:10px 12px;background:var(--bg);border-radius:var(--radius);border:1.5px solid var(--border);transition:var(--transition)" onchange="updateChannelDetail()">
+                    <input type="checkbox" id="chkWeChat" onchange="updateChannelDetail()">
+                    <div>
+                      <div style="font-weight:500;font-size:12px">💬 微信推送</div>
+                      <div style="font-size:10px;color:var(--text-light)">微信公众号模板消息</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+              <div id="channelDetail" style="margin-bottom:12px;display:block;padding:12px;background:var(--bg);border-radius:var(--radius);font-size:12px;border:1px solid var(--border)"></div>
+              <button class="btn btn-primary" onclick="sendNotification()" style="width:100%">📨 发送通知</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>📊 通知统计</h3></div>
+            <div class="card-body" style="padding:12px">
+              ${Store.notifications.length === 0 ? '<div class="empty-state"><div class="empty-icon">📢</div><p>暂无已发送的通知</p></div>' : `
+              <table class="data-table">
+                <tr><th>通知标题</th><th>范围</th><th>发送时间</th><th>已读</th><th>未读</th><th>渠道</th><th>状态</th></tr>
+                ${Store.notifications.map(n => `
+                  <tr>
+                    <td><strong>${n.title}</strong></td>
+                    <td><span style="font-size:11px">${n.scope}</span></td>
+                    <td>${n.time}</td>
+                    <td>${n.read||0}人</td>
+                    <td>${n.unread||n.total||0}人</td>
+                    <td><span style="font-size:11px">${(n.channels||['站内消息']).join('、')}</span></td>
+                    <td><span class="tag tag-success">已发送</span></td>
+                  </tr>
+                `).join('')}
+              </table>`}
+            </div>
+          </div>
+        </div>
+      `;
+      break;
+  }
+}
+
+function showAddAlertRuleModal(ruleId){
+  const rule = ruleId ? Store.alertRules.find(r => r.id === ruleId) : null;
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:550px">
+      <div class="modal-header"><h3>${rule?'编辑预警规则':'添加预警规则'}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">规则名称</label><input class="form-input" id="arName" value="${rule?rule.name:''}" placeholder="例如：任务点完成度预警"></div>
+        <div class="qb-editor-row">
+          <div class="form-group"><label class="form-label">监控指标</label><select class="form-select" id="arMetric">
+            ${['任务点完成度','章节测验平均分','作业提交率','平台访问天数','综合成绩','考试平均分'].map(m => `<option value="${m}" ${rule&&rule.metric===m?'selected':''}>${m}</option>`).join('')}
+          </select></div>
+          <div class="form-group"><label class="form-label">条件</label><select class="form-select" id="arCondition">
+            <option value="低于" ${rule&&rule.condition==='低于'?'selected':''}>低于</option>
+            <option value="高于" ${rule&&rule.condition==='高于'?'selected':''}>高于</option>
+            <option value="等于" ${rule&&rule.condition==='等于'?'selected':''}>等于</option>
+          </select></div>
+        </div>
+        <div class="qb-editor-row">
+          <div class="form-group"><label class="form-label">阈值</label><input class="form-input" id="arThreshold" value="${rule?rule.threshold:''}" placeholder="例如：60%"></div>
+          <div class="form-group"><label class="form-label">适用范围</label><select class="form-select" id="arScope">
+            ${['全校','计算机学院','教育学院','文学院','理学院','软件工程2101班','教育学2202班'].map(s => `<option value="${s}" ${rule&&rule.scope===s?'selected':''}>${s}</option>`).join('')}
+          </select></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+        <button class="btn btn-primary" onclick="saveAlertRule('${ruleId||''}')">保存</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function saveAlertRule(ruleId){
+  const name = document.getElementById('arName').value.trim();
+  if(!name){alert('请输入规则名称');return;}
+  const data = {
+    name,
+    metric: document.getElementById('arMetric').value,
+    condition: document.getElementById('arCondition').value,
+    threshold: document.getElementById('arThreshold').value.trim(),
+    scope: document.getElementById('arScope').value,
+    status: 'enabled'
+  };
+  if(ruleId){
+    const rule = Store.alertRules.find(r => r.id === ruleId);
+    if(rule) Object.assign(rule, data);
+  }else{
+    Store.alertRules.push({id:'ar'+Date.now(),...data});
+  }
+  saveStore();
+  document.querySelector('.modal-overlay').remove();
+  renderAlertContent();
+}
+
+function toggleAlertRuleStatus(ruleId){
+  const rule = Store.alertRules.find(r => r.id === ruleId);
+  if(rule){
+    rule.status = rule.status === 'enabled' ? 'disabled' : 'enabled';
+    saveStore();
+    renderAlertContent();
+  }
+}
+
+function deleteAlertRule(ruleId){
+  if(!confirm('确定删除该预警规则？')) return;
+  Store.alertRules = Store.alertRules.filter(r => r.id !== ruleId);
+  saveStore();
+  renderAlertContent();
+}
+
+function renderAlertRecordsTable(records){
+  if(records.length === 0) return '<div class="empty-state"><div class="empty-icon">📋</div><p>暂无匹配的督学记录</p></div>';
+  return `
+    <table class="data-table">
+      <tr><th>学员姓名</th><th>院系/班级</th><th>监控指标</th><th>当前值</th><th>阈值</th><th>预警时间</th><th>状态</th><th>操作</th></tr>
+      ${records.map(r => `
+        <tr>
+          <td><strong>${r.student}</strong></td>
+          <td>${r.org}</td>
+          <td>${r.metric}</td>
+          <td style="color:var(--danger);font-weight:500">${r.value}</td>
+          <td>${r.threshold}</td>
+          <td>${r.time}</td>
+          <td><span class="tag ${r.status==='已预警'?'tag-danger':'tag-warning'}">${r.status}</span></td>
+          <td><button class="btn btn-sm btn-outline" onclick="sendReminder('${r.id}')">提醒</button></td>
+        </tr>
+      `).join('')}
+    </table>
+  `;
+}
+
+function filterAlertRecords(){
+  const metric = document.getElementById('recordMetricFilter').value;
+  const org = document.getElementById('recordOrgFilter').value;
+  const status = document.getElementById('recordStatusFilter').value;
+  let filtered = Store.alertLogs;
+  if(metric) filtered = filtered.filter(r => r.metric === metric);
+  if(org) filtered = filtered.filter(r => r.org.includes(org));
+  if(status) filtered = filtered.filter(r => r.status === status);
+  const body = document.getElementById('alertRecordsBody');
+  if(body) body.innerHTML = renderAlertRecordsTable(filtered);
+}
+
+function sendReminder(logId){
+  const log = Store.alertLogs.find(l => l.id === logId);
+  if(!log) return;
+  log.status = '已提醒';
+  const channels = ['站内消息','短信'];
+  if(document.getElementById('chkPhone') && document.getElementById('chkPhone').checked) channels.push('电话');
+  if(document.getElementById('chkWeChat') && document.getElementById('chkWeChat').checked) channels.push('微信');
+  saveStore();
+  alert('已通过' + channels.join('、') + '向「' + log.student + '」发送督学提醒通知。');
+  filterAlertRecords();
+}
+
+function addAlertRule(){
+  showAddAlertRuleModal();
+}
+
+function updateNotifyLevel2(){
+  const level1 = document.getElementById('notifyLevel1').value;
+  const sel2 = document.getElementById('notifyLevel2');
+  if(!sel2) return;
+  
+  if(level1 === '全校'){
+    sel2.innerHTML = '<option value="全校">全校师生</option>';
+  }else if(level1 === '院系'){
+    // 二级显示具体院系名称
+    const departments = ['计算机学院','教育学院','文学院','理学院','工学院','商学院','法学院','医学院','艺术学院','体育学院'];
+    sel2.innerHTML = departments.map(d => `<option value="${d}">${d}</option>`).join('');
+  }else if(level1 === '班级'){
+    // 二级显示当前教师所管理的班级（从课表数据中提取，或使用预设班级列表）
+    const scheduleClasses = Store.moocSchedule
+      .filter(c => c.teacher && c.teacher.includes('张明远'))
+      .map(c => c.name + '班');
+    const managedClasses = scheduleClasses.length > 0 ? scheduleClasses : 
+      ['软件工程2101班','软件工程2202班','教育学2202班','小教2101班','汉语言2301班','数学2201班','工商2101班','计科2203班','英语2101班'];
+    sel2.innerHTML = managedClasses.map(c => `<option value="${c}">${c}</option>`).join('');
+  }else{
+    sel2.innerHTML = '<option value="">-- 请先选择一级范围 --</option>';
+  }
+  updateChannelDetail();
+}
+
+function updateChannelDetail(){
+  const detail = document.getElementById('channelDetail');
+  if(!detail) return;
+  const msg = document.getElementById('chkMsg')?.checked;
+  const sms = document.getElementById('chkSMS')?.checked;
+  const phone = document.getElementById('chkPhone')?.checked;
+  const wechat = document.getElementById('chkWeChat')?.checked;
+  const level1 = document.getElementById('notifyLevel1')?.value;
+  const counts = {'全校':500,'院系':120,'班级':45};
+  const est = counts[level1] || 60;
+  
+  if(!msg && !sms && !phone && !wechat){
+    detail.innerHTML = '<div style="color:var(--text-light);text-align:center;padding:8px">⚠️ 请至少选择一种提醒渠道</div>';
+    return;
+  }
+  
+  let html = '<div style="font-weight:600;margin-bottom:10px;font-size:13px">📊 渠道配置详情（预估触达 ' + est + ' 人）</div>';
+  
+  if(msg){
+    html += '<div style="margin-bottom:10px;padding:10px;background:#fff;border-radius:var(--radius);border:1px solid var(--border)">';
+    html += '<div style="font-weight:500;margin-bottom:6px;display:flex;align-items:center;gap:6px"><span style="font-size:16px">📬</span> 站内消息</div>';
+    html += '<div style="display:grid;grid-template-columns:80px 1fr;gap:4px;font-size:11px;color:var(--text-secondary)">';
+    html += '<div>预计发送：</div><div><strong>' + est + '</strong> 人</div>';
+    html += '<div>送达方式：</div><div>平台消息中心 + 首页弹窗提醒</div>';
+    html += '<div>优先级：</div><div><select class="form-select" style="width:100px;font-size:11px;padding:2px 6px"><option>普通</option><option>重要</option><option>紧急</option></select></div>';
+    html += '</div></div>';
+  }
+  
+  if(sms){
+    html += '<div style="margin-bottom:10px;padding:10px;background:#fff;border-radius:var(--radius);border:1px solid var(--border)">';
+    html += '<div style="font-weight:500;margin-bottom:6px;display:flex;align-items:center;gap:6px"><span style="font-size:16px">📱</span> 短信通知</div>';
+    html += '<div style="display:grid;grid-template-columns:80px 1fr;gap:4px;font-size:11px;color:var(--text-secondary)">';
+    html += '<div>预计发送：</div><div><strong>' + est + '</strong> 条</div>';
+    html += '<div>短信模板：</div><div><select class="form-select" style="width:140px;font-size:11px;padding:2px 6px"><option>通用通知模板</option><option>成绩提醒模板</option><option>作业提醒模板</option><option>考试通知模板</option><option>活动通知模板</option></select></div>';
+    html += '<div>发送时段：</div><div><select class="form-select" style="width:140px;font-size:11px;padding:2px 6px"><option>工作时间(9:00-18:00)</option><option>全天(8:00-20:00)</option><option>自定义时段</option></select></div>';
+    html += '<div>签名：</div><div><input class="form-input" style="width:120px;font-size:11px;padding:2px 6px" placeholder="【智学云平台】" value="【智学云平台】"></div>';
+    html += '</div></div>';
+  }
+  
+  if(phone){
+    html += '<div style="margin-bottom:10px;padding:10px;background:#fff;border-radius:var(--radius);border:1px solid var(--border)">';
+    html += '<div style="font-weight:500;margin-bottom:6px;display:flex;align-items:center;gap:6px"><span style="font-size:16px">📞</span> 电话提醒</div>';
+    html += '<div style="display:grid;grid-template-columns:80px 1fr;gap:4px;font-size:11px;color:var(--text-secondary)">';
+    html += '<div>预计拨打：</div><div><strong>' + Math.floor(est*0.3) + '</strong> 通（未读人员）</div>';
+    html += '<div>拨打时段：</div><div><select class="form-select" style="width:140px;font-size:11px;padding:2px 6px"><option>工作时间(9:00-18:00)</option><option>全天(8:00-20:00)</option></select></div>';
+    html += '<div>重试次数：</div><div><select class="form-select" style="width:80px;font-size:11px;padding:2px 6px"><option>1次</option><option>2次</option><option>3次</option></select></div>';
+    html += '<div>语音内容：</div><div><input class="form-input" style="width:100%;font-size:11px;padding:2px 6px" placeholder="自动将通知内容转为语音播报" readonly></div>';
+    html += '</div></div>';
+  }
+  
+  if(wechat){
+    html += '<div style="padding:10px;background:#fff;border-radius:var(--radius);border:1px solid var(--border)">';
+    html += '<div style="font-weight:500;margin-bottom:6px;display:flex;align-items:center;gap:6px"><span style="font-size:16px">💬</span> 微信推送</div>';
+    html += '<div style="display:grid;grid-template-columns:80px 1fr;gap:4px;font-size:11px;color:var(--text-secondary)">';
+    html += '<div>预计推送：</div><div><strong>' + est + '</strong> 人</div>';
+    html += '<div>消息类型：</div><div><select class="form-select" style="width:140px;font-size:11px;padding:2px 6px"><option>模板消息</option><option>图文消息</option><option>小程序卡片</option></select></div>';
+    html += '<div>推送时间：</div><div><select class="form-select" style="width:140px;font-size:11px;padding:2px 6px"><option>立即推送</option><option>定时推送</option><option>避开休息时段</option></select></div>';
+    html += '</div></div>';
+  }
+  
+  detail.innerHTML = html;
+}
+
+function sendNotification(){
+  const title = document.getElementById('notifyTitle').value.trim();
+  const content = document.getElementById('notifyContent').value.trim();
+  if(!title || !content){
+    alert('请填写通知标题和内容');
+    return;
+  }
+  const scope1 = document.getElementById('notifyLevel1').value;
+  const scope2 = document.getElementById('notifyLevel2').value;
+  if(scope1 !== '全校' && !scope2){
+    alert('请选择二级通知范围');
+    return;
+  }
+  const scopeStr = scope1 === '全校' ? '全校' : scope2;
+  const channels = [];
+  if(document.getElementById('chkMsg').checked) channels.push('站内消息');
+  if(document.getElementById('chkSMS').checked) channels.push('短信');
+  if(document.getElementById('chkPhone').checked) channels.push('电话');
+  if(document.getElementById('chkWeChat').checked) channels.push('微信');
+  if(channels.length === 0){alert('请至少选择一种提醒渠道');return;}
+
+  const counts = {'全校':500,'院系':120,'班级':45};
+  const total = counts[scope1] || Math.floor(Math.random()*500+100);
+  const read = Math.floor(Math.random()*total*0.3);
+  Store.notifications.push({
+    title, content,
+    scope: scopeStr,
+    time: new Date().toLocaleString(),
+    channels,
+    read: read, total: total, unread: total - read
+  });
+  saveStore();
+  
+  let channelMsg = '';
+  if(channels.includes('站内消息')) channelMsg += '\n- 站内消息：已发送 ' + total + ' 人（消息中心 + 弹窗提醒）';
+  if(channels.includes('短信')) channelMsg += '\n- 短信通知：已发送 ' + total + ' 条';
+  if(channels.includes('电话')) channelMsg += '\n- 电话提醒：已拨打 ' + Math.floor(total*0.3) + ' 通（未读人员自动拨打）';
+  if(channels.includes('微信')) channelMsg += '\n- 微信推送：已推送 ' + total + ' 人';
+  
+  alert('✅ 通知已成功发送！\n\n📋 标题：' + title + '\n🎯 范围：' + scopeStr + '\n📢 渠道：' + channels.join(' + ') + channelMsg + '\n👥 预计触达：' + total + '人\n\n可在右侧"通知统计"中查看已读/未读情况');
+  document.getElementById('notifyTitle').value = '';
+  document.getElementById('notifyContent').value = '';
+  renderAlertContent();
+}
+
+// ==================== PLACEHOLDER PAGES ====================
+function renderPlaceholder(page){
+  const configs = {
+    academic: {icon:'📋',title:'教务管理中心',desc:'教务数据管理、学籍信息维护、培养方案制定、成绩管理等教务核心功能模块。'},
+    courses: {icon:'📖',title:'课程中心',desc:'课程资源库管理、课程分类与检索、课程评价与推荐、精品课程展示等。'},
+    students: {icon:'👥',title:'学员管理',desc:'学员信息管理、班级分配、学习进度跟踪、学业档案管理等。'},
+    exams: {icon:'📝',title:'考试管理',desc:'在线考试安排、试卷管理、考场监控、成绩分析与统计等。'},
+    statistics: {icon:'📈',title:'数据统计分析',desc:'教学数据可视化、学习行为分析、教学质量评估、多维数据报表等。'},
+    reports: {icon:'📄',title:'报表中心',desc:'教学报表生成、数据导出、周期性报告、自定义报表模板等。'},
+    resources: {icon:'📁',title:'资源中心',desc:'教学资源管理、文件存储与共享、资源分类与检索、版权管理等。'},
+    settings: {icon:'⚙️',title:'系统设置',desc:'平台参数配置、用户权限管理、系统日志查看、接口配置、安全设置等。'}
+  };
+  const cfg = configs[page] || {icon:'📌',title:page,desc:'功能模块建设中，敬请期待。'};
+  return `
+    <div class="card">
+      <div class="card-body" style="text-align:center;padding:60px 40px">
+        <div style="font-size:64px;margin-bottom:16px;opacity:.7">${cfg.icon}</div>
+        <h2 style="font-size:20px;margin-bottom:8px">${cfg.title}</h2>
+        <p style="color:var(--text-secondary);max-width:500px;margin:0 auto">${cfg.desc}</p>
+        <div style="margin-top:24px;padding:20px;background:var(--bg);border-radius:var(--radius-lg);text-align:left">
+          <h4 style="font-size:14px;margin-bottom:12px">功能模块概览</h4>
+          <div class="grid-3" style="gap:12px">
+            ${['数据管理','信息维护','统计分析','报表导出','权限控制','日志记录'].map(f => `
+              <div style="padding:10px;background:var(--white);border-radius:var(--radius);text-align:center;font-size:12px;color:var(--text-secondary);border:1px solid var(--border)">${f}</div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ==================== PAGE INIT ====================
+function initPageScripts(){
+  if(currentPage === 'quiz') renderQuizContent();
+  if(currentPage === 'safety') renderSafetyContent();
+  if(currentPage === 'mooc') renderMoocContent();
+  if(currentPage === 'alert') renderAlertContent();
+}
+
+// ==================== INIT ====================
+renderCurrentPage();
+</script>
+</body>
+</html>
