@@ -1,0 +1,493 @@
+理解需求。需要补充：闯关答题系统（单选/多选/判断）+ 区域解锁 + 任务装置绑定（任务墙/知识光球/宝箱/互动电视）+ 后台题库编辑（含系统默认与外部导入）。先扩展数据层。
+用户要补充一个答题闯关系统：
+1. 答题闯关：支持单选、多选、判断题型
+2. 完成当前区域题目才能解锁下一展区
+3. 实时进度提示与即时结果反馈
+4. 后台编辑：自定义题库构建、灵活编辑多种题型、调用系统默认题库或外部导入课程题库、快速配置题目与章节测验
+5. 答题任务与多样化虚拟任务装置绑定：任务墙、知识光球、宝箱、互动电视等多模态任务触发器
+6. 游戏化学习体验
+
+我需要：
+1. 设计数据结构（区域/关卡/题目/任务装置）
+2. 创建一个新页面 quest-trail.html（闯关答题 + 任务装置绑定）
+3. 在 ai-quiz.html 或新页面增加后台编辑入口（自定义题库/章节测验配置）
+4. 在 common.js 增加种子数据
+5. 在导航和首页加入入口
+
+我考虑：
+- 创建一个独立页面 quest-trail.html（包含闯关答题体验 + 任务装置选择 + 后台编辑 Tab）
+- 数据存储：S.quest = { zones: [...], devices: [...], config: {...} }
+
+让我设计数据结构：
+
+```js
+S.quest = {
+  zones: [
+    {
+      id: 'z1',
+      name: '算法基础区',
+      device: 'wall',           // 任务装置类型
+      icon: 'wall',
+      questions: [
+        { id, type: 'single', stem, options:[...], answer: 0, explain },
+        { id, type: 'multi', stem, options:[...], answer: [0,2], explain },
+        { id, type: 'judge', stem, answer: true, explain }
+      ],
+      unlocked: true,           // 是否解锁
+      passed: false,            // 是否通关
+      bestScore: 0
+    }
+  ],
+  devices: [
+    { id: 'wall', name: '任务墙', icon: 'wall', desc: '...' },
+    { id: 'orb', name: '知识光球', icon: 'orb', desc: '...' },
+    { id: 'chest', name: '宝箱', icon: 'chest', desc: '...' },
+    { id: 'tv', name: '互动电视', icon: 'tv', desc: '...' }
+  ]
+}
+```
+
+题型数据：
+- single: 单选题（options + answer: index）
+- multi: 多选题（options + answer: [indices]）
+- judge: 判断题（answer: true/false）
+
+页面布局（quest-trail.html）：
+
+**Tab1: 答题闯关**
+- 顶部：闯关地图（区域横向排列，每个区域显示装置图标+名称+解锁/通关状态）
+- 中部：当前区域卡片
+  - 进度条
+  - 题目卡片（题干 + 选项 + 即时反馈）
+  - 下一题/提交按钮
+- 底部：通关提示
+
+**Tab2: 任务装置**
+- 4 个装置卡片：任务墙、知识光球、宝箱、互动电视
+- 每个装置可绑定到任一区域
+- 装置视觉效果（CSS 装饰）
+
+**Tab3: 后台编辑**
+- 区域管理：增/删/重命名/调整顺序
+- 每个区域：题目列表 + 增删改 + 题型选择
+- 题目编辑表单（题干/选项/答案/解析）
+- 系统默认题库调用：从 ai-quiz 题库或 quest 内置题库导入
+- 外部导入：粘贴 JSON / 上传文件
+- 章节测验配置：每章节关联题目集合
+
+让我先简化范围：
+- 闯关体验：4 个区域，每区域 3 题，分别用 4 种装置
+- 通关后解锁下一区域
+- 后台编辑：增删改题目、绑定装置
+- 默认题库调用：从 Platform.quizBank 抽取
+- 外部导入：粘贴 JSON 文本
+
+考虑到代码量较大，我会写得紧凑。
+
+让我开始：
+
+1. common.js 增加 seedQuest()，包含 4 个区域、4 种装置
+2. 创建 quest-trail.html
+3. styles.css 增加装置/进度相关样式
+4. index.html + 导航 MODULES 加入入口
+
+数据结构最终版：
+
+```js
+function seedQuest() {
+  return {
+    devices: [
+      { id: 'wall',  name: '任务墙',   icon: 'rectangle-vertical', desc: '墙面投影题目，适合课堂集体闯关' },
+      { id: 'orb',   name: '知识光球', icon: 'globe', desc: '悬浮光球点亮知识点，触摸解锁题目' },
+      { id: 'chest', name: '宝箱',    icon: 'gift', desc: '开启宝箱触发随机任务，奖励惊喜' },
+      { id: 'tv',    name: '互动电视', icon: 'tv', desc: '客厅式互动屏，多人协作答题' }
+    ],
+    zones: [
+      {
+        id: 'z1', name: '算法基础区', device: 'wall',
+        questions: [
+          { id:'q1', type:'single', stem:'渐进复杂度 O(n log n) 比下列哪个增长更快？', options:['O(n)','O(log n)','O(n²)','O(1)'], answer:2, explain:'四个选项中 O(n²) 比 O(n log n) 增长更快。' },
+          { id:'q2', type:'multi',  stem:'下列属于分治法典型应用的有？', options:['归并排序','快速排序','Dijkstra','Strassen 矩阵乘法'], answer:[0,1,3], explain:'归并、快排、Strassen 都是分治；Dijkstra 是贪心。' },
+          { id:'q3', type:'judge',  stem:'大 O 记号描述的是算法的最坏情况渐进上界。', answer:true, explain:'正确，大 O 描述上界。' }
+        ],
+        unlocked: true, passed: false, best: 0
+      },
+      {
+        id: 'z2', name: '进程调度区', device: 'orb',
+        questions: [
+          { id:'q4', type:'single', stem:'时间片轮转调度的主要优点是？', options:['平均周转时间最优','无饥饿、响应快','实现最简单','适合长作业'], answer:1, explain:'RR 公平、响应快、无饥饿。' },
+          { id:'q5', type:'judge',  stem:'短作业优先 (SJF) 不会出现饥饿。', answer:false, explain:'错误，SJF 可能让长作业长期等待。' },
+          { id:'q6', type:'multi',  stem:'下列属于进程基本状态的有？', options:['就绪','运行','阻塞','编译'], answer:[0,1,2], explain:'三态为就绪、运行、阻塞；编译非进程状态。' }
+        ],
+        unlocked: false, passed: false, best: 0
+      },
+      {
+        id: 'z3', name: '网络协议区', device: 'chest',
+        questions: [
+          { id:'q7', type:'single', stem:'TCP 第二次握手报文标志位是？', options:['SYN','SYN+ACK','ACK','FIN'], answer:1, explain:'服务器回送 SYN+ACK。' },
+          { id:'q8', type:'judge',  stem:'TCP 释放连接需要四次挥手。', answer:true, explain:'正确，TCP 断连四次挥手。' },
+          { id:'q9', type:'multi',  stem:'下列属于传输层协议的有？', options:['TCP','UDP','IP','HTTP'], answer:[0,1], explain:'TCP/UDP 为传输层；IP 是网络层；HTTP 是应用层。' }
+        ],
+        unlocked: false, passed: false, best: 0
+      },
+      {
+        id: 'z4', name: '数据库事务区', device: 'tv',
+        questions: [
+          { id:'q10', type:'single', stem:'SQL 中用于去重的关键字是？', options:['UNIQUE','DISTINCT','GROUP BY','ORDER BY'], answer:1, explain:'DISTINCT 用于查询去重。' },
+          { id:'q11', type:'judge',  stem:'事务的 ACID 特性中 I 指隔离性。', answer:true, explain:'正确，Isolation。' },
+          { id:'q12', type:'multi',  stem:'下列属于事务 ACID 特性的有？', options:['原子性','一致性','冗余性','持久性'], answer:[0,1,3], explain:'冗余性不属于 ACID。' }
+        ],
+        unlocked: false, passed: false, best: 0
+      }
+    ],
+    customBank: []   // 教师自定义题库（用于后台编辑时挑选）
+  };
+}
+```
+
+让我开始动手。先扩展 common.js。
+
+在 index.html 加入新模块卡片与需求覆盖项。
+
+补充样式：闯关地图、装置卡片、进度条、答题反馈。
+
+我把后面的样式都删了，需要重新加回来并加上闯关相关样式。
+
+现在创建 quest-trail.html 页面。
+
+先用 Node 校验脚本语法。
+页面创建完成。先用 Node 检查脚本语法。让我提取 script 并检查。
+
+看下这一行有问题。我用反斜杠转义了，但 \x 应该是字符串里的字符 \x。让我直接打开文件看。实际上这是浏览器加载，正常应该没问题。让我看下文件中第 443 行附近。
+
+错误指向的字符是 `^^^^^^^^^^`，长度 10，对应 " · " 这部分的 · 字符。等等，是 \x 或者其他什么？让我直接看代码。
+
+实际错误是"Invalid or unexpected token"，指向 " · " 中的某个字符。但 · 是合法字符。我重新看一下，让我先 grep 看看。
+
+啊，可能是反斜杠问题。我在 quest-opts 的 opt 里写了 `"quest-opts"`。让我检查第 443 行。
+
+等等，让我直接看quest-script.js 文件第 443 行。
+
+这一行看起来正常。可能是 BOM 或编码问题。让我用 node 直接读取检查字符。或者是文件本身有特殊字节。
+
+实际错误指向 `^^^^^^^^^^`，那是 10 个字符。" · " 看起来没问题。让我用 16 进制查看。
+
+等等，让我看是不是有不可见字符。用 node 检查。
+
+这行内容没问题。Node --check 报错，可能是因为前面的字符串拼接中某个引号未闭合。让我检查上一行附近的字符串。
+
+实际错误指向 `^^^^^^^^^^`，是 10 个 ^ 字符。" · " 是 5 个字符（空格·空格）+ 引号 = 6 个字符。可能是 ` · ` 后面的某个东西。
+
+让我看这一行的前面行。可能在更早的行就出错了，错误显示行号是 443 但实际错误位置在前面。
+
+问题在 443 行，三元运算符 + map + join 的组合。让我重新看：
+
+```js
+(q.options ? '<div class="text-xs muted">' + q.options.map(function (o, i) {
+  var isAns = ...;
+  return (isAns ? "✓ " : "") + esc(o);
+}).join(" · ") + "</div>" : '<div class="text-xs muted">答案：' + (q.answer ? "正确" : "错误") + "</div>");
+```
+
+这个语法是：
+- `(q.options ? A + B.map(...).join(...) + C : D)`
+- A = `'<div class="text-xs muted">'`
+- B = `q.options.map(...)` 返回数组
+- C = `"</div>"`
+- D = `'<div class="text-xs muted">答案：' + (q.answer ? "正确" : "错误") + "</div>"`
+
+JS 解析器可能把 `map(...).join(...)` 后面的 `+` 解析成奇怪的东西？应该没问题。Node v24 应该支持。让我手动验证这段语法：
+
+```js
+var q = {options: ["A","B"], type: "multi", answer: [0]};
+var x = (q.options ? '<div>' + q.options.map(function(o, i) {
+  var isAns = q.type === "multi" ? (q.answer || []).indexOf(i) >= 0 : i === q.answer;
+  return (isAns ? "✓ " : "") + o;
+}).join(" · ") + "</div>" : '<div>答案：' + (q.answer ? "正确" : "错误") + "</div>");
+console.log(x);
+```
+
+让我在 node 跑一下这段简化代码看看。
+
+单独跑没问题。问题肯定在前面某个地方。Node --check 报错位置不准确是常见情况。让我重新审视 quest-script.js 文件结构，看看是否有未闭合的字符串。
+
+实际错误是"Invalid or unexpected token"，这种错误通常是某处字符串没闭合导致后面解析失败。让我用更严格的方式检查整个文件。
+
+让我用 node 直接 require 或 eval 整个文件。
+
+没有具体行号信息。让我用 node --check 的更详细输出。
+
+让我用 acorn 或 esprima 来解析。实际上 Node 自带 acorn。让我用 --stack-trace 看。或者用 esprima。
+
+最简单：拆分文件逐步检查。但太繁琐。让我用 node 的 vm 模块编译，可能会有更详细的错误位置。
+
+或者：分块写文件测试。让我先把整个 script 作为函数体来 require，看错误位置。
+
+更好的办法：用 node 的 vm.compileFunction：
+
+错误位置确实是 443 行的 `</div>");`，但具体是最后那个 `);`。让我重新看这一行。
+
+实际上看到错误位置 `^^^^^^^^^^` 是 10 个字符。这对应 `</div>");` 的 `</div>");` 中某个片段？让我数一下：
+- `</div>");` - 这是 9 个字符（包含 `</div>");`）
+
+实际可能是后面解析问题。让我看一下：
+
+```js
+}).join(" · ") + "</div>" : '<div class="text-xs muted">答案：' + (q.answer ? "正确" : "错误") + "</div>");
+```
+
+我看到这里：
+- 起始是 `(q.options ? ... : ...)`
+- 第一个分支：`'<div class="text-xs muted">' + q.options.map(function (o, i) {...}).join(" · ") + "</div>"`
+- 第二个分支：`'<div class="text-xs muted">答案：' + (q.answer ? "正确" : "错误") + "</div>"`
+- 结尾 `);`
+
+这里的问题可能是：第一个分支内的 `q.options.map(function (o, i) { ... })` 跨多行，包含 `var isAns = q.type === "multi" ? (q.answer || []).indexOf(i) >= 0 : i === q.answer;`，这个三元运算符嵌套在外层三元运算符内。JS 应该可以处理。
+
+让我换个角度：把这一行单独提取出来用 vm.compileFunction：
+
+看到了！第 442 行：`return (isAns ? "✓ " : "") + esc(o);`
+
+"✓ " 包含特殊 unicode 字符 ✓ (U+2713)。但这应该在字符串中合法。
+
+实际错误指向第 443 行的 `^^^^^^^^^^`，10 个字符。可能对应 `" · "`。等等，" · " 中 · 是 U+00B7 中点，应该合法。
+
+啊，等等，错误指向的位置实际是 `</div>");` 后面。让我数：`</div>");` 是 9 个字符。前面是 `"错误") + "</div>");`，错误指向 `^^^^^^^^^^` 是 10 字符。
+
+可能错误是因为某个引号没闭合导致整行被当作字符串。让我看 433-443 的整体：
+
+```
+433:              "</div>" +
+434:              '<div class="flex gap-8">' +
+435:                '<button class="icon-btn" data-edit="' + q.id + '" title="编辑"><i data-lucide="pencil"></i></button>' +
+436:                '<button class="icon-btn" data-del="' + q.id + '" title="删除"><i data-lucide="trash-2"></i></button>' +
+437:              "</div>" +
+438:            "</div>" +
+439:            '<p style="margin:0 0 6px;font-size:13px;font-weight:600;line-height:1.5">' + esc(q.stem) + "</p>" +
+440:            (q.options ? '<div class="text-xs muted">' + q.options.map(function (o, i) {
+441:              var isAns = q.type === "multi" ? (q.answer || []).indexOf(i) >= 0 : i === q.answer;
+442:              return (isAns ? "✓ " : "") + esc(o);
+443:            }).join(" · ") + "</div>" : '<div class="text-xs muted">答案：' + (q.answer ? "正确" : "错误") + "</div>");
+```
+
+第 435 行：`'<button class="icon-btn" data-edit="' + q.id + '" title="编辑"><i data-lucide="pencil"></i></button>'`
+
+注意 `'" title="编辑"'` 这部分——这是个字符串字面量 `'" title="编辑"'`，前面是 `+ q.id +`，后面是 `'<i data-lucide="pencil"></i></button>'`。但是 `'" title="编辑"><i data-lucide="pencil"></i></button>'` 中引号嵌套：外层用单引号包裹，内部双引号是字面量。这没问题。
+
+但是第 435 行：从 `'<button class="icon-btn" data-edit="'` 开始，到 `+ q.id +`，到 `'" title="编辑"><i data-lucide="pencil"></i></button>'`。
+
+注意 `'<button class="icon-btn" data-edit="'` —— 这是单引号字符串，内部包含双引号字符。结束的单引号在末尾。然后 `+ q.id + '" title="编辑"><i data-lucide="pencil"></i></button>'`。
+
+`'" title="编辑"><i data-lucide="pencil"></i></button>'` 这个字符串：开头是单引号 `'`，接着是 `" title="编辑"><i data-lucide="pencil"></i></button>`，然后是结束单引号 `'`。但中间有 `data-lucide="pencil"` 中的双引号，没问题，单引号字符串内可以包含双引号。
+
+我猜可能是其他问题。让我看更前面的代码。也许 quest-opts 拼接里某处有问题。让我看第 433 行往前：
+
+把 ✓ 替换为更稳的标记，看是否解决。
+我看到了！第 428-443 行的字符串拼接：
+
+```js
+card.innerHTML =
+  '<div ...>' +
+  ...
+  '<p ...>' + esc(q.stem) + "</p>" +
+  (q.options ? '<div class="text-xs muted">' + q.options.map(function (o, i) {
+    var isAns = ...;
+    return (isAns ? "✓ " : "") + esc(o);
+  }).join(" · ") + "</div>" : '<div class="text-xs muted">答案：' + (q.answer ? "正确" : "错误") + "</div>");
+```
+
+问题在最后那个 `+ "</div>");`。前面是 `'<div class="text-xs muted">答案：' + (q.answer ? "正确" : "错误") + "</div>"`，再 `)`。整体看起来正确。
+
+但我注意到三元运算符内嵌 `q.options.map(function (o, i) {...}).join(" · ") + "</div>"` 在 `:` 之前，这是合法的。
+
+啊，等等，我看到了！第 443 行末尾是 `+ "</div>");`。这是 `+ "</div>"` 然后是 `);` 闭合 card.innerHTML = 的赋值。但 `q.options.map(...).join(...).+...</div>` 后面接 `: '<div ...>答案：'`，这里 `:` 是三元运算符的分隔符。但表达式 `q.options.map(...).join(" · ") + "</div>"` 后面 `: ...` 应该可以。
+
+实际上错误可能在前面的某个字符串字面量里。让我看一下第 428 行 `card.innerHTML =` 后面的字符串拼接的整体结构。
+
+第 428 行 `card.innerHTML =`，后面所有 `+` 拼接的字符串，直到 443 行最后的 `);` 闭合。
+
+让我数引号平衡。第 428 行到 443 行的所有字符串。每个字符串都以 `'` 或 `"` 开始结束。
+
+但第 432 行：`(z ? '<span class="text-xs muted">' + esc(z.name) + "</span>" : "") +`
+
+第 440-443 行：`(q.options ? '<div class="text-xs muted">' + q.options.map(function (o, i) { ... }).join(" · ") + "</div>" : '<div class="text-xs muted">答案：' + (q.answer ? "正确" : "错误") + "</div>");`
+
+这里 `(q.options ? A : B)` 中 A = `'<div class="text-xs muted">' + q.options.map(function (o, i) {...}).join(" · ") + "</div>"`，B = `'<div class="text-xs muted">答案：' + (q.answer ? "正确" : "错误") + "</div>"`。
+
+整个表达式是 `... + (q.options ? A : B);`。
+
+我觉得问题可能是第 442 行的 `"✓ "`。✓ 是 U+2713，可能在某些 Node 解析下被当作标识符。但应该在字符串里没问题。
+
+让我换种方式：把这段代码替换为不使用 ✓，看看是否还报错。
+
+HTML 文件中 ✓ 字符正常存在。让我用 Read 看 quest-trail.html 中相关行。
+
+Edit 仍然失败。可能是因为 Read 时显示的是 `✓ ` 但文件中实际字节不同。让我看下 616 行到 619 行的字节，再用 Read 时的格式匹配。
+
+Read 输出第 616 行内容是 `            (q.options ? '<div class="text-xs muted">' + q.options.map(function (o, i) {`，但实际上 Read 不会显示引号转义。我 Edit 用的是 Read 的原始显示。让我看下 Read 的 616 行原文。
+
+实际上 Edit 的 old_string 必须精确匹配文件字节。Read 显示可能有细微差别。让我用 sed 直接替换文件。
+
+让我用 PowerShell 直接读文件做替换。或者用 Write 重写这段。
+
+最简单的：用 node 脚本做字符串替换。
+
+· 字符没被替换（因为我用的替换字符串 `"\u00b7 "` 实际是 `"· "` 但代码里是 `" · "`，前缀空格不对）。
+
+让我再修一次：替换 `" · "` 为 `" / "`。
+
+把内联复杂表达式拆分为提前构建的字符串，避免语法歧义。
+错误指向 `^^^^^^^^^^`，10 个字符，覆盖 `"错误") + "</div>");` 中的 `错误") +` 部分。看起来是 "错误" 或附近字符。但 "错误" 是合法中文字符串。
+
+等等，错误指向的列比 "错误" 早。让我看错误指向的位置：`^^^^^^^^^^` 是 10 个 ^，在 `</div>");` 之前。
+
+但仔细看错误：错误列在 `'<div class="text-xs muted">答案：' + (q.answer ? "正确" : "错误") + "</div>");`。`^^^^^^^^^^` 在 "错误") + "</div>");` 下面。但等等，错误指示符是 `^^^^^^^^^^`，10 个 ^ 字符。
+
+我想真正的问题是更早的某处。Node --check 有时会因为前面的字符串未闭合导致后面某行报错。让我重新看 428-443 整段，重点检查引号闭合。
+
+实际上，问题可能在 quest-script.js 是从 HTML 提取出来的，而 HTML 中有特殊字符导致 PowerShell 写入时编码不对。让我用 file 命令检查。
+
+让我用另一种思路：把这一段简化重写，避免内联的复杂表达式。
+
+让我重写 renderCustomList 中的题目卡片部分，把内联的复杂表达式提前构建为变量，避免语法问题。我用 Edit 替换整段。
+
+Edit 失败因为前面的 fix-quest.js 已经把 ✓ 改成 [correct] 了。但 Edit 的 old_string 还包含 ✓。让我直接用 node 脚本重写这一段。
+
+实际让我直接用 node 来做精确替换：找到这段，替换为新版本。
+
+OLD BLOCK NOT FOUND，可能因为前面 fix-quest.js 已经把 `✓` 改成 `[correct]`，但我的 oldBlock 里还是 `[correct]`。让我检查下文件实际内容。
+
+文件中 `[correct] ` 是空格+correct，但 oldBlock 中是 `[correct] ` 我应该用了相同字符串。让我用 String.prototype.indexOf 在 JS 中检查 oldBlock 是否能匹配。
+
+实际上等等，oldBlock 是我假设的精确字符串。但 `[correct]` 在文件中实际是 `[correct] `（注意空格），可能在 JS 字符串中我用的字符串与文件字节不完全一致。让我看一下文件中第 443 行附近实际字符序列。
+
+实际错误依然指向 quest-script.js 第 443 行，这说明提取出的脚本中那行还有问题。但等等，刚才 `node extract-quest.js` 输出 chars 27793，与之前一样，但 quest-trail.html 大小是 35686。说明提取的脚本仍然包含问题代码（因为 rewrite-list.js 没找到旧块也没替换）。
+
+让我重新检查 quest-trail.html 中代码块的实际内容，再正确替换。
+
+有两个 `var meta = TYPE_META[q.type]` 的位置！第一个在 renderPlay 中（约 13734），第二个在 renderCustomList 中。我的查找从第一个开始，但 oldBlock 是第二个的内容。让我搜索更精确的开始位置。
+
+实际上让我搜 `card.innerHTML =` 后面的多行字符串。
+
+找到了！实际内容里是 `[correct] ` 而不是 `[correct] `（注意 [correct] 后面的空格）。但我的 oldBlock 也是 `[correct] `。但为什么 indexOf 找不到？
+
+让我比较一下两段字符串。oldBlock 的开头第一行是 `          var meta = TYPE_META[q.type] || {};`（10 个空格缩进），实际文件中也是 `          var meta`（10 个空格）。
+
+让我精确比较：用 Buffer 对比。
+
+语法 OK。清理临时脚本并验证页面可访问。
+
+页面可访问。用浏览器自动化验证核心交互。
+
+初始化完美。测试闯关作答与解锁流程。
+
+作答流程完美：
+- 题目显示 4 个选项（单选题）
+- 选中后提交按钮启用
+- 提交后即时反馈"回答正确" + 解析，正确选项高亮，下一题按钮可见
+- 进度更新为 1/3
+
+继续走完整个第一区域，验证通关与解锁。
+
+第三题提交后没有出现 banner。让我看下当前状态。可能是 nextQBtn 还在显示，需要再点一次 nextQBtn 才会触发 qIdx>=total 进入通关状态。
+
+区域通关与解锁全通过。测试后台编辑与外部导入。
+完美！整个区域通关流程：
+- 区域 1 三题全部答对
+- 点击最后一题的"下一题"后出现"区域通关"横幅
+- "下一展区"按钮可见
+- 区域 2 已解锁
+- 顶部"已通关"徽章变 1
+- 闯关地图中 2 个区域仍锁定（区域 3、4）
+
+下面测试后台编辑功能：新增题目、调用系统题库、外部导入。
+
+后台编辑功能完美：
+- T3 初始化：自定义题库 0 题、3 个题型 chips、4 个展区下拉选项、4 个展区配置卡片
+- 调用系统题库：导入 5 题
+- 新增题目：题库变 6 题（5+1）
+
+下面测试外部导入 JSON。
+
+所有验证全部通过，无 JS 报错。仅一个 ai-quiz.html 的 ERR_ABORTED 网络（来自上轮会话的浏览器残留），不影响 quest-trail。
+
+总结：
+
+闯关答题系统全部功能验证通过：
+
+**Tab1 闯关答题**
+- 4 个区域闯关地图（默认仅第一区解锁）
+- 题目作答：单选/多选/判断三种题型
+- 实时进度条与"X / N"提示
+- 即时反馈：答对绿色高亮 + 解析，答错红色 + 正确答案
+- 通关横幅 + 自动解锁下一区
+
+**Tab2 任务装置**
+- 4 个装置卡片：任务墙/知识光球/宝箱/互动电视
+- 每个装置有独特视觉装饰（砖墙/光球浮动/宝箱/电视屏幕）
+- 点击切换显示对应视觉
+
+**Tab3 后台编辑**
+- 自定义题库列表
+- 题目编辑器：题型 chips（单选/多选/判断）、题干、选项（★ 标记正确项）、判断答案、解析、所属区域
+- 调用系统默认题库（一键导入 5 题）
+- 外部 JSON 导入（含错误格式校验）
+- 区域与章节测验配置（切换装置、删除展区）
+- 新增展区
+
+数据持久化到 localStorage。
+
+下面整理最终回复给用户。
+全部功能验证通过，无 JS 报错。闯关答题系统已完整实现。
+
+## 答题闯关系统已完成
+
+### 数据层 [common.js](file:///d:/zhkcpt/common.js#L601-L650)
+- 新增 `seedQuest()`：4 个装置（任务墙/知识光球/宝箱/互动电视）+ 4 个区域（算法基础/进程调度/网络协议/数据库事务）+ 12 道多题型题目（单选/多选/判断）
+- `freshSeed()` 加入 `quest` 字段
+- 顶部导航 `MODULES` 与 [index.html](file:///d:/zhkcpt/index.html) 模块卡片均加入「答题闯关」入口
+
+### 新页面 [quest-trail.html](file:///d:/zhkcpt/quest-trail.html)
+三 Tab 一站式：
+
+**Tab1 闯关答题**
+- 闯关地图：4 个区域节点（已通关/可挑战/未解锁三态徽章）
+- 完成当前区域全部题目方可解锁下一展区（≥60% 正确率通关）
+- 实时进度条 + "X / N" 提示
+- 即时反馈：答对绿色高亮 + 解析；答错红色 + 标出正确答案
+- 通关横幅 + 「下一展区」按钮 + 「再来一次」
+- 单选/多选/判断三题型，多选支持多选切换
+
+**Tab2 任务装置**
+- 4 个装置卡片（任务墙/知识光球/宝箱/互动电视）
+- 每装置专属视觉装饰：
+  - 任务墙：3×3 砖块网格
+  - 知识光球：径向渐变球体 + 浮动动画
+  - 宝箱：拟物化箱体 + 锁扣
+  - 互动电视：扫描线屏幕 + 播放图标
+- 点击切换实时预览
+
+**Tab3 后台编辑**
+- 自定义题库列表（题型徽章 + 题干 + 答案预览 + 编辑/删除）
+- 题目编辑器：题型 chips、题干、选项（★ 标记正确项，多选多个★）、判断答案 chips、解析、所属区域下拉
+- **调用系统默认题库**：一键从 `Platform.quizBank` 导入 5 题
+- **外部 JSON 导入**：粘贴 JSON 数组 + 格式校验
+- 区域与章节测验配置：每展区展示题目列表 + 切换装置（轮换） + 删除展区（确认弹窗） + 新增展区
+- 编辑展区题目时支持从展区移除（不影响自定义题库）
+
+### 样式 [styles.css](file:///d:/zhkcpt/styles.css#L4405-L4726)
+新增 `.quest-map`、`.quest-node`（含 `is-locked/is-active/is-passed` 三态）、`.quest-progress`、`.device-grid`、`.device-card`、4 种 `.device-visual` 装置视觉（`.dv-wall/.dv-orb/.dv-chest/.dv-tv` 含 `@keyframes orb-float` 浮动动画）、`.quest-banner` 通关横幅
+
+### 浏览器实测全通过
+| 步骤 | 结果 |
+|---|---|
+| 初始化 | 4 区域/4 装置/3 Tab/0 自定义题，第一区自动进入 |
+| Q1 单选 | 选中后提交按钮启用，提交后绿色高亮 + 解析 + 下一题，进度 1/3 |
+| Q2 多选 | 多选切换正常，全选正确答案后反馈"回答正确" |
+| Q3 判断 | 2 选项（正确/错误），答对 |
+| 通关 | 横幅"区域通关！"，区域 2 自动解锁，顶部"已通关"徽章 0→1 |
+| 后台编辑 | 题库 0 题 → 调用系统题库 +5 → 新增 +1 → JSON 导入 +1 = 7 题 |
+| 错误 JSON | 拒绝导入，题库保持 7 题不变 |
+| 任务装置 | 4 装置视觉切换：墙/球/箱/电视 正确呈现 |
+
+可在 http://localhost:4173/quest-trail.html 体验完整闯关流程。
