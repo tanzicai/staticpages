@@ -1,0 +1,582 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>移动端 · 教师 · 知行课程平台</title>
+<link rel="stylesheet" href="./styles.css" />
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+<script src="./common.js"></script>
+</head>
+<body>
+  <main class="module-page"><div class="module-wrap">
+
+    <section class="module-header">
+      <div>
+        <p class="kicker">移动端 · 教师</p>
+        <h1>教师移动学情</h1>
+        <p>查看知识点教学资源总数、班级平均完成率与掌握率，点击学生查看学习与作业考试完成情况</p>
+      </div>
+      <div class="hint-banner" style="max-width:340px">
+        <i data-lucide="smartphone"></i>
+        <span>以下为移动端教师界面演示，点击底部四个 Tab 切换功能。</span>
+      </div>
+    </section>
+
+    <div class="phone-stage">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="phone-statusbar">
+            <span>9:41</span>
+            <span class="flex items-center gap-8">
+              <i data-lucide="activity" style="width:12px;height:12px"></i>
+              <i data-lucide="bar-chart-3" style="width:12px;height:12px"></i>
+            </span>
+          </div>
+          <div class="phone-header" id="phHeader"></div>
+          <div class="phone-body" id="phBody"></div>
+          <div class="phone-tabbar" id="phTabbar">
+            <button data-tab="resource">
+              <i data-lucide="library"></i><span>资源</span>
+            </button>
+            <button data-tab="class">
+              <i data-lucide="users"></i><span>班级</span>
+            </button>
+            <button data-tab="learn">
+              <i data-lucide="bar-chart-3"></i><span>学情</span>
+            </button>
+            <button data-tab="me">
+              <i data-lucide="user"></i><span>我的</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div></main>
+
+  <script>
+  (function () {
+    var P = window.Platform;
+    var S = P.Store.load();
+    var $ = P.$, $$ = P.$$, el = P.el, toast = P.toast, refreshIcons = P.refreshIcons;
+
+    var state = {
+      tab: "resource",
+      view: null,          // kp-detail / class-detail / student-detail
+      kpId: null,
+      classId: null,
+      studentId: null,
+      from: null           // 返回目标 tab（学情 → student-detail 时回到 learn landing）
+    };
+
+    var headerEl = $("#phHeader");
+    var bodyEl = $("#phBody");
+    var tabbarEl = $("#phTabbar");
+
+    /* ---------- 数据助手 ---------- */
+    function avg(arr, key) {
+      if (!arr || !arr.length) return 0;
+      var s = 0;
+      for (var i = 0; i < arr.length; i++) s += arr[i][key] || 0;
+      return Math.round(s / arr.length);
+    }
+    function kpList() {
+      return (S.graph.nodes || []).filter(function (n) { return n.type === "kp"; });
+    }
+    function kpById(id) {
+      return (S.graph.nodes || []).filter(function (n) { return n.id === id; })[0] || null;
+    }
+    function classById(id) {
+      return (S.classes || []).filter(function (c) { return c.id === id; })[0] || null;
+    }
+    function studentById(cls, id) {
+      return cls.students.filter(function (s) { return s.id === id; })[0] || null;
+    }
+    function resourceIcon(type) {
+      if (type === "video") return "layers";
+      if (type === "doc") return "file-text";
+      if (type === "quiz") return "clipboard-list";
+      return "file-text";
+    }
+    function makePressable(node, handler) {
+      node.addEventListener("click", handler);
+      node.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        handler();
+      });
+    }
+
+    /* ---------- 通用片段 ---------- */
+    function ringHTML(val, label, size, modifier) {
+      size = size || 86;
+      var cls = "ring" + (modifier ? " " + modifier : "");
+      return '<div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">' +
+        '<div class="' + cls + '" style="--val:' + val + ';--size:' + size + 'px">' +
+          '<svg viewBox="0 0 86 86"><circle class="track"></circle><circle class="fill"></circle></svg>' +
+          '<strong>' + val + '%</strong>' +
+        '</div>' +
+        '<span class="text-xs muted">' + label + '</span>' +
+      '</div>';
+    }
+
+    function avatarDot(s, size) {
+      size = size || 26;
+      return '<span style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;' +
+        'background:' + (s.color || "#147d6f") + ';color:#fff;display:grid;place-items:center;' +
+        'font-size:' + Math.round(size * 0.42) + 'px;font-weight:800;flex:0 0 ' + size + 'px">' +
+        (s.avatar || s.name.slice(0, 1)) + '</span>';
+    }
+
+    function studentRow(s, onClickExpr) {
+      return '<div class="phone-mini-row" data-student="' + s.id + '" role="button" tabindex="0" style="cursor:pointer;align-items:center;padding:9px 0;border-bottom:1px solid #eef1ec">' +
+        '<span class="flex items-center gap-8" style="min-width:0">' +
+          avatarDot(s, 24) +
+          '<span class="strong text-sm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + s.name + '</span>' +
+          (s.warned ? '<span class="badge badge-danger">预警</span>' : '') +
+        '</span>' +
+        '<span class="flex items-center gap-12 muted text-xs">' +
+          '<span>完成 ' + s.completion + '%</span>' +
+          '<span>掌握 ' + s.mastery + '%</span>' +
+          '<i data-lucide="chevron-right" style="width:14px;height:14px"></i>' +
+        '</span>' +
+      '</div>';
+    }
+
+    /* ---------- 学生搜索 / 筛选 ---------- */
+    var stuClsId = null, stuQ = "", stuWarn = "all";
+
+    function resetStudentFilterIfNeeded(clsId) {
+      if (stuClsId !== clsId) {
+        stuClsId = clsId;
+        stuQ = "";
+        stuWarn = "all";
+      }
+    }
+
+    function studentFilterHTML() {
+      var chips = [
+        { id: "all", label: "全部" },
+        { id: "warned", label: "已预警" },
+        { id: "normal", label: "正常" }
+      ].map(function (c) {
+        return '<button type="button" class="chip' + (stuWarn === c.id ? " is-active" : "") + '" data-wf="' + c.id + '">' + c.label + '</button>';
+      }).join("");
+      return '<div style="margin-bottom:10px">' +
+        '<div class="phone-search">' +
+          '<i data-lucide="search"></i>' +
+          '<input id="stuSearch" type="text" placeholder="搜索学生姓名" value="' + stuQ.replace(/"/g, "&quot;") + '" />' +
+        '</div>' +
+        '<div class="flex gap-8" style="margin-top:8px">' + chips + '</div>' +
+      '</div>';
+    }
+
+    function filteredStudents(students) {
+      return students.filter(function (s) {
+        if (stuQ && s.name.indexOf(stuQ) < 0) return false;
+        if (stuWarn === "warned" && !s.warned) return false;
+        if (stuWarn === "normal" && s.warned) return false;
+        return true;
+      });
+    }
+
+    function studentListCardHTML(cls, title) {
+      var list = filteredStudents(cls.students);
+      var html = '<div class="phone-card" id="stuListCard">' +
+        '<div class="flex-between" style="margin-bottom:4px">' +
+          '<h3>' + (title || "学生学情") + '</h3>' +
+          '<span class="text-xs muted">' + list.length + '/' + cls.students.length + ' 人</span>' +
+        '</div>';
+      if (!list.length) {
+        html += '<div class="empty-hint">没有匹配的学生</div>';
+      }
+      list.forEach(function (s) { html += studentRow(s); });
+      html += '</div>';
+      return html;
+    }
+
+    /* 仅刷新学生列表卡片，保持搜索框焦点不丢失 */
+    function renderStudentListOnly(cls, title) {
+      var card = $("#stuListCard");
+      if (!card) return;
+      card.outerHTML = studentListCardHTML(cls, title);
+      bindStudentRows(cls);
+      refreshIcons();
+    }
+
+    function bindStudentFilter(cls, title) {
+      var inp = $("#stuSearch");
+      if (inp) {
+        inp.addEventListener("input", function () {
+          stuQ = inp.value.trim();
+          renderStudentListOnly(cls, title);
+        });
+      }
+      $$("[data-wf]", bodyEl).forEach(function (b) {
+        b.addEventListener("click", function () {
+          stuWarn = b.getAttribute("data-wf");
+          $$("[data-wf]", bodyEl).forEach(function (x) {
+            x.classList.toggle("is-active", x.getAttribute("data-wf") === stuWarn);
+          });
+          P.haptic(6);
+          renderStudentListOnly(cls, title);
+        });
+      });
+    }
+
+    /* ---------- 渲染：头部 ---------- */
+    function renderHeader(title, sub, showBack) {
+      headerEl.innerHTML =
+        (showBack ? '<button class="icon-btn" id="phBack" type="button" title="返回" aria-label="返回" style="margin-right:10px"><i data-lucide="chevron-left"></i></button>' : '') +
+        '<div style="flex:1;min-width:0">' +
+          '<h2 style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + title + '</h2>' +
+          (sub ? '<p>' + sub + '</p>' : '') +
+        '</div>';
+      if (showBack) {
+        $("#phBack").addEventListener("click", goBack);
+      }
+    }
+
+    /* ---------- 渲染：Tab Bar ---------- */
+    function renderTabbar() {
+      $$("button", tabbarEl).forEach(function (b) {
+        b.classList.toggle("is-active", b.getAttribute("data-tab") === state.tab);
+      });
+    }
+
+    /* ---------- 视图：Tab 资源 (kp-detail) ---------- */
+    function viewResource() {
+      var kps = kpList();
+      var kp = state.kpId ? kpById(state.kpId) : (kps[0] || null);
+      if (!kp) {
+        renderHeader("教学资源", null, false);
+        bodyEl.innerHTML = '<div class="empty-hint">暂无知识点数据</div>';
+        return;
+      }
+      state.kpId = kp.id;
+      var res = (S.graph.resources && S.graph.resources[kp.id]) || [];
+      renderHeader("教学资源", "知识点教学资源总数", false);
+
+      var html = "";
+      // 知识点卡片
+      html += '<div class="phone-card">' +
+        '<div class="flex-between">' +
+          '<div class="flex items-center gap-8">' +
+            '<i data-lucide="layers" style="color:var(--teal)"></i>' +
+            '<div><div class="text-xs muted">知识点</div>' +
+            '<h3 style="margin:0;font-size:14px">' + kp.label + '</h3></div>' +
+          '</div>' +
+          '<span class="badge badge-info"><i data-lucide="circle-check"></i>' + res.length + ' 个资源</span>' +
+        '</div>' +
+      '</div>';
+
+      // 资源完整度环
+      html += '<div class="phone-card" style="display:flex;align-items:center;gap:14px">' +
+        ringHTML(80, "资源完整度", 76) +
+        '<div class="text-xs muted" style="flex:1">微课视频、讲义文档与章节测验资源齐备度参考值。</div>' +
+      '</div>';
+
+      // 知识点切换
+      if (kps.length > 1) {
+        var opts = kps.map(function (k) {
+          return '<option value="' + k.id + '"' + (k.id === kp.id ? ' selected' : '') + '>' + k.label + '</option>';
+        }).join("");
+        html += '<div class="phone-card">' +
+          '<label class="text-xs muted" style="display:block;margin-bottom:6px">切换知识点</label>' +
+          '<select class="select" id="kpSelect" style="font-size:12px">' + opts + '</select>' +
+        '</div>';
+      }
+
+      // 资源列表
+      html += '<div class="phone-card"><h3>教学资源</h3>';
+      if (res.length) {
+        res.forEach(function (r) {
+          html += '<div class="flex items-center gap-8" style="padding:9px 0;border-bottom:1px solid #eef1ec">' +
+            '<span class="ic" style="width:30px;height:30px;border-radius:7px;display:grid;place-items:center;background:var(--teal-soft);color:var(--teal);flex:0 0 30px">' +
+              '<i data-lucide="' + resourceIcon(r.type) + '"></i>' +
+            '</span>' +
+            '<div style="flex:1;min-width:0">' +
+              '<div class="text-sm strong" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + r.name + '</div>' +
+              '<div class="text-xs muted">' + (r.type === "video" ? "微课视频" : r.type === "doc" ? "文档" : "随堂测验") + '</div>' +
+            '</div>' +
+            '<i data-lucide="chevron-right" style="width:14px;height:14px;color:var(--ink-faint)"></i>' +
+          '</div>';
+        });
+      } else {
+        html += '<div class="empty-hint" style="padding:18px 0">该知识点暂未配置资源</div>';
+      }
+      html += '</div>';
+
+      bodyEl.innerHTML = html;
+      refreshIcons();
+
+      var sel = $("#kpSelect");
+      if (sel) {
+        sel.addEventListener("change", function () {
+          state.kpId = sel.value;
+          render();
+        });
+      }
+    }
+
+    /* ---------- 视图：Tab 班级 列表 ---------- */
+    function viewClassList() {
+      renderHeader("我的班级", "选择班级查看学情", false);
+      var html = "";
+      (S.classes || []).forEach(function (c) {
+        html += '<div class="phone-card" data-class="' + c.id + '" role="button" tabindex="0" style="cursor:pointer;display:flex;align-items:center;gap:10px">' +
+          '<span class="ic" style="width:34px;height:34px;border-radius:8px;display:grid;place-items:center;background:var(--teal-soft);color:var(--teal);flex:0 0 34px">' +
+            '<i data-lucide="users"></i>' +
+          '</span>' +
+          '<div style="flex:1;min-width:0">' +
+            '<h3 style="margin:0;font-size:13px">' + c.name + '</h3>' +
+            '<div class="text-xs muted">' + c.course + ' · ' + c.students.length + ' 人</div>' +
+          '</div>' +
+          '<i data-lucide="chevron-right" style="width:15px;height:15px;color:var(--ink-faint)"></i>' +
+        '</div>';
+      });
+      bodyEl.innerHTML = html;
+      refreshIcons();
+      $$("[data-class]", bodyEl).forEach(function (card) {
+        makePressable(card, function () {
+          P.haptic(6);
+          state.classId = card.getAttribute("data-class");
+          state.view = "class-detail";
+          state.from = "class";
+          render();
+        });
+      });
+    }
+
+    /* ---------- 视图：班级详情 ---------- */
+    function viewClassDetail() {
+      var cls = classById(state.classId);
+      if (!cls) { state.view = null; render(); return; }
+      resetStudentFilterIfNeeded(cls.id);
+      renderHeader(cls.name, cls.course + " · 班级学情", true);
+
+      var avgComp = avg(cls.students, "completion");
+      var avgMast = avg(cls.students, "mastery");
+      var warnedCount = cls.students.filter(function (s) { return s.warned; }).length;
+
+      var html = "";
+      // 双环
+      html += '<div class="phone-card" style="display:flex;justify-content:space-around;align-items:center">' +
+        ringHTML(avgComp, "平均完成率", 78) +
+        ringHTML(avgMast, "平均掌握率", 78) +
+      '</div>';
+      // 统计行
+      html += '<div class="flex gap-8" style="margin-bottom:11px">' +
+        '<div class="stat-tile" style="flex:1;padding:11px;gap:9px"><span class="ic"><i data-lucide="users"></i></span>' +
+          '<div><strong style="font-size:16px">' + cls.students.length + '</strong><small>班级人数</small></div></div>' +
+        '<div class="stat-tile danger" style="flex:1;padding:11px;gap:9px"><span class="ic"><i data-lucide="alert-triangle"></i></span>' +
+          '<div><strong style="font-size:16px">' + warnedCount + '</strong><small>已预警人数</small></div></div>' +
+      '</div>';
+      // 搜索筛选 + 学生列表
+      html += studentFilterHTML();
+      html += studentListCardHTML(cls, "学生学情");
+
+      bodyEl.innerHTML = html;
+      refreshIcons();
+      bindStudentRows(cls);
+      bindStudentFilter(cls, "学生学情");
+    }
+
+    /* ---------- 视图：Tab 学情 landing ---------- */
+    function viewLearnLanding() {
+      var cls = S.classes && S.classes[0];
+      if (!cls) {
+        renderHeader("班级学情", null, false);
+        bodyEl.innerHTML = '<div class="empty-hint">暂无班级数据</div>';
+        return;
+      }
+      state.classId = cls.id;
+      state.from = "learn";
+      resetStudentFilterIfNeeded(cls.id);
+      renderHeader("班级学情", cls.name + " · " + cls.course, false);
+
+      var avgComp = avg(cls.students, "completion");
+      var avgMast = avg(cls.students, "mastery");
+      var warnedCount = cls.students.filter(function (s) { return s.warned; }).length;
+
+      var html = "";
+      html += '<div class="phone-card" style="display:flex;justify-content:space-around;align-items:center">' +
+        ringHTML(avgComp, "平均完成率", 78) +
+        ringHTML(avgMast, "平均掌握率", 78) +
+      '</div>';
+      html += '<div class="flex gap-8" style="margin-bottom:11px">' +
+        '<div class="stat-tile" style="flex:1;padding:11px;gap:9px"><span class="ic"><i data-lucide="users"></i></span>' +
+          '<div><strong style="font-size:16px">' + cls.students.length + '</strong><small>班级人数</small></div></div>' +
+        '<div class="stat-tile danger" style="flex:1;padding:11px;gap:9px"><span class="ic"><i data-lucide="alert-triangle"></i></span>' +
+          '<div><strong style="font-size:16px">' + warnedCount + '</strong><small>已预警人数</small></div></div>' +
+      '</div>';
+      html += '<div class="hint-banner" style="margin-bottom:11px"><i data-lucide="trending-up"></i>' +
+        '<span>点击任一学生查看学习内容、作业与考试完成情况。</span></div>';
+      html += studentFilterHTML();
+      html += studentListCardHTML(cls, "学生列表");
+
+      bodyEl.innerHTML = html;
+      refreshIcons();
+      bindStudentRows(cls);
+      bindStudentFilter(cls, "学生列表");
+    }
+
+    /* ---------- 视图：学生详情 ---------- */
+    function viewStudentDetail() {
+      var cls = classById(state.classId);
+      if (!cls) { state.view = null; render(); return; }
+      var s = studentById(cls, state.studentId);
+      if (!s) { state.view = null; render(); return; }
+
+      var headerTitleHTML = avatarDot(s, 22) + '<span style="margin-left:6px">' + s.name + '</span>';
+      renderHeader('<span class="flex items-center" style="min-width:0">' + headerTitleHTML + '</span>', cls.name, true);
+
+      var html = "";
+      // 顶部卡片
+      html += '<div class="phone-card" style="display:flex;align-items:center;gap:11px">' +
+        avatarDot(s, 40) +
+        '<div style="flex:1;min-width:0">' +
+          '<h3 style="margin:0;font-size:14px">' + s.name + '</h3>' +
+          '<div class="text-xs muted">' + cls.name + ' · ' + cls.course + '</div>' +
+        '</div>' +
+        (s.warned ? '<span class="badge badge-danger"><i data-lucide="alert-triangle"></i>已纳入预警</span>' : '<span class="badge badge-ok"><i data-lucide="circle-check"></i>正常</span>') +
+      '</div>';
+
+      // 三环
+      html += '<div class="phone-card" style="display:flex;justify-content:space-around;align-items:flex-start;flex-wrap:wrap;gap:8px">' +
+        ringHTML(s.completion, "学习内容完成", 64) +
+        ringHTML(s.tasks, "作业完成", 64, s.tasks < 60 ? "ring-warn" : "") +
+        ringHTML(s.exams, "考试完成", 64, s.exams < 60 ? "ring-danger" : "") +
+      '</div>';
+
+      // 详细指标列表
+      html += '<div class="phone-card"><h3 style="margin-bottom:6px">学习指标</h3>';
+      html += rowItem("访问活跃度", s.access + "%", "clock");
+      html += rowItem("综合成绩", s.score + " 分", "bar-chart-3");
+      html += rowItem("任务点完成", s.completion + "%", "circle-check");
+      html += rowItem("章节测验掌握", s.mastery + "%", "clipboard-list");
+      html += '</div>';
+
+      // 发送提醒
+      html += '<button class="btn btn-primary btn-block" id="remindBtn" style="margin-top:4px">' +
+        '<i data-lucide="bell"></i>发送提醒</button>';
+
+      bodyEl.innerHTML = html;
+      refreshIcons();
+
+      $("#remindBtn").addEventListener("click", function () {
+        toast("已通过短信+微信提醒该生", "circle-check");
+        if (!s.reminded) {
+          s.reminded = true;
+          P.Store.save();
+        }
+      });
+    }
+
+    function rowItem(label, value, icon) {
+      return '<div class="phone-mini-row" style="padding:9px 0;border-bottom:1px solid #eef1ec">' +
+        '<span class="flex items-center gap-8 muted"><i data-lucide="' + icon + '" style="width:14px;height:14px"></i>' + label + '</span>' +
+        '<span class="strong text-sm">' + value + '</span>' +
+      '</div>';
+    }
+
+    /* ---------- 视图：Tab 我的 ---------- */
+    function viewMe() {
+      renderHeader("我的", "教师个人中心", false);
+      var html = "";
+      html += '<div class="phone-card" style="display:flex;align-items:center;gap:12px">' +
+        '<span style="width:48px;height:48px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:18px;font-weight:800;flex:0 0 48px">宋</span>' +
+        '<div style="flex:1;min-width:0">' +
+          '<h3 style="margin:0;font-size:15px">宋清和</h3>' +
+          '<div class="text-xs muted">教师 · 计算机学院</div>' +
+        '</div>' +
+        '<span class="badge badge-info"><i data-lucide="graduation-cap"></i>在岗</span>' +
+      '</div>';
+
+      html += '<div class="phone-card"><h3 style="margin-bottom:6px">教学概览</h3>';
+      html += rowItem("授课班级", (S.classes || []).length + " 个", "users");
+      html += rowItem("授课课程", (S.courses || []).length + " 门", "book-open");
+      html += rowItem("知识点资源", Object.keys(S.graph.resources || {}).reduce(function (a, k) {
+        return a + ((S.graph.resources[k] || []).length);
+      }, 0) + " 项", "layers");
+      html += '</div>';
+
+      html += '<div class="hint-banner"><i data-lucide="smartphone"></i>' +
+        '<span>支持随时随地的个性化学习与学情跟进。</span></div>';
+
+      bodyEl.innerHTML = html;
+      refreshIcons();
+    }
+
+    /* ---------- 学生行绑定 ---------- */
+    function bindStudentRows(cls) {
+      $$("[data-student]", bodyEl).forEach(function (row) {
+        makePressable(row, function () {
+          P.haptic(6);
+          state.studentId = row.getAttribute("data-student");
+          state.view = "student-detail";
+          render();
+        });
+      });
+    }
+
+    /* ---------- 返回逻辑 ---------- */
+    function goBack() {
+      if (state.view === "student-detail") {
+        if (state.from === "learn") {
+          state.view = null;            // 回到学情 landing
+        } else {
+          state.view = "class-detail";  // 回到班级详情
+        }
+      } else if (state.view === "class-detail") {
+        state.view = null;              // 回到班级列表
+      } else {
+        state.view = null;
+      }
+      render();
+    }
+
+    /* ---------- 主渲染 ---------- */
+    function render() {
+      renderTabbar();
+      if (state.tab === "resource") {
+        viewResource();
+      } else if (state.tab === "class") {
+        if (state.view === "class-detail") viewClassDetail();
+        else if (state.view === "student-detail") viewStudentDetail();
+        else viewClassList();
+      } else if (state.tab === "learn") {
+        if (state.view === "student-detail") viewStudentDetail();
+        else viewLearnLanding();
+      } else if (state.tab === "me") {
+        viewMe();
+      }
+    }
+
+    /* ---------- Tab 切换 ---------- */
+    $$("button", tabbarEl).forEach(function (b) {
+      b.addEventListener("click", function () {
+        var t = b.getAttribute("data-tab");
+        if (t === state.tab) return;
+        P.haptic(8);
+        state.tab = t;
+        state.view = (t === "resource") ? "kp-detail" : null;
+        state.studentId = null;
+        render();
+      });
+    });
+
+    /* 边缘右滑返回上一级 */
+    P.enableSwipeBack(bodyEl, function () {
+      if (state.view && state.view !== "kp-detail") goBack();
+    });
+
+    // 初始：资源 Tab 默认即 kp-detail
+    state.view = "kp-detail";
+    render();
+  })();
+  </script>
+</body>
+</html>

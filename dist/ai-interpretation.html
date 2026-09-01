@@ -1,0 +1,508 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 图书解读与文献解析 · 知行课程平台</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+    <script src="./common.js"></script>
+  </head>
+  <body>
+    <main class="module-page">
+      <div class="module-wrap">
+        <section class="module-header">
+          <div>
+            <p class="kicker">AI 解读</p>
+            <h1>图书 AI 解读与文献解析</h1>
+            <p>
+              大模型快速阅读理解文献，自动生成词云、摘要、脑图、试题，并支持基于自然对话方式的问题回答。
+            </p>
+          </div>
+          <div class="flex gap-8">
+            <button class="btn btn-soft" id="regenBtn" type="button">
+              <i data-lucide="refresh-ccw"></i> 重新生成
+            </button>
+            <button class="btn btn-primary" id="uploadBtn" type="button">
+              <i data-lucide="upload"></i> 上传文献由AI解析
+            </button>
+            <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" hidden />
+          </div>
+        </section>
+
+        <div class="module-grid cols-2-uneven">
+          <!-- 左：图书列表 -->
+          <section class="panel" style="align-self: start">
+            <div class="panel-head">
+              <div>
+                <h2>图书与文献</h2>
+                <p class="sub" id="bookCount">共 0 本</p>
+              </div>
+              <span class="badge badge-info"><i data-lucide="sparkles"></i> AI 解读</span>
+            </div>
+            <div class="panel-body flush scroll-y" id="bookList" style="max-height: 600px"></div>
+          </section>
+
+          <!-- 右：解读结果 -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 id="resultTitle">选择一本图书</h2>
+              <span class="badge badge-purple" id="bookCat">—</span>
+            </div>
+            <div class="tabs" id="tabs" style="margin: 0 0 16px">
+              <button class="tab is-active" data-tab="cloud">词云</button>
+              <button class="tab" data-tab="summary">摘要</button>
+              <button class="tab" data-tab="mindmap">脑图</button>
+              <button class="tab" data-tab="quiz">试题</button>
+              <button class="tab" data-tab="chat">问答</button>
+            </div>
+            <div class="panel-body">
+              <div class="tab-panel is-active" id="panel-cloud"></div>
+              <div class="tab-panel" id="panel-summary"></div>
+              <div class="tab-panel" id="panel-mindmap"></div>
+              <div class="tab-panel" id="panel-quiz"></div>
+              <div class="tab-panel" id="panel-chat"></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var S = Platform.Store.load();
+        var $ = Platform.$,
+          $$ = Platform.$$,
+          el = Platform.el,
+          toast = Platform.toast,
+          R = Platform.refreshIcons;
+
+        var state = { bookId: null, tab: "cloud", quizKey: null };
+
+        var COLORS = ["#147d6f", "#3e72ad", "#6a5fb0", "#d99119", "#e46f55", "#478a65", "#b5549a"];
+
+        /* ---------- 内容生成器（基于图书类别/标题，演示用） ---------- */
+        function topicSet(book) {
+          var cat = book.category;
+          var map = {
+            算法: ["算法分析", "渐进复杂度", "分治法", "动态规划", "贪心", "图算法", "排序", "哈希", "递归", "主方法", "栈与队列", "树", "遍历", "回溯", "NP 完全"],
+            系统: ["进程", "线程", "CPU 调度", "内存管理", "虚拟内存", "文件系统", "I/O", "死锁", "并发", "系统调用", "页置换", "磁盘调度", "内核", "引导", "安全"],
+            网络: ["分层模型", "TCP", "UDP", "IP 编址", "路由", "拥塞控制", "HTTP", "DNS", "套接字", "三次握手", "NAT", "TLS", "BGP", "ARP", "CDN"],
+            数据库: ["关系模型", "SQL", "事务", "并发控制", "索引", "查询优化", "范式", "ACID", "锁", "日志", "存储引擎", "视图", "触发器", "分库分表", "一致性"],
+            工程: ["需求", "架构", "设计模式", "测试", "重构", "敏捷", "版本控制", "持续集成", "代码评审", "耦合", "内聚", "重构", "规范", "协作", "度量"],
+            智能: ["监督学习", "神经网络", "反向传播", "过拟合", "正则化", "决策树", "支持向量机", "聚类", "梯度下降", "卷积", "注意力", "强化学习", "特征工程", "评估", "生成模型"],
+            数学: ["集合", "逻辑", "图论", "组合", "概率", "随机变量", "矩阵", "线性空间", "特征值", "期望", "大数定律", "极限", "证明", "递推", "生成函数"],
+            图形: ["渲染管线", "光照", "着色", "纹理", "变换", "投影", "裁剪", "光栅化", "阴影", "抗锯齿", "几何", "动画", "碰撞", "着色器", "视锥"],
+            编译: ["词法分析", "语法分析", "语义分析", "中间代码", "优化", "目标生成", "AST", "符号表", "类型检查", "寄存器分配", "运行时", "垃圾回收", "解释执行", "链接", "装载"],
+            综合: ["概念", "原理", "方法", "案例", "实践", "评估", "发展", "趋势", "应用", "对比", "建模", "设计", "实现", "优化", "总结"],
+            架构: ["分层", "依赖", "边界", "用例", "实体", "接口", "适配器", "策略", "领域", "映射", "稳定性", "耦合", "可测试", "演进", "权衡"]
+          };
+          return map[cat] || map.综合;
+        }
+
+        function wordsFor(book) {
+          var t = topicSet(book);
+          return t.slice(0, 16).map(function (w, i) {
+            return { word: w, weight: 16 - i };
+          });
+        }
+        function summaryFor(book) {
+          var t = topicSet(book);
+          var para =
+            "本书以《" + book.title +
+            "》为主线，系统梳理 " + t.slice(0, 4).join("、") +
+            " 等核心内容，强调原理与实践并重。作者通过典型示例与渐进式推演，帮助读者建立完整知识脉络，并兼顾工程落地与前沿进展，适合系统学习与查阅参考。";
+          var bullets = t.slice(0, 4).map(function (w) {
+            return w + " 的基本概念、关键方法与典型应用场景";
+          });
+          return { para: para, bullets: bullets };
+        }
+        function mindmapFor(book) {
+          var t = topicSet(book).slice(0, 4);
+          return { root: book.title, branches: t };
+        }
+        function quizFor(book) {
+          var t = topicSet(book);
+          return [
+            {
+              q: "关于“" + t[0] + "”，下列说法最准确的是？",
+              opts: [t[0] + "是本书的核心主线之一", t[0] + "仅出现在附录", t[0] + "与主题无关", t[0] + "只适用于特定语言"],
+              ans: 0
+            },
+            {
+              q: "本书强调的学习方法是？",
+              opts: ["原理与实践并重", "只背诵定义", "仅看代码", "跳过示例"],
+              ans: 0
+            },
+            {
+              q: "下列哪一项属于本书覆盖范围？",
+              opts: [t[1] || "概念", "占星术", "菜谱", "旅游攻略"],
+              ans: 0
+            }
+          ];
+        }
+        function chatAnswer(book, q) {
+          var t = topicSet(book);
+          if (/核心|主线|主要/.test(q)) return "本书核心围绕 " + t.slice(0, 3).join("、") + " 展开，强调原理与工程并重。";
+          if (/读者|适合|谁/.test(q)) return "适合计算机相关专业学生及希望系统进阶的工程师阅读。";
+          if (/总结|三句|概括/.test(q)) return "三句话总结：①建立 " + t[0] + " 完整脉络；②以示例驱动理解；③兼顾前沿与落地。";
+          if (q.indexOf(t[0]) >= 0) return "“" + t[0] + "”是贯穿全书的关键概念，涉及定义、方法与典型应用，建议结合脑图第 1 分支深入。";
+          return "基于《" + book.title + "》的内容：这是一个很好的问题，本书在 " + t.slice(0, 3).join("、") + " 等章节有详细讨论，建议先阅读摘要再深入对应章节。";
+        }
+
+        /* ---------- 渲染：图书列表 ---------- */
+        function renderBookList() {
+          var list = $("#bookList");
+          list.innerHTML = "";
+          $("#bookCount").textContent = "共 " + S.books.length + " 本";
+          S.books.forEach(function (b) {
+            var row = el("button", {
+              type: "button",
+              class: "org-node" + (b.id === state.bookId ? " is-selected" : ""),
+              style: "width:100%;text-align:left;border:0;background:" + (b.id === state.bookId ? "var(--teal-soft)" : "transparent") + ";border-bottom:1px solid var(--line);padding:11px 14px;cursor:pointer"
+            });
+            row.innerHTML =
+              '<span style="display:inline-block;width:6px;height:30px;border-radius:3px;background:' + b.color + ';flex:0 0 6px"></span>' +
+              '<span style="min-width:0;flex:1">' +
+              "<strong style=\"display:block;font-size:13px\">" + b.title + "</strong>" +
+              '<small class="muted text-xs">' + b.author + " · " + b.category + "</small></span>" +
+              '<i data-lucide="chevron-right" style="width:14px;height:14px;color:var(--ink-faint)"></i>';
+            row.addEventListener("click", function () {
+              selectBook(b.id);
+            });
+            list.appendChild(row);
+          });
+          R();
+        }
+
+        /* ---------- 选中图书 ---------- */
+        function selectBook(id) {
+          state.bookId = id;
+          var book = bookById(id);
+          $("#resultTitle").textContent = book.title;
+          $("#bookCat").textContent = book.category;
+          renderBookList();
+          // AI 解读中
+          showLoading();
+          setTimeout(function () {
+            renderActive();
+          }, 700);
+        }
+        function bookById(id) {
+          return S.books.filter(function (b) { return b.id === id; })[0] || S.books[0];
+        }
+        function showLoading() {
+          ["cloud", "summary", "mindmap", "quiz", "chat"].forEach(function (t) {
+            var panel = $("#panel-" + t);
+            panel.innerHTML = "";
+            panel.appendChild(Platform.skeleton(5));
+          });
+        }
+
+        /* ---------- 标签切换 ---------- */
+        $$("#tabs .tab").forEach(function (tab) {
+          tab.addEventListener("click", function () {
+            state.tab = tab.dataset.tab;
+            $$("#tabs .tab").forEach(function (x) {
+              x.classList.toggle("is-active", x === tab);
+            });
+            $$(".tab-panel").forEach(function (p) {
+              p.classList.remove("is-active");
+            });
+            $("#panel-" + state.tab).classList.add("is-active");
+            renderActive();
+          });
+        });
+
+        function renderActive() {
+          if (!state.bookId) return;
+          var fns = { cloud: renderCloud, summary: renderSummary, mindmap: renderMindmap, quiz: renderQuiz, chat: renderChat };
+          fns[state.tab]();
+        }
+
+        /* ---------- 词云 ---------- */
+        function renderCloud() {
+          var book = bookById(state.bookId);
+          var words = wordsFor(book);
+          var panel = $("#panel-cloud");
+          panel.innerHTML = '<div class="word-cloud" id="cloudBox"></div>' +
+            '<div class="cloud-legend">' +
+              '<span>词频权重：</span>' +
+              '<span><span class="dot dot-1"></span>高频核心词</span>' +
+              '<span><span class="dot dot-2"></span>中频关键词</span>' +
+              '<span><span class="dot dot-3"></span>低频词</span>' +
+            "</div>" +
+            '<p class="text-xs muted" style="text-align:center;margin-top:8px">点击关键词可加入问答上下文</p>';
+          var box = $("#cloudBox");
+          words.forEach(function (w) {
+            var level = w.weight >= 12 ? " w-hi" : w.weight >= 7 ? " w-mid" : "";
+            var s = el("span", {
+              class: "cloud-word" + level,
+              style: "font-size:" + (13 + w.weight * 1.6) + "px"
+            });
+            s.textContent = w.word;
+            s.addEventListener("click", function () {
+              toast("已将「" + w.word + "」加入问答上下文", "sparkles");
+            });
+            box.appendChild(s);
+          });
+          R();
+        }
+
+        /* ---------- 摘要 ---------- */
+        function renderSummary() {
+          var book = bookById(state.bookId);
+          var s = summaryFor(book);
+          var panel = $("#panel-summary");
+          panel.innerHTML =
+            '<div class="panel" style="background:var(--surface-muted);border-color:var(--line)"><div class="panel-body">' +
+            '<p class="kicker">AI 摘要</p><p style="margin:0;font-size:13px;line-height:1.8;color:var(--ink-soft)">' +
+            s.para + "</p></div></div>" +
+            '<h4 style="margin:16px 0 8px;font-size:13px">关键要点</h4><ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.9;color:var(--ink-soft)"></ul>';
+          var ul = panel.querySelector("ul");
+          s.bullets.forEach(function (b) {
+            var li = el("li", {}, b);
+            ul.appendChild(li);
+          });
+        }
+
+        /* ---------- 脑图 ---------- */
+        function renderMindmap() {
+          var book = bookById(state.bookId);
+          var m = mindmapFor(book);
+          var W = 640,
+            H = 320;
+          var rootX = 30,
+            rootY = H / 2 - 18;
+          var branchY = m.branches.map(function (_, i) {
+            return 40 + i * 70;
+          });
+          var bX = 360;
+          var svg =
+            '<svg viewBox="0 0 ' + W + " " + H + '" xmlns="http://www.w3.org/2000/svg">';
+          m.branches.forEach(function (br, i) {
+            var y = branchY[i] + 14;
+            svg +=
+              '<path class="mm-branch" d="M' + (rootX + 130) + " " + (rootY + 18) + " C 240 " + (rootY + 18) + ", 240 " + y + ", " + bX + " " + y + '"/>';
+            svg +=
+              '<rect class="mm-node" x="' + bX + '" y="' + branchY[i] + '" width="220" height="30"></rect>';
+            svg +=
+              '<text x="' + (bX + 14) + '" y="' + (branchY[i] + 20) + '">' + br + "</text>";
+          });
+          svg += '<rect class="mm-node root" x="' + rootX + '" y="' + rootY + '" width="130" height="36"></rect>';
+          svg += '<text x="' + (rootX + 10) + '" y="' + (rootY + 22) + '">' + (m.root.length > 8 ? m.root.slice(0, 8) + "…" : m.root) + "</text>";
+          svg += "</svg>";
+          $("#panel-mindmap").innerHTML = '<div class="mindmap">' + svg + "</div>";
+        }
+
+        /* ---------- 试题 ---------- */
+        function renderQuiz() {
+          var book = bookById(state.bookId);
+          var qs = quizFor(book);
+          state.quizKey = qs.map(function (q) { return q.ans; });
+          var panel = $("#panel-quiz");
+          panel.innerHTML = "";
+
+          // 得分横幅（提交后展示）
+          var scoreBox = el("div", {
+            class: "panel",
+            style: "display:none;margin-bottom:12px;background:var(--teal-soft);border-color:#cfe7df"
+          });
+          scoreBox.innerHTML =
+            '<div class="panel-body" style="display:flex;align-items:center;gap:10px;padding:12px 16px">' +
+            '<i data-lucide="circle-check" style="color:var(--teal);flex:0 0 auto"></i>' +
+            '<strong style="font-size:13px;color:var(--teal-dark)"></strong>' +
+            "</div>";
+          panel.appendChild(scoreBox);
+
+          qs.forEach(function (q, qi) {
+            var card = el("div", { class: "panel q-card", style: "margin-bottom:12px" });
+            card.innerHTML =
+              '<div class="panel-body"><p style="margin:0 0 10px;font-size:13px;font-weight:700">' +
+              (qi + 1) + ". " + q.q + '</p><div class="q-opts"></div><div class="quiz-feedback" hidden></div></div>';
+            var optsBox = card.querySelector(".q-opts");
+            q.opts.forEach(function (opt, oi) {
+              var lbl = el("label", { class: "quiz-opt" });
+              lbl.innerHTML =
+                '<input type="radio" name="q' + qi + '" value="' + oi + '" style="margin:0;flex:0 0 auto" />' +
+                '<span style="flex:1">' + opt + '</span><span class="mark"></span>';
+              optsBox.appendChild(lbl);
+            });
+            card._q = q;
+            panel.appendChild(card);
+          });
+
+          var foot = el("div", { class: "flex gap-8 mt-12" });
+          var submit = el("button", { class: "btn btn-primary", type: "button" });
+          submit.innerHTML = '<i data-lucide="check"></i> 提交答卷';
+          var regen = el("button", { class: "btn btn-ghost", type: "button" });
+          regen.innerHTML = '<i data-lucide="refresh-ccw"></i> 重新生成试题';
+          regen.addEventListener("click", function () {
+            toast("AI 已重新生成试题", "refresh-ccw");
+            renderQuiz();
+          });
+          submit.addEventListener("click", function () {
+            var score = 0, unanswered = 0;
+            Array.prototype.forEach.call(panel.querySelectorAll(".q-card"), function (card) {
+              var q = card._q;
+              var fb = card.querySelector(".quiz-feedback");
+              var opts = card.querySelectorAll(".quiz-opt");
+              var sel = card.querySelector("input:checked");
+              if (!sel) {
+                unanswered++;
+                fb.hidden = false;
+                fb.className = "quiz-feedback bad";
+                fb.innerHTML = '<i data-lucide="alert-triangle"></i>本题未作答，正确答案已标出';
+                Array.prototype.forEach.call(opts, function (o, oi) {
+                  o.querySelector("input").disabled = true;
+                  if (oi === q.ans) o.classList.add("is-correct");
+                  else o.classList.add("is-dim");
+                  if (oi === q.ans) o.querySelector(".mark").innerHTML = '<i data-lucide="circle-check"></i>';
+                });
+                return;
+              }
+              var selVal = parseInt(sel.value, 10);
+              Array.prototype.forEach.call(opts, function (o, oi) {
+                o.querySelector("input").disabled = true;
+                if (oi === q.ans) {
+                  o.classList.add("is-correct");
+                  o.querySelector(".mark").innerHTML = '<i data-lucide="circle-check"></i>';
+                } else if (oi === selVal) {
+                  o.classList.add("is-wrong");
+                  o.querySelector(".mark").innerHTML = '<i data-lucide="x"></i>';
+                } else {
+                  o.classList.add("is-dim");
+                }
+              });
+              if (selVal === q.ans) score++;
+              fb.hidden = false;
+              fb.className = "quiz-feedback " + (selVal === q.ans ? "ok" : "bad");
+              fb.innerHTML = selVal === q.ans
+                ? '<i data-lucide="circle-check"></i>回答正确'
+                : '<i data-lucide="x"></i>回答错误，正确答案已标出';
+            });
+            scoreBox.style.display = "block";
+            scoreBox.querySelector("strong").textContent =
+              "本次得分 " + score + "/" + qs.length +
+              (unanswered ? " · 含 " + unanswered + " 题未作答" : " · 已全部作答");
+            submit.disabled = true;
+            submit.innerHTML = '<i data-lucide="check"></i> 已提交';
+            toast("答卷已提交，得分 " + score + "/" + qs.length, "circle-check");
+            R();
+          });
+          foot.appendChild(submit);
+          foot.appendChild(regen);
+          panel.appendChild(foot);
+          R();
+        }
+
+        /* ---------- 问答 ---------- */
+        function chatKey() { return state.bookId || "b1"; }
+        function ensureChat() {
+          if (!S.chat[chatKey()]) S.chat[chatKey()] = [];
+          return S.chat[chatKey()];
+        }
+        function renderChat() {
+          var book = bookById(state.bookId);
+          var panel = $("#panel-chat");
+          panel.innerHTML =
+            '<div class="chat-window">' +
+            '<div class="chat-messages" id="chatMsgs"></div>' +
+            '<div class="chat-suggestions" id="chatSugg"></div>' +
+            '<div class="chat-input">' +
+            '<textarea id="chatInput" placeholder="向 AI 提问本书相关内容…" rows="1"></textarea>' +
+            '<button class="btn btn-soft" id="chatSend" type="button"><i data-lucide="send"></i></button>' +
+            "</div></div>";
+          var msgs = $("#chatMsgs");
+          var hist = ensureChat();
+          if (!hist.length) {
+            hist.push({ role: "ai", text: "我是《" + book.title + "》的 AI 解读助手，可基于本书内容回答你的问题。" });
+            Platform.Store.save();
+          }
+          function append(m) {
+            var node = el("div", { class: "chat-msg" + (m.role === "me" ? " me" : "") });
+            node.innerHTML =
+              '<span class="av ' + (m.role === "me" ? "me" : "ai") + '">' + (m.role === "me" ? "我" : "AI") + "</span>" +
+              '<span class="bubble"></span>';
+            node.querySelector(".bubble").textContent = m.text;
+            msgs.appendChild(node);
+            msgs.scrollTop = msgs.scrollHeight;
+          }
+          hist.forEach(append);
+          // suggestions
+          var sugg = ["核心内容是什么？", "适合什么读者？", "用三句话总结"];
+          var sBox = $("#chatSugg");
+          sugg.forEach(function (s) {
+            var c = el("button", { class: "chip", type: "button" });
+            c.textContent = s;
+            c.addEventListener("click", function () { send(s); });
+            sBox.appendChild(c);
+          });
+          function send(text) {
+            text = (text || "").trim();
+            if (!text) return;
+            hist.push({ role: "me", text: text });
+            append({ role: "me", text: text });
+            $("#chatInput").value = "";
+            // typing
+            var typing = el("div", { class: "chat-msg" });
+            typing.innerHTML = '<span class="av ai">AI</span><span class="bubble"><span class="typing"><span></span><span></span><span></span></span></span>';
+            msgs.appendChild(typing);
+            msgs.scrollTop = msgs.scrollHeight;
+            setTimeout(function () {
+              typing.remove();
+              var ans = chatAnswer(book, text);
+              hist.push({ role: "ai", text: ans });
+              Platform.Store.save();
+              append({ role: "ai", text: ans });
+            }, 900);
+          }
+          $("#chatSend").addEventListener("click", function () { send($("#chatInput").value); });
+          $("#chatInput").addEventListener("keydown", function (e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              send(e.target.value);
+            }
+          });
+          R();
+        }
+
+        /* ---------- 重新生成 ---------- */
+        $("#regenBtn").addEventListener("click", function () {
+          if (!state.bookId) { toast("请先选择一本图书", "info"); return; }
+          toast("AI 已重新解读本书", "refresh-ccw");
+          showLoading();
+          setTimeout(renderActive, 600);
+        });
+
+        /* ---------- 上传文献 ---------- */
+        $("#uploadBtn").addEventListener("click", function () { $("#fileInput").click(); });
+        $("#fileInput").addEventListener("change", function (e) {
+          var f = e.target.files[0];
+          if (!f) return;
+          var name = f.name.replace(/\.[^.]+$/, "");
+          var id = "b" + (S.books.length + 1);
+          S.books.push({
+            id: id,
+            title: name,
+            author: "待标注",
+            category: "文献",
+            color: COLORS[S.books.length % COLORS.length],
+            imported: true,
+            sliced: 0,
+            trained: true
+          });
+          Platform.Store.save();
+          renderBookList();
+          selectBook(id);
+          toast("文献已上传，AI 解析完成", "sparkles");
+          e.target.value = "";
+        });
+
+        /* ---------- 初始化 ---------- */
+        renderBookList();
+        selectBook(S.books[0].id);
+      });
+    </script>
+  </body>
+</html>

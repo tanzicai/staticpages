@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>答题闯关 / 知行课程平台</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+    <script src="./common.js"></script>
+  </head>
+  <body>
+    <main class="module-page">
+      <div class="module-wrap">
+        <section class="module-header">
+          <div>
+            <p class="kicker">答题闯关</p>
+            <h1>答题闯关与多模态任务装置</h1>
+            <p>单选 / 多选 / 判断多题型区域闯关，完成当前区域方可解锁下一展区；任务墙、知识光球、宝箱、互动电视等多模态任务触发器，构建游戏化学习体验；后台支持自定义题库编辑、调用系统默认题库与外部导入。</p>
+          </div>
+          <div class="flex gap-8 items-center">
+            <span class="badge badge-info"><i data-lucide="route"></i> 区域 <strong id="hdrZones">0</strong></span>
+            <span class="badge badge-ok"><i data-lucide="circle-check"></i> 已通关 <strong id="hdrPassed">0</strong></span>
+            <span class="badge badge-purple"><i data-lucide="database"></i> 自定义题库 <strong id="hdrCustom">0</strong></span>
+          </div>
+        </section>
+
+        <div class="tabs" id="qtTabs" style="margin-bottom: 18px">
+          <button class="tab is-active" data-tab="t1">闯关答题</button>
+          <button class="tab" data-tab="t2">任务装置</button>
+          <button class="tab" data-tab="t3">后台编辑</button>
+        </div>
+
+        <!-- ============ Tab1 闯关答题 ============ -->
+        <div class="tab-panel is-active" id="t1">
+          <!-- 闯关地图 -->
+          <div class="hint-banner" style="margin-bottom: 14px">
+            <i data-lucide="map"></i>
+            <span>当前区域完成后自动解锁下一展区，每个展区绑定不同任务装置。</span>
+          </div>
+          <div class="quest-map" id="zoneMap"></div>
+
+          <!-- 当前区域作答 -->
+          <section class="panel" style="margin-top: 18px" id="playPanel">
+            <div class="panel-head">
+              <div>
+                <h2 id="curZoneTitle">—</h2>
+                <p class="sub" id="curZoneSub">—</p>
+              </div>
+              <span class="badge badge-info" id="curZoneBadge">—</span>
+            </div>
+            <div class="panel-body">
+              <div class="quest-progress">
+                <div class="track"><span id="curProgress" style="width: 0%"></span></div>
+                <span class="label" id="curProgressLabel">0 / 0</span>
+              </div>
+              <div id="playBody"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ============ Tab2 任务装置 ============ -->
+        <div class="tab-panel" id="t2">
+          <div class="hint-banner" style="margin-bottom: 14px">
+            <i data-lucide="box"></i>
+            <span>为各展区绑定多模态任务触发器：任务墙、知识光球、宝箱、互动电视。</span>
+          </div>
+          <div class="device-grid" id="deviceGrid"></div>
+
+          <section class="panel" style="margin-top: 18px">
+            <div class="panel-head">
+              <div>
+                <h2>装置视觉</h2>
+                <p class="sub" id="visualTitle">选择上方装置查看效果</p>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="device-visual" id="deviceVisual"></div>
+              <p class="text-xs muted" id="deviceVisualDesc" style="text-align: center; margin: 0"></p>
+            </div>
+          </section>
+        </div>
+
+        <!-- ============ Tab3 后台编辑 ============ -->
+        <div class="tab-panel" id="t3">
+          <div class="hint-banner" style="margin-bottom: 14px">
+            <i data-lucide="settings-2"></i>
+            <span>自定义题库构建：新增/编辑单选/多选/判断题型，调用系统默认题库或外部导入课程题库。</span>
+          </div>
+
+          <div class="module-grid cols-2-uneven">
+            <!-- 左：自定义题库 -->
+            <section class="panel" style="align-self: start">
+              <div class="panel-head">
+                <div>
+                  <h2>自定义题库</h2>
+                  <p class="sub" id="bankStat">共 0 题</p>
+                </div>
+                <div class="flex gap-8">
+                  <button class="btn btn-soft btn-sm" id="importSysBtn"><i data-lucide="database"></i> 调用系统题库</button>
+                  <button class="btn btn-primary btn-sm" id="addQBtn"><i data-lucide="plus"></i> 新增题目</button>
+                </div>
+              </div>
+              <div class="panel-body flush scroll-y" id="customList" style="max-height: 540px"></div>
+            </section>
+
+            <!-- 右：编辑器 + 外部导入 -->
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>题目编辑器</h2>
+                  <p class="sub" id="editorTitle">新增题目</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="field" style="margin-bottom: 12px">
+                  <span class="field-label">题型</span>
+                  <div class="flex gap-8" id="editorTypeChips"></div>
+                </div>
+                <div class="field" style="margin-bottom: 12px">
+                  <label class="field-label" for="editorStem">题干</label>
+                  <textarea class="textarea" id="editorStem" rows="3" placeholder="输入题干内容"></textarea>
+                </div>
+                <div class="field" style="margin-bottom: 12px" id="editorOptsField">
+                  <span class="field-label">选项（一行一个，正确项前加 ★）</span>
+                  <textarea class="textarea" id="editorOpts" rows="4" placeholder="★选项A&#10;选项B&#10;选项C"></textarea>
+                  <span class="field-hint">判断题无需填写，单选/多选至少 2 个且正确项标 ★</span>
+                </div>
+                <div class="field" style="margin-bottom: 12px" id="editorJudgeField" hidden>
+                  <span class="field-label">判断答案</span>
+                  <div class="flex gap-8" id="editorJudgeChips"></div>
+                </div>
+                <div class="field" style="margin-bottom: 12px">
+                  <label class="field-label" for="editorExplain">解析</label>
+                  <textarea class="textarea" id="editorExplain" rows="2" placeholder="解析说明（选填）"></textarea>
+                </div>
+                <div class="field" style="margin-bottom: 12px">
+                  <label class="field-label" for="editorZone">所属区域</label>
+                  <select class="select" id="editorZone"></select>
+                </div>
+              </div>
+              <div class="panel-foot flex gap-8">
+                <button class="btn btn-primary btn-block" id="saveQBtn"><i data-lucide="save"></i> 保存题目</button>
+                <button class="btn btn-ghost" id="resetEditorBtn" title="清空编辑器"><i data-lucide="eraser"></i></button>
+              </div>
+
+              <div class="panel-sep"></div>
+              <div class="panel-head">
+                <div>
+                  <h2>外部导入课程题库</h2>
+                  <p class="sub">粘贴 JSON 数组，每项含 type/stem/options/answer/explain</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <textarea class="textarea" id="importArea" rows="5" placeholder='[{"type":"single","stem":"…","options":["A","B"],"answer":0,"explain":"…"}]'></textarea>
+              </div>
+              <div class="panel-foot flex gap-8">
+                <button class="btn btn-soft btn-block" id="importBtn"><i data-lucide="upload"></i> 导入并配置章节测验</button>
+              </div>
+            </section>
+          </div>
+
+          <!-- 区域与题目配置 -->
+          <section class="panel" style="margin-top: 18px">
+            <div class="panel-head">
+              <div>
+                <h2>区域与章节测验配置</h2>
+                <p class="sub">每个展区可绑定装置、查看题目；完成当前展区全部题目方可解锁下一展区</p>
+              </div>
+              <button class="btn btn-primary btn-sm" id="addZoneBtn"><i data-lucide="plus"></i> 新增展区</button>
+            </div>
+            <div class="panel-body" id="zoneConfigList"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      "use strict";
+      var P = window.Platform;
+      var $ = P.$, $$ = P.$$, el = P.el, R = P.refreshIcons, toast = P.toast;
+      var S = P.Store.load();
+      var Q = S.quest;
+
+      /* ---------- 通用 ---------- */
+      var TYPE_META = {
+        single: { label: "单选题", icon: "circle-dot" },
+        multi:  { label: "多选题", icon: "list-checks" },
+        judge:  { label: "判断题", icon: "toggle-left" }
+      };
+      function devById(id) { return Q.devices.filter(function (d) { return d.id === id; })[0] || Q.devices[0]; }
+      function zoneById(id) { return Q.zones.filter(function (z) { return z.id === id; })[0]; }
+      function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"]/g, function (m) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m];
+        });
+      }
+
+      function refreshHeader() {
+        $("#hdrZones").textContent = Q.zones.length;
+        $("#hdrPassed").textContent = Q.zones.filter(function (z) { return z.passed; }).length;
+        $("#hdrCustom").textContent = Q.customBank.length;
+      }
+
+      /* ---------- Tab 切换 ---------- */
+      $$("#qtTabs .tab").forEach(function (t) {
+        t.addEventListener("click", function () {
+          $$("#qtTabs .tab").forEach(function (x) { x.classList.toggle("is-active", x === t); });
+          $$(".tab-panel").forEach(function (p) { p.classList.toggle("is-active", p.id === t.dataset.tab); });
+          if (t.dataset.tab === "t2") renderDevices();
+          if (t.dataset.tab === "t3") { renderCustomList(); renderZoneConfig(); fillEditorZones(); }
+          R();
+        });
+      });
+
+      /* ============ Tab1 闯关答题 ============ */
+      var play = { zoneId: null, qIdx: 0, sel: [], answered: false, score: 0 };
+
+      function renderZoneMap() {
+        var box = $("#zoneMap"); box.innerHTML = "";
+        Q.zones.forEach(function (z, i) {
+          var d = devById(z.device);
+          var node = el("div", { class: "quest-node" + (z.passed ? " is-passed" : "") + (z.unlocked ? "" : " is-locked") + (z.id === play.zoneId ? " is-active" : "") });
+          node.innerHTML =
+            '<div class="device-ic"><i data-lucide="' + (z.unlocked ? d.icon : "lock") + '"></i></div>' +
+            '<h3 style="margin:0 0 4px;font-size:13px">' + esc(z.name) + "</h3>" +
+            '<div class="text-xs muted">' + (i + 1) + " / " + Q.zones.length + " / " + d.name + "</div>" +
+            (z.passed ? '<div class="text-xs" style="color:var(--ok);margin-top:4px"><i data-lucide="circle-check" style="width:11px;height:11px"></i> 已通关 ' + z.best + "/" + z.questions.length + "</div>" :
+              z.unlocked ? '<div class="text-xs" style="color:var(--teal);margin-top:4px"><i data-lucide="play" style="width:11px;height:11px"></i> 可挑战</div>' :
+              '<div class="text-xs muted" style="margin-top:4px"><i data-lucide="lock" style="width:11px;height:11px"></i> 未解锁</div>');
+          if (z.unlocked) {
+            node.addEventListener("click", function () { enterZone(z.id); });
+          }
+          box.appendChild(node);
+        });
+        R();
+      }
+
+      function enterZone(zid) {
+        var z = zoneById(zid);
+        if (!z || !z.unlocked) return;
+        play.zoneId = zid; play.qIdx = 0; play.sel = []; play.answered = false; play.score = 0;
+        renderZoneMap();
+        renderPlay();
+      }
+
+      function renderPlay() {
+        var z = zoneById(play.zoneId);
+        if (!z) {
+          $("#playPanel").hidden = true;
+          return;
+        }
+        $("#playPanel").hidden = false;
+        var d = devById(z.device);
+        $("#curZoneTitle").textContent = z.name;
+        $("#curZoneSub").textContent = "绑定装置：" + d.name + " / " + d.desc;
+        $("#curZoneBadge").innerHTML = '<i data-lucide="' + d.icon + '"></i> ' + d.name;
+
+        var total = z.questions.length;
+        var done = play.qIdx + (play.answered ? 1 : 0);
+        var pct = total ? Math.round(done / total * 100) : 0;
+        $("#curProgress").style.width = pct + "%";
+        $("#curProgressLabel").textContent = done + " / " + total;
+
+        var body = $("#playBody"); body.innerHTML = "";
+        if (play.qIdx >= total) {
+          // 通关
+          var passed = play.score >= Math.ceil(total * 0.6);
+          if (passed && !z.passed) {
+            z.passed = true; z.best = play.score;
+            // 解锁下一区
+            var idx = Q.zones.indexOf(z);
+            if (idx >= 0 && idx + 1 < Q.zones.length) Q.zones[idx + 1].unlocked = true;
+            P.Store.save();
+            refreshHeader();
+            renderZoneMap();
+          } else if (play.score > z.best) {
+            z.best = play.score; P.Store.save();
+          }
+          var bn = el("div", { class: "quest-banner" });
+          bn.innerHTML = '<i data-lucide="' + (passed ? "trophy" : "flag") + '"></i><div><strong>' +
+            (passed ? "区域通关！" : "本次未达标") + "</strong><small>得分 " + play.score + "/" + total +
+            (passed ? " / 下一展区已解锁" : " / 需答对 60% 以上方可通关") + "</small></div>" +
+            '<div class="flex gap-8" style="margin-left:auto"><button class="btn btn-soft btn-sm" id="retryBtn"><i data-lucide="refresh-ccw"></i> 再来一次</button>' +
+            (passed ? '<button class="btn btn-primary btn-sm" id="nextBtn"><i data-lucide="arrow-right"></i> 下一展区</button>' : "") + "</div>";
+          body.appendChild(bn);
+          $("#retryBtn").addEventListener("click", function () { enterZone(z.id); });
+          if (passed) {
+            $("#nextBtn").addEventListener("click", function () {
+              var idx2 = Q.zones.indexOf(z);
+              if (idx2 + 1 < Q.zones.length) enterZone(Q.zones[idx2 + 1].id);
+              else toast("已是最后一展区，恭喜全部通关", "trophy");
+            });
+          }
+          R();
+          return;
+        }
+
+        var q = z.questions[play.qIdx];
+        var meta = TYPE_META[q.type];
+        var card = el("div", { class: "panel q-card", style: "margin: 0" });
+        var head = '<div class="panel-body">' +
+          '<div class="flex gap-8 items-center flex-wrap" style="margin-bottom: 10px">' +
+            '<span class="badge badge-purple">' + (play.qIdx + 1) + "</span>" +
+            '<span class="badge badge-info"><i data-lucide="' + meta.icon + '"></i> ' + meta.label + "</span>" +
+            '<span class="text-xs muted">当前展区：' + esc(z.name) + "</span>" +
+          "</div>" +
+          '<p style="margin:0 0 12px;font-size:14px;font-weight:700;line-height:1.55">' + esc(q.stem) + "</p>";
+
+        var optsHtml = '<div class="quest-opts" id="optsBox">';
+        if (q.type === "judge") {
+          ["正确", "错误"].forEach(function (label, oi) {
+            optsHtml += '<div class="quiz-opt" data-i="' + oi + '"><span style="flex:1">' + label + "</span><span class=\"mark\"></span></div>";
+          });
+        } else {
+          (q.options || []).forEach(function (o, oi) {
+            optsHtml += '<div class="quiz-opt" data-i="' + oi + '"><span style="flex:1">' + esc(o) + "</span><span class=\"mark\"></span></div>";
+          });
+        }
+        optsHtml += "</div>";
+
+        var fb = '<div class="quiz-feedback" id="qFeedback" hidden></div>';
+        var foot = '<div class="flex gap-8" style="margin-top: 12px">' +
+          '<button class="btn btn-primary" id="submitQBtn" disabled><i data-lucide="check"></i> 提交答案</button>' +
+          '<button class="btn btn-ghost" id="nextQBtn" hidden><i data-lucide="arrow-right"></i> 下一题</button>' +
+          "</div></div>";
+        card.innerHTML = head + optsHtml + fb + foot;
+        body.appendChild(card);
+
+        // 绑定选项
+        var opts = $$("#optsBox .quiz-opt");
+        var multi = q.type === "multi";
+        opts.forEach(function (o) {
+          o.addEventListener("click", function () {
+            if (play.answered) return;
+            var i = +o.dataset.i;
+            if (multi) {
+              var k = play.sel.indexOf(i);
+              if (k >= 0) { play.sel.splice(k, 1); o.classList.remove("is-selected"); }
+              else { play.sel.push(i); o.classList.add("is-selected"); }
+            } else {
+              opts.forEach(function (x) { x.classList.remove("is-selected"); });
+              play.sel = [i];
+              o.classList.add("is-selected");
+            }
+            $("#submitQBtn").disabled = play.sel.length === 0;
+          });
+        });
+
+        function correct() {
+          if (q.type === "multi") {
+            var a = (q.answer || []).slice().sort();
+            var b = play.sel.slice().sort();
+            if (a.length !== b.length) return false;
+            return a.every(function (v, i) { return v === b[i]; });
+          }
+          if (q.type === "judge") return play.sel[0] === (q.answer ? 0 : 1);
+          return play.sel[0] === q.answer;
+        }
+
+        $("#submitQBtn").addEventListener("click", function () {
+          play.answered = true;
+          var ok = correct();
+          if (ok) play.score++;
+          opts.forEach(function (o, oi) {
+            o.style.cursor = "default";
+            var i = +o.dataset.i;
+            var isAns = q.type === "multi" ? (q.answer || []).indexOf(i) >= 0
+                     : q.type === "judge" ? i === (q.answer ? 0 : 1)
+                     : i === q.answer;
+            var isSel = play.sel.indexOf(i) >= 0;
+            o.classList.remove("is-selected");
+            if (isAns) o.classList.add("is-correct");
+            else if (isSel) o.classList.add("is-wrong");
+            else o.classList.add("is-dim");
+            var mark = o.querySelector(".mark");
+            if (isAns) mark.innerHTML = '<i data-lucide="circle-check"></i>';
+            else if (isSel) mark.innerHTML = '<i data-lucide="x"></i>';
+          });
+          var f = $("#qFeedback");
+          f.hidden = false;
+          f.className = "quiz-feedback " + (ok ? "ok" : "bad");
+          f.innerHTML = (ok ? '<i data-lucide="circle-check"></i> 回答正确' : '<i data-lucide="x"></i> 回答错误') +
+            (q.explain ? " / " + esc(q.explain) : "");
+          $("#submitQBtn").hidden = true;
+          $("#nextQBtn").hidden = false;
+          $("#curProgress").style.width = Math.round((play.qIdx + 1) / z.questions.length * 100) + "%";
+          $("#curProgressLabel").textContent = (play.qIdx + 1) + " / " + z.questions.length;
+          R();
+        });
+
+        $("#nextQBtn").addEventListener("click", function () {
+          play.qIdx++; play.sel = []; play.answered = false;
+          renderPlay();
+        });
+        R();
+      }
+
+      /* ============ Tab2 任务装置 ============ */
+      var visualDev = null;
+      function renderDevices() {
+        var box = $("#deviceGrid"); box.innerHTML = "";
+        Q.devices.forEach(function (d) {
+          var zone = Q.zones.filter(function (z) { return z.device === d.id; })[0];
+          var card = el("div", { class: "device-card" + (visualDev === d.id ? " is-active" : "") });
+          card.innerHTML =
+            '<div class="dc-ic" style="background:' + d.color + '20;color:' + d.color + '"><i data-lucide="' + d.icon + '"></i></div>' +
+            '<p class="dc-title">' + esc(d.name) + "</p>" +
+            '<p class="dc-desc">' + esc(d.desc) + "</p>" +
+            '<p class="dc-zone">已绑定：' + (zone ? zone.name : "未绑定") + "</p>";
+          card.addEventListener("click", function () { visualDev = d.id; showVisual(d); renderDevices(); });
+          box.appendChild(card);
+        });
+        if (!visualDev && Q.devices.length) { visualDev = Q.devices[0].id; showVisual(devById(visualDev)); renderDevices(); }
+        R();
+      }
+
+      function showVisual(d) {
+        $("#visualTitle").textContent = d.name + " / " + d.desc;
+        var box = $("#deviceVisual"); box.innerHTML = "";
+        box.className = "device-visual dv-" + d.id;
+        if (d.id === "wall") {
+          var brick = el("div", { class: "brick" });
+          for (var i = 0; i < 9; i++) brick.appendChild(el("span"));
+          box.appendChild(brick);
+        } else if (d.id === "orb") {
+          box.appendChild(el("div", { class: "ball" }));
+        } else if (d.id === "chest") {
+          box.appendChild(el("div", { class: "box" }));
+        } else if (d.id === "tv") {
+          box.appendChild(el("div", { class: "screen" }));
+        }
+        $("#deviceVisualDesc").textContent = "装置视觉：" + d.name + "，绑定展区后将作为该区域的任务触发器";
+        R();
+      }
+
+      /* ============ Tab3 后台编辑 ============ */
+      var editorType = "single";
+      var editorJudge = true;
+      var editingId = null;
+
+      function renderEditorTypeChips() {
+        var box = $("#editorTypeChips"); box.innerHTML = "";
+        Object.keys(TYPE_META).forEach(function (k) {
+          var on = editorType === k;
+          var c = el("button", { type: "button", class: "chip" + (on ? " is-active" : "") });
+          c.innerHTML = '<i data-lucide="' + TYPE_META[k].icon + '"></i><span>' + TYPE_META[k].label + "</span>";
+          c.addEventListener("click", function () {
+            editorType = k;
+            $("#editorOptsField").hidden = k === "judge";
+            $("#editorJudgeField").hidden = k !== "judge";
+            renderEditorTypeChips();
+            renderEditorJudgeChips();
+          });
+          box.appendChild(c);
+        });
+        R();
+      }
+      function renderEditorJudgeChips() {
+        var box = $("#editorJudgeChips"); box.innerHTML = "";
+        [["正确", true], ["错误", false]].forEach(function (p) {
+          var on = editorJudge === p[1];
+          var c = el("button", { type: "button", class: "chip" + (on ? " is-active" : "") });
+          c.innerHTML = "<span>" + p[0] + "</span>";
+          c.addEventListener("click", function () { editorJudge = p[1]; renderEditorJudgeChips(); });
+          box.appendChild(c);
+        });
+      }
+      function fillEditorZones() {
+        var sel = $("#editorZone");
+        sel.innerHTML = Q.zones.map(function (z) { return '<option value="' + z.id + '">' + z.name + "</option>"; }).join("");
+      }
+
+      function resetEditor() {
+        editingId = null;
+        $("#editorTitle").textContent = "新增题目";
+        $("#editorStem").value = "";
+        $("#editorOpts").value = "";
+        $("#editorExplain").value = "";
+        editorType = "single"; editorJudge = true;
+        renderEditorTypeChips();
+        $("#editorOptsField").hidden = false;
+        $("#editorJudgeField").hidden = true;
+      }
+
+      function parseOpts(text) {
+        var lines = text.split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean);
+        var opts = [], ans = [];
+        lines.forEach(function (l, i) {
+          if (l.indexOf("★") === 0) { opts.push(l.slice(1).trim()); ans.push(i); }
+          else opts.push(l);
+        });
+        return { opts: opts, ans: ans };
+      }
+
+      $("#addQBtn").addEventListener("click", function () { resetEditor(); toast("已开启新增题目编辑器", "plus"); });
+      $("#resetEditorBtn").addEventListener("click", function () { resetEditor(); });
+
+      $("#saveQBtn").addEventListener("click", function () {
+        var stem = $("#editorStem").value.trim();
+        var explain = $("#editorExplain").value.trim();
+        var zoneId = $("#editorZone").value;
+        if (!stem) { P.toast("请输入题干", "alert-triangle"); $("#editorStem").classList.add("is-error"); return; }
+        $("#editorStem").classList.remove("is-error");
+
+        var q = { id: editingId || P.uid("cq"), type: editorType, stem: stem, explain: explain, zoneId: zoneId };
+        if (editorType === "judge") {
+          q.answer = editorJudge;
+          q.options = null;
+        } else {
+          var r = parseOpts($("#editorOpts").value);
+          if (r.opts.length < 2) { P.toast("至少提供 2 个选项", "alert-triangle"); $("#editorOpts").classList.add("is-error"); return; }
+          $("#editorOpts").classList.remove("is-error");
+          if (!r.ans.length) { P.toast("请用 ★ 标记正确选项", "alert-triangle"); return; }
+          q.options = r.opts;
+          q.answer = editorType === "single" ? r.ans[0] : r.ans;
+        }
+
+        // 写入自定义题库
+        var existIdx = Q.customBank.findIndex(function (x) { return x.id === q.id; });
+        if (existIdx >= 0) Q.customBank[existIdx] = q;
+        else Q.customBank.unshift(q);
+
+        // 同时写入对应展区
+        var z = zoneById(zoneId);
+        if (z) {
+          var zqIdx = z.questions.findIndex(function (x) { return x.id === q.id; });
+          if (zqIdx >= 0) z.questions[zqIdx] = q;
+          else z.questions.push(q);
+        }
+
+        P.Store.save();
+        refreshHeader();
+        renderCustomList();
+        renderZoneConfig();
+        resetEditor();
+        toast(editingId ? "题目已更新" : "题目已保存并加入展区", "save");
+      });
+
+      // 调用系统题库
+      $("#importSysBtn").addEventListener("click", function () {
+        var bank = P.quizBank.slice(0, 5);
+        var added = 0;
+        bank.forEach(function (b, i) {
+          var q = {
+            id: P.uid("cq"),
+            type: b.type === "choice" ? "single" : b.type === "fill" ? "single" : "single",
+            stem: b.stem,
+            options: b.options,
+            answer: typeof b.answer === "number" ? b.answer : 0,
+            explain: b.explanation,
+            zoneId: Q.zones[0].id
+          };
+          Q.customBank.unshift(q);
+          added++;
+        });
+        P.Store.save();
+        refreshHeader();
+        renderCustomList();
+        toast("已从系统默认题库导入 " + added + " 道题", "database");
+      });
+
+      // 外部导入 JSON
+      $("#importBtn").addEventListener("click", function () {
+        var raw = $("#importArea").value.trim();
+        if (!raw) { P.toast("请粘贴题目 JSON", "alert-triangle"); return; }
+        var arr;
+        try { arr = JSON.parse(raw); } catch (e) { P.toast("JSON 格式错误：" + e.message, "alert-triangle"); return; }
+        if (!Array.isArray(arr)) { P.toast("需为题目数组", "alert-triangle"); return; }
+        var added = 0;
+        arr.forEach(function (it) {
+          if (!it || !it.type || !it.stem) return;
+          var q = {
+            id: P.uid("cq"),
+            type: it.type,
+            stem: it.stem,
+            options: it.options || null,
+            answer: it.answer,
+            explain: it.explain || "",
+            zoneId: Q.zones[0].id
+          };
+          Q.customBank.unshift(q);
+          added++;
+        });
+        if (!added) { P.toast("未识别到有效题目", "alert-triangle"); return; }
+        P.Store.save();
+        refreshHeader();
+        renderCustomList();
+        $("#importArea").value = "";
+        toast("已导入 " + added + " 道题，默认归入第一展区", "upload");
+      });
+
+      function renderCustomList() {
+        var box = $("#customList"); box.innerHTML = "";
+        $("#bankStat").textContent = "共 " + Q.customBank.length + " 题";
+        if (!Q.customBank.length) {
+          box.innerHTML = '<div class="empty-hint"><i data-lucide="inbox"></i> 自定义题库为空，点击新增或导入</div>';
+          R(); return;
+        }
+        Q.customBank.forEach(function (q) {
+          var meta = TYPE_META[q.type] || {};
+          var z = zoneById(q.zoneId);
+          var card = el("div", { class: "phone-card", style: "margin-bottom: 10px" });
+          var headHtml =
+            '<div class="flex-between" style="margin-bottom: 6px; gap: 10px">' +
+              '<div class="flex gap-8 items-center flex-wrap">' +
+                '<span class="badge badge-info"><i data-lucide="' + meta.icon + '"></i> ' + meta.label + "</span>" +
+                (z ? '<span class="text-xs muted">' + esc(z.name) + "</span>" : "") +
+              "</div>" +
+              '<div class="flex gap-8">' +
+                '<button class="icon-btn" data-edit="' + q.id + '" title="编辑"><i data-lucide="pencil"></i></button>' +
+                '<button class="icon-btn" data-del="' + q.id + '" title="删除"><i data-lucide="trash-2"></i></button>' +
+              "</div>" +
+            "</div>" +
+            '<p style="margin:0 0 6px;font-size:13px;font-weight:600;line-height:1.5">' + esc(q.stem) + "</p>";
+          var bodyHtml;
+          if (q.options) {
+            var parts = q.options.map(function (o, i) {
+              var isAns = q.type === "multi" ? (q.answer || []).indexOf(i) >= 0 : i === q.answer;
+              return (isAns ? "[正确] " : "") + esc(o);
+            });
+            bodyHtml = '<div class="text-xs muted">' + parts.join(" / ") + "</div>";
+          } else {
+            bodyHtml = '<div class="text-xs muted">答案：' + (q.answer ? "正确" : "错误") + "</div>";
+          }
+          card.innerHTML = headHtml + bodyHtml;
+          card.querySelector("[data-edit]").addEventListener("click", function () { editCustom(q); });
+          card.querySelector("[data-del]").addEventListener("click", function () { delCustom(q); });
+          box.appendChild(card);
+        });
+        R();
+      }
+
+      function editCustom(q) {
+        editingId = q.id;
+        editorType = q.type;
+        $("#editorTitle").textContent = "编辑题目";
+        $("#editorStem").value = q.stem;
+        $("#editorExplain").value = q.explain || "";
+        if (q.type === "judge") {
+          editorJudge = !!q.answer;
+          $("#editorOptsField").hidden = true;
+          $("#editorJudgeField").hidden = false;
+        } else {
+          $("#editorOptsField").hidden = false;
+          $("#editorJudgeField").hidden = true;
+          $("#editorOpts").value = (q.options || []).map(function (o, i) {
+            var isAns = q.type === "multi" ? (q.answer || []).indexOf(i) >= 0 : i === q.answer;
+            return (isAns ? "★" : "") + o;
+          }).join("\n");
+        }
+        fillEditorZones();
+        $("#editorZone").value = q.zoneId || (Q.zones[0] && Q.zones[0].id);
+        renderEditorTypeChips();
+        renderEditorJudgeChips();
+        toast("已载入题目到编辑器", "pencil");
+      }
+
+      function delCustom(q) {
+        P.confirm({ title: "删除题目", message: "将从自定义题库与展区中删除该题，确定吗？", danger: true, okText: "删除" })
+          .then(function (ok) {
+            if (!ok) return;
+            var i = Q.customBank.findIndex(function (x) { return x.id === q.id; });
+            if (i >= 0) Q.customBank.splice(i, 1);
+            var z = zoneById(q.zoneId);
+            if (z) {
+              var j = z.questions.findIndex(function (x) { return x.id === q.id; });
+              if (j >= 0) z.questions.splice(j, 1);
+            }
+            P.Store.save();
+            refreshHeader();
+            renderCustomList();
+            renderZoneConfig();
+            toast("题目已删除", "trash-2");
+          });
+      }
+
+      // 区域配置列表
+      function renderZoneConfig() {
+        var box = $("#zoneConfigList"); box.innerHTML = "";
+        if (!Q.zones.length) {
+          box.innerHTML = '<div class="empty-hint"><i data-lucide="inbox"></i> 暂无展区</div>';
+          R(); return;
+        }
+        Q.zones.forEach(function (z, i) {
+          var d = devById(z.device);
+          var card = el("div", { class: "panel", style: "margin-bottom: 12px" });
+          card.innerHTML =
+            '<div class="panel-body">' +
+              '<div class="flex-between" style="margin-bottom: 8px; gap: 10px">' +
+                '<div class="flex items-center gap-8 flex-wrap">' +
+                  '<span class="badge badge-purple">' + (i + 1) + "</span>" +
+                  '<strong style="font-size: 14px">' + esc(z.name) + "</strong>" +
+                  '<span class="badge badge-info"><i data-lucide="' + d.icon + '"></i> ' + d.name + "</span>" +
+                  (z.passed ? '<span class="badge badge-ok"><i data-lucide="circle-check"></i> 已通关</span>' : "") +
+                "</div>" +
+                '<div class="flex gap-8">' +
+                  '<button class="btn btn-ghost btn-sm" data-device="' + z.id + '"><i data-lucide="shuffle"></i> 切换装置</button>' +
+                  '<button class="icon-btn" data-delzone="' + z.id + '" title="删除展区"><i data-lucide="trash-2"></i></button>' +
+                "</div>" +
+              "</div>" +
+              '<div class="text-xs muted" style="margin-bottom: 8px">题目 ' + z.questions.length + " 道 / 解锁：" + (z.unlocked ? "是" : "否") + " / 最佳成绩 " + z.best + "/" + z.questions.length + "</div>" +
+              '<div id="zc-' + z.id + '"></div>' +
+            "</div>";
+          box.appendChild(card);
+
+          // 切换装置
+          card.querySelector("[data-device]").addEventListener("click", function () {
+            var idx = Q.devices.indexOf(d);
+            var nd = Q.devices[(idx + 1) % Q.devices.length];
+            z.device = nd.id;
+            P.Store.save();
+            renderZoneConfig();
+            renderZoneMap();
+            toast("「" + z.name + "」装置已切换为 " + nd.name, "shuffle");
+          });
+          // 删除展区
+          card.querySelector("[data-delzone]").addEventListener("click", function () {
+            P.confirm({ title: "删除展区", message: "将删除「" + z.name + "」及其全部题目，确定吗？", danger: true, okText: "删除" })
+              .then(function (ok) {
+                if (!ok) return;
+                var idx2 = Q.zones.indexOf(z);
+                if (idx2 >= 0) Q.zones.splice(idx2, 1);
+                P.Store.save();
+                refreshHeader(); renderZoneConfig(); renderZoneMap(); fillEditorZones();
+                toast("展区已删除", "trash-2");
+              });
+          });
+
+          // 展区题目列表
+          var qBox = card.querySelector("#zc-" + z.id);
+          if (!z.questions.length) {
+            qBox.innerHTML = '<div class="empty-hint" style="padding:8px 0">暂无题目</div>';
+          } else {
+            z.questions.forEach(function (q) {
+              var meta = TYPE_META[q.type] || {};
+              var row = el("div", { class: "flex-between", style: "padding: 6px 0; border-top: 1px solid var(--line); gap: 10px" });
+              row.innerHTML =
+                '<div style="min-width:0;flex:1">' +
+                  '<span class="badge badge-info" style="margin-right:6px"><i data-lucide="' + meta.icon + '"></i> ' + meta.label + "</span>" +
+                  '<span style="font-size:12.5px">' + esc(q.stem).slice(0, 60) + (q.stem.length > 60 ? "…" : "") + "</span>" +
+                "</div>" +
+                '<div class="flex gap-8" style="flex:0 0 auto">' +
+                  '<button class="icon-btn" data-qedit="' + q.id + '" title="编辑"><i data-lucide="pencil"></i></button>' +
+                  '<button class="icon-btn" data-qdel="' + q.id + '" title="移除"><i data-lucide="x"></i></button>' +
+                "</div>";
+              row.querySelector("[data-qedit]").addEventListener("click", function () {
+                // 编辑（仅当题目存在于自定义题库时直接载入；否则临时构建一个对象供编辑）
+                var cq = Q.customBank.filter(function (x) { return x.id === q.id; })[0] || q;
+                editCustom(Object.assign({}, cq, { zoneId: z.id }));
+              });
+              row.querySelector("[data-qdel]").addEventListener("click", function () {
+                P.confirm({ title: "移除题目", message: "将该题从「" + z.name + "」移除？自定义题库不受影响。", danger: true, okText: "移除" })
+                  .then(function (ok2) {
+                    if (!ok2) return;
+                    var j = z.questions.indexOf(q);
+                    if (j >= 0) z.questions.splice(j, 1);
+                    P.Store.save();
+                    renderZoneConfig(); renderZoneMap(); refreshHeader();
+                    toast("题目已从展区移除", "x");
+                  });
+              });
+              qBox.appendChild(row);
+            });
+          }
+        });
+        R();
+      }
+
+      $("#addZoneBtn").addEventListener("click", function () {
+        var n = Q.zones.length + 1;
+        var d = Q.devices[(n - 1) % Q.devices.length];
+        var z = { id: P.uid("z"), name: "新展区 " + n, device: d.id, questions: [], unlocked: n === 1, passed: false, best: 0 };
+        Q.zones.push(z);
+        P.Store.save();
+        refreshHeader(); renderZoneConfig(); renderZoneMap(); fillEditorZones();
+        toast("已新增展区，已绑定 " + d.name, "plus");
+      });
+
+      /* ---------- 启动 ---------- */
+      renderZoneMap();
+      if (Q.zones.length && Q.zones[0].unlocked) enterZone(Q.zones[0].id);
+      renderEditorTypeChips();
+      renderEditorJudgeChips();
+      fillEditorZones();
+      refreshHeader();
+    });
+    </script>
+  </body>
+</html>

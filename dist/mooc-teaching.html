@@ -1,0 +1,697 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>慕课制作与教学 · 知行课程平台</title>
+<link rel="stylesheet" href="./styles.css" />
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+<script src="./common.js"></script>
+<style>
+  @keyframes mooc-pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:.55} }
+  .live-dot{ display:inline-block;width:9px;height:9px;border-radius:50%;background:#e46f55;animation:mooc-pulse 1s infinite ease-in-out;vertical-align:middle; }
+  @keyframes mooc-anim { 0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(106,95,176,.45)} 50%{transform:scale(1.04);box-shadow:0 0 0 10px rgba(106,95,176,0)} }
+  .ed-block{ display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:8px;margin:8px 0;font-size:13px;font-weight:600; }
+  .ed-block svg{ width:18px;height:18px;flex:0 0 18px; }
+  .ed-video{ background:#0f1b18;color:#bfe9df; }
+  .ed-audio{ background:var(--purple-soft);color:var(--purple); }
+  .ed-anim{ background:var(--purple-soft);color:var(--purple);animation:mooc-anim 1.8s infinite ease-in-out; }
+  .ed-table{ width:100%;border-collapse:collapse;margin:8px 0;font-size:12px; }
+  .ed-table th,.ed-table td{ border:1px solid var(--line-strong);padding:6px 9px;text-align:left; }
+  .ed-table th{ background:var(--surface-muted);font-weight:700; }
+  .ed-code{ background:#0f1b18;color:#bfe9df;padding:12px;border-radius:8px;font-family:"JetBrains Mono","Fira Code",monospace;font-size:12px;overflow:auto;margin:8px 0;white-space:pre; }
+  .ev-link{ display:inline-block;margin-top:4px;font-size:9px;color:var(--teal-dark);text-decoration:underline;cursor:pointer; }
+  .schedule-event .ev-title{ font-size:10px;line-height:1.3; }
+  .schedule-event .ev-title strong{ font-size:10.5px; }
+  .live-stage{ aspect-ratio:16/9;background:#14201d;border-radius:8px;position:relative;display:flex;align-items:center;justify-content:center;color:#9bb4ae; }
+</style>
+</head>
+<body>
+  <main class="module-page"><div class="module-wrap">
+    <section class="module-header">
+      <div>
+        <p class="kicker">慕课教学</p>
+        <h1>慕课制作与教学</h1>
+        <p>单元化整合富媒体资源，视频文档自动转码在线播放，对接教务课表，一键发起直播</p>
+      </div>
+    </section>
+
+    <div class="tabs" id="moocTabs" style="margin-bottom:18px">
+      <button class="tab is-active" data-tab="tab1">课程单元</button>
+      <button class="tab" data-tab="tab2">富媒体编辑</button>
+      <button class="tab" data-tab="tab3">个人课表</button>
+      <button class="tab" data-tab="tab4">直播教学</button>
+    </div>
+
+    <!-- ===== Tab1 课程单元 ===== -->
+    <div class="tab-panel is-active" id="tab1">
+      <div class="hint-banner">
+        <i data-lucide="graduation-cap"></i>
+        <span>主流视频/文档上传后自动转码，支持多标签页展示与富媒体编辑</span>
+      </div>
+      <div class="flex-between mt-12" style="margin-bottom:14px;flex-wrap:wrap">
+        <div class="flex gap-8 items-center">
+          <span class="text-sm muted">当前课程</span>
+          <select class="select" id="courseScope" style="width:auto;min-width:200px"></select>
+        </div>
+        <div class="flex gap-8 items-center flex-wrap">
+          <button class="btn btn-ghost btn-sm" id="addUnitBtn"><i data-lucide="plus"></i>添加单元</button>
+          <button class="btn btn-ghost btn-sm" id="uploadDocBtn"><i data-lucide="file-up"></i>上传文档</button>
+          <button class="btn btn-primary btn-sm" id="uploadVideoBtn"><i data-lucide="upload"></i>上传视频</button>
+        </div>
+      </div>
+      <div id="unitList" style="display:grid;gap:14px"></div>
+      <input type="file" id="videoInput" accept="video/*" hidden />
+      <input type="file" id="docInput" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt" hidden />
+    </div>
+
+    <!-- ===== Tab2 富媒体编辑 ===== -->
+    <div class="tab-panel" id="tab2">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>富媒体编辑器</h2>
+            <div class="sub">多标签页 · 视频/音频/公式/动画/表格/代码组件</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="flex gap-8 flex-wrap items-center" id="editorTabs" style="margin-bottom:14px"></div>
+          <div class="rich-editor">
+            <div class="editor-toolbar" id="editorToolbar">
+              <button type="button" data-cmd="bold" title="加粗"><i data-lucide="bold"></i></button>
+              <button type="button" data-cmd="italic" title="斜体"><i data-lucide="italic"></i></button>
+              <button type="button" data-cmd="insertUnorderedList" title="列表"><i data-lucide="list"></i></button>
+              <button type="button" data-cmd="insertOrderedList" title="有序列表"><i data-lucide="list-ordered"></i></button>
+              <span class="sep"></span>
+                <button type="button" data-cmd="formula" title="公式"><i data-lucide="sigma"></i></button>
+              <button type="button" data-cmd="image" title="图片"><i data-lucide="image"></i></button>
+              <button type="button" data-cmd="video" title="视频"><i data-lucide="video"></i></button>
+              <button type="button" data-cmd="audio" title="音频"><i data-lucide="audio-lines"></i></button>
+              <button type="button" data-cmd="animation" title="动画"><i data-lucide="sigma"></i></button>
+              <button type="button" data-cmd="table" title="表格"><i data-lucide="table"></i></button>
+              <button type="button" data-cmd="code" title="代码"><i data-lucide="code"></i></button>
+            </div>
+            <div class="editor-canvas" contenteditable="true" id="editorCanvas"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tab3 个人课表 ===== -->
+    <div class="tab-panel" id="tab3">
+      <div class="hint-banner">
+        <i data-lucide="calendar-days"></i>
+        <span>已对接教务数据，展示个人课表</span>
+      </div>
+      <div class="flex-between mt-12" style="margin-bottom:14px;flex-wrap:wrap">
+        <div class="muted text-sm">点击课程块查看详情；线上/直播课可直连腾讯会议</div>
+        <div class="flex gap-8 items-center">
+          <button class="btn btn-ghost btn-sm" id="editPlanBtn"><i data-lucide="settings"></i>编辑教案/周次</button>
+          <button class="btn btn-primary btn-sm" id="addCourseBtn"><i data-lucide="plus"></i>手动添加课程</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="schedule-grid" id="scheduleGrid" style="grid-template-columns:60px repeat(5,minmax(0,1fr))"></div>
+        </div>
+      </div>
+
+      <dialog class="modal" id="courseDialog">
+        <div class="modal-head">
+          <h3>手动添加课程</h3>
+        </div>
+        <div class="modal-body">
+          <div class="form-row cols-2">
+            <div class="field">
+              <label class="field-label" for="f-name">课程名</label>
+              <input class="input" id="f-name" placeholder="如：算法研讨" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="f-type">类型</label>
+              <select class="select" id="f-type">
+                <option value="offline">线下</option>
+                <option value="online">线上</option>
+                <option value="live">直播</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row cols-2 mt-12">
+            <div class="field">
+              <label class="field-label" for="f-loc">地点</label>
+              <input class="input" id="f-loc" placeholder="如：理科楼 A301 / 腾讯会议" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="f-day">星期</label>
+              <select class="select" id="f-day">
+                <option value="一">周一</option>
+                <option value="二">周二</option>
+                <option value="三">周三</option>
+                <option value="四">周四</option>
+                <option value="五">周五</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row cols-2 mt-12">
+            <div class="field">
+              <label class="field-label" for="f-time">时间</label>
+              <select class="select" id="f-time">
+                <option value="08:00">08:00</option>
+                <option value="10:00">10:00</option>
+                <option value="14:00">14:00</option>
+                <option value="16:00">16:00</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="field-label" for="f-course">关联线上课程</label>
+              <select class="select" id="f-course"></select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-ghost" id="cancelAddBtn">取消</button>
+          <button class="btn btn-primary" id="confirmAddBtn">添加</button>
+        </div>
+      </dialog>
+    </div>
+
+    <!-- ===== Tab4 直播教学 ===== -->
+    <div class="tab-panel" id="tab4">
+      <div class="module-grid cols-2-uneven">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>直播教学</h2>
+              <div class="sub">一键发起直播及课堂互动活动</div>
+            </div>
+            <div id="liveStatus"></div>
+          </div>
+          <div class="panel-body">
+            <div class="live-stage" id="liveStage">
+              <button class="video-play" id="livePlayBtn" style="position:static;transform:none" title="开始直播"><i data-lucide="play"></i></button>
+              <div id="liveOverlay" style="position:absolute;left:0;right:0;bottom:18px;text-align:center;font-size:13px">直播间未开启</div>
+            </div>
+            <div class="flex gap-8 flex-wrap mt-12">
+              <button class="btn btn-danger" id="startLiveBtn"><i data-lucide="play"></i>开始直播</button>
+              <button class="btn btn-ghost" id="shareScreenBtn"><i data-lucide="screen-share"></i>共享屏幕</button>
+              <button class="btn btn-ghost" id="quizBtn"><i data-lucide="presentation"></i>互动答题</button>
+              <button class="btn btn-ghost" id="rollBtn"><i data-lucide="users"></i>签到</button>
+              <button class="btn btn-ghost" id="stopLiveBtn"><i data-lucide="square"></i>结束直播</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>可一键发起</h3></div>
+          <div class="panel-body" id="quickLaunch"></div>
+        </div>
+      </div>
+    </div>
+
+  </div></main>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var P = window.Platform;
+    var $ = P.$, $$ = P.$$, el = P.el, toast = P.toast, uid = P.uid;
+    var S = P.Store.load();
+
+    /* ---------- 初始化 mooc 数据 ---------- */
+    if (!S.mooc || !S.mooc.units) {
+      S.mooc = {
+        units: [
+          { id: uid('unit'), courseId: 'c1', name: '第一单元 · 算法分析', items: [
+            { id: uid('it'), name: '算法分析导论.mp4', type: 'video', transcoded: true },
+            { id: uid('it'), name: '复杂度对照表.pdf', type: 'doc', transcoded: true },
+            { id: uid('it'), name: '大O记号讲解.mp4', type: 'video', transcoded: false }
+          ]},
+          { id: uid('unit'), courseId: 'c1', name: '第二单元 · 分治与递归', items: [
+            { id: uid('it'), name: '分治法导论.mp4', type: 'video', transcoded: true },
+            { id: uid('it'), name: '递归主方法.mp3', type: 'audio', transcoded: true },
+            { id: uid('it'), name: '排序算法动画', type: 'animation', transcoded: true }
+          ]}
+        ]
+      };
+      P.Store.save();
+    }
+
+    var TYPE_ICON = { video: 'film', doc: 'file-text', audio: 'audio-lines', animation: 'sigma' };
+    var TYPE_LABEL = { video: '视频', doc: '文档', audio: '音频', animation: '动画' };
+
+    var state = {
+      courseId: (S.courses.filter(function (c) { return c.id === S.activeCourseId; })[0] || S.courses[0]).id,
+      editorTab: 0,
+      editorTabs: ['第1章讲义', '实验指导', '拓展阅读'],
+      editorContents: [
+        '<h2>第1章 算法分析基础</h2><p>算法分析关注运行时间随输入规模的增长趋势，使用大 O 记号描述渐进上界。</p><p>常见复杂度阶：<span class="formula">O(n log n)</span></p>',
+        '<h2>实验指导</h2><p>本实验通过实现归并排序与快速排序，对比时间复杂度，验证 <span class="formula">T(n)=O(n log n)</span>。</p>',
+        '<h2>拓展阅读</h2><p>推荐阅读《算法导论》第 4 章，理解递归主方法 <span class="formula">T(n)=aT(n/b)+f(n)</span> 的应用场景。</p>'
+      ],
+      formulaIdx: 0,
+      live: false,
+      viewers: 0,
+      liveTimer: null
+    };
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+      });
+    }
+    function unitsForCourse(id) {
+      return S.mooc.units.filter(function (u) { return u.courseId === id; });
+    }
+    function findItem(id) {
+      for (var i = 0; i < S.mooc.units.length; i++) {
+        var it = S.mooc.units[i].items.filter(function (x) { return x.id === id; })[0];
+        if (it) return it;
+      }
+      return null;
+    }
+    function findUnitItem(id) {
+      for (var i = 0; i < S.mooc.units.length; i++) {
+        var u = S.mooc.units[i];
+        var it = u.items.filter(function (x) { return x.id === id; })[0];
+        if (it) return { unit: u, item: it };
+      }
+      return null;
+    }
+
+    /* ---------- 标签页切换 ---------- */
+    function switchTab(tabId) {
+      $$('.tab', $('#moocTabs')).forEach(function (b) {
+        b.classList.toggle('is-active', b.dataset.tab === tabId);
+      });
+      $$('.tab-panel').forEach(function (p) {
+        p.classList.toggle('is-active', p.id === tabId);
+      });
+    }
+    $('#moocTabs').addEventListener('click', function (e) {
+      var b = e.target.closest('.tab');
+      if (b) switchTab(b.dataset.tab);
+    });
+
+    /* ============== Tab1 课程单元 ============== */
+    function renderCourseSelect() {
+      var sel = $('#courseScope');
+      sel.innerHTML = S.courses.map(function (c) {
+        return '<option value="' + c.id + '"' + (c.id === state.courseId ? ' selected' : '') + '>' + esc(c.title) + '</option>';
+      }).join('');
+    }
+    $('#courseScope').addEventListener('change', function () {
+      state.courseId = this.value;
+      renderUnits();
+    });
+    $('#addUnitBtn').addEventListener('click', function () {
+      var name = prompt('请输入单元名称：', '新单元');
+      if (!name) return;
+      S.mooc.units.push({ id: uid('unit'), courseId: state.courseId, name: name, items: [] });
+      P.Store.save();
+      renderUnits();
+      toast('单元已添加', 'plus');
+    });
+    $('#uploadVideoBtn').addEventListener('click', function () { $('#videoInput').click(); });
+    $('#uploadDocBtn').addEventListener('click', function () { $('#docInput').click(); });
+    $('#videoInput').addEventListener('change', function () {
+      if (this.files[0]) handleVideoUpload(this.files[0]);
+      this.value = '';
+    });
+    $('#docInput').addEventListener('change', function () {
+      if (this.files[0]) handleDocUpload(this.files[0]);
+      this.value = '';
+    });
+
+    function ensureUnitForCourse() {
+      var unit = unitsForCourse(state.courseId)[0];
+      if (!unit) {
+        unit = { id: uid('unit'), courseId: state.courseId, name: '默认单元', items: [] };
+        S.mooc.units.push(unit);
+      }
+      return unit;
+    }
+    function handleVideoUpload(file) {
+      var unit = ensureUnitForCourse();
+      var item = { id: uid('it'), name: file.name, type: 'video', transcoded: false, transcoding: true };
+      unit.items.push(item);
+      P.Store.save();
+      renderUnits();
+      toast('视频已上传，正在转码…', 'upload');
+      var start = Date.now(), dur = 1400;
+      (function tick() {
+        var t = Math.min(1, (Date.now() - start) / dur);
+        var bar = $('#prog-' + item.id);
+        if (bar) bar.style.width = Math.round(t * 100) + '%';
+        if (t < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          item.transcoding = false;
+          item.transcoded = true;
+          P.Store.save();
+          renderUnits();
+          toast('视频转码完成，可在线播放', 'circle-check');
+        }
+      })();
+    }
+    function handleDocUpload(file) {
+      var unit = ensureUnitForCourse();
+      unit.items.push({ id: uid('it'), name: file.name, type: 'doc', transcoded: true });
+      P.Store.save();
+      renderUnits();
+      toast('文档已上传，可在线查看', 'file-text');
+    }
+
+    function renderItems(u) {
+      if (!u.items.length) return '<div class="empty-hint">暂无资源</div>';
+      return u.items.map(function (it) {
+        var icon = TYPE_ICON[it.type] || 'file-text';
+        var badge;
+        if (it.transcoding) {
+          badge = '<span class="badge badge-warn">转码中</span>';
+        } else if (it.transcoded) {
+          badge = '<span class="badge badge-ok">已转码·可在线播放</span>';
+        } else {
+          badge = '<span class="badge badge-warn">待转码</span>';
+        }
+        var prog = it.transcoding
+          ? '<div class="progress-track" style="margin-top:8px"><span id="prog-' + it.id + '" style="width:0%"></span></div>'
+          : '';
+        return '<div class="flex-between" style="padding:11px 14px;border-bottom:1px solid #eef1ec;align-items:flex-start">' +
+          '<div style="min-width:0;flex:1">' +
+            '<div class="flex gap-12 items-center">' +
+              '<span style="width:30px;height:30px;border-radius:6px;display:grid;place-items:center;background:var(--teal-soft);color:var(--teal);flex:0 0 30px"><i data-lucide="' + icon + '"></i></span>' +
+              '<div style="min-width:0">' +
+                '<div class="strong text-sm">' + esc(it.name) + '</div>' +
+                '<div class="muted text-xs">' + TYPE_LABEL[it.type] + '资源</div>' +
+              '</div>' +
+            '</div>' +
+            prog +
+          '</div>' +
+          '<div class="flex gap-8 items-center">' +
+            badge +
+            '<button class="btn btn-soft btn-sm" data-play="' + it.id + '"><i data-lucide="play"></i>在线播放</button>' +
+            '<button class="icon-btn" data-del-item="' + it.id + '" title="删除"><i data-lucide="trash-2"></i></button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+    function renderUnits() {
+      var list = $('#unitList');
+      var units = unitsForCourse(state.courseId);
+      if (!units.length) {
+        list.innerHTML = '<div class="empty-hint">当前课程暂无单元，点击「添加单元」或上传资源开始组织教学内容</div>';
+        P.refreshIcons();
+        return;
+      }
+      list.innerHTML = units.map(function (u) {
+        return '<div class="panel">' +
+          '<div class="panel-head">' +
+            '<div><h3>' + esc(u.name) + '</h3><div class="sub">' + u.items.length + ' 个资源</div></div>' +
+            '<div class="flex gap-8 items-center">' +
+              '<button class="btn btn-ghost btn-sm" data-add-item="' + u.id + '"><i data-lucide="plus"></i>添加章节</button>' +
+              '<button class="icon-btn" data-del-unit="' + u.id + '" title="删除单元"><i data-lucide="trash-2"></i></button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="panel-body flush">' + renderItems(u) + '</div>' +
+        '</div>';
+      }).join('');
+      P.refreshIcons();
+    }
+    $('#unitList').addEventListener('click', function (e) {
+      var add = e.target.closest('[data-add-item]');
+      var delUnit = e.target.closest('[data-del-unit]');
+      var play = e.target.closest('[data-play]');
+      var delItem = e.target.closest('[data-del-item]');
+      if (add) {
+        var u = S.mooc.units.filter(function (x) { return x.id === add.dataset.addItem; })[0];
+        if (!u) return;
+        var name = prompt('请输入章节/资源名称：', '新章节');
+        if (!name) return;
+        u.items.push({ id: uid('it'), name: name, type: 'doc', transcoded: true });
+        P.Store.save();
+        renderUnits();
+        toast('已添加章节：' + name, 'plus');
+        return;
+      }
+      if (delUnit) {
+        P.confirm({
+          title: '删除单元',
+          message: '将删除该单元及其全部资源，删除后不可恢复。',
+          danger: true,
+          okText: '删除'
+        }).then(function (ok) {
+          if (!ok) return;
+          S.mooc.units = S.mooc.units.filter(function (x) { return x.id !== delUnit.dataset.delUnit; });
+          P.Store.save();
+          renderUnits();
+          toast('单元已删除', 'trash-2');
+        });
+        return;
+      }
+      if (play) {
+        var it = findItem(play.dataset.play);
+        if (it) toast('正在播放：' + it.name, 'play');
+        return;
+      }
+      if (delItem) {
+        var found = findUnitItem(delItem.dataset.delItem);
+        if (found) {
+          found.unit.items = found.unit.items.filter(function (x) { return x.id !== found.item.id; });
+          P.Store.save();
+          renderUnits();
+          toast('资源已删除', 'trash-2');
+        }
+      }
+    });
+
+    /* ============== Tab2 富媒体编辑器 ============== */
+    function renderEditorTabs() {
+      var box = $('#editorTabs');
+      box.innerHTML = state.editorTabs.map(function (name, i) {
+        return '<button type="button" class="chip' + (i === state.editorTab ? ' is-active' : '') + '" data-ed-tab="' + i + '">' + esc(name) + '</button>';
+      }).join('') + '<button type="button" class="chip" data-ed-add="1"><i data-lucide="plus"></i></button>';
+      P.refreshIcons();
+    }
+    function loadEditorCanvas() {
+      $('#editorCanvas').innerHTML = state.editorContents[state.editorTab] || '';
+      P.refreshIcons();
+    }
+    $('#editorTabs').addEventListener('click', function (e) {
+      var add = e.target.closest('[data-ed-add]');
+      var tab = e.target.closest('[data-ed-tab]');
+      if (add) {
+        var name = prompt('请输入标签页名称：', '新标签页');
+        if (!name) return;
+        state.editorContents[state.editorTab] = $('#editorCanvas').innerHTML;
+        state.editorTabs.push(name);
+        state.editorContents.push('<p></p>');
+        state.editorTab = state.editorTabs.length - 1;
+        renderEditorTabs();
+        loadEditorCanvas();
+        toast('已新增标签页：' + name, 'plus');
+        return;
+      }
+      if (tab) {
+        state.editorContents[state.editorTab] = $('#editorCanvas').innerHTML;
+        state.editorTab = parseInt(tab.dataset.edTab, 10);
+        renderEditorTabs();
+        loadEditorCanvas();
+      }
+    });
+
+    var FORMULAS = ['E = mc²', 'a² + b² = c²', 'F = ma', '∑ xᵢ / n', '∫ f(x) dx', 'T(n) = aT(n/b) + f(n)'];
+    var IMG_URL = 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20teaching%20diagram%20on%20white%20background%2C%20no%20text&image_size=landscape_4_3';
+    $('#editorToolbar').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-cmd]');
+      if (!b) return;
+      var cmd = b.dataset.cmd;
+      var canvas = $('#editorCanvas');
+      canvas.focus();
+      if (cmd === 'bold' || cmd === 'italic' || cmd === 'insertUnorderedList' || cmd === 'insertOrderedList') {
+        document.execCommand(cmd, false, null);
+        return;
+      }
+      var html = '';
+      if (cmd === 'formula') {
+        html = '<span class="formula">' + FORMULAS[state.formulaIdx % FORMULAS.length] + '</span>&nbsp;';
+        state.formulaIdx++;
+      } else if (cmd === 'image') {
+        html = '<img src="' + IMG_URL + '" style="width:100%;border-radius:6px;margin:6px 0" alt="教学示意图" />';
+      } else if (cmd === 'video') {
+        html = '<div class="ed-block ed-video"><i data-lucide="play"></i><span>视频组件</span></div>';
+      } else if (cmd === 'audio') {
+        html = '<div class="ed-block ed-audio"><i data-lucide="audio-lines"></i><span>音频组件</span></div>';
+      } else if (cmd === 'animation') {
+        html = '<div class="ed-block ed-anim"><i data-lucide="sigma"></i><span>动画组件</span></div>';
+      } else if (cmd === 'table') {
+        html = '<table class="ed-table"><thead><tr><th>项目</th><th>说明</th><th>状态</th></tr></thead><tbody><tr><td>—</td><td>—</td><td>—</td></tr></tbody></table>';
+      } else if (cmd === 'code') {
+        html = '<pre class="ed-code">function greet(name){\n  return "Hello, " + name;\n}</pre>';
+      }
+      if (html) {
+        document.execCommand('insertHTML', false, html);
+        P.refreshIcons();
+      }
+    });
+
+    /* ============== Tab3 个人课表 ============== */
+    var DAYS = ['一', '二', '三', '四', '五'];
+    var TIMES = ['08:00', '10:00', '14:00', '16:00'];
+    function rowOf(t) {
+      return t === '08:00' ? 0 : t === '10:00' ? 1 : t === '14:00' ? 2 : t === '16:00' ? 3 : 0;
+    }
+    function renderSchedule() {
+      var grid = $('#scheduleGrid');
+      var html = '<div class="corner"></div>';
+      DAYS.forEach(function (d) { html += '<div class="day-head">周' + d + '</div>'; });
+      TIMES.forEach(function (t, ri) {
+        html += '<div class="time-col">' + t + '</div>';
+        DAYS.forEach(function (d) {
+          var ev = S.schedule.filter(function (e) { return e.day === d && rowOf(e.start) === ri; })[0];
+          if (ev) {
+            var cls = ev.type === 'live' ? ' live' : ev.type === 'online' ? ' online' : '';
+            var link = (ev.type === 'online' || ev.type === 'live')
+              ? '<a class="ev-link" data-meet="1">直连腾讯会议</a>'
+              : '';
+            html += '<div class="schedule-cell"><div class="schedule-event' + cls + '" data-ev="' + ev.id + '">' +
+              '<div class="ev-title"><strong>' + esc(ev.title) + '</strong> · ' + esc(ev.location) + '</div>' +
+              link + '</div></div>';
+          } else {
+            html += '<div class="schedule-cell"></div>';
+          }
+        });
+      });
+      grid.innerHTML = html;
+    }
+    $('#scheduleGrid').addEventListener('click', function (e) {
+      var link = e.target.closest('[data-meet]');
+      if (link) {
+        e.preventDefault();
+        e.stopPropagation();
+        var code = '931-' + Math.floor(100 + Math.random() * 900) + '-' + Math.floor(100 + Math.random() * 900);
+        toast('已创建腾讯会议，会议号 ' + code, 'video');
+        return;
+      }
+      var evEl = e.target.closest('[data-ev]');
+      if (evEl) {
+        var ev = S.schedule.filter(function (x) { return x.id === evEl.dataset.ev; })[0];
+        if (ev) toast('《' + ev.title + '》· ' + ev.location, 'map-pin');
+      }
+    });
+    $('#editPlanBtn').addEventListener('click', function () {
+      toast('已打开教案与周次编辑', 'settings');
+    });
+    $('#addCourseBtn').addEventListener('click', function () {
+      $('#f-course').innerHTML = '<option value="">不关联</option>' +
+        S.courses.map(function (c) { return '<option value="' + c.id + '">' + esc(c.title) + '</option>'; }).join('');
+      $('#courseDialog').showModal();
+    });
+    $('#cancelAddBtn').addEventListener('click', function () { $('#courseDialog').close(); });
+    $('#courseDialog').addEventListener('click', function (e) {
+      if (e.target === this) this.close();
+    });
+    $('#confirmAddBtn').addEventListener('click', function () {
+      var title = $('#f-name').value.trim();
+      if (!title) { toast('请输入课程名', 'info'); return; }
+      var type = $('#f-type').value;
+      var loc = $('#f-loc').value.trim() || (type === 'offline' ? '待定教室' : '腾讯会议');
+      S.schedule.push({
+        id: uid('ev'),
+        day: $('#f-day').value,
+        start: $('#f-time').value,
+        end: '',
+        title: title,
+        type: type,
+        location: loc,
+        linkedCourse: $('#f-course').value
+      });
+      P.Store.save();
+      renderSchedule();
+      renderQuickLaunch();
+      $('#courseDialog').close();
+      $('#f-name').value = '';
+      $('#f-loc').value = '';
+      toast('课程已加入课表', 'calendar');
+    });
+
+    /* ============== Tab4 直播教学 ============== */
+    function renderLive() {
+      var overlay = $('#liveOverlay');
+      var status = $('#liveStatus');
+      if (state.live) {
+        overlay.innerHTML = '<span class="live-dot"></span> <span style="color:#ffd9cf;font-weight:700">直播中</span> · 观众 <strong style="color:#fff" id="viewerCount">' + state.viewers + '</strong> ↑';
+        status.innerHTML = '<span class="badge badge-danger"><span class="live-dot"></span>LIVE</span>';
+      } else {
+        overlay.innerHTML = '直播间未开启';
+        status.innerHTML = '<span class="badge">未开启</span>';
+      }
+    }
+    function startLive() {
+      if (state.live) return;
+      state.live = true;
+      state.viewers = 0;
+      renderLive();
+      toast('直播已发起', 'radio');
+      state.liveTimer = setInterval(function () {
+        state.viewers += Math.floor(Math.random() * 5);
+        var vc = $('#viewerCount');
+        if (vc) vc.textContent = state.viewers;
+      }, 1600);
+    }
+    function stopLive() {
+      if (!state.live) return;
+      state.live = false;
+      clearInterval(state.liveTimer);
+      renderLive();
+      toast('直播已结束', 'square');
+    }
+    $('#startLiveBtn').addEventListener('click', startLive);
+    $('#livePlayBtn').addEventListener('click', startLive);
+    $('#stopLiveBtn').addEventListener('click', stopLive);
+    $('#shareScreenBtn').addEventListener('click', function () { toast('正在共享屏幕', 'screen-share'); });
+    $('#quizBtn').addEventListener('click', function () { toast('已推送互动答题', 'presentation'); });
+    $('#rollBtn').addEventListener('click', function () { toast('已发起签到，32 人已签', 'users'); });
+
+    function renderQuickLaunch() {
+      var box = $('#quickLaunch');
+      var today = new Date().getDay();
+      var todayDay = ['日', '一', '二', '三', '四', '五', '六'][today];
+      var list = S.schedule.filter(function (e) { return e.type === 'online' || e.type === 'live'; });
+      var todays = list.filter(function (e) { return e.day === todayDay; });
+      var show = (today >= 1 && today <= 5 && todays.length) ? todays : list;
+      if (!show.length) {
+        box.innerHTML = '<div class="empty-hint">暂无可发起的线上/直播课程</div>';
+        P.refreshIcons();
+        return;
+      }
+      box.innerHTML = show.map(function (e) {
+        var label = e.type === 'live' ? '直播' : '线上';
+        return '<div class="flex-between" style="padding:11px 0;border-bottom:1px solid #eef1ec;align-items:center">' +
+          '<div style="min-width:0">' +
+            '<div class="strong text-sm">' + esc(e.title) + '</div>' +
+            '<div class="muted text-xs">周' + e.day + ' · ' + e.start + ' · ' + esc(e.location) + ' · ' + label + '</div>' +
+          '</div>' +
+          '<button class="btn btn-primary btn-sm" data-quick="' + e.id + '"><i data-lucide="radio"></i>一键发起直播</button>' +
+        '</div>';
+      }).join('');
+      P.refreshIcons();
+    }
+    $('#quickLaunch').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-quick]');
+      if (!b) return;
+      var ev = S.schedule.filter(function (x) { return x.id === b.dataset.quick; })[0];
+      switchTab('tab4');
+      startLive();
+      if (ev) toast('已发起直播：' + ev.title, 'radio');
+    });
+
+    /* ---------- 初始化渲染 ---------- */
+    renderCourseSelect();
+    renderUnits();
+    renderEditorTabs();
+    loadEditorCanvas();
+    renderSchedule();
+    renderLive();
+    renderQuickLaunch();
+    P.refreshIcons();
+  });
+  </script>
+</body>
+</html>
