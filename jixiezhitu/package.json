@@ -1,0 +1,14 @@
+{
+  "name": "gongcheng-reboot3",
+  "version": "1.0.0",
+  "description": "机械制图教学智能体 · 工程制图智能体后端服务",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
