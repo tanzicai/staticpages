@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智慧课堂 · 统一身份认证</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="login-wrap">
+  <!-- 左侧品牌区 -->
+  <div class="login-left">
+    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+    <div class="login-brand">
+      <div class="mark">智</div>
+      <div>
+        <div class="name">智慧课堂</div>
+        <div class="sub">AI课堂分析平台 · Intelligent Classroom</div>
+      </div>
+    </div>
+    <h1>让每一堂课<br>被看见、被分析、被优化</h1>
+    <p class="desc">智慧课堂深度融合学校现有教学平台与评价系统，围绕课堂活动、授课计划、直录播资源、语音转写与督导评价，构建教与学的全链路数据闭环。</p>
+    <div class="points">
+      <div class="point"><span class="no">01</span><span>对接校方教学平台，课堂活动全量同步、按时间轴沉淀</span></div>
+      <div class="point"><span class="no">02</span><span>授课计划与大纲知识点覆盖分析，自动输出分析报告</span></div>
+      <div class="point"><span class="no">03</span><span>直录播资源统一管理，在线剪辑、多语种语音实时转写翻译</span></div>
+      <div class="point"><span class="no">04</span><span>直录播直连督导评价，一站式可视化评课打分</span></div>
+    </div>
+  </div>
+
+  <!-- 右侧登录表单 -->
+  <div class="login-right">
+    <div class="login-card">
+      <div class="mini-brand">
+        <div class="mark" style="width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px">智</div>
+        <div class="name">智慧课堂</div>
+      </div>
+      <div class="cap">智慧课堂 · AI课堂分析平台</div>
+      <h2>账号登录</h2>
+      <p class="tip">使用校园统一身份认证账号登录系统</p>
+
+      <div class="form-box">
+        <div class="login-msg" id="loginMsg"><span class="dot-mark"></span><span id="loginMsgTxt">账号或密码错误</span></div>
+        <label class="lb" for="userName">账号</label>
+        <input class="inp" id="userName" type="text" placeholder="请输入账号 / 工号" autocomplete="username" style="margin-bottom:16px">
+        <label class="lb" for="userPwd">密码</label>
+        <input class="inp" id="userPwd" type="password" placeholder="请输入密码" autocomplete="current-password" style="margin-bottom:4px">
+        <div class="form-row">
+          <label class="remember"><input type="checkbox" id="rememberMe">记住登录状态</label>
+          <span class="link-mini" id="forgetLink">忘记密码？</span>
+        </div>
+        <button class="btn-login" id="loginBtn">登 录</button>
+      </div>
+
+      <div class="login-sso">
+        <span class="muted" style="font-size:12px">支持统一认证登录：</span>
+        <span class="sso-tag">校内统一身份认证</span>
+      </div>
+      <div class="login-foot">智慧课堂 · 智慧教学一体化平台&nbsp;&nbsp;|&nbsp;&nbsp;建议使用 Chrome / Edge 浏览器访问</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var SESSION_KEY = 'zhkt_session';
+  var ACCOUNT = 'root';
+  var PWD = localStorage.getItem('zhkt_pwd') || 'root';
+
+  // 已登录则直接进入系统
+  if (localStorage.getItem(SESSION_KEY)) {
+    location.replace('app.html');
+    return;
+  }
+
+  var msgBox = document.getElementById('loginMsg');
+  var msgTxt = document.getElementById('loginMsgTxt');
+  var userEl = document.getElementById('userName');
+  var pwdEl = document.getElementById('userPwd');
+  var btn = document.getElementById('loginBtn');
+  var remember = document.getElementById('rememberMe');
+  if (localStorage.getItem('zhkt_remember') === '1') {
+    remember.checked = true;
+    userEl.value = localStorage.getItem('zhkt_remember_user') || '';
+  }
+
+  function showMsg(t){ msgTxt.textContent = t; msgBox.classList.add('show'); }
+  function hideMsg(){ msgBox.classList.remove('show'); }
+
+  function doLogin(){
+    hideMsg();
+    var u = userEl.value.trim();
+    var p = pwdEl.value;
+    var uErr = false, pErr = false;
+    if(!u){ userEl.classList.add('err'); uErr = true; } else userEl.classList.remove('err');
+    if(!p){ pwdEl.classList.add('err'); pErr = true; } else pwdEl.classList.remove('err');
+    if(uErr || pErr){ showMsg('请输入账号和密码'); return; }
+
+    if(u !== ACCOUNT || p !== PWD){
+      userEl.classList.add('err'); pwdEl.classList.add('err');
+      showMsg('账号或密码错误，请核对后重试');
+      return;
+    }
+
+    if(remember.checked){
+      localStorage.setItem('zhkt_remember','1');
+      localStorage.setItem('zhkt_remember_user', u);
+    } else {
+      localStorage.removeItem('zhkt_remember');
+      localStorage.removeItem('zhkt_remember_user');
+    }
+
+    btn.classList.add('busy');
+    btn.textContent = '正在验证…';
+    setTimeout(function(){
+      var s = {
+        user: u,
+        name: '系统管理员',
+        dept: '平台管理中心',
+        role: '平台管理员 / 督导专家',
+        loginAt: new Date().toLocaleString('zh-CN')
+      };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+      location.href = 'app.html#/dashboard';
+    }, 550);
+  }
+
+  btn.addEventListener('click', doLogin);
+  pwdEl.addEventListener('keydown', function(e){ if(e.key === 'Enter') doLogin(); });
+  userEl.addEventListener('keydown', function(e){ if(e.key === 'Enter') doLogin(); });
+  userEl.addEventListener('input', hideMsg);
+  pwdEl.addEventListener('input', hideMsg);
+  document.getElementById('forgetLink').addEventListener('click', function(){
+    alert('请联系学校信息化管理部门重置账号密码。');
+  });
+})();
+</script>
+</body>
+</html>

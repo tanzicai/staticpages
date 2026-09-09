@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智慧课堂 · AI课堂分析平台</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ============ 顶部导航 ============ -->
+  <header class="topnav">
+    <div class="tn-brand" onclick="location.hash='#/dashboard'">
+      <div class="tmark">智</div>
+      <div class="tbt">
+        <div class="n">智慧课堂</div>
+        <div class="s">AI课堂分析平台</div>
+      </div>
+    </div>
+
+    <nav class="tmenu" id="tmenu">
+      <button class="tl" data-route="dashboard" data-g="dash">工作台</button>
+      <div class="tgrp" data-g="course">
+        <button class="tg" type="button"><span>课程中心</span><em></em></button>
+        <div class="tdrop">
+          <button class="it" data-route="courses">我的课程 / 课程库</button>
+          <button class="it" data-route="course-auth">对接课程配置</button>
+          <button class="it" data-route="schedule">选课与排课</button>
+        </div>
+      </div>
+      <div class="tgrp" data-g="analysis">
+        <button class="tg" type="button"><span>课堂分析</span><em></em></button>
+        <div class="tdrop">
+          <button class="it" data-route="activity">课堂活动</button>
+          <button class="it" data-route="teachplan">授课计划比对</button>
+          <button class="it" data-route="outline">大纲覆盖分析</button>
+          <button class="it" data-route="reports">分析报告</button>
+        </div>
+      </div>
+      <div class="tgrp" data-g="res">
+        <button class="tg" type="button"><span>资源中心</span><em></em></button>
+        <div class="tdrop">
+          <button class="it" data-route="resources">直录播资源</button>
+          <button class="it" data-route="stt">语音转写与翻译</button>
+          <button class="it" data-route="cloud">云端资源库</button>
+        </div>
+      </div>
+      <div class="tgrp" data-g="sup">
+        <button class="tg" type="button"><span>督导评课</span><em></em></button>
+        <div class="tdrop">
+          <button class="it" data-route="supervision">在线督导</button>
+          <button class="it" data-route="evalforms">评价表管理</button>
+        </div>
+      </div>
+      <div class="tgrp" data-g="sys">
+        <button class="tg" type="button"><span>系统管理</span><em></em></button>
+        <div class="tdrop">
+          <button class="it" data-route="users">用户管理</button>
+          <button class="it" data-route="logs">操作日志</button>
+        </div>
+      </div>
+      <button class="tl" data-route="help" data-g="help">帮助中心</button>
+    </nav>
+
+    <div class="tnright">
+      <span class="term-pill" id="termPill">2025-2026学年 第二学期</span>
+      <div class="bell" id="bellBtn" title="消息通知">
+        <span class="icontext">铃</span>
+        <span class="bdot hide" id="bellDot">0</span>
+      </div>
+      <div class="user-chip" id="userChip">
+        <div class="avatar" id="avatarTxt">管</div>
+        <div class="uinfo">
+          <div class="n" id="userName">系统管理员</div>
+          <div class="r">平台管理员</div>
+        </div>
+        <span class="caret"></span>
+      </div>
+      <div class="dropdown" id="userMenu" style="right:0">
+        <div class="di" id="dmProfile"><span>个人中心</span><span class="t2" id="dmAccount">root</span></div>
+        <div class="di" id="dmPwd"><span>修改密码</span><span class="t2">›</span></div>
+        <div class="di danger" id="dmLogout"><span>退出登录</span></div>
+      </div>
+      <div class="dropdown" id="bellMenu" style="right:46px;min-width:300px">
+        <div style="padding:10px 12px;font-weight:800;font-size:14px;border-bottom:1px solid var(--line-2)">消息通知<span style="float:right;font-weight:400;font-size:12px;color:var(--brand);cursor:pointer" id="readAllBell">全部已读</span></div>
+        <div id="bellList" style="max-height:320px;overflow-y:auto"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 页面标题条 -->
+  <div class="pagerow">
+    <div>
+      <div class="tb-title" id="tbTitle">工作台</div>
+      <div class="tb-sub" id="tbSub">课程与课堂数据总览</div>
+    </div>
+  </div>
+
+  <div class="view-wrap" id="view"></div>
+</div>
+<div class="toast-box" id="toastBox"></div>
+
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/player.js"></script>
+<script src="js/video.js"></script>
+<script src="js/views/dashboard.js"></script>
+<script src="js/views/activities.js"></script>
+<script src="js/views/coverage.js"></script>
+<script src="js/views/resources.js"></script>
+<script src="js/views/stt.js"></script>
+<script src="js/views/supervision.js"></script>
+<script src="js/views/extra.js"></script>
+<script>AppBoot();</script>
+</body>
+</html>
