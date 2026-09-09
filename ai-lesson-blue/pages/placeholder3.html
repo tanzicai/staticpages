@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教师发展 - 智慧课堂</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    .training-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .training-item:last-child { border-bottom: none; }
+
+    .path-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .path-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .path-line {
+      height: 24px;
+      border-left: 2px solid var(--primary);
+      margin-left: 17px;
+    }
+  </style>
+</head>
+<body>
+  <script src="../js/common.js"></script>
+  <script src="../js/data.js"></script>
+  <script>
+    Auth.guard();
+    renderSidebar('placeholder3');
+  </script>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">首页</a> ›
+          <span class="current">教师发展</span>
+        </div>
+      </div>
+      <div class="topbar-right" data-topbar-actions></div>
+    </div>
+
+    <div class="page-content">
+      <div style="margin-bottom:20px;">
+        <h2 style="margin:0 0 4px;font-size:22px;">教师专业发展中心</h2>
+        <p style="margin:0;color:var(--text-secondary);font-size:13px;">基于教学数据分析的教师能力画像、培训推荐与成长记录</p>
+      </div>
+
+      <div class="stat-grid" id="statGrid"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon"></span>教师教学能力画像 TOP10</div>
+          <button class="btn btn-outline btn-sm" onclick="exportTeacherReport()">导出报告</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:80px;">排名</th>
+                <th>教师姓名</th>
+                <th>所属学院</th>
+                <th>授课评价分</th>
+                <th>学生满意度</th>
+                <th>创新教学指数</th>
+                <th>AI综合评分</th>
+              </tr>
+            </thead>
+            <tbody id="teacherTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>推荐培训课程</div>
+          </div>
+          <div id="trainingList"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>教师成长路径</div>
+          </div>
+          <div style="padding:20px;">
+            <div class="path-step">
+              <div class="path-num">1</div>
+              <div>
+                <div style="font-weight:500;">数据采集</div>
+                <div style="font-size:12px;color:var(--text-secondary);">课堂行为、录播分析、督导评价</div>
+              </div>
+            </div>
+            <div class="path-line"></div>
+            <div class="path-step">
+              <div class="path-num">2</div>
+              <div>
+                <div style="font-weight:500;">能力画像</div>
+                <div style="font-size:12px;color:var(--text-secondary);">AI多维度教师能力评估</div>
+              </div>
+            </div>
+            <div class="path-line"></div>
+            <div class="path-step">
+              <div class="path-num">3</div>
+              <div>
+                <div style="font-weight:500;">发展建议</div>
+                <div style="font-size:12px;color:var(--text-secondary);">个性化培训与资源推荐</div>
+              </div>
+            </div>
+            <div class="path-line"></div>
+            <div class="path-step">
+              <div class="path-num" style="background:var(--success);">4</div>
+              <div>
+                <div style="font-weight:500;">持续成长</div>
+                <div style="font-size:12px;color:var(--text-secondary);">教学能力螺旋式提升</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 统计卡片
+    const stats = [
+      { label: '在职教师', value: '142', trend: '', trendCls: '' },
+      { label: '平均教龄', value: '7.8 年', trend: '', trendCls: '' },
+      { label: '本学期培训', value: '28', trend: '参与率 92%', trendCls: 'up' },
+      { label: '高级职称占比', value: '68%', trend: '', trendCls: '' }
+    ];
+    document.getElementById('statGrid').innerHTML = stats.map(s => `
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-label">${s.label}</div>
+          <div class="stat-value">${s.value}</div>
+          ${s.trend ? `<div class="stat-trend ${s.trendCls}">${s.trend}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+
+    // 教师画像表
+    const teachers = [
+      ['李明华', '数学与统计学院', 96, 98, 92, 95.2],
+      ['张伟', '计算机学院', 94, 95, 96, 94.8],
+      ['陈晓东', '物理与电子学院', 95, 97, 88, 93.4],
+      ['王芳', '外国语学院', 93, 94, 94, 93.0],
+      ['赵建国', '数学与统计学院', 92, 93, 90, 91.8],
+      ['刘建华', '计算机学院', 91, 92, 95, 92.0],
+      ['孙丽', '经济管理学院', 90, 91, 92, 90.8],
+      ['周明', '机械工程学院', 89, 90, 88, 89.2],
+      ['吴艳', '文学院', 88, 89, 91, 89.0],
+      ['郑强', '物理与电子学院', 87, 88, 85, 86.8]
+    ];
+    document.getElementById('teacherTable').innerHTML = teachers.map((t, i) => `
+      <tr>
+        <td><span class="badge ${i < 3 ? 'badge-warning' : 'badge-info'}">#${i + 1}</span></td>
+        <td style="font-weight:500;">${t[0]}</td>
+        <td>${t[1]}</td>
+        <td>${t[2]}</td>
+        <td>${t[3]}%</td>
+        <td>${t[4]}</td>
+        <td><span style="font-weight:700;color:var(--primary);font-size:15px;">${t[5]}</span></td>
+      </tr>
+    `).join('');
+
+    // 导出教师画像报告（真实触发浏览器PDF下载）
+    function exportTeacherReport() {
+      downloadPdf(
+        '教师教学能力画像报告.pdf',
+        '教师教学能力画像报告',
+        '全校教师教学能力画像 TOP10 排名',
+        [
+          { title: '一、报告说明', desc: '基于授课评价分、学生满意度、创新教学指数三项指标，由AI综合计算生成。', table: null },
+          { title: '二、画像排名明细', table: { headers: ['排名', '教师姓名', '所属学院', '授课评价分', '学生满意度', '创新教学指数', 'AI综合评分'], rows: teachers.map((t, i) => ['#' + (i + 1), t[0], t[1], t[2], t[3] + '%', t[4], t[5]]) } }
+        ]
+      );
+    }
+
+    // 培训课程
+    const trainings = [
+      ['AI辅助教学设计工作坊', '教学发展中心', '2026-09-15', '报名中'],
+      ['智慧课堂直播技术实践', '信息化办公室', '2026-09-22', '报名中'],
+      ['高质量在线课程建设', '教学发展中心', '2026-09-28', '即将开始'],
+      ['基于数据的教学反思', '教育学院', '2026-10-10', '已开放']
+    ];
+    document.getElementById('trainingList').innerHTML = trainings.map(c => `
+      <div class="training-item">
+        <div>
+          <div style="font-weight:500;">${c[0]}</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${c[1]} · ${c[2]}</div>
+        </div>
+        <span class="badge badge-primary">${c[3]}</span>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>

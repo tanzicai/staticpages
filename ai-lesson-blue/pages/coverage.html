@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>授课计划与知识覆盖分析 - 智慧课堂</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    /* 四类分析卡片：用不同顶边颜色区分类型 */
+    .analysis-card { border-top: 3px solid var(--primary); }
+    .analysis-card.a1 { border-top-color: #1e6fd9; }
+    .analysis-card.a2 { border-top-color: #4a90e2; }
+    .analysis-card.a3 { border-top-color: #2f7dd2; }
+    .analysis-card.a4 { border-top-color: #1558b0; }
+    .analysis-card.a5 { border-top-color: #5aa7de; }
+
+    .compare-object {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: normal;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .a1 .compare-object { background: #e8f1fd; color: #1e6fd9; }
+    .a2 .compare-object { background: #e9f2fc; color: #4a90e2; }
+    .a3 .compare-object { background: #e9f2fc; color: #2f7dd2; }
+    .a4 .compare-object { background: #e8f1fc; color: #1558b0; }
+
+    .analysis-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed var(--border-light);
+    }
+
+    .summary-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .summary-badge {
+      padding: 5px 14px;
+      border-radius: 14px;
+      font-size: 12px;
+      background: var(--bg-gray);
+      color: var(--text-secondary);
+    }
+    .summary-badge.hl { background: #fee2e2; color: #991b1b; }
+    .summary-badge.ok { background: #d1fae5; color: #065f46; }
+    .summary-badge.warn { background: #fef3c7; color: #92400e; }
+
+    /* 同类对比双条 */
+    .peer-row { margin-bottom: 14px; }
+    .peer-row .peer-name { font-size: 13px; font-weight: 500; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .peer-bars { display: flex; align-items: center; gap: 10px; }
+    .peer-bar-group { flex: 1; }
+    .peer-bar-label { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+    .peer-bar { height: 8px; border-radius: 4px; background: var(--bg-gray); overflow: hidden; }
+    .peer-bar-fill { height: 100%; border-radius: 4px; }
+    .peer-val { font-size: 12px; font-weight: 600; width: 66px; }
+    .peer-diff { font-size: 11px; padding: 2px 8px; border-radius: 10px; width: 64px; text-align: center; }
+    .diff-up { background: #d1fae5; color: #065f46; }
+    .diff-down { background: #fee2e2; color: #991b1b; }
+
+    /* 章节覆盖行 */
+    .chapter-line {
+      display: flex; align-items: center; gap: 14px;
+      padding: 9px 0; border-bottom: 1px solid var(--border-light);
+    }
+    .chapter-line:last-child { border-bottom: none; }
+    .chapter-line .ch-name { width: 240px; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+    .chapter-line .ch-bar { flex: 1; }
+    .chapter-line .ch-pct { width: 130px; text-align: right; font-size: 13px; flex-shrink: 0; }
+
+    /* 章节推进时间线（完成度分析） */
+    .step-flow { display: flex; gap: 0; overflow-x: auto; padding: 8px 0 4px; }
+    .step-node { min-width: 120px; flex: 1; text-align: center; position: relative; padding: 0 6px; }
+    .step-node::before {
+      content: ''; position: absolute; top: 14px; left: -50%; width: 100%; height: 2px; background: var(--border);
+    }
+    .step-node:first-child::before { display: none; }
+    .step-node.done::before { background: var(--success); }
+    .step-node.doing::before { background: var(--warning); }
+    .step-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--bg-gray); color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 8px; font-size: 12px; font-weight: 600;
+      border: 2px solid var(--border); position: relative; z-index: 1; background: white;
+    }
+    .step-node.done .step-dot { border-color: var(--success); color: var(--success); }
+    .step-node.doing .step-dot { border-color: var(--warning); color: var(--warning); }
+    .step-title { font-size: 12px; font-weight: 500; margin-bottom: 2px; }
+    .step-sub { font-size: 11px; color: var(--text-muted); }
+
+    .report-kpi {
+      display: inline-block; padding: 12px 24px; background: white;
+      border-radius: var(--radius); margin: 0 12px 8px 0; text-align: center;
+      border: 1px solid var(--border-light);
+    }
+    .report-kpi .val { font-size: 24px; font-weight: 700; color: var(--primary); }
+    .report-kpi .lbl { font-size: 12px; color: var(--text-secondary); }
+
+    .detail-table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+    .detail-table th, .detail-table td {
+      border: 1px solid var(--border-light); padding: 8px 10px;
+      font-size: 12.5px; text-align: left;
+    }
+    .detail-table th { background: var(--primary-bg); color: var(--text-primary); white-space: nowrap; }
+
+    @media (max-width: 768px) {
+      .chapter-line .ch-name { width: 150px; font-size: 12px; }
+      .chapter-line .ch-pct { width: 100px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <script src="../js/common.js"></script>
+  <script src="../js/data.js"></script>
+  <script>
+    Auth.guard();
+    renderSidebar('coverage');
+  </script>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">首页</a> ›
+          <span class="current">授课计划与知识覆盖分析</span>
+        </div>
+      </div>
+      <div class="topbar-right" data-topbar-actions></div>
+    </div>
+
+    <div class="page-content">
+      <!-- 页面标题 + 课程选择 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="margin:0 0 4px;font-size:22px;">授课计划与知识覆盖分析</h2>
+          <p style="margin:0;color:var(--text-secondary);font-size:13px;">自动匹配教学平台授课计划与教学大纲，提供四类独立对比分析与综合报告</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <select class="form-control" id="courseSelect" style="padding:8px 12px;max-width:340px;"></select>
+          <button class="btn btn-outline btn-sm" onclick="syncPlan()">同步授课计划</button>
+        </div>
+      </div>
+
+      <!-- 概览统计 -->
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-info">
+          <div class="stat-label">大纲总知识点数</div>
+          <div class="stat-value" id="totalPoints">-</div>
+        </div></div>
+        <div class="stat-card"><div class="stat-info">
+          <div class="stat-label">已覆盖知识点数</div>
+          <div class="stat-value" id="coveredPoints">-</div>
+          <div class="stat-trend up">本周新增 +6</div>
+        </div></div>
+        <div class="stat-card"><div class="stat-info">
+          <div class="stat-label">整体覆盖率</div>
+          <div class="stat-value" id="coverageRate" style="color:var(--primary)">-</div>
+        </div></div>
+        <div class="stat-card"><div class="stat-info">
+          <div class="stat-label">授课进度</div>
+          <div class="stat-value" id="progressWeek">-</div>
+          <div class="stat-trend" id="progressTrend">按计划推进</div>
+        </div></div>
+      </div>
+
+      <!-- 分析一：授课计划进度对比 -->
+      <div class="card analysis-card a1" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon"></span>分析一：授课计划进度对比
+            <span class="compare-object">比较对象：授课计划安排 ↔ 实际授课进度</span>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="viewDetail('plan')">查看详情</button>
+            <button class="btn btn-primary btn-sm" onclick="downloadReport('plan')">下载分析报告</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="analysis-desc">按周对比教学平台同步的授课计划内容与课堂实际完成内容，识别超前、滞后与待执行周次。</div>
+          <div class="summary-badges" id="planSummary"></div>
+          <div style="overflow-x:auto;">
+            <table class="table">
+              <thead><tr>
+                <th style="width:80px;">周次</th><th>授课计划内容</th><th>实际授课进度</th><th style="width:90px;">对比结果</th>
+              </tr></thead>
+              <tbody id="planTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分析二：同类课程横向对比 -->
+      <div class="card analysis-card a2" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon"></span>分析二：同类课程横向对比
+            <span class="compare-object">比较对象：本课程 ↔ 全校同类课程平均</span>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="viewDetail('peer')">查看详情</button>
+            <button class="btn btn-primary btn-sm" onclick="downloadReport('peer')">下载分析报告</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="analysis-desc" id="peerDesc"></div>
+          <div class="summary-badges" id="peerSummary"></div>
+          <div id="peerBars"></div>
+        </div>
+      </div>
+
+      <!-- 分析三：大纲知识点覆盖对比 -->
+      <div class="card analysis-card a3" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon"></span>分析三：大纲知识点覆盖对比
+            <span class="compare-object">比较对象：教学大纲知识点 ↔ 实际已授知识点</span>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="viewDetail('outline')">查看详情</button>
+            <button class="btn btn-primary btn-sm" onclick="downloadReport('outline')">下载分析报告</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="analysis-desc" id="outlineDesc"></div>
+          <div class="summary-badges" id="outlineSummary"></div>
+          <div id="chapterList"></div>
+        </div>
+      </div>
+
+      <!-- 分析四：授课计划章节完成度 -->
+      <div class="card analysis-card a4" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon"></span>分析四：授课计划章节完成度
+            <span class="compare-object">比较对象：授课计划章节 ↔ 章节完成状态</span>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="viewDetail('completion')">查看详情</button>
+            <button class="btn btn-primary btn-sm" onclick="downloadReport('completion')">下载分析报告</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="analysis-desc">以章节为单位呈现授课计划的推进状态：已完成章节进入下一步骤，授课中章节高亮提示，未开始章节按计划周次排期。</div>
+          <div class="summary-badges" id="completionSummary"></div>
+          <div class="step-flow" id="stepFlow"></div>
+        </div>
+      </div>
+
+      <!-- 综合分析报告 -->
+      <div class="card analysis-card a5">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon"></span>课堂教学综合分析报告</div>
+          <button class="btn btn-primary btn-sm" onclick="generateReport()">生成综合分析报告</button>
+        </div>
+        <div class="card-body">
+          <div class="report-section" id="reportContent" style="padding:16px;background:#f7f9f9;border-radius:var(--radius);">
+            <div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+              <div style="font-size:16px;margin-bottom:8px;">点击“生成综合分析报告”按钮</div>
+              <div style="font-size:13px;">系统将基于以上四类对比分析结果、授课计划、知识点覆盖与课堂活动数据生成结构化报告，并支持下载至本地</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentCourseId = 'c001';
+    let AD = null;   // 当前课程的完整分析数据
+    let aiGenerated = false;
+
+    // ============ 数据生成（非c001课程按课程序号生成稳定模拟数据） ============
+    const GEN_TOPICS = ['基本概念', '基本原理', '性质与定理', '计算方法', '典型例题', '工程应用', '综合案例', '拓展专题'];
+    const CN_NUM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+
+    function lcg(seed) { let s = seed; return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; }; }
+
+    function getAnalysisData(courseId) {
+      const course = mockCourses.find(c => c.id === courseId) || mockCourses[0];
+      if (courseId === 'c001') {
+        return {
+          course,
+          chapters: mockCoverageData.c001.planChapters,
+          plan: mockPlanProgress,
+          peer: mockPeerComparison,
+          planSource: mockCoverageData.c001.planSource,
+          outlineSource: mockCoverageData.c001.outlineSource,
+          weekNow: 2, totalWeeks: 16
+        };
+      }
+      const seed = parseInt(courseId.replace('c', '')) || 1;
+      const rnd = lcg(seed);
+      // 生成章节结构
+      const chapterNames = ['绪论', '基础理论', '核心概念', '基本方法', '进阶应用', '综合实践', '专题研究', '复习总结'].slice(0, 6 + (seed % 3));
+      let chapterIdx = 0;
+      const chapters = chapterNames.map((n) => {
+        chapterIdx++;
+        const total = 12 + Math.floor(rnd() * 14);
+        let covered = 0, status = 'planned';
+        if (chapterIdx === 1) { covered = total; status = 'completed'; }
+        else if (chapterIdx === 2) { covered = Math.floor(total * (0.4 + rnd() * 0.5)); status = 'teaching'; }
+        const secCount = 3 + Math.floor(rnd() * 4);
+        const sections = [];
+        for (let j = 0; j < secCount; j++) sections.push(chapterIdx + '.' + (j + 1) + ' ' + GEN_TOPICS[j % GEN_TOPICS.length]);
+        return {
+          id: 'ch' + chapterIdx,
+          name: '第' + CN_NUM[chapterIdx - 1] + '章 ' + n,
+          totalPoints: total, coveredPoints: covered,
+          coverage: Math.round(covered / total * 100),
+          status, sections
+        };
+      });
+      // 生成周计划对比
+      const weekNow = 2 + (seed % 3);
+      const plan = [];
+      for (let w = 1; w <= 6; w++) {
+        const chp = chapters[Math.min(Math.ceil(w / 2), chapters.length) - 1];
+        const chn = chapters[Math.min(Math.ceil((w + 1) / 2), chapters.length) - 1];
+        const secRange = (w % 2 === 1) ? '上半部分' : '下半部分';
+        const planned = chp.name + ' ' + secRange + '（' + chp.sections.slice(0, 3).map(s => s.split(' ')[0]).join('、') + '）';
+        let actual = '待执行', status = '计划中';
+        if (w < weekNow) {
+          const r = rnd();
+          if (r > 0.6) { actual = '已完成' + chp.name + '，并提前进入' + chn.name; status = '超前'; }
+          else if (r > 0.3) { actual = '按计划完成' + chp.name + ' ' + secRange; status = '符合'; }
+          else { actual = '完成' + chp.name + ' 部分内容（约70%）'; status = '滞后'; }
+        } else if (w === weekNow) {
+          actual = '正在讲授' + chp.name + ' ' + secRange; status = '授课中';
+        }
+        plan.push({ week: '第' + CN_NUM[w - 1] + '周', planned, actual, status });
+      }
+      // 生成同类对比
+      const base = {
+        c002: '全校公共外语类课程（共14门）', c003: '全校程序设计类课程（共9门）',
+        c004: '全校公共数学类课程（共12门）', c005: '全校公共物理类课程（共10门）',
+        c006: '计算机学院专业核心课（共11门）', c007: '全校公共数学类课程（共12门）',
+        c008: '全校思想政治类课程（共8门）', c009: '计算机学院专业核心课（共11门）',
+        c010: '计算机学院专业核心课（共11门）', c011: '电子信息类专业核心课（共9门）',
+        c012: '机械工程学院专业核心课（共10门）', c013: '经管学院专业基础课（共12门）',
+        c014: '全校公共人文类课程（共13门）', c015: '计算机学院专业核心课（共11门）'
+      };
+      const offset = (seed % 5) - 2; // -2 ~ +2
+      const peer = {
+        courseName: course.name,
+        peerGroup: base[courseId] || '全校同类课程（共10门）',
+        dimensions: [
+          { name: '知识点覆盖率', current: +(24 + seed * 1.3).toFixed(1), peer: 31.2, unit: '%', higher: 24 + seed * 1.3 > 31.2 },
+          { name: '授课进度符合度', current: Math.min(100, 92 + offset * 3), peer: 94, unit: '%', higher: 92 + offset * 3 > 94 },
+          { name: '随堂测验平均分', current: +(15.5 + offset * 0.6).toFixed(1), peer: 15.9, unit: '分', higher: 15.5 + offset * 0.6 > 15.9 },
+          { name: '课堂出勤率', current: +(96 + offset * 0.8).toFixed(1), peer: 96.1, unit: '%', higher: 96 + offset * 0.8 > 96.1 },
+          { name: '师生互动频次', current: 62 + offset * 8, peer: 65, unit: '次/课时', higher: 62 + offset * 8 > 65 },
+          { name: '作业提交率', current: +(93 + offset * 1.5).toFixed(1), peer: 93.5, unit: '%', higher: 93 + offset * 1.5 > 93.5 }
+        ]
+      };
+      return {
+        course, chapters, plan, peer,
+        planSource: '校方在线教学平台（已自动匹配授课计划）',
+        outlineSource: '2025版本科人才培养方案课程教学大纲',
+        weekNow, totalWeeks: 16
+      };
+    }
+
+    // ============ 渲染 ============
+    function rerender() {
+      AD = getAnalysisData(currentCourseId);
+      const totalPts = AD.chapters.reduce((a, c) => a + c.totalPoints, 0);
+      const coveredPts = AD.chapters.reduce((a, c) => a + c.coveredPoints, 0);
+      const overall = totalPts ? (coveredPts / totalPts * 100).toFixed(1) : 0;
+
+      document.getElementById('totalPoints').textContent = totalPts;
+      document.getElementById('coveredPoints').textContent = coveredPts;
+      document.getElementById('coverageRate').textContent = overall + '%';
+      document.getElementById('progressWeek').textContent = '第' + AD.weekNow + '周 / ' + AD.totalWeeks + '周';
+      document.getElementById('progressTrend').textContent = '计划章节 ' + AD.chapters.length + ' 章';
+
+      renderPlan();
+      renderPeer();
+      renderOutline();
+      renderCompletion();
+      aiGenerated = false;
+      document.getElementById('reportContent').innerHTML = `
+        <div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+          <div style="font-size:16px;margin-bottom:8px;">点击“生成综合分析报告”按钮</div>
+          <div style="font-size:13px;">系统将基于以上四类对比分析结果、授课计划、知识点覆盖与课堂活动数据生成结构化报告，并支持下载至本地</div>
+        </div>`;
+    }
+
+    // ----- 分析一：进度对比 -----
+    const statusCls = { '超前': 'ok', '符合': 'ok', '滞后': 'hl', '授课中': 'warn', '计划中': '' };
+    function renderPlan() {
+      const counts = { '超前': 0, '符合': 0, '滞后': 0, '授课中': 0, '计划中': 0 };
+      AD.plan.forEach(p => counts[p.status]++);
+      document.getElementById('planSummary').innerHTML = `
+        <span class="summary-badge ok">超前 ${counts['超前']} 周</span>
+        <span class="summary-badge ok">符合 ${counts['符合']} 周</span>
+        <span class="summary-badge hl">滞后 ${counts['滞后']} 周</span>
+        <span class="summary-badge warn">授课中 ${counts['授课中']} 周</span>
+        <span class="summary-badge">计划中 ${counts['计划中']} 周</span>`;
+      document.getElementById('planTable').innerHTML = AD.plan.map(p => `
+        <tr>
+          <td style="font-weight:600;">${p.week}</td>
+          <td style="font-size:12.5px;">${p.planned}</td>
+          <td style="font-size:12.5px;${p.actual === '待执行' ? 'color:var(--text-muted);' : ''}">${p.actual}</td>
+          <td><span class="summary-badge ${statusCls[p.status] || ''}" style="display:inline-block;">${p.status}</span></td>
+        </tr>`).join('');
+    }
+
+    // ----- 分析二：同类对比 -----
+    function renderPeer() {
+      const lead = AD.peer.dimensions.filter(d => d.higher).length;
+      document.getElementById('peerDesc').textContent =
+        '将本课程与' + AD.peer.peerGroup + '在教学核心指标上进行横向对比，识别优势指标与短板指标。';
+      document.getElementById('peerSummary').innerHTML = `
+        <span class="summary-badge ok">领先维度 ${lead} 个</span>
+        <span class="summary-badge hl">落后维度 ${AD.peer.dimensions.length - lead} 个</span>
+        <span class="summary-badge">对比课程组：${AD.peer.peerGroup}</span>`;
+      const maxVal = d => Math.max(d.current, d.peer) * 1.15;
+      document.getElementById('peerBars').innerHTML = AD.peer.dimensions.map(d => {
+        const mv = maxVal(d);
+        return `
+          <div class="peer-row">
+            <div class="peer-name"><span>${d.name}</span></div>
+            <div class="peer-bars">
+              <span class="peer-val" style="color:var(--primary);">本课程</span>
+              <div class="peer-bar-group">
+                <div class="peer-bar"><div class="peer-bar-fill" style="width:${(d.current / mv * 100).toFixed(0)}%;background:var(--primary);"></div></div>
+              </div>
+              <span class="peer-val" style="width:80px;">${d.current}${d.unit}</span>
+            </div>
+            <div class="peer-bars" style="margin-top:4px;">
+              <span class="peer-val" style="color:#4a90e2;">同类均值</span>
+              <div class="peer-bar-group">
+                <div class="peer-bar"><div class="peer-bar-fill" style="width:${(d.peer / mv * 100).toFixed(0)}%;background:#4a90e2;"></div></div>
+              </div>
+              <span class="peer-val" style="width:80px;">${d.peer}${d.unit}</span>
+              <span class="peer-diff ${d.higher ? 'diff-up' : 'diff-down'}">${d.higher ? '↑ 领先' : '↓ 落后'} ${Math.abs((d.current - d.peer)).toFixed(1)}</span>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ----- 分析三：大纲覆盖 -----
+    function getOutlineRows() {
+      const rows = [];
+      let no = 1;
+      AD.chapters.forEach(ch => {
+        const coveredCount = Math.floor(ch.sections.length * ch.coverage / 100);
+        ch.sections.forEach((s, si) => {
+          const covered = si < coveredCount;
+          let req = '掌握';
+          if (currentCourseId === 'c001') req = outlineRequirements[s] || '理解';
+          else req = (si % 3 === 0) ? '掌握' : (si % 3 === 1) ? '理解' : '了解';
+          rows.push({
+            no: no++, point: s,
+            chapter: ch.name.replace(/^第.+章\s*/, ''),
+            requirement: req, covered,
+            status: covered ? '已覆盖' : (ch.status === 'planned' ? '待授课' : '未覆盖'),
+            lastTeach: covered ? '2026-09-0' + Math.max(1, 8 - si % 8) : '-'
+          });
+        });
+      });
+      return rows;
+    }
+
+    function renderOutline() {
+      const totalPts = AD.chapters.reduce((a, c) => a + c.totalPoints, 0);
+      const coveredPts = AD.chapters.reduce((a, c) => a + c.coveredPoints, 0);
+      document.getElementById('outlineDesc').innerHTML =
+        '以' + AD.outlineSource + '为基准，逐知识点对比大纲要求与实际授课情况，标注大纲要求等级（掌握/理解/了解）。';
+      document.getElementById('outlineSummary').innerHTML = `
+        <span class="summary-badge">大纲知识点 ${totalPts} 个</span>
+        <span class="summary-badge ok">已覆盖 ${coveredPts} 个</span>
+        <span class="summary-badge hl">未覆盖 ${totalPts - coveredPts} 个</span>`;
+      document.getElementById('chapterList').innerHTML = AD.chapters.map(ch => `
+        <div class="chapter-line">
+          <div class="ch-name">${ch.name}</div>
+          <div class="ch-bar"><div class="progress"><div class="progress-bar ${ch.coverage === 100 ? 'green' : ch.coverage > 0 ? 'orange' : ''}" style="width:${ch.coverage}%"></div></div></div>
+          <div class="ch-pct">${ch.coveredPoints}/${ch.totalPoints} · <b>${ch.coverage}%</b></div>
+        </div>`).join('');
+    }
+
+    // ----- 分析四：章节完成度 -----
+    function renderCompletion() {
+      const done = AD.chapters.filter(c => c.status === 'completed').length;
+      const doing = AD.chapters.filter(c => c.status === 'teaching').length;
+      const todo = AD.chapters.filter(c => c.status === 'planned').length;
+      document.getElementById('completionSummary').innerHTML = `
+        <span class="summary-badge ok">已完成 ${done} 章</span>
+        <span class="summary-badge warn">授课中 ${doing} 章</span>
+        <span class="summary-badge">待授课 ${todo} 章</span>
+        <span class="summary-badge">整体完成率 ${(done / AD.chapters.length * 100).toFixed(0)}%</span>`;
+      document.getElementById('stepFlow').innerHTML = AD.chapters.map((ch, i) => {
+        const cls = ch.status === 'completed' ? 'done' : ch.status === 'teaching' ? 'doing' : '';
+        const label = ch.status === 'completed' ? '已完成' : ch.status === 'teaching' ? '授课中' : '第' + (AD.weekNow + i) + '周起';
+        return `
+          <div class="step-node ${cls}">
+            <div class="step-dot">${i + 1}</div>
+            <div class="step-title">${ch.name.replace(/^第(.+章)\s*/, '第$1 ')}</div>
+            <div class="step-sub">${label} · 覆盖 ${ch.coverage}%</div>
+          </div>`;
+      }).join('');
+    }
+
+    // ============ 详情弹窗 ============
+    function viewDetail(type) {
+      const c = AD.course;
+      if (type === 'plan') {
+        const counts = { '超前': 0, '符合': 0, '滞后': 0, '授课中': 0, '计划中': 0 };
+        AD.plan.forEach(p => counts[p.status]++);
+        Modal.open(`
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+            <b>比较对象：</b>授课计划安排（来源：${AD.planSource}） ↔ 实际授课进度（来源：课堂活动同步数据）
+          </div>
+          <div style="overflow-x:auto;">
+          <table class="detail-table">
+            <thead><tr><th>周次</th><th>授课计划内容</th><th>实际授课进度</th><th>对比结果</th></tr></thead>
+            <tbody>${AD.plan.map(p => `
+              <tr>
+                <td style="white-space:nowrap;font-weight:600;">${p.week}</td>
+                <td>${p.planned}</td>
+                <td>${p.actual}</td>
+                <td><span class="summary-badge ${statusCls[p.status] || ''}" style="display:inline-block;">${p.status}</span></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+          </div>
+          <div style="margin-top:14px;padding:12px 14px;background:var(--primary-light);border-radius:var(--radius);font-size:13px;line-height:1.9;">
+            <b>对比结论：</b>前 ${AD.weekNow} 周中，计划执行超前 ${counts['超前']} 周、符合 ${counts['符合']} 周、滞后 ${counts['滞后']} 周。
+            ${counts['滞后'] > 0 ? '存在滞后周次，建议压缩后续章节习题课课时或利用答疑环节补足。' : '整体进度可控，建议保持当前节奏。'}
+          </div>
+          <div style="margin-top:12px;text-align:right;">
+            <button class="btn btn-primary btn-sm" onclick="downloadReport('plan')">下载完整报告</button>
+          </div>
+        `, '分析一详情：授课计划进度对比 - ' + c.name, { footer: false });
+      } else if (type === 'peer') {
+        Modal.open(`
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+            <b>比较对象：</b>${c.name}（${c.teacher} · ${c.class}） ↔ ${AD.peer.peerGroup}
+          </div>
+          <div style="overflow-x:auto;">
+          <table class="detail-table">
+            <thead><tr><th>对比维度</th><th>本课程</th><th>同类平均</th><th>差值</th><th>结论</th></tr></thead>
+            <tbody>${AD.peer.dimensions.map(d => `
+              <tr>
+                <td style="font-weight:500;">${d.name}</td>
+                <td><b style="color:var(--primary);">${d.current}${d.unit}</b></td>
+                <td>${d.peer}${d.unit}</td>
+                <td>${(d.current - d.peer).toFixed(1)}</td>
+                <td><span class="peer-diff ${d.higher ? 'diff-up' : 'diff-down'}" style="display:inline-block;">${d.higher ? '↑ 领先' : '↓ 落后'}</span></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+          </div>
+          <div style="margin-top:14px;padding:12px 14px;background:#eef5fe;border-radius:var(--radius);font-size:13px;line-height:1.9;">
+            <b>对比结论：</b>本课程在 ${AD.peer.dimensions.filter(d => d.higher).length} 个维度上领先同类课程平均水平，
+            ${AD.peer.dimensions.filter(d => !d.higher).map(d => '"' + d.name + '"').join('、') || '无'} 维度低于同类平均，建议针对性改进。
+          </div>
+          <div style="margin-top:12px;text-align:right;">
+            <button class="btn btn-primary btn-sm" onclick="downloadReport('peer')">下载完整报告</button>
+          </div>
+        `, '分析二详情：同类课程横向对比 - ' + c.name, { footer: false });
+      } else if (type === 'outline') {
+        const rows = getOutlineRows();
+        const covered = rows.filter(r => r.covered).length;
+        Modal.open(`
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+            <b>比较对象：</b>教学大纲知识点（${AD.outlineSource}） ↔ 实际已授知识点（共 ${rows.length} 个知识点，已授 ${covered} 个）
+          </div>
+          <div style="overflow-x:auto;max-height:420px;overflow-y:auto;">
+          <table class="detail-table">
+            <thead><tr><th>#</th><th>知识点</th><th>所属章节</th><th>大纲要求</th><th>是否已授</th><th>覆盖状态</th><th>最近授课</th></tr></thead>
+            <tbody>${rows.map(r => `
+              <tr>
+                <td>${r.no}</td>
+                <td style="font-weight:500;">${r.point}</td>
+                <td>${r.chapter}</td>
+                <td><span class="summary-badge ${r.requirement === '掌握' ? 'ok' : r.requirement === '理解' ? 'warn' : ''}" style="display:inline-block;">${r.requirement}</span></td>
+                <td>${r.covered ? '是' : '否'}</td>
+                <td><span class="summary-badge ${r.status === '已覆盖' ? 'ok' : r.status === '待授课' ? 'warn' : 'hl'}" style="display:inline-block;">${r.status}</span></td>
+                <td style="white-space:nowrap;">${r.lastTeach}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+          </div>
+          <div style="margin-top:14px;padding:12px 14px;background:#eef5fe;border-radius:var(--radius);font-size:13px;line-height:1.9;">
+            <b>对比结论：</b>大纲"掌握"级知识点共 ${rows.filter(r => r.requirement === '掌握').length} 个，其中已授 ${rows.filter(r => r.requirement === '掌握' && r.covered).length} 个。
+            建议优先保障"掌握"级知识点的授课课时，"了解"级知识点可采用录播资源自学方式覆盖。
+          </div>
+          <div style="margin-top:12px;text-align:right;">
+            <button class="btn btn-primary btn-sm" onclick="downloadReport('outline')">下载完整报告</button>
+          </div>
+        `, '分析三详情：大纲知识点覆盖对比 - ' + c.name, { footer: false });
+      } else if (type === 'completion') {
+        Modal.open(`
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+            <b>比较对象：</b>授课计划章节（共 ${AD.chapters.length} 章，来源：${AD.planSource}） ↔ 各章节实际完成状态
+          </div>
+          <div style="overflow-x:auto;">
+          <table class="detail-table">
+            <thead><tr><th>章节</th><th>计划知识点</th><th>已授知识点</th><th>覆盖率</th><th>状态</th></tr></thead>
+            <tbody>${AD.chapters.map(ch => `
+              <tr>
+                <td style="font-weight:500;">${ch.name}</td>
+                <td>${ch.totalPoints}</td>
+                <td>${ch.coveredPoints}</td>
+                <td>${ch.coverage}%</td>
+                <td>${ch.status === 'completed' ? '<span class="summary-badge ok" style="display:inline-block;">已完成</span>' : ch.status === 'teaching' ? '<span class="summary-badge warn" style="display:inline-block;">授课中</span>' : '<span class="summary-badge" style="display:inline-block;">待授课</span>'}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+          </div>
+          <div style="margin-top:14px;padding:12px 14px;background:#eef5fe;border-radius:var(--radius);font-size:13px;line-height:1.9;">
+            <b>对比结论：</b>按当前推进节奏（第${AD.weekNow}周，完成 ${AD.chapters.filter(c => c.status === 'completed').length} 章），
+            预计第 ${Math.min(AD.totalWeeks, Math.round(AD.chapters.length / AD.chapters.filter(c => c.status !== 'planned').length * AD.weekNow))} 周可完成全部计划章节，与本学期 ${AD.totalWeeks} 个教学周匹配。
+          </div>
+          <div style="margin-top:12px;text-align:right;">
+            <button class="btn btn-primary btn-sm" onclick="downloadReport('completion')">下载完整报告</button>
+          </div>
+        `, '分析四详情：授课计划章节完成度 - ' + AD.course.name, { footer: false });
+      }
+    }
+
+    // ============ 报告下载（真实触发浏览器下载） ============
+    function downloadReport(type) {
+      const c = AD.course;
+      const sub = c.name + '（' + c.teacher + ' · ' + c.class + '）';
+      let title, filename, sections;
+
+      if (type === 'plan') {
+        title = '授课计划进度对比分析报告';
+        filename = c.name + '_授课计划进度对比分析报告.html';
+        sections = [
+          { title: '一、对比说明', text: '本报告比较授课计划安排与实际授课进度。计划数据来源：' + AD.planSource + '；实际进度来源：智慧课堂平台同步的课堂活动数据。' },
+          { title: '二、逐周对比明细', table: { headers: ['周次', '授课计划内容', '实际授课进度', '对比结果'], rows: AD.plan.map(p => [p.week, p.planned, p.actual, p.status]) } },
+          { title: '三、对比结论', text: '前 ' + AD.weekNow + ' 周中，计划执行超前 ' + AD.plan.filter(p => p.status === '超前').length + ' 周、符合 ' + AD.plan.filter(p => p.status === '符合').length + ' 周、滞后 ' + AD.plan.filter(p => p.status === '滞后').length + ' 周。' + (AD.plan.some(p => p.status === '滞后') ? '存在滞后内容，建议压缩习题课课时或利用答疑环节补足。' : '整体进度可控，建议保持当前节奏。') }
+        ];
+      } else if (type === 'peer') {
+        title = '同类课程横向对比分析报告';
+        filename = c.name + '_同类课程横向对比分析报告.html';
+        sections = [
+          { title: '一、对比说明', text: '本报告将本课程与' + AD.peer.peerGroup + '在教学核心指标上进行横向对比，数据统计周期为本学期开学至今。' },
+          { title: '二、维度对比明细', table: { headers: ['对比维度', '本课程', '同类平均', '差值', '结论'], rows: AD.peer.dimensions.map(d => [d.name, d.current + d.unit, d.peer + d.unit, (d.current - d.peer).toFixed(1), d.higher ? '领先' : '落后']) } },
+          { title: '三、对比结论', text: '本课程在 ' + AD.peer.dimensions.filter(d => d.higher).length + '/' + AD.peer.dimensions.length + ' 个维度上领先同类平均水平。低于同类平均的维度需重点关注并制定改进措施。' }
+        ];
+      } else if (type === 'outline') {
+        const rows = getOutlineRows();
+        title = '大纲知识点覆盖对比分析报告';
+        filename = c.name + '_大纲知识点覆盖对比分析报告.pdf';
+        sections = [
+          { title: '一、对比说明', text: '本报告以' + AD.outlineSource + '为基准，逐知识点对比大纲要求与实际授课情况，并标注大纲要求等级。' },
+          { title: '二、章节覆盖汇总', table: { headers: ['章节', '大纲知识点数', '已授知识点数', '覆盖率'], rows: AD.chapters.map(ch => [ch.name, ch.totalPoints, ch.coveredPoints, ch.coverage + '%']) } },
+          { title: '三、知识点覆盖明细', table: { headers: ['#', '知识点', '所属章节', '大纲要求', '覆盖状态', '最近授课'], rows: rows.map(r => [r.no, r.point, r.chapter, r.requirement, r.status, r.lastTeach]) } },
+          { title: '四、对比结论', text: '共 ' + rows.length + ' 个大纲知识点，已覆盖 ' + rows.filter(r => r.covered).length + ' 个（' + (rows.filter(r => r.covered).length / rows.length * 100).toFixed(1) + '%）。建议优先保障"掌握"级知识点的授课课时。' }
+        ];
+      } else if (type === 'completion') {
+        title = '授课计划章节完成度分析报告';
+        filename = c.name + '_授课计划章节完成度分析报告.html';
+        sections = [
+          { title: '一、对比说明', text: '本报告以章节为单位，对比授课计划的章节安排与各章节实际完成状态。计划来源：' + AD.planSource + '。' },
+          { title: '二、章节完成状态', table: { headers: ['章节', '计划知识点', '已授知识点', '覆盖率', '状态'], rows: AD.chapters.map(ch => [ch.name, ch.totalPoints, ch.coveredPoints, ch.coverage + '%', ch.status === 'completed' ? '已完成' : ch.status === 'teaching' ? '授课中' : '待授课']) } },
+          { title: '三、对比结论', text: '授课计划共 ' + AD.chapters.length + ' 章，已完成 ' + AD.chapters.filter(x => x.status === 'completed').length + ' 章，授课中 ' + AD.chapters.filter(x => x.status === 'teaching').length + ' 章，整体完成率 ' + (AD.chapters.filter(x => x.status === 'completed').length / AD.chapters.length * 100).toFixed(0) + '%。' }
+        ];
+      } else if (type === 'ai') {
+        title = '课堂教学综合分析报告';
+        filename = c.name + '_课堂教学综合分析报告.pdf';
+        sections = aiSections();
+      }
+
+      downloadPdf(filename, title, sub, sections);
+    }
+
+    // ============ 综合分析报告 ============
+    function aiSections() {
+      const c = AD.course;
+      const totalPts = AD.chapters.reduce((a, x) => a + x.totalPoints, 0);
+      const coveredPts = AD.chapters.reduce((a, x) => a + x.coveredPoints, 0);
+      const overall = (coveredPts / totalPts * 100).toFixed(1);
+      const lead = AD.peer.dimensions.filter(d => d.higher).length;
+      return [
+        { title: '一、课程基本信息', table: { headers: ['项目', '内容'], rows: [['课程名称', c.name], ['授课教师', c.teacher], ['上课班级', c.class], ['开课学院', c.college], ['授课进度', '第' + AD.weekNow + '周 / ' + AD.totalWeeks + '周']] } },
+        { title: '二、核心指标', table: { headers: ['指标', '数值'], rows: [['大纲知识点总数', totalPts + ' 个'], ['已覆盖知识点', coveredPts + ' 个'], ['整体覆盖率', overall + '%'], ['已完成章节', AD.chapters.filter(x => x.status === 'completed').length + ' / ' + AD.chapters.length + ' 章'], ['同类对比领先维度', lead + ' / ' + AD.peer.dimensions.length + ' 个']] } },
+        { title: '三、分析摘要', text: '<b>授课进度评估：</b>课程当前为第' + AD.weekNow + '周，' + (AD.plan.some(p => p.status === '滞后') ? '部分周次授课进度滞后于计划，建议关注。' : '授课进度符合计划安排。') + '<br><b>知识点覆盖分析：</b>整体覆盖率 ' + overall + '%，' + AD.chapters.filter(x => x.status === 'completed').map(x => x.name).join('、') + '已完成。建议对未覆盖章节保持课时预留。<br><b>同类课程对比：</b>本课程在 ' + lead + ' 个维度上领先同类课程平均水平' + (lead < AD.peer.dimensions.length ? '，短板维度为：' + AD.peer.dimensions.filter(d => !d.higher).map(d => d.name).join('、') : '') + '。<br><b>教学建议：</b>建议保持课堂互动频次优势，针对覆盖率较低的章节增加随堂测验与分组任务，利用录播资源辅助学生课后巩固。' }
+      ];
+    }
+
+    function generateReport() {
+      Toast.info('正在综合分析四类对比数据...');
+      const c = AD.course;
+      const totalPts = AD.chapters.reduce((a, x) => a + x.totalPoints, 0);
+      const coveredPts = AD.chapters.reduce((a, x) => a + x.coveredPoints, 0);
+      const overall = (coveredPts / totalPts * 100).toFixed(1);
+      const done = AD.chapters.filter(x => x.status === 'completed').length;
+      const teaching = AD.chapters.filter(x => x.status === 'teaching').length;
+      const lead = AD.peer.dimensions.filter(d => d.higher).length;
+
+      setTimeout(() => {
+        aiGenerated = true;
+        document.getElementById('reportContent').innerHTML = `
+          <div>
+            <div>
+              <div class="report-kpi"><div class="val">${overall}%</div><div class="lbl">整体覆盖率</div></div>
+              <div class="report-kpi"><div class="val">${done}</div><div class="lbl">已完成章节</div></div>
+              <div class="report-kpi"><div class="val">${teaching}</div><div class="lbl">进行中章节</div></div>
+              <div class="report-kpi"><div class="val">${AD.chapters.length - done - teaching}</div><div class="lbl">待授课章节</div></div>
+              <div class="report-kpi"><div class="val">${lead}/${AD.peer.dimensions.length}</div><div class="lbl">同类对比领先维度</div></div>
+            </div>
+            <div style="margin-top:20px;padding-top:20px;border-top:1px solid #e5e7eb;">
+              <h3 style="font-size:16px;margin-bottom:12px;">分析摘要（基于四类对比分析结果）</h3>
+              <div style="font-size:14px;line-height:2;">
+                <p><b style="color:var(--primary);">一、授课进度评估：</b>课程当前为第${AD.weekNow}周，${AD.plan.some(p => p.status === '滞后') ? '部分周次授课进度滞后于计划，建议压缩习题课课时补足。' : '授课计划安排合理，进度符合预期。'}</p>
+                <p><b style="color:var(--primary);">二、知识点覆盖分析：</b>整体覆盖率 <b style="color:var(--success);">${overall}%</b>，${AD.chapters.filter(x => x.status === 'completed').map(x => x.name).join('、') || '暂无'}已完成。建议在后续授课中重点关注未覆盖章节的课时保障。</p>
+                <p><b style="color:var(--primary);">三、同类课程对比：</b>本课程在 <b>${lead}</b> 个维度上领先${AD.peer.peerGroup}平均水平${lead < AD.peer.dimensions.length ? '，短板维度为：' + AD.peer.dimensions.filter(d => !d.higher).map(d => '"' + d.name + '"').join('、') : ''}。</p>
+                <p><b style="color:var(--primary);">四、教学建议：</b>建议保持课堂互动频次优势，针对覆盖率较低的章节增加随堂测验与分组任务，利用录播资源辅助学生课后巩固。</p>
+              </div>
+            </div>
+            <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" onclick="downloadReport('ai')">下载综合分析报告</button>
+              <button class="btn btn-outline btn-sm" onclick="viewDetail('outline')">查看大纲覆盖详情</button>
+            </div>
+          </div>`;
+        Toast.success('综合分析报告生成完成，可下载至本地');
+      }, 2000);
+    }
+
+    // ============ 同步授课计划 ============
+    function syncPlan() {
+      Toast.info('正在从教学平台匹配授课计划...');
+      setTimeout(() => {
+        rerender();
+        Toast.success('授课计划同步完成，四类分析已更新');
+      }, 1200);
+    }
+
+    // ============ 初始化 ============
+    document.getElementById('courseSelect').innerHTML = mockCourses
+      .map(c => `<option value="${c.id}">${c.name}（${c.teacher} · ${c.class}）</option>`).join('');
+    document.getElementById('courseSelect').value = currentCourseId;
+
+    document.getElementById('courseSelect').onchange = (e) => {
+      currentCourseId = e.target.value;
+      const c = mockCourses.find(x => x.id === currentCourseId);
+      rerender();
+      Toast.success('已切换到：' + c.name + '（' + c.teacher + '）');
+    };
+
+    rerender();
+  </script>
+</body>
+</html>

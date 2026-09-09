@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>课程教学空间 - 校方在线教学平台</title>
+  <!-- 该页面为模拟的"校方在线教学平台"，风格独立（墨绿色主题），与智慧课堂平台区分 -->
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:#f0f2f5; color:#1a1a2e; font-size:14px; }
+
+    .lms-header { background:#1e3a5f; color:white; }
+    .lms-header-top { display:flex; justify-content:space-between; align-items:center; padding:0 24px; height:52px; }
+    .lms-brand { font-size:16px; font-weight:600; letter-spacing:1px; }
+    .lms-user { font-size:13px; opacity:0.85; display:flex; align-items:center; gap:12px; }
+    .lms-user a { color:rgba(255,255,255,0.8); text-decoration:none; }
+    .lms-tabs { display:flex; gap:4px; padding:0 24px; background:rgba(0,0,0,0.15); overflow-x:auto; }
+    .lms-tab { padding:10px 18px; font-size:13px; color:rgba(255,255,255,0.75); cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; user-select:none; }
+    .lms-tab:hover { color:white; }
+    .lms-tab.active { color:white; border-bottom-color:#fff; }
+
+    .lms-main { max-width:1200px; margin:20px auto; padding:0 20px; }
+
+    .course-banner { background:white; border-radius:8px; padding:20px 24px; box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+    .course-banner h1 { font-size:19px; margin-bottom:6px; }
+    .course-banner .meta { font-size:13px; color:#6b7280; }
+    .btn-back { display:inline-block; padding:8px 18px; background:#1e6fd9; color:white; border-radius:6px; font-size:13px; text-decoration:none; cursor:pointer; border:none; }
+
+    .layout { display:grid; grid-template-columns:280px 1fr; gap:16px; align-items:start; }
+    @media (max-width:900px) { .layout { grid-template-columns:1fr; } }
+
+    .panel { background:white; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08); overflow:hidden; }
+    .panel-header { padding:14px 18px; border-bottom:1px solid #e5e7eb; font-weight:600; font-size:14px; color:#1e6fd9; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+    .panel-body { padding:16px 18px; }
+
+    .act-list { list-style:none; }
+    .act-item { padding:12px 18px; border-bottom:1px solid #f3f4f6; cursor:pointer; transition:background 0.15s; display:flex; gap:10px; align-items:flex-start; }
+    .act-item:hover { background:#f0f7ff; }
+    .act-item.active { background:#e8f1fc; border-left:3px solid #1e6fd9; }
+    .act-dot { width:8px; height:8px; border-radius:50%; margin-top:7px; flex-shrink:0; }
+    .act-title { font-size:13px; font-weight:500; line-height:1.5; }
+    .act-meta { font-size:12px; color:#9ca3af; margin-top:2px; }
+    .from-smart { display:inline-block; margin-left:6px; padding:1px 8px; border-radius:8px; font-size:11px; background:#e0e7ff; color:#3730a3; font-weight:normal; vertical-align:middle; }
+
+    .stat-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; margin-bottom:20px; }
+    .stat-box { background:#f5f8fb; border-radius:8px; padding:14px; text-align:center; }
+    .stat-box .val { font-size:22px; font-weight:700; color:#1e6fd9; }
+    .stat-box .lbl { font-size:12px; color:#6b7280; margin-top:2px; }
+
+    .dist-title { font-weight:600; font-size:14px; margin-bottom:14px; }
+    .dist-bar { display:flex; align-items:flex-end; gap:16px; height:150px; padding:0 8px; border-bottom:2px solid #e5e7eb; }
+    .dist-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:4px; }
+    .dist-bar-fill { width:70%; max-width:48px; background:#1e6fd9; border-radius:4px 4px 0 0; }
+    .dist-count { font-size:12px; font-weight:600; color:#1e6fd9; }
+    .dist-labels { display:flex; gap:16px; padding:6px 8px 0; }
+    .dist-label { flex:1; text-align:center; font-size:12px; color:#6b7280; }
+
+    table { width:100%; border-collapse:collapse; }
+    th,td { padding:10px 12px; text-align:left; border-bottom:1px solid #f3f4f6; font-size:13px; }
+    th { background:#f5f8fb; color:#6b7280; font-weight:600; white-space:nowrap; }
+
+    .tag { display:inline-block; padding:2px 10px; border-radius:10px; font-size:12px; }
+    .tag-ok { background:#d1fae5; color:#065f46; }
+    .tag-no { background:#fee2e2; color:#991b1b; }
+    .tag-type { background:#e8f1fc; color:#1e6fd9; }
+    .tag-doing { background:#fef3c7; color:#92400e; }
+    .tag-smart { background:#e0e7ff; color:#3730a3; }
+
+    .notice-item { padding:12px 0; border-bottom:1px dashed #e5e7eb; }
+    .notice-item:last-child { border-bottom:none; }
+    .notice-title { font-weight:500; font-size:13.5px; margin-bottom:4px; }
+    .notice-meta { font-size:12px; color:#9ca3af; }
+    .notice-content { font-size:13px; color:#4b5563; margin-top:4px; line-height:1.7; }
+
+    .res-item { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 14px; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:10px; flex-wrap:wrap; }
+    .res-item .r-title { font-size:13.5px; font-weight:500; margin-bottom:3px; }
+    .res-item .r-meta { font-size:12px; color:#9ca3af; }
+    .res-op { padding:5px 14px; border-radius:6px; border:1px solid #1e6fd9; color:#1e6fd9; background:white; font-size:12px; cursor:pointer; }
+    .res-op:hover { background:#1e6fd9; color:white; }
+    .chapter-fold { background:#f5f8fb; border-radius:8px; margin-bottom:10px; overflow:hidden; }
+    .chapter-head { padding:12px 16px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-weight:600; font-size:13.5px; color:#1e6fd9; }
+    .chapter-body { padding:4px 16px 14px; display:none; }
+    .chapter-fold.open .chapter-body { display:block; }
+
+    .hw-item { display:flex; justify-content:space-between; align-items:center; padding:13px 16px; border-bottom:1px solid #f3f4f6; flex-wrap:wrap; gap:8px; }
+    .hw-item:last-child { border-bottom:none; }
+    .hw-name { font-weight:500; font-size:13.5px; }
+    .hw-meta { font-size:12px; color:#9ca3af; margin-top:3px; }
+
+    .post-item { padding:14px 16px; border-bottom:1px solid #f3f4f6; }
+    .post-item:last-child { border-bottom:none; }
+    .post-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:8px; flex-wrap:wrap; }
+    .post-title { font-weight:600; font-size:13.5px; color:#1e6fd9; }
+    .post-content { font-size:13px; color:#4b5563; line-height:1.7; margin-bottom:6px; }
+    .post-meta { font-size:12px; color:#9ca3af; }
+
+    .back-tip { text-align:center; font-size:12px; color:#9ca3af; margin:24px 0; }
+    .grade-hint { font-size:12px; color:#9ca3af; margin-top:10px; }
+
+    /* ===== 资源调用：视频播放器 / 文档预览 弹层 ===== */
+    .lms-player-mask {
+      display:none; position:fixed; inset:0; background:rgba(12,25,44,0.72);
+      z-index:1000; align-items:center; justify-content:center; padding:20px;
+    }
+    .lms-player-mask.show { display:flex; }
+    .lms-player {
+      background:white; border-radius:10px; width:min(860px, 96vw);
+      max-height:92vh; display:flex; flex-direction:column; overflow:hidden;
+      box-shadow:0 20px 60px rgba(0,0,0,0.35);
+    }
+    .lp-head {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:13px 18px; background:#1e6fd9; color:white; font-size:14px; font-weight:600;
+    }
+    .lp-close { background:none; border:none; color:white; font-size:20px; cursor:pointer; line-height:1; padding:0 4px; }
+    .lp-stage {
+      aspect-ratio:16/9; background:#1e3550;
+      position:relative; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.8);
+    }
+    .lp-stage .lp-playing { font-size:14px; letter-spacing:2px; opacity:0.75; }
+    .lp-sub { position:absolute; bottom:18px; left:0; right:0; text-align:center; padding:0 26px; }
+    .lp-sub .z { font-size:16px; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.85); }
+    .lp-controls {
+      display:flex; align-items:center; gap:12px; padding:10px 16px;
+      background:#172d46; color:white; font-size:12px;
+    }
+    .lp-btn { background:none; border:1px solid rgba(255,255,255,0.45); color:white; border-radius:5px; padding:4px 12px; font-size:12px; cursor:pointer; }
+    .lp-btn:hover { background:rgba(255,255,255,0.15); }
+    .lp-bar { flex:1; height:5px; background:rgba(255,255,255,0.22); border-radius:3px; cursor:pointer; position:relative; }
+    .lp-fill { position:absolute; left:0; top:0; height:100%; width:0%; background:#4a90e2; border-radius:3px; }
+    .lp-doc { padding:26px 34px; overflow-y:auto; min-height:340px; }
+    .lp-doc h3 { color:#1e6fd9; font-size:16px; margin-bottom:4px; }
+    .lp-doc .page-tag { font-size:12px; color:#9ca3af; margin-bottom:16px; }
+    .lp-doc p, .lp-doc li { font-size:13.5px; line-height:2; color:#374151; }
+    .lp-doc ul { padding-left:20px; margin:8px 0; }
+  </style>
+</head>
+<body>
+  <div class="lms-header">
+    <div class="lms-header-top">
+      <div class="lms-brand">校方在线教学平台</div>
+      <div class="lms-user">
+        <span>教学空间</span>
+        <a href="javascript:window.close()">关闭本页</a>
+      </div>
+    </div>
+    <div class="lms-tabs" id="lmsTabs">
+      <div class="lms-tab" data-tab="home" onclick="switchTab('home')">课程首页</div>
+      <div class="lms-tab active" data-tab="space" onclick="switchTab('space')">课程教学空间</div>
+      <div class="lms-tab" data-tab="resource" onclick="switchTab('resource')">章节资源</div>
+      <div class="lms-tab" data-tab="homework" onclick="switchTab('homework')">作业考试</div>
+      <div class="lms-tab" data-tab="discuss" onclick="switchTab('discuss')">讨论区</div>
+      <div class="lms-tab" data-tab="grade" onclick="switchTab('grade')">成绩管理</div>
+    </div>
+  </div>
+
+  <div class="lms-main">
+    <div class="course-banner">
+      <div>
+        <h1 id="courseName">课程加载中...</h1>
+        <div class="meta" id="courseMeta">-</div>
+      </div>
+      <a class="btn-back" href="javascript:void(0)" onclick="window.close()">返回智慧课堂</a>
+    </div>
+
+    <!-- 版块：课程首页 -->
+    <div class="panel" id="tabPanel-home" style="display:none;">
+      <div class="panel-header">课程首页</div>
+      <div class="panel-body">
+        <div class="stat-row" id="homeStats"></div>
+        <div class="layout" style="grid-template-columns:1fr 1fr;">
+          <div>
+            <div class="dist-title">课程公告</div>
+            <div id="homeNotices"></div>
+          </div>
+          <div>
+            <div class="dist-title">教学团队</div>
+            <table>
+              <thead><tr><th>教师</th><th>角色</th><th>联系方式</th></tr></thead>
+              <tbody id="homeTeam"></tbody>
+            </table>
+            <div class="dist-title" style="margin-top:20px;">本周教学安排</div>
+            <table>
+              <thead><tr><th>时间</th><th>内容</th><th>地点</th></tr></thead>
+              <tbody id="homeSchedule"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 版块：课程教学空间 -->
+    <div class="panel" id="tabPanel-space">
+      <div class="layout" style="margin-bottom:0;">
+        <!-- 左：活动列表 -->
+        <div class="panel">
+          <div class="panel-header">课堂活动列表</div>
+          <ul class="act-list" id="actList"></ul>
+        </div>
+        <!-- 右：活动参与详情 -->
+        <div class="panel">
+          <div class="panel-header" id="detailTitle">活动详情</div>
+          <div class="panel-body" id="detailBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 版块：章节资源 -->
+    <div class="panel" id="tabPanel-resource" style="display:none;">
+      <div class="panel-header">
+        <span>章节资源库</span>
+        <span style="font-size:12px;color:#9ca3af;font-weight:normal;" id="resCount"></span>
+      </div>
+      <div class="panel-body">
+        <div style="font-size:13px;color:#6b7280;margin-bottom:14px;padding:10px 14px;background:#eef5fe;border-radius:8px;border:1px dashed #1e6fd9;">
+          带 <span class="tag tag-smart">智慧课堂同步</span> 标记的录播资源由智慧课堂平台推送至本平台资源库/云盘，可直接在本平台调用播放。
+        </div>
+        <div id="resChapterList"></div>
+      </div>
+    </div>
+
+    <!-- 版块：作业考试 -->
+    <div class="panel" id="tabPanel-homework" style="display:none;">
+      <div class="panel-header">作业与考试</div>
+      <div class="panel-body" style="padding:0;">
+        <div class="dist-title" style="padding:14px 18px 4px;">平时作业</div>
+        <div id="hwList"></div>
+        <div class="dist-title" style="padding:14px 18px 4px;">考试安排</div>
+        <div id="examList"></div>
+      </div>
+    </div>
+
+    <!-- 版块：讨论区 -->
+    <div class="panel" id="tabPanel-discuss" style="display:none;">
+      <div class="panel-header">课程讨论区</div>
+      <div class="panel-body" style="padding:0;" id="postList"></div>
+    </div>
+
+    <!-- 版块：成绩管理 -->
+    <div class="panel" id="tabPanel-grade" style="display:none;">
+      <div class="panel-header">成绩管理<span style="font-size:12px;color:#9ca3af;font-weight:normal;">平时成绩构成：签到10% · 作业20% · 测验30% · 期末40%</span></div>
+      <div class="panel-body" style="padding:0;">
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>学号</th><th>姓名</th><th>签到(10)</th><th>作业(20)</th><th>测验(30)</th><th>期末(40)</th><th>总评(100)</th><th>等级</th></tr></thead>
+            <tbody id="gradeBody"></tbody>
+          </table>
+        </div>
+        <div class="grade-hint" style="padding:0 18px 14px;">总评成绩 = 签到×10% + 作业×20% + 测验×30% + 期末×40%，四舍五入取整。等级：90+优秀 / 80+良好 / 70+中等 / 60+及格 / 60以下不及格。</div>
+      </div>
+    </div>
+
+    <div class="back-tip">您已从智慧课堂平台跳转至校方在线教学平台课程教学空间</div>
+  </div>
+
+  <!-- 资源调用：视频播放器弹层 -->
+  <div class="lms-player-mask" id="playerMask">
+    <div class="lms-player">
+      <div class="lp-head"><span id="lpTitle">资源加载中</span><button class="lp-close" onclick="closeLmsPlayer()">×</button></div>
+      <div class="lp-stage">
+        <iframe id="lmsFrame" style="position:absolute;inset:0;width:100%;height:100%;border:0;"
+          allow="autoplay; fullscreen; encrypted-media" allowfullscreen title="外部课程视频"></iframe>
+      </div>
+      <div class="lp-controls" style="justify-content:space-between;">
+        <span id="lpMeta" style="font-size:12px;color:rgba(255,255,255,.85);">外部教学视频 · Bilibili</span>
+        <span style="font-size:12px;color:rgba(255,255,255,.65);">支持全屏播放</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 资源调用：文档预览弹层 -->
+  <div class="lms-player-mask" id="docMask">
+    <div class="lms-player">
+      <div class="lp-head"><span id="docTitle">文档加载中</span><button class="lp-close" onclick="closeDocPreview()">×</button></div>
+      <div class="lp-doc" id="docBody"></div>
+      <div class="lp-controls">
+        <button class="lp-btn" onclick="docPage(-1)">上一页</button>
+        <span id="docPageNo">1 / 1</span>
+        <button class="lp-btn" onclick="docPage(1)">下一页</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script>
+    // 解析URL参数
+    const params = new URLSearchParams(window.location.search);
+    const courseName = params.get('course') || mockCourses[0].name;
+    const targetActivity = params.get('activity');
+
+    // 找到课程与活动（合并平台同步活动 + 智慧课堂发起活动）
+    const course = mockCourses.find(c => c.name === courseName) || mockCourses[0];
+    const events = getCourseEvents(course.id).slice().sort((a, b) => new Date(b.time) - new Date(a.time));
+    let currentActivity = events.find(e => e.title === targetActivity) || events[0];
+
+    // 渲染课程信息
+    document.getElementById('courseName').textContent = course.name;
+    document.getElementById('courseMeta').textContent =
+      course.college + ' · ' + course.teacher + ' · ' + course.class + ' · ' + course.classroom + ' · 选课 ' + course.students + ' 人';
+
+    // ===== 版块切换 =====
+    function switchTab(tab) {
+      document.querySelectorAll('.lms-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      document.querySelectorAll('[id^=tabPanel-]').forEach(p => p.style.display = 'none');
+      const panel = document.getElementById('tabPanel-' + tab);
+      if (panel) panel.style.display = 'block';
+      history.replaceState(null, '', '?' + new URLSearchParams({ course: course.name, tab: tab }).toString());
+      window.scrollTo({ top: 0 });
+    }
+    // URL指定版块
+    const initTab = params.get('tab') || 'space';
+    if (initTab !== 'space') switchTab(initTab);
+
+    // ===== 课程首页 =====
+    function renderHome() {
+      document.getElementById('homeStats').innerHTML = [
+        ['' + course.students, '选课人数'],
+        ['' + events.length, '课堂活动'],
+        ['' + mockResources.filter(r => r.course === course.name).length, '课程资源'],
+        ['92.5', '课程综合评分']
+      ].map(s => '<div class="stat-box"><div class="val">' + s[0] + '</div><div class="lbl">' + s[1] + '</div></div>').join('');
+
+      document.getElementById('homeNotices').innerHTML = [
+        { t: '第2周学习安排发布', d: '2026-09-08', c: '本周完成第一章全部内容的学习，请同学们提前预习第二章2.1节，并完成课后习题1-5题。' },
+        { t: '第一次随堂测验通知', d: '2026-09-04', c: '本周课上将进行第一章随堂测验（10道选择题，限时15分钟），请携带学生证按时参加。' },
+        { t: '课程QQ群与答疑安排', d: '2026-09-01', c: '课程学习群：123456789。每周三晚19:00-21:00在教A-301进行线下答疑，也可在讨论区在线提问。' }
+      ].map(n => '<div class="notice-item"><div class="notice-title">' + n.t + '</div><div class="notice-meta">发布时间：' + n.d + ' · 发布人：' + course.teacher + '</div><div class="notice-content">' + n.c + '</div></div>').join('');
+
+      document.getElementById('homeTeam').innerHTML = [
+        [course.teacher, '主讲教师 / 课程负责人', 'limh@univ.edu.cn'],
+        ['王建军', '辅导教师', 'wangjj@univ.edu.cn'],
+        ['刘洋', '实验指导教师', 'liuy@univ.edu.cn']
+      ].map(t => '<tr><td style="font-weight:500;">' + t[0] + '</td><td>' + t[1] + '</td><td>' + t[2] + '</td></tr>').join('');
+
+      document.getElementById('homeSchedule').innerHTML = [
+        ['周一 3-4节', '新授课：第二章2.1-2.2', course.classroom],
+        ['周三 1-2节', '习题课：第一章综合练习', course.classroom],
+        ['周五 3-4节', '答疑与小组讨论', '线上（讨论区）']
+      ].map(s => '<tr><td style="white-space:nowrap;">' + s[0] + '</td><td>' + s[1] + '</td><td>' + s[2] + '</td></tr>').join('');
+    }
+
+    // ===== 课程教学空间 =====
+    function renderActList() {
+      document.getElementById('actList').innerHTML = events.map(e => {
+        const t = activityTypes[e.type] || { label: e.type, color: '#999' };
+        return `
+          <li class="act-item ${currentActivity && currentActivity.id === e.id ? 'active' : ''}" onclick="selectActivity('${e.id}')">
+            <span class="act-dot" style="background:${t.color}"></span>
+            <div>
+              <div class="act-title">${e.title}${e.fromSmart ? '<span class="from-smart">智慧课堂发起</span>' : ''}</div>
+              <div class="act-meta">${t.label} · ${e.time}</div>
+            </div>
+          </li>
+        `;
+      }).join('');
+    }
+
+    function selectActivity(id) {
+      currentActivity = events.find(e => e.id === id);
+      renderActList();
+      renderDetail();
+    }
+
+    // 生成参与学生（伪随机，按活动ID固定）
+    function getStudents(actId) {
+      const total = currentActivity.participants || 40;
+      const show = Math.min(total, 12);
+      const surnames = ['张','王','李','赵','刘','陈','杨','黄','周','吴','徐','孙'];
+      const names = ['伟','芳','娜','敏','静','磊','军','洋','勇','艳','杰','涛'];
+      const seed = actId.charCodeAt(actId.length - 1);
+      const list = [];
+      for (let i = 0; i < show; i++) {
+        const s = surnames[(i + seed) % surnames.length] + names[(i * 2 + seed) % names.length];
+        const submitted = (i + seed) % 8 !== 0;
+        const score = 55 + ((i * 7 + seed * 3) % 45);
+        list.push({ name: s, no: 20240000 + ((i + seed) * 13), submitted: submitted, score: score, time: (3 + (i + seed) % 12) + '分钟' });
+      }
+      return list;
+    }
+
+    function renderDetail() {
+      if (!currentActivity) {
+        document.getElementById('detailBody').innerHTML = '<p style="color:#9ca3af;text-align:center;padding:40px 0;">本课程暂无同步的课堂活动</p>';
+        return;
+      }
+      const t = activityTypes[currentActivity.type] || { label: currentActivity.type, color: '#999' };
+      const students = getStudents(currentActivity.id);
+      const submittedCount = Math.round((currentActivity.participants || 40) * 0.92);
+      const avg = currentActivity.avgScore || Math.round(60 + Math.random() * 20);
+
+      const dist = [
+        { label: '90-100分', count: Math.round(submittedCount * 0.12), pct: 12 },
+        { label: '80-89分', count: Math.round(submittedCount * 0.26), pct: 26 },
+        { label: '70-79分', count: Math.round(submittedCount * 0.32), pct: 32 },
+        { label: '60-69分', count: Math.round(submittedCount * 0.20), pct: 20 },
+        { label: '60分以下', count: Math.round(submittedCount * 0.10), pct: 10 }
+      ];
+
+      document.getElementById('detailTitle').textContent = currentActivity.title;
+      document.getElementById('detailBody').innerHTML = `
+        <div style="margin-bottom:14px;">
+          <span class="tag tag-type">${t.label}</span>
+          ${currentActivity.fromSmart ? '<span class="tag tag-smart" style="margin-left:6px;">智慧课堂发起</span>' : ''}
+          <span style="font-size:13px;color:#6b7280;margin-left:8px;">发布时间：${currentActivity.time}${currentActivity.duration ? ' · 限时 ' + currentActivity.duration : ''}</span>
+        </div>
+        <p style="font-size:13px;color:#6b7280;margin-bottom:18px;">${currentActivity.description || '本活动由教师通过课程教学空间发布，学生在线完成并实时提交。'}</p>
+
+        <div class="stat-row">
+          <div class="stat-box"><div class="val">${currentActivity.participants || 0}</div><div class="lbl">应参与人数</div></div>
+          <div class="stat-box"><div class="val">${submittedCount}</div><div class="lbl">已提交人数</div></div>
+          <div class="stat-box"><div class="val">${Math.round(submittedCount / (currentActivity.participants || 1) * 100)}%</div><div class="lbl">提交率</div></div>
+          <div class="stat-box"><div class="val">${avg}</div><div class="lbl">平均分</div></div>
+        </div>
+
+        <div class="dist-title">成绩分布</div>
+        <div class="dist-bar">
+          ${dist.map(d => `
+            <div class="dist-col">
+              <span class="dist-count">${d.count}人</span>
+              <div class="dist-bar-fill" style="height:${Math.max(d.pct * 2.2, 8)}%;"></div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="dist-labels">
+          ${dist.map(d => `<div class="dist-label">${d.label}</div>`).join('')}
+        </div>
+
+        <div class="dist-title" style="margin-top:24px;">参与学生（前${students.length}名）</div>
+        <table>
+          <thead>
+            <tr><th>学号</th><th>姓名</th><th>提交状态</th><th>用时</th><th>成绩</th></tr>
+          </thead>
+          <tbody>
+            ${students.map(s => `
+              <tr>
+                <td>${s.no}</td>
+                <td>${s.name}</td>
+                <td>${s.submitted ? '<span class="tag tag-ok">已提交</span>' : '<span class="tag tag-no">未提交</span>'}</td>
+                <td>${s.submitted ? s.time : '-'}</td>
+                <td>${s.submitted ? s.score : '-'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div style="font-size:12px;color:#9ca3af;margin-top:10px;">仅显示部分参与记录，完整名单可在平台内导出</div>
+      `;
+    }
+
+    // ===== 章节资源 =====
+    function renderResources() {
+      // 智慧课堂同步至本平台的录播资源（含平台原生已同步的）
+      const syncedIds = getSyncedResourceIds();
+      const allSmart = mockResources.filter(r => r.course === course.name && (r.synced || syncedIds.indexOf(r.id) >= 0));
+      const baseFileCount = 7; // 平台原生资源数（课件4 + 导学视频1 + 例题PDF1 + 习题答案1）
+      document.getElementById('resCount').textContent = '共 ' + (baseFileCount + allSmart.length) + ' 个资源';
+
+      // 章节结构（按教学大纲），kind 标记资源类型供"调用"打开对应查看器
+      const chapters = [
+        { name: '第一章（2个课件 · 1个视频）', files: [
+          { t: '第一章 教学课件.pptx', m: '课件 · 8.2MB · 2026-09-01上传 · 已有' + (course.students - 5) + '人查阅', kind: 'doc' },
+          { t: '第一章 知识点框架图.pdf', m: '文档 · 1.4MB · 2026-09-02上传 · 已有' + (course.students - 12) + '人查阅', kind: 'doc' },
+          { t: '第一章 导学视频.mp4', m: '视频 · 15:30 · 96MB · 2026-09-01上传', kind: 'video', dur: '15:30' }
+        ] },
+        { name: '第二章（2个课件' + (allSmart.length ? ' · ' + allSmart.length + '个智慧课堂同步录播' : '') + '）', files: [
+          { t: '第二章 教学课件.pptx', m: '课件 · 9.6MB · 2026-09-05上传 · 已有' + (course.students - 20) + '人查阅', kind: 'doc' },
+          { t: '第二章 例题精讲.pdf', m: '文档 · 2.1MB · 2026-09-06上传', kind: 'doc' }
+        ].concat(allSmart.map(r => ({
+          t: r.title, m: '录播视频 · ' + r.duration + ' · ' + r.size + ' · ' + r.uploadTime + '上传', smart: true, kind: 'video', dur: r.duration
+        }))) },
+        { name: '第三章（1个课件）', files: [
+          { t: '第三章 教学课件（预习版）.pptx', m: '课件 · 5.8MB · 2026-09-08上传 · 预习资料', kind: 'doc' }
+        ] },
+        { name: '习题与拓展（1个文档）', files: [
+          { t: '第一~二章课后习题参考答案.pdf', m: '文档 · 1.9MB · 2026-09-08上传 · 习题完成后开放', kind: 'doc' }
+        ] }
+      ];
+
+      document.getElementById('resChapterList').innerHTML = chapters.map((ch, ci) => `
+        <div class="chapter-fold ${ci === 1 ? 'open' : ''}">
+          <div class="chapter-head" onclick="this.parentElement.classList.toggle('open')">
+            <span>${ch.name}</span><span style="font-size:11px;color:#9ca3af;">点击展开/收起</span>
+          </div>
+          <div class="chapter-body">
+            ${ch.files.map(f => `
+              <div class="res-item">
+                <div>
+                  <div class="r-title">${f.t}${f.smart ? '<span class="tag tag-smart" style="margin-left:6px;">智慧课堂同步</span>' : ''}</div>
+                  <div class="r-meta">${f.m}</div>
+                </div>
+                <button class="res-op" onclick="openResourceCall('${encodeURIComponent(f.t)}', '${f.kind}', '${f.dur || ''}')">调用</button>
+              </div>
+            `).join('') || '<div style="color:#9ca3af;font-size:13px;padding:6px 0;">暂无资源</div>'}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ===== 资源调用入口：视频走播放器，文档走分页预览 =====
+    function openResourceCall(nameEnc, kind, dur) {
+      const name = decodeURIComponent(nameEnc);
+      if (kind === 'video') openLmsPlayer(name, dur || '15:30');
+      else openDocPreview(name);
+    }
+
+    // ---- 视频播放器：接入真实外部视频，保留资源标题与全屏播放 ---- 
+    function openLmsPlayer(name, dur) {
+      document.getElementById('lpTitle').textContent = name;
+      document.getElementById('lpMeta').textContent = '外部教学视频 · Bilibili · 时长 ' + (dur || '15:30');
+      document.getElementById('lmsFrame').src = BILI_VIDEO.embedUrl;
+      document.getElementById('playerMask').classList.add('show');
+    }
+    function closeLmsPlayer() {
+      document.getElementById('playerMask').classList.remove('show');
+    }
+
+    // ---- 文档/课件分页预览 ----
+    let docPagesData = [], docCur = 0;
+
+    function openDocPreview(name) {
+      docPagesData = buildDocPages(name);
+      docCur = 0;
+      document.getElementById('docTitle').textContent = name;
+      document.getElementById('docMask').classList.add('show');
+      docRender();
+    }
+    function buildDocPages(name) {
+      // 从文件名解析章节名
+      const chMatch = name.match(/第[一二三四五六七八九十]+章/);
+      const chName = chMatch ? chMatch[0] : '本课程';
+      if (name.indexOf('课件') >= 0) {
+        return [
+          { h: chName + ' 教学课件', tag: '第1页 · 章节导学', body: '<p><b>学习目标：</b></p><ul><li>理解' + chName + '的核心概念及其基本原理；</li><li>掌握相关定义、定理与计算方法；</li><li>能够运用所学知识解决典型问题。</li></ul><p><b>本章重点：</b>核心概念的定义与几何意义 · 典型例题的解题步骤。</p><p><b>本章难点：</b>概念的抽象理解与综合应用。</p>' },
+          { h: chName + ' 教学课件', tag: '第2页 · 知识精讲', body: '<p><b>一、基本概念</b></p><p>设函数在某点附近有定义，当自变量趋于该点时，若函数值无限接近某个确定的常数，则称该常数为函数在此点的极限。这是本章最基础的概念，后续定理均以此为基础。</p><p><b>二、重要定理</b></p><ul><li>定理1（唯一性）：若极限存在，则极限唯一；</li><li>定理2（局部有界性）：若极限存在，则函数在该点附近有界；</li><li>定理3（夹逼准则）：可用于求解特殊形式的极限。</li></ul>' },
+          { h: chName + ' 教学课件', tag: '第3页 · 例题解析', body: '<p><b>例题：</b>求 lim(x→2) (x² - 4)/(x - 2)。</p><p><b>分析：</b>当 x→2 时分子分母同时趋于0，不能直接代入，需先化简。</p><p><b>解：</b>x² - 4 = (x+2)(x-2)，约去公因子 (x-2) 后得 lim(x→2)(x+2) = 4。</p><p><b>点评：</b>本题考查极限的约简方法，属于基础题型，注意代入前必须先检验是否为未定式。</p>' },
+          { h: chName + ' 教学课件', tag: '第4页 · 课堂小结与作业', body: '<p><b>课堂小结：</b></p><ul><li>极限的定义与几何意义；</li><li>极限的四则运算法则；</li><li>两个重要极限及其应用。</li></ul><p><b>课后作业：</b>教材' + chName + '习题 1、3、5、7 题，下次课前提交至教学平台"作业考试"版块。</p>' }
+        ];
+      }
+      if (name.indexOf('框架图') >= 0) {
+        return [
+          { h: chName + ' 知识点框架图', tag: '第1页 · 知识结构总览', body: '<p><b>' + chName + '知识结构：</b></p><ul><li>' + chName + '概述 ─ 定义 · 背景 · 应用场景</li><li>核心概念 ─ 概念A · 概念B · 概念C</li><li>基本定理 ─ 定理1 · 定理2 · 推论</li><li>计算方法 ─ 方法一 · 方法二 · 方法三</li><li>典型应用 ─ 例题类型 · 易错点 · 拓展</li></ul><p><b>掌握程度要求：</b>核心概念与基本定理要求"掌握"，概述与应用场景要求"理解"，拓展内容要求"了解"。</p>' },
+          { h: chName + ' 知识点框架图', tag: '第2页 · 考点关联', body: '<p><b>高频考点：</b></p><ul><li>概念的定义式与几何意义（近3年考试出现率 85%）；</li><li>利用定理求解计算题（出现率 72%）；</li><li>综合应用题（出现率 45%，常与下一章知识结合）。</li></ul><p><b>关联知识点：</b>本章定理2是下一章推导的基础，请务必熟练掌握。</p>' }
+        ];
+      }
+      if (name.indexOf('例题') >= 0) {
+        return [
+          { h: chName + ' 例题精讲', tag: '第1页 · 典型例题', body: '<p><b>例1：</b>计算 lim(x→0) sin(3x)/x。</p><p><b>解：</b>利用重要极限 lim(x→0) sin(kx)/x = k，原式 = 3。</p><p style="margin-top:12px;"><b>例2：</b>证明数列 {(n+1)/n} 的极限为 1。</p><p><b>证明：</b>对任意 ε>0，取 N = 1/ε，当 n>N 时 |(n+1)/n - 1| = 1/n < ε，由定义得证。</p>' },
+          { h: chName + ' 例题精讲', tag: '第2页 · 易错题剖析', body: '<p><b>易错点1：</b>误认为极限存在则函数在该点有定义。极限刻画的是趋近行为，与该点是否有定义无关。</p><p><b>易错点2：</b>在使用夹逼准则时，两个夹逼函数必须满足不等式在极限点的某邻域内成立。</p><p><b>变式练习：</b>求 lim(x→∞) (1 + 2/x)^x，提示：利用第二重要极限，答案 e²。</p>' }
+        ];
+      }
+      if (name.indexOf('答案') >= 0) {
+        return [
+          { h: '第一~二章课后习题参考答案', tag: '第1页 · 第一章答案', body: '<p><b>1.</b> 解：(1) 5；(2) 0；(3) 2；(4) 1/2。</p><p><b>3.</b> 解：利用约简法，分子分母同除以最高次项，极限为 3/2。</p><p><b>5.</b> 证明：对任意 ε>0，取 δ=ε，当 0<|x-1|<δ 时 |f(x)-3|<ε，得证。</p><p><b>7.</b> 解：分段讨论左右极限，左极限=2，右极限=2，故极限存在且为2。</p>' },
+          { h: '第一~二章课后习题参考答案', tag: '第2页 · 第二章答案', body: '<p><b>1.</b> 解：按导数定义展开，f\'(x) = 2x。</p><p><b>2.</b> 解：复合函数求导，外层导数乘以内层导数，结果为 cos(2x)·2。</p><p><b>4.</b> 解：隐函数求导，对方程两边同时求导并解出 dy/dx。</p><p><b>6.</b> 解：先取对数再求导（对数求导法），适用于幂指函数。</p>' }
+        ];
+      }
+      // 通用文档
+      return [
+        { h: name, tag: '第1页', body: '<p>本资源由课程教学团队上传，供本课程学生在线查阅。</p><p>资源类型：文档 · 在线预览支持翻页查阅，如需下载请在资源条目上操作。</p>' }
+      ];
+    }
+    function docRender() {
+      const pg = docPagesData[docCur];
+      document.getElementById('docBody').innerHTML = '<h3>' + pg.h + '</h3><div class="page-tag">' + pg.tag + '</div>' + pg.body;
+      document.getElementById('docPageNo').textContent = (docCur + 1) + ' / ' + docPagesData.length;
+    }
+    function docPage(dir) {
+      const next = docCur + dir;
+      if (next < 0 || next >= docPagesData.length) return;
+      docCur = next;
+      docRender();
+    }
+    function closeDocPreview() {
+      document.getElementById('docMask').classList.remove('show');
+    }
+
+    // ===== 作业考试 =====
+    function renderHomework() {
+      const hws = [
+        { name: '作业一：第一章课后习题（1-10题）', meta: '开始：2026-09-01 08:00 · 截止：2026-09-07 23:59 · 满分100', status: '已截止', cls: 'tag-no', stat: '已提交 ' + Math.round(course.students * 0.97) + '/' + course.students },
+        { name: '作业二：第二章课后习题（1-8题）', meta: '开始：2026-09-06 08:00 · 截止：2026-09-14 23:59 · 满分100', status: '进行中', cls: 'tag-doing', stat: '已提交 ' + Math.round(course.students * 0.41) + '/' + course.students },
+        { name: '作业三：综合练习（线上完成）', meta: '开始：2026-09-13 08:00 · 截止：2026-09-20 23:59 · 满分100', status: '未开始', cls: 'tag-type', stat: '-' }
+      ];
+      document.getElementById('hwList').innerHTML = hws.map(h => `
+        <div class="hw-item">
+          <div>
+            <div class="hw-name">${h.name}</div>
+            <div class="hw-meta">${h.meta} · ${h.stat}</div>
+          </div>
+          <span class="tag ${h.cls}">${h.status}</span>
+        </div>`).join('');
+
+      const exams = [
+        { name: '随堂测验（第一章）', meta: '2026-09-04 · 课上进行 · 限时15分钟 · 满分20', status: '已完成', cls: 'tag-ok', stat: '平均分 17.2' },
+        { name: '随堂测验（第二章）', meta: '2026-09-18 · 课上进行 · 限时15分钟 · 满分20', status: '未开始', cls: 'tag-type', stat: '-' },
+        { name: '期中考试', meta: '2026-11-06 14:00-16:00 · 教A-101/102 · 闭卷 · 满分100', status: '未开始', cls: 'tag-type', stat: '-' }
+      ];
+      document.getElementById('examList').innerHTML = exams.map(e => `
+        <div class="hw-item">
+          <div>
+            <div class="hw-name">${e.name}</div>
+            <div class="hw-meta">${e.meta} · ${e.stat}</div>
+          </div>
+          <span class="tag ${e.cls}">${e.status}</span>
+        </div>`).join('');
+    }
+
+    // ===== 讨论区 =====
+    function renderDiscuss() {
+      const posts = [
+        { t: '【课程答疑】ε-δ定义中为什么是任意ε、存在δ？', a: course.teacher, r: 23, d: '2026-09-08', top: true,
+          c: '为什么定义中ε是任意的而δ是存在的？两者顺序能调换吗？（置顶答疑帖，请大家先看2楼老师的详细回答）' },
+        { t: '极限存在准则Ⅱ（夹逼定理）的应用条件', a: '张伟（学生）', r: 8, d: '2026-09-07',
+          c: '课后习题第7题，两个夹逼函数都需要严格大于/小于原函数吗？等号可以吗？' },
+        { t: '分享一个理解连续性的生活化例子', a: '李娜（学生）', r: 15, d: '2026-09-06',
+          c: '把函数想象成一段路：连续就是这段路没有断开的坑，走在上面不会突然掉下去。间断点就是路上的坑。' },
+        { t: '第二章导数的经济意义（结合专业）', a: '王强（学生）', r: 6, d: '2026-09-05',
+          c: '我们是经济专业的，导数在经济学里就是边际概念，边际成本就是成本函数的导数，很神奇！' },
+        { t: '第一章测验第5题的疑问', a: '刘洋（学生）', r: 11, d: '2026-09-04',
+          c: '第5题为什么选B不选C？我觉得两个选项看起来都对，求大神解释。' }
+      ];
+      document.getElementById('postList').innerHTML = posts.map(p => `
+        <div class="post-item">
+          <div class="post-head">
+            <div class="post-title">${p.t}${p.top ? '<span class="tag tag-doing" style="margin-left:6px;">置顶</span>' : ''}</div>
+            <span class="tag tag-type">回复 ${p.r}</span>
+          </div>
+          <div class="post-content">${p.c}</div>
+          <div class="post-meta">发帖人：${p.a} · 发布时间：${p.d}</div>
+        </div>`).join('');
+    }
+
+    // ===== 成绩管理 =====
+    function renderGrades() {
+      const surnames = ['张','王','李','赵','刘','陈','杨','黄','周','吴'];
+      const names = ['伟','芳','娜','敏','静','磊','军','洋','勇','艳'];
+      const rows = [];
+      for (let i = 0; i < 10; i++) {
+        const nm = surnames[i] + names[(i * 3 + 2) % names.length];
+        const qd = 8 + (i % 3);
+        const hw = 15 + (i * 7 % 6);
+        const qz = 20 + (i * 5 % 11);
+        // 期末暂无成绩
+        rows.push({ no: 20240001 + i, name: nm, qd, hw, qz });
+      }
+      document.getElementById('gradeBody').innerHTML = rows.map(r => `
+        <tr>
+          <td>${r.no}</td>
+          <td style="font-weight:500;">${r.name}</td>
+          <td>${r.qd}</td>
+          <td>${r.hw}</td>
+          <td>${r.qz}</td>
+          <td style="color:#9ca3af;">待考</td>
+          <td style="color:#9ca3af;">-</td>
+          <td style="color:#9ca3af;">-</td>
+        </tr>`).join('') + `
+        <tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:12px;">仅显示前10条，共 ${course.students} 名学生 · 期末考试结束后发布总评成绩</td></tr>`;
+    }
+
+    // 初始化渲染
+    renderHome();
+    renderActList();
+    renderDetail();
+    renderResources();
+    renderHomework();
+    renderDiscuss();
+    renderGrades();
+  </script>
+</body>
+</html>

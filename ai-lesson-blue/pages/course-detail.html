@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>课程详情 - 智慧课堂</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .detail-hero {
+      background: #1e6fd9;
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      color: white;
+      margin-bottom: 20px;
+      border: 1px solid #1558b0;
+    }
+    .detail-hero h2 { margin:0 0 12px; font-size:22px; }
+    .detail-hero-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:10px 24px;
+      font-size:13px;
+    }
+    .detail-hero-item { display:flex; gap:8px; }
+    .detail-hero-item .lbl { opacity:0.75; white-space:nowrap; min-width:72px; }
+    .detail-hero-item .val { font-weight:500; }
+
+    .act-mini-item {
+      padding: 12px 14px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .res-mini-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--border-light);
+      font-size: 13px;
+    }
+    .res-mini-item:last-child { border-bottom: none; }
+    .hero-actions { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; }
+    .hero-btn {
+      padding: 8px 18px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: var(--radius);
+      color: white;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .hero-btn:hover { background: rgba(255,255,255,0.35); }
+  </style>
+</head>
+<body>
+  <script src="../js/common.js"></script>
+  <script src="../js/data.js"></script>
+  <script>
+    Auth.guard();
+    renderSidebar('dashboard');
+  </script>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">首页</a> ›
+          <span class="current">本学期课程概览</span> ›
+          <span class="current" id="crumbCourse">课程详情</span>
+        </div>
+      </div>
+      <div class="topbar-right" data-topbar-actions></div>
+    </div>
+
+    <div class="page-content">
+      <!-- 课程信息头部 -->
+      <div class="detail-hero">
+        <h2 id="heroName">加载中...</h2>
+        <div class="detail-hero-grid" id="heroGrid"></div>
+        <div class="hero-actions">
+          <button class="hero-btn" onclick="openLmsSpace()">进入教学平台课程空间</button>
+          <button class="hero-btn" onclick="window.location.href='timeline.html'">查看活动时间轴</button>
+          <button class="hero-btn" onclick="window.location.href='coverage.html'">查看知识覆盖分析</button>
+          <button class="hero-btn" onclick="window.location.href='resources.html'">查看录播资源</button>
+        </div>
+      </div>
+
+      <!-- 统计卡片 -->
+      <div class="stat-grid" id="detailStats"></div>
+
+      <div class="grid-2">
+        <!-- 课堂活动 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>课堂活动记录</div>
+            <a href="timeline.html" class="btn-link">查看全部</a>
+          </div>
+          <div id="actList"></div>
+        </div>
+
+        <!-- 录播资源 + 评价 -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="card-title-icon"></span>本课程录播资源</div>
+              <a href="resources.html" class="btn-link">资源管理</a>
+            </div>
+            <div style="padding:0 20px 12px;" id="resList"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="card-title-icon"></span>督导评价情况</div>
+              <a href="evaluation.html" class="btn-link">去评价</a>
+            </div>
+            <div style="padding:0 20px 12px;" id="evalInfo"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 知识点覆盖概览 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon"></span>知识点覆盖概览</div>
+          <a href="coverage.html" class="btn-link">详细分析</a>
+        </div>
+        <div id="coverageOverview"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const courseId = params.get('id') || 'c001';
+    const course = mockCourses.find(c => c.id === courseId) || mockCourses[0];
+
+    // ===== 头部信息 =====
+    document.getElementById('heroName').textContent = course.name;
+    document.getElementById('crumbCourse').textContent = course.name;
+    document.getElementById('heroGrid').innerHTML = `
+      <div class="detail-hero-item"><span class="lbl">开课学院</span><span class="val">${course.college}</span></div>
+      <div class="detail-hero-item"><span class="lbl">授课教师</span><span class="val">${course.teacher}</span></div>
+      <div class="detail-hero-item"><span class="lbl">上课班级</span><span class="val">${course.class}</span></div>
+      <div class="detail-hero-item"><span class="lbl">上课教室</span><span class="val">${course.classroom}</span></div>
+      <div class="detail-hero-item"><span class="lbl">排课时间</span><span class="val">${course.schedule}</span></div>
+      <div class="detail-hero-item"><span class="lbl">排课周次</span><span class="val">${course.weeks}</span></div>
+      <div class="detail-hero-item"><span class="lbl">选课人数</span><span class="val">${course.students} 人</span></div>
+      <div class="detail-hero-item"><span class="lbl">对接平台</span><span class="val">校方在线教学平台（已对接）</span></div>
+    `;
+
+    function openLmsSpace() {
+      const qs = new URLSearchParams({ course: course.name });
+      window.open('lms-space.html?' + qs.toString(), '_blank');
+      Toast.success('已打开教学平台课程空间');
+    }
+
+    // ===== 数据准备 =====
+    const events = getCourseEvents(course.id).slice().sort((a, b) => new Date(b.time) - new Date(a.time));
+    const resources = mockResources.filter(r => r.course === course.name);
+    const evals = mockEvaluations.filter(e => e.course === course.name);
+    const covData = mockCoverageData[course.id];
+
+    // 覆盖率（无详细数据的课程按课程序号生成稳定模拟值）
+    let coveragePct = 0, totalPts = 0, coveredPts = 0, chapters = [];
+    if (covData) {
+      coveragePct = covData.overallCoverage;
+      totalPts = covData.totalPoints;
+      coveredPts = covData.totalCovered;
+      chapters = covData.planChapters;
+    } else {
+      const seed = parseInt(course.id.replace('c', '')) || 1;
+      totalPts = 60 + seed * 6;
+      coveredPts = Math.round(totalPts * (0.15 + (seed % 5) * 0.04));
+      coveragePct = (coveredPts / totalPts * 100).toFixed(1);
+      chapters = null;
+    }
+
+    // ===== 统计卡片 =====
+    document.getElementById('detailStats').innerHTML = `
+      <div class="stat-card"><div class="stat-info">
+        <div class="stat-label">课堂活动总数</div><div class="stat-value">${events.length}</div>
+        <div class="stat-trend up">最近7天 ${events.filter(e => e.time >= '2026-09-03').length} 项</div>
+      </div></div>
+      <div class="stat-card"><div class="stat-info">
+        <div class="stat-label">录播资源</div><div class="stat-value">${resources.length}</div>
+        <div class="stat-trend">累计浏览 ${resources.reduce((a, r) => a + r.views, 0)}</div>
+      </div></div>
+      <div class="stat-card"><div class="stat-info">
+        <div class="stat-label">督导评价均分</div><div class="stat-value">${evals.length && evals[0].avgScore ? evals[0].avgScore : '暂无'}</div>
+        <div class="stat-trend">${evals.length ? '已评 ' + evals[0].evals + ' 次' : '待督导评价'}</div>
+      </div></div>
+      <div class="stat-card"><div class="stat-info">
+        <div class="stat-label">知识点覆盖率</div><div class="stat-value" style="color:var(--primary)">${coveragePct}%</div>
+        <div class="stat-trend">已授 ${coveredPts} / ${totalPts} 个知识点</div>
+      </div></div>
+    `;
+
+    // ===== 课堂活动列表 =====
+    document.getElementById('actList').innerHTML = events.slice(0, 6).map(e => {
+      const t = activityTypes[e.type] || { label: e.type, color: '#999' };
+      const statusBadge = e.status === 'ongoing' ? '<span class="badge badge-primary">进行中</span>' : '<span class="badge badge-success">已完成</span>';
+      return `
+        <div class="act-mini-item">
+          <div>
+            <div style="font-weight:500;font-size:13.5px;margin-bottom:3px;">
+              <span class="type-dot" style="background:${t.color}"></span>${e.title}
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);">${e.time} · 参与 ${e.participants || 0} 人${e.avgScore !== undefined ? ' · 均分 ' + e.avgScore : ''}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            ${statusBadge}
+            <button class="btn-link" onclick="openActInLms('${e.id}')">教学平台</button>
+          </div>
+        </div>
+      `;
+    }).join('') || '<div class="empty-state">本课程暂无同步活动</div>';
+
+    function openActInLms(actId) {
+      const e = events.find(x => x.id === actId);
+      if (!e) return;
+      const qs = new URLSearchParams({ course: course.name, activity: e.title });
+      window.open('lms-space.html?' + qs.toString(), '_blank');
+      Toast.success('已打开教学平台活动详情');
+    }
+
+    // ===== 录播资源 =====
+    document.getElementById('resList').innerHTML = resources.map(r => `
+      <div class="res-mini-item">
+        <div>
+          <div style="font-weight:500;">${r.title}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${r.duration} · ${r.size} · ${r.uploadTime}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="badge ${r.synced ? 'badge-success' : 'badge-danger'}">${r.synced ? '已同步云盘' : '未同步'}</span>
+          <span style="font-size:12px;color:var(--text-secondary);">浏览 ${r.views}</span>
+        </div>
+      </div>
+    `).join('') || '<div class="empty-state">本课程暂无录播资源</div>';
+
+    // ===== 督导评价 =====
+    if (evals.length) {
+      const e = evals[0];
+      const scoreClass = e.avgScore >= 90 ? '#065f46' : e.avgScore >= 80 ? '#92400e' : '#991b1b';
+      document.getElementById('evalInfo').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0 12px;">
+          <div style="font-size:13px;color:var(--text-secondary);">
+            已完成 ${e.evals} 次督导评价 · 最近评价：${e.lastEval}<br>
+            授课时段：${e.period} · ${e.week} · ${e.classroom}
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:32px;font-weight:700;color:${scoreClass};">${e.avgScore || '-'}</div>
+            <div style="font-size:12px;color:var(--text-muted);">平均得分</div>
+          </div>
+        </div>
+        <div class="progress" style="margin-bottom:12px;"><div class="progress-bar green" style="width:${e.avgScore || 0}%;"></div></div>
+        <button class="btn btn-outline btn-sm" onclick="window.location.href='evaluation.html'">进入督导评价</button>
+      `;
+    } else {
+      document.getElementById('evalInfo').innerHTML = '<div class="empty-state">本课程暂无督导评价记录</div>';
+    }
+
+    // ===== 知识点覆盖概览 =====
+    if (chapters) {
+      document.getElementById('coverageOverview').innerHTML = chapters.map(ch => `
+        <div style="display:flex;align-items:center;gap:16px;padding:10px 0;border-bottom:1px solid var(--border-light);">
+          <div style="width:280px;font-size:13px;font-weight:500;flex-shrink:0;">${ch.name}</div>
+          <div style="flex:1;"><div class="progress"><div class="progress-bar ${ch.coverage === 100 ? 'green' : ch.coverage > 0 ? 'orange' : 'red'}" style="width:${ch.coverage}%"></div></div></div>
+          <div style="width:150px;text-align:right;font-size:13px;flex-shrink:0;">${ch.coveredPoints}/${ch.totalPoints} · <b>${ch.coverage}%</b></div>
+        </div>
+      `).join('') + `
+        <div style="margin-top:14px;font-size:12px;color:var(--text-secondary);">数据来源：${covData.planSource} · 授课计划覆盖率 ${coveragePct}%</div>
+      `;
+    } else {
+      document.getElementById('coverageOverview').innerHTML = `
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="flex:1;"><div class="progress"><div class="progress-bar" style="width:${coveragePct}%"></div></div></div>
+          <div style="font-size:13px;"><b>${coveragePct}%</b> · 已授 ${coveredPts}/${totalPts} 个知识点</div>
+        </div>
+        <div style="margin-top:14px;font-size:12px;color:var(--text-secondary);">本课程的授课计划匹配分析可在"授课计划与知识覆盖"模块中发起同步后查看</div>
+      `;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教学资源管理 - 智慧课堂</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .cat-card {
+      padding: 20px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 4px solid var(--primary);
+    }
+    .cat-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(30,111,217,0.1);
+    }
+    .cat-card .cat-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .cat-card .cat-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .cat-card .cat-count {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <script src="../js/common.js"></script>
+  <script src="../js/data.js"></script>
+  <script>
+    Auth.guard();
+    renderSidebar('placeholder1');
+  </script>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">首页</a> ›
+          <span class="current">教学资源</span>
+        </div>
+      </div>
+      <div class="topbar-right" data-topbar-actions></div>
+    </div>
+
+    <div class="page-content">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="margin:0 0 4px;font-size:22px;">教学资源管理</h2>
+          <p style="margin:0;color:var(--text-secondary);font-size:13px;">管理平台课程资源、知识图谱与智能推荐</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openResourceUpload()">上传资源</button>
+      </div>
+
+      <div class="stat-grid" id="statGrid"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon"></span>资源分类浏览</div>
+          <button class="btn btn-outline btn-sm" onclick="Toast.info('搜索功能')">智能搜索</button>
+        </div>
+        <div class="grid-3" style="gap:16px;" id="catGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon"></span>热门资源榜</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:80px;">排名</th>
+                <th>资源名称</th>
+                <th>类型</th>
+                <th>上传者</th>
+                <th>浏览量</th>
+                <th>收藏数</th>
+              </tr>
+            </thead>
+            <tbody id="hotTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 上传资源：启动本地文件选择
+    function openResourceUpload() {
+      const overlay = Modal.open(`
+        <div style="padding:4px 0;">
+          <div id="resUploadDrop" style="border:2px dashed var(--border);border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;transition:all 0.2s;">
+            <div style="font-weight:500;margin-bottom:6px;">点击选择本地文件，或将文件拖拽到此处</div>
+            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">支持视频 / 文档 / 图片等教学资源格式，单文件最大 2GB</div>
+            <button class="btn btn-primary btn-sm" id="resUploadPickBtn">选择文件</button>
+            <input type="file" id="resUploadInput" style="display:none;">
+          </div>
+          <div id="resUploadStatus" style="display:none;margin-top:18px;"></div>
+        </div>
+      `, '上传教学资源', { footer: false });
+
+      const drop = overlay.querySelector('#resUploadDrop');
+      const input = overlay.querySelector('#resUploadInput');
+      const status = overlay.querySelector('#resUploadStatus');
+
+      drop.onclick = () => input.click();
+      overlay.querySelector('#resUploadPickBtn').onclick = (e) => { e.stopPropagation(); input.click(); };
+
+      drop.ondragover = (e) => { e.preventDefault(); drop.style.borderColor = 'var(--primary)'; drop.style.background = 'var(--primary-bg)'; };
+      drop.ondragleave = () => { drop.style.borderColor = ''; drop.style.background = 'transparent'; };
+      drop.ondrop = (e) => {
+        e.preventDefault();
+        drop.style.borderColor = ''; drop.style.background = 'transparent';
+        const f = e.dataTransfer.files && e.dataTransfer.files[0];
+        if (f) startResUpload(f);
+      };
+      input.onchange = () => {
+        const f = input.files && input.files[0];
+        if (f) startResUpload(f);
+      };
+
+      function fmtSize(bytes) {
+        if (bytes >= 1024 * 1024 * 1024) return (bytes / 1024 / 1024 / 1024).toFixed(2) + 'GB';
+        if (bytes >= 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + 'MB';
+        return Math.round(bytes / 1024) + 'KB';
+      }
+
+      function startResUpload(file) {
+        if (file.size > 2 * 1024 * 1024 * 1024) {
+          Toast.error('文件超过 2GB 上限');
+          input.value = '';
+          return;
+        }
+        const title = (file.name.replace(/\.[^.]+$/, '').replace(/[<>"']/g, '') || '未命名资源').slice(0, 40);
+        const sizeStr = fmtSize(file.size);
+
+        drop.style.display = 'none';
+        status.style.display = 'block';
+        status.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;">
+            <span style="font-weight:500;">${title}</span>
+            <span style="color:var(--text-secondary);">${sizeStr}</span>
+          </div>
+          <div style="background:var(--border-light);border-radius:6px;height:8px;overflow:hidden;margin-bottom:8px;">
+            <div id="resUploadBar" style="height:100%;width:0%;background:var(--primary);border-radius:6px;transition:width 0.3s;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);">
+            <span id="resUploadStage">正在上传至教学资源库…</span>
+            <span id="resUploadPct">0%</span>
+          </div>
+        `;
+
+        const bar = status.querySelector('#resUploadBar');
+        const pctEl = status.querySelector('#resUploadPct');
+        const stage = status.querySelector('#resUploadStage');
+        let pct = 0;
+        const timer = setInterval(() => {
+          pct = Math.min(100, pct + 5 + Math.round(Math.random() * 10));
+          bar.style.width = pct + '%';
+          pctEl.textContent = pct + '%';
+          if (pct >= 100) {
+            clearInterval(timer);
+            stage.textContent = '上传完成，资源已入库';
+            setTimeout(() => {
+              overlay.remove();
+              const totalEl = document.querySelectorAll('.stat-value')[0];
+              if (totalEl) totalEl.textContent = (12451).toLocaleString();
+              Toast.success('资源「' + title + '」上传完成，已进入待审核状态');
+            }, 800);
+          }
+        }, 240);
+      }
+    }
+
+    // 统计卡片
+    const stats = [
+      { label: '资源总数', value: '12,450', trend: '本周 +186', trendCls: 'up' },
+      { label: '视频资源', value: '412', trend: '', trendCls: '' },
+      { label: '文档资料', value: '8,920', trend: '', trendCls: '' },
+      { label: '知识图谱节点', value: '3,118', trend: '', trendCls: '' }
+    ];
+    document.getElementById('statGrid').innerHTML = stats.map(s => `
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-label">${s.label}</div>
+          <div class="stat-value">${s.value}</div>
+          ${s.trend ? `<div class="stat-trend ${s.trendCls}">${s.trend}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+
+    // 分类卡片
+    const cats = [
+      { name: '数理基础', sub: '高数/线代/概率', count: 3120 },
+      { name: '工程技术', sub: '力学/电路/机械', count: 2450 },
+      { name: '计算机科学', sub: '编程/算法/AI', count: 2890 },
+      { name: '经济管理', sub: '会计/金融/管理', count: 1820 },
+      { name: '人文社科', sub: '文学/历史/哲学', count: 1280 },
+      { name: '外语类', sub: '英语/日语/德语', count: 890 }
+    ];
+    document.getElementById('catGrid').innerHTML = cats.map(c => `
+      <div class="cat-card" onclick="Toast.info('进入分类：${c.name}')">
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-sub">${c.sub}</div>
+        <div class="cat-count">${c.count.toLocaleString()} 项资源</div>
+      </div>
+    `).join('');
+
+    // 热门资源榜
+    const hot = [
+      ['高等数学-极限与连续知识点精讲（系列课）', '视频', '李明华', 4520, 1280],
+      ['Python程序设计实用教程（PDF）', '文档', '张伟', 3890, 980],
+      ['大学英语四级核心词汇2000', '文档', '王芳', 3456, 756],
+      ['线性代数思维导图（全六章）', '图片', '赵建国', 2890, 640],
+      ['考研数学历年真题解析（2018-2025）', '文档', '系统导入', 2340, 890]
+    ];
+    document.getElementById('hotTable').innerHTML = hot.map((r, i) => `
+      <tr>
+        <td><span class="badge ${i < 3 ? 'badge-warning' : 'badge-info'}">TOP ${i + 1}</span></td>
+        <td style="font-weight:500;color:var(--primary);">${r[0]}</td>
+        <td>${r[1]}</td>
+        <td>${r[2]}</td>
+        <td>${r[3].toLocaleString()}</td>
+        <td>${r[4]}</td>
+      </tr>
+    `).join('');
+  </script>
+</body>
+</html>

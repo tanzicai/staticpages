@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学情分析 - 智慧课堂</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <script src="../js/common.js"></script>
+  <script src="../js/data.js"></script>
+  <script>
+    Auth.guard();
+    renderSidebar('placeholder2');
+  </script>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">首页</a> ›
+          <span class="current">学情分析</span>
+        </div>
+      </div>
+      <div class="topbar-right" data-topbar-actions></div>
+    </div>
+
+    <div class="page-content">
+      <div style="margin-bottom:20px;">
+        <h2 style="margin:0 0 4px;font-size:22px;">学生学情分析</h2>
+        <p style="margin:0;color:var(--text-secondary);font-size:13px;">基于AI的学生学习行为画像、预警与个性化推荐</p>
+      </div>
+
+      <div class="stat-grid" id="statGrid"></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>学情预警 - 需关注学生</div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>学生</th>
+                  <th>班级</th>
+                  <th>课程</th>
+                  <th>预警原因</th>
+                  <th>风险等级</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="warnTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>班级学习行为分布</div>
+          </div>
+          <div style="padding:20px;" id="behaviorDist"></div>
+          <div style="padding:0 20px 16px;font-size:12px;color:var(--text-secondary);">
+            基于近4周的出勤、互动、作业、测验数据综合评估
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 统计卡片
+    const stats = [
+      { label: '预警学生', value: '12', color: 'var(--danger)', trend: '需重点关注', trendCls: 'down' },
+      { label: '班级平均出勤率', value: '96.5%', color: 'var(--success)', trend: '', trendCls: '' },
+      { label: '互动参与度', value: '82%', color: 'var(--text-primary)', trend: '', trendCls: '' },
+      { label: '知识点掌握率', value: '78%', color: 'var(--primary)', trend: '', trendCls: '' }
+    ];
+    document.getElementById('statGrid').innerHTML = stats.map(s => `
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-label">${s.label}</div>
+          <div class="stat-value" style="color:${s.color}">${s.value}</div>
+          ${s.trend ? `<div class="stat-trend ${s.trendCls}">${s.trend}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+
+    // 预警学生表
+    const warns = [
+      ['陈同学', '计科1班', '高等数学', '连续3次缺席 + 测验平均分低于60', 'high'],
+      ['刘同学', '机械1班', '大学英语', '课堂发言次数为0', 'medium'],
+      ['王同学', '计科2班', '程序设计基础', '作业提交率50%', 'high'],
+      ['李同学', '物理1班', '大学物理', '知识点掌握率低于40%', 'medium']
+    ];
+    document.getElementById('warnTable').innerHTML = warns.map(s => `
+      <tr>
+        <td><a href="javascript:void(0)" style="color:var(--primary);">${s[0]}</a></td>
+        <td>${s[1]}</td>
+        <td>${s[2]}</td>
+        <td style="font-size:12px;color:var(--text-secondary);">${s[3]}</td>
+        <td><span class="badge ${s[4] === 'high' ? 'badge-danger' : 'badge-warning'}">${s[4] === 'high' ? '高' : '中'}</span></td>
+        <td><button class="btn-link" onclick="Toast.info('已发送学习提醒')">发送提醒</button></td>
+      </tr>
+    `).join('');
+
+    // 学习行为分布
+    const dist = [
+      { label: '优秀学习者（主动参与 + 高分）', pct: 32, cls: 'green', color: 'var(--success)' },
+      { label: '普通学习者（基本完成要求）', pct: 48, cls: '', color: 'var(--primary)' },
+      { label: '需关注学习者（行为异常）', pct: 14, cls: 'orange', color: 'var(--warning)' },
+      { label: '重点干预对象', pct: 6, cls: 'red', color: 'var(--danger)' }
+    ];
+    document.getElementById('behaviorDist').innerHTML = dist.map(d => `
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;">
+          <span>${d.label}</span>
+          <span style="color:${d.color};font-weight:600;">${d.pct}%</span>
+        </div>
+        <div class="progress"><div class="progress-bar ${d.cls}" style="width:${d.pct}%"></div></div>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>

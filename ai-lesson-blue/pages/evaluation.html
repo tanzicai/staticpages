@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>督导评价 - 智慧课堂</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    /* 顶部信息栏 */
+    .eval-header {
+      background: #1e6fd9;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      color: white;
+      margin-bottom: 20px;
+      border: 1px solid #1558b0;
+    }
+    .eval-header-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .eval-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px 24px;
+    }
+    .eval-info-item {
+      font-size: 13px;
+      display: flex;
+      gap: 8px;
+    }
+    .eval-info-item .label {
+      opacity: 0.75;
+      white-space: nowrap;
+      min-width: 72px;
+    }
+    .eval-info-item .value {
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .eval-status-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 12px 16px;
+      background: var(--primary-bg);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    .eval-form-container {
+      background: var(--bg-white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .eval-form-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .eval-form-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    /* 字号切换 */
+    .font-switcher {
+      display: inline-flex;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .font-btn {
+      padding: 6px 14px;
+      font-size: 12px;
+      border-right: 1px solid var(--border);
+      cursor: pointer;
+      background: var(--bg-white);
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+    .font-btn:last-child { border-right: none; }
+    .font-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* 评分行 */
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px dashed var(--border-light);
+      gap: 16px;
+    }
+    .score-row:last-child { border-bottom: none; }
+    .score-content {
+      flex: 1;
+      font-size: 14px;
+      transition: font-size 0.2s;
+    }
+    .score-content .q-no {
+      color: var(--primary);
+      font-weight: 500;
+      margin-right: 6px;
+    }
+    .score-weight {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-left: 6px;
+    }
+
+    /* 1-5分按钮评分 */
+    .num-score {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .num-score-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--bg-white);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s;
+      font-size: 13px;
+    }
+    .num-score-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .num-score-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .section-subtotal {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--bg-gray);
+      border-radius: var(--radius-sm);
+      margin-top: 8px;
+      font-weight: 500;
+      font-size: 13px;
+      transition: font-size 0.2s;
+    }
+
+    /* 总分显示 */
+    .total-score-display {
+      text-align: center;
+      padding: 24px;
+      background: #1e6fd9;
+      border-radius: var(--radius);
+      color: white;
+    }
+    .total-score-num {
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .total-score-unit {
+      font-size: 16px;
+      opacity: 0.8;
+      margin-left: 4px;
+    }
+    .total-score-label {
+      font-size: 13px;
+      opacity: 0.85;
+      margin-top: 8px;
+    }
+
+    /* 视频区 */
+    .video-player-wrapper {
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .video-placeholder {
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: rgba(255,255,255,0.85);
+      background: #1e3550;
+    }
+    .video-controls {
+      background: rgba(0,0,0,0.7);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: white;
+      font-size: 13px;
+    }
+    .vc-btn {
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 2px 6px;
+    }
+    .vc-btn:hover { color: white; }
+    .video-progress-bar {
+      flex: 1;
+      height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px;
+      position: relative;
+      cursor: pointer;
+    }
+    .video-progress-fill {
+      position: absolute;
+      left: 0; top: 0;
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+      width: 52%;
+    }
+
+    .eval-score-badge {
+      font-size: 20px;
+      font-weight: 700;
+      min-width: 60px;
+      text-align: center;
+      padding: 6px 10px;
+      border-radius: var(--radius);
+    }
+    .score-high { background: #d1fae5; color: #065f46; }
+    .score-mid { background: #fef3c7; color: #92400e; }
+    .score-low { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+  <script src="../js/common.js"></script>
+  <script src="../js/data.js"></script>
+  <script>
+    Auth.guard();
+    renderSidebar('evaluation');
+  </script>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">首页</a> ›
+          <span class="current">督导评价</span>
+        </div>
+      </div>
+      <div class="topbar-right" data-topbar-actions></div>
+    </div>
+
+    <div class="page-content">
+      <!-- 顶部信息栏 -->
+      <div class="eval-header">
+        <div class="eval-header-title">课堂督导评价 · 正在进行的课程</div>
+        <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span style="font-size:13px;color:var(--text-secondary);">筛选课程：</span>
+          <select class="form-control" id="evalCourseSelect" style="padding:7px 12px;min-width:320px;" onchange="onEvalCourseChange(this.value)"></select>
+        </div>
+        <div class="eval-info-grid" id="evalInfoGrid"></div>
+      </div>
+
+      <div class="grid-2" style="grid-template-columns: 1.1fr 1fr; gap: 20px;">
+        <!-- 视频播放器 -->
+        <div>
+          <div class="eval-status-bar">
+            <span class="badge badge-success">直播中 / 录播回放</span>
+            <span id="evalPlayPos">已接入外部课程视频 · 来源 Bilibili</span>
+            <div style="margin-left:auto;">
+              <button class="btn btn-outline btn-sm" onclick="Toast.info('已在 00:35:22 添加标记点')">添加标记</button>
+              <button class="btn btn-outline btn-sm" onclick="Toast.info('已截取 00:35:22-00:38:10 评价片段')">截取片段</button>
+            </div>
+          </div>
+
+          <div class="video-player-wrapper">
+            <div class="video-placeholder" style="position:relative;">
+              <iframe id="evalFrame" style="position:absolute;inset:0;width:100%;height:100%;border:0;"
+                allow="autoplay; fullscreen; encrypted-media" allowfullscreen title="外部课程视频"></iframe>
+            </div>
+            <div class="video-controls" style="justify-content:space-between;">
+              <span style="font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="evalVideoTitle">高等数学 - 第3讲 导数概念</span>
+              <span style="font-size:12px;opacity:.75;white-space:nowrap;">外部教学视频 · Bilibili · 支持全屏</span>
+            </div>
+          </div>
+
+          <!-- 课堂实时信息 -->
+          <div class="card" style="margin-top:16px;">
+            <div class="card-header">
+              <div class="card-title"><span class="card-title-icon"></span>课堂实时数据</div>
+            </div>
+            <div class="grid-3" style="gap:12px;text-align:center;">
+              <div style="padding:14px;background:#f0f6ff;border-radius:var(--radius);">
+                <div style="font-size:22px;font-weight:700;color:var(--primary);" id="liveOnline">-</div>
+                <div style="font-size:12px;color:var(--text-secondary);">在线人数</div>
+              </div>
+              <div style="padding:14px;background:#eef5fe;border-radius:var(--radius);">
+                <div style="font-size:22px;font-weight:700;color:#2f7dd2;" id="liveAttend">-</div>
+                <div style="font-size:12px;color:var(--text-secondary);">出勤率</div>
+              </div>
+              <div style="padding:14px;background:#e8f1fc;border-radius:var(--radius);">
+                <div style="font-size:22px;font-weight:700;color:#1558b0;" id="liveInteract">-</div>
+                <div style="font-size:12px;color:var(--text-secondary);">互动次数</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 评价表 -->
+        <div class="eval-form-container" id="evalFormContainer">
+          <div class="eval-form-header">
+            <div class="eval-form-title" id="evalFormTitle">评价表加载中...</div>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <span style="font-size:12px;color:var(--text-secondary);">基础信息字号：</span>
+              <div class="font-switcher">
+                <div class="font-btn" data-size="small" onclick="setFontSize('small')">小</div>
+                <div class="font-btn active" data-size="normal" onclick="setFontSize('normal')">中</div>
+                <div class="font-btn" data-size="large" onclick="setFontSize('large')">大</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="evalFormBody" style="padding:0 20px 20px;"></div>
+
+          <!-- 总分 + 提交 -->
+          <div style="padding:0 20px 20px;">
+            <div class="grid-2" style="gap:20px;">
+              <div>
+                <div class="total-score-display">
+                  <div>
+                    <span class="total-score-num" id="totalScore">0</span>
+                    <span class="total-score-unit">/100</span>
+                  </div>
+                  <div class="total-score-label">综合评价得分</div>
+                </div>
+              </div>
+              <div>
+                <div class="form-group">
+                  <label style="font-size:13px;font-weight:500;">督导意见（选填）</label>
+                  <textarea class="form-control" rows="4" placeholder="请输入您对本次课程的总体评价和改进建议..." style="resize:vertical;"></textarea>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px;padding-top:16px;border-top:1px solid var(--border-light);">
+              <button class="btn btn-outline" onclick="Modal.confirm('确定要保存评价草稿吗？').then(function(ok){if(ok)Toast.success('评价草稿已保存')})">保存草稿</button>
+              <button class="btn btn-primary" onclick="submitEval()">提交评价</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 已完成评价列表 -->
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon"></span>评价记录列表</div>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <input type="text" class="form-control" style="padding:6px 12px;font-size:13px;width:200px;" placeholder="搜索课程/教师...">
+            <button class="btn btn-outline btn-sm" onclick="exportEvalSummary()">导出汇总</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>课程</th>
+                <th>教师</th>
+                <th>上课时间</th>
+                <th>教室</th>
+                <th>排课周次</th>
+                <th>已评人数</th>
+                <th>平均分</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="evalListBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 评价数据状态
+    let evalScores = {}; // { itemId: scoreValue }
+    let currentFontSize = 'normal';
+
+    // 渲染课程信息头部
+    // ===== 顶部信息栏：字段数据 + 课程筛选 =====
+    let evalCourseId = mockCourses[0].id;
+
+    function renderEvalHeader() {
+      const course = mockCourses.find(c => c.id === evalCourseId) || mockCourses[0];
+      document.getElementById('evalInfoGrid').innerHTML = `
+        <div class="eval-info-item"><span class="label">课程</span><span class="value">${course.name}</span></div>
+        <div class="eval-info-item"><span class="label">开课学院</span><span class="value">${course.college}</span></div>
+        <div class="eval-info-item"><span class="label">教师</span><span class="value">${course.teacher}</span></div>
+        <div class="eval-info-item"><span class="label">教室</span><span class="value">${course.classroom}</span></div>
+        <div class="eval-info-item"><span class="label">班级</span><span class="value">${course.class}</span></div>
+        <div class="eval-info-item"><span class="label">排课周</span><span class="value">${course.weeks}</span></div>
+        <div class="eval-info-item"><span class="label">周进度</span><span class="value" style="color:#dcebff;">第 2 周 / 共 16 周</span></div>
+        <div class="eval-info-item"><span class="label">选课人数</span><span class="value">${course.students} 人</span></div>
+      `;
+      renderLiveStats();
+    }
+
+    // 课堂实时数据（按课程生成，切换课程联动刷新）
+    function renderLiveStats() {
+      const c = mockCourses.find(x => x.id === evalCourseId) || mockCourses[0];
+      const seed = parseInt(c.id.replace('c', '')) || 1;
+      const online = Math.min(c.students, Math.round(c.students * (0.9 + (seed % 8) / 100)));
+      const attend = (93 + (seed * 7) % 6 + 0.4).toFixed(1);
+      const interact = 42 + (seed * 13) % 85;
+      document.getElementById('liveOnline').textContent = online;
+      document.getElementById('liveAttend').textContent = attend + '%';
+      document.getElementById('liveInteract').textContent = interact;
+      document.getElementById('evalVideoTitle').textContent = c.name + ' - 第3讲';
+    }
+
+    function onEvalCourseChange(v) {
+      evalCourseId = v;
+      const c = mockCourses.find(x => x.id === v);
+      renderEvalHeader();
+      Toast.success('已切换到：' + c.name + '（' + c.teacher + ' · ' + c.class + '），实时数据已刷新');
+    }
+
+    // 渲染评价表
+    function renderEvalForm() {
+      document.getElementById('evalFormTitle').innerHTML =
+        mockEvalTemplate.name +
+        ' <span style="font-size:12px;color:var(--text-muted);font-weight:normal;margin-left:8px;">' +
+        mockEvalTemplate.version + '</span>';
+
+      const body = document.getElementById('evalFormBody');
+      body.innerHTML = mockEvalTemplate.sections.map((section, secIdx) => {
+        const itemsHTML = section.items.map(item => `
+          <div class="score-row" data-item-id="${item.id}">
+            <div class="score-content">
+              <span class="q-no">Q${item.id}.</span>
+              <span class="q-text">${item.content}</span>
+              <span class="score-weight">[权重 ${item.weight}分]</span>
+            </div>
+            <div class="num-score">
+              ${[1,2,3,4,5].map(s => `
+                <button class="num-score-btn ${evalScores[item.id] === s ? 'active' : ''}"
+                        data-score="${s}" onclick="setItemScore(${item.id}, ${s})">${s}</button>
+              `).join('')}
+            </div>
+          </div>
+        `).join('');
+
+        return `
+          <div style="padding-top:16px;">
+            <div class="eval-section-title" style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--primary-light);">
+              ${section.name}
+            </div>
+            ${itemsHTML}
+            <div class="section-subtotal">
+              <span>本项小计：</span>
+              <span><b class="section-total" data-sec="${secIdx}">0</b> / ${section.items.reduce((a, b) => a + b.weight, 0)} 分</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      calculateTotal();
+      // 应用当前字号
+      setFontSize(currentFontSize);
+    }
+
+    function setItemScore(itemId, score) {
+      evalScores[itemId] = score;
+      const row = document.querySelector('[data-item-id="' + itemId + '"]');
+      if (row) {
+        row.querySelectorAll('.num-score-btn').forEach(b => {
+          b.classList.toggle('active', parseInt(b.dataset.score) === score);
+        });
+      }
+      calculateTotal();
+    }
+
+    function calculateTotal() {
+      let total = 0;
+      mockEvalTemplate.sections.forEach((section, secIdx) => {
+        let secTotal = 0;
+        section.items.forEach(item => {
+          const s = evalScores[item.id] || 0;
+          // 5分制映射到权重：分数/5 * 权重
+          secTotal += (s / 5) * item.weight;
+        });
+        total += secTotal;
+        const el = document.querySelector('.section-total[data-sec="' + secIdx + '"]');
+        if (el) el.textContent = secTotal.toFixed(1);
+      });
+      document.getElementById('totalScore').textContent = total.toFixed(1);
+    }
+
+    function setFontSize(size) {
+      currentFontSize = size;
+      document.querySelectorAll('.font-btn').forEach(b => b.classList.toggle('active', b.dataset.size === size));
+      const sizes = { small: '12px', normal: '14px', large: '16px' };
+      document.querySelectorAll('.score-content, .section-subtotal, .eval-section-title').forEach(el => {
+        el.style.fontSize = sizes[size];
+      });
+    }
+
+    function submitEval() {
+      const answered = Object.keys(evalScores).length;
+      const total = mockEvalTemplate.totalItems;
+
+      if (answered < total) {
+        Modal.confirm('还有 <b>' + (total - answered) + '</b> 项未评分，是否确认提交？').then(ok => {
+          if (ok) doSubmit();
+        });
+      } else {
+        doSubmit();
+      }
+    }
+
+    function doSubmit() {
+      const score = document.getElementById('totalScore').textContent;
+      Toast.success('评价提交成功！得分 ' + score + ' 分');
+      setTimeout(() => {
+        Modal.open(`
+          <div style="text-align:center;padding:20px;">
+            <div style="font-size:18px;font-weight:600;margin-bottom:8px;">评价已成功提交</div>
+            <div style="color:var(--text-secondary);margin-bottom:16px;">综合得分：<b style="color:var(--primary);font-size:22px;">${score}</b> / 100</div>
+            <div style="font-size:13px;color:var(--text-muted);">评价记录已同步至学校评价系统</div>
+          </div>
+        `, '提交成功', { footer: false });
+        // 清空评分重新渲染
+        evalScores = {};
+        renderEvalForm();
+      }, 500);
+    }
+
+    // 渲染评价记录列表
+    function renderEvalList() {
+      document.getElementById('evalListBody').innerHTML = mockEvaluations.map(e => {
+        const scoreClass = e.avgScore >= 90 ? 'score-high' : e.avgScore >= 80 ? 'score-mid' : 'score-low';
+        const statusBadge = e.status === 'completed' ? '<span class="badge badge-success">已完成</span>'
+          : e.status === 'ongoing' ? '<span class="badge badge-primary">进行中</span>'
+          : '<span class="badge badge-warning">待督导</span>';
+
+        return `
+          <tr>
+            <td style="font-weight:500;color:var(--primary);">${e.course}</td>
+            <td>${e.teacher}</td>
+            <td style="font-size:12px;color:var(--text-secondary);">${e.period}<br>${e.lastEval}</td>
+            <td>${e.classroom}</td>
+            <td>${e.week}</td>
+            <td>${e.evals} 人</td>
+            <td><span class="eval-score-badge ${scoreClass}">${e.avgScore || '-'}</span></td>
+            <td>${statusBadge}</td>
+            <td>
+              <button class="btn-link" onclick="Toast.info('查看评价详情')">详情</button>
+              ${e.status !== 'completed' ? '<button class="btn-link" onclick="Toast.info(\'开始评价\')">去评价</button>' : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 导出评价汇总（真实触发浏览器PDF下载）
+    function exportEvalSummary() {
+      const scored = mockEvaluations.filter(e => e.avgScore > 0);
+      const avg = scored.length ? (scored.reduce((a, e) => a + e.avgScore, 0) / scored.length).toFixed(1) : '-';
+      downloadPdf(
+        '督导评价汇总报告.pdf',
+        '督导评价汇总报告',
+        '本学期已完成与进行中的督导评价统计 · 当前筛选课程：' + (mockCourses.find(c => c.id === evalCourseId) || mockCourses[0]).name,
+        [
+          { title: '一、汇总统计', table: { headers: ['指标', '数值'], rows: [
+            ['评价课程数', mockEvaluations.length + ' 门'],
+            ['已完成评价', mockEvaluations.reduce((a, e) => a + e.evals, 0) + ' 次'],
+            ['参与评价课程', scored.length + ' 门'],
+            ['全校评价平均分', avg],
+            ['评价完成率', '94.2%']
+          ] } },
+          { title: '二、评价记录明细', table: { headers: ['课程', '教师', '上课时间', '教室', '排课周次', '已评人数', '平均分', '状态'], rows: mockEvaluations.map(e => [e.course, e.teacher, e.period, e.classroom, e.week, e.evals + ' 人', e.avgScore || '-', e.status === 'completed' ? '已完成' : e.status === 'ongoing' ? '进行中' : '待督导']) } },
+          { title: '三、评价维度说明', text: '评价采用《高校课堂教学质量评价表（标准版）v3.2》，涵盖教学态度（20分）、教学内容（25分）、教学方法（25分）、教学效果（20分）、综合素质（10分）五个维度，满分100分。' }
+        ]
+      );
+    }
+
+    // 初始化
+    document.getElementById('evalCourseSelect').innerHTML = mockCourses
+      .map(c => `<option value="${c.id}">${c.name}（${c.teacher} · ${c.class}）</option>`).join('');
+    document.getElementById('evalFrame').src = BILI_VIDEO.embedUrl;
+    renderEvalHeader();
+    renderEvalForm();
+    renderEvalList();
+  </script>
+</body>
+</html>

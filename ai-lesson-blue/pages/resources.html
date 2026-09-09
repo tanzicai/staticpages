@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>录播资源管理 - 智慧课堂</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    .resource-card {
+      background: var(--bg-white);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 0.2s;
+    }
+    .resource-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .resource-thumb {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #1e3550;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .thumb-play-text {
+      padding: 8px 24px;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px;
+      color: white;
+      font-size: 13px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: all 0.2s;
+    }
+    .thumb-play-text:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    .resource-thumb .duration {
+      position: absolute;
+      bottom: 8px; right: 8px;
+      background: rgba(0,0,0,0.6);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: white;
+    }
+    .resource-thumb .permission-tag {
+      position: absolute;
+      top: 8px; left: 8px;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      color: white;
+    }
+    .thumb-pub { background: var(--success); }
+    .thumb-stu { background: var(--primary); }
+    .thumb-cls { background: var(--warning); }
+    .thumb-teach { background: var(--text-muted); }
+
+    .resource-info {
+      padding: 12px 14px;
+    }
+    .resource-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .resource-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      line-height: 1.7;
+    }
+    .resource-actions {
+      display: flex; gap: 4px;
+      border-top: 1px solid var(--border-light);
+      padding-top: 10px;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      flex: 1;
+      min-width: 56px;
+      padding: 6px 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-gray);
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .action-btn:hover { background: var(--primary-light); color: var(--primary); }
+
+    /* 视频播放器 */
+    .video-player-wrapper {
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .video-placeholder {
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: rgba(255,255,255,0.85);
+      background: #1e3550;
+      position: relative;
+    }
+    .vp-subtitle {
+      position: absolute;
+      bottom: 20px; left: 0; right: 0;
+      text-align: center;
+      padding: 0 28px;
+      pointer-events: none;
+    }
+    .vp-subtitle .s-zh { font-size: 16px; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.85); }
+    .vp-subtitle .s-tr { font-size: 13px; color: rgba(255,255,255,0.88); margin-top: 5px; text-shadow: 0 1px 3px rgba(0,0,0,0.85); }
+    .transcript-row.playing-hl { background: var(--primary-light); border-left: 3px solid var(--primary); }
+    .video-controls {
+      background: rgba(0,0,0,0.7);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: white;
+      font-size: 13px;
+    }
+    .vc-btn {
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 2px 6px;
+    }
+    .vc-btn:hover { color: white; }
+    .video-progress-bar {
+      flex: 1;
+      height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px;
+      position: relative;
+      cursor: pointer;
+    }
+    .video-progress-fill {
+      position: absolute;
+      left: 0; top: 0;
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+      width: 35%;
+    }
+
+    .lang-tabs {
+      display: flex; gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .lang-tab {
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      font-size: 12px;
+      cursor: pointer;
+      background: white;
+      transition: all 0.2s;
+    }
+    .lang-tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .transcript-row {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      gap: 12px;
+    }
+    .transcript-row:last-child { border-bottom: none; }
+    .transcript-time-col {
+      width: 80px;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .transcript-content { flex: 1; }
+    .transcript-original {
+      font-size: 14px;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    .transcript-translated {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-style: italic;
+      margin-top: 4px;
+    }
+
+    .permission-select {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+    }
+
+    .clip-timeline {
+      background: var(--bg-gray);
+      height: 40px;
+      border-radius: var(--radius);
+      position: relative;
+      margin: 12px 0;
+      border: 1px solid var(--border);
+    }
+    .clip-region {
+      position: absolute;
+      top: 4px; bottom: 4px;
+      background: rgba(30,111,217,0.3);
+      border: 2px solid var(--primary);
+      border-radius: 4px;
+      cursor: grab;
+    }
+    .clip-handle {
+      position: absolute;
+      top: -4px; bottom: -4px;
+      width: 6px;
+      background: var(--primary);
+      border-radius: 2px;
+      cursor: ew-resize;
+    }
+    .clip-handle.left { left: -4px; }
+    .clip-handle.right { right: -4px; }
+
+    .sync-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+    }
+    .sync-tag.on { background: #d1fae5; color: #065f46; }
+    .sync-tag.off { background: #fef2f2; color: #991b1b; }
+
+    /* 语义纠正展示 */
+    .transcript-raw { color: #dc2626; text-decoration: line-through; }
+    .correct-note { font-size: 12px; color: var(--warning); margin-top: 4px; }
+    .correct-badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 1px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .transcript-count { font-size: 12px; color: var(--text-muted); padding: 8px 14px; border-bottom: 1px solid var(--border-light); }
+    .checkbox-wrapper { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <script src="../js/common.js"></script>
+  <script src="../js/data.js"></script>
+  <script>
+    Auth.guard();
+    renderSidebar('resources');
+  </script>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">首页</a> ›
+          <span class="current">录播资源管理</span>
+        </div>
+      </div>
+      <div class="topbar-right" data-topbar-actions></div>
+    </div>
+
+    <div class="page-content">
+      <!-- 页面标题区 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="margin:0 0 4px;font-size:22px;">录播资源管理</h2>
+          <p style="margin:0;color:var(--text-secondary);font-size:13px;">对接校方教学平台，支持视频剪辑、权限管理、云盘同步，实时语音转文字多语种翻译</p>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-outline btn-sm" onclick="syncAllToLms()">同步教学平台</button>
+          <button class="btn btn-primary btn-sm" onclick="openUpload()">上传录播</button>
+        </div>
+      </div>
+
+      <!-- 视频播放器 + 语音转文字 -->
+      <div class="grid-2" style="margin-bottom:20px;">
+        <!-- 视频播放区 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>录播视频播放器</div>
+            <select class="form-control permission-select" id="resourceSelect"></select>
+          </div>
+          <div class="video-player-wrapper">
+            <div class="video-placeholder" id="videoStage" style="position:relative;">
+              <iframe id="resourceFrame" style="position:absolute;inset:0;width:100%;height:100%;border:0;"
+                allow="autoplay; fullscreen; encrypted-media" allowfullscreen title="外部课程视频"></iframe>
+            </div>
+            <div class="video-controls" style="justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                <span style="font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="vpTitle">高等数学-极限与连续（第3讲）</span>
+                <span style="font-size:12px;opacity:.7;white-space:nowrap;" id="vpDuration">时长 45:32</span>
+              </div>
+              <span style="font-size:12px;opacity:.75;white-space:nowrap;">外部教学视频 · Bilibili · 支持全屏</span>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="openClipEditor()">在线剪辑</button>
+            <button class="btn btn-outline btn-sm" onclick="exportVideoManifest()">导出保存</button>
+            <button class="btn btn-outline btn-sm" onclick="openSyncDialog()">同步至云盘</button>
+            <button class="btn btn-outline btn-sm" onclick="openPermissionDialog()">权限管理</button>
+          </div>
+
+          <!-- 剪辑区域 -->
+          <div id="clipSection" style="display:none;margin-top:16px;padding:16px;background:var(--bg-gray);border-radius:var(--radius);">
+            <div style="font-weight:600;margin-bottom:8px;">视频剪辑器</div>
+            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">拖动滑块选择剪辑区间</div>
+            <div class="clip-timeline" id="clipTimeline">
+              <div class="clip-region" style="left:20%;right:30%;">
+                <div class="clip-handle left"></div>
+                <div class="clip-handle right"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:16px;font-size:13px;margin-top:8px;">
+              <span>起点：<b style="color:var(--primary);">00:09</b></span>
+              <span>终点：<b style="color:var(--primary);">00:31</b></span>
+              <span>时长：<b style="color:var(--success);">00:22</b></span>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:12px;">
+              <button class="btn btn-primary btn-sm" onclick="Toast.success('剪辑完成，已保存新片段')">确认剪辑</button>
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('clipSection').style.display='none'">取消</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 语音转文字 + 多语种翻译 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>实时语音转文字 / 多语种翻译</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="badge badge-success">转写运行中</span>
+              <span class="badge badge-info">准确率 97.8%</span>
+            </div>
+          </div>
+
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">
+            识别及翻译语种：中 · 英 · 德 · 法 · 日 · 俄 · 西班牙 · 韩 · 阿拉伯 · 葡萄牙 · 印第（共11种），切换目标语种后译文实时切换
+          </div>
+
+          <div class="lang-tabs" id="langTabs">
+            <div class="lang-tab active" data-lang="zh-CN">中文</div>
+            <div class="lang-tab" data-lang="en">English</div>
+            <div class="lang-tab" data-lang="ja">日本語</div>
+            <div class="lang-tab" data-lang="ko">한국어</div>
+            <div class="lang-tab" data-lang="de">Deutsch</div>
+            <div class="lang-tab" data-lang="fr">Français</div>
+            <div class="lang-tab" data-lang="es">Español</div>
+            <div class="lang-tab" data-lang="ru">Русский</div>
+            <div class="lang-tab" data-lang="ar">العربية</div>
+            <div class="lang-tab" data-lang="pt">Português</div>
+            <div class="lang-tab" data-lang="hi">हिन्दी</div>
+          </div>
+
+          <div class="transcript-box" style="max-height:360px;">
+            <div id="transcriptContainer"></div>
+          </div>
+
+          <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="exportSrt()">导出字幕</button>
+            <button class="btn btn-outline btn-sm" onclick="exportTranscript()">导出翻译文稿</button>
+            <button class="btn btn-outline btn-sm" onclick="addLiveSegment()">继续实时转写</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 资源列表 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon"></span>录播资源库</div>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <select class="form-control permission-select" id="filterPermission" onchange="renderResources()">
+              <option value="all">全部权限</option>
+              <option value="public">公开</option>
+              <option value="students">仅学生</option>
+              <option value="class">指定班级</option>
+              <option value="teacher_only">仅教师</option>
+            </select>
+            <input type="text" class="form-control" id="searchInput" placeholder="搜索资源..." oninput="renderResources()">
+          </div>
+        </div>
+
+        <div id="resourceGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getPermLabel(p) {
+      return {
+        public: { text: '公开', cls: 'thumb-pub' },
+        students: { text: '仅学生', cls: 'thumb-stu' },
+        class: { text: '指定班级', cls: 'thumb-cls' },
+        teacher_only: { text: '仅教师', cls: 'thumb-teach' }
+      }[p] || { text: p, cls: 'thumb-teach' };
+    }
+
+    function renderResources() {
+      const permFilter = document.getElementById('filterPermission').value;
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      let filtered = mockResources;
+      if (permFilter !== 'all') filtered = filtered.filter(r => r.permission === permFilter);
+      if (search) filtered = filtered.filter(r => r.title.toLowerCase().includes(search) || r.course.toLowerCase().includes(search));
+
+      document.getElementById('resourceGrid').innerHTML = filtered.map(r => {
+        const perm = getPermLabel(r.permission);
+        const safeTitle = r.title.replace(/'/g, '');
+        return `
+          <div class="resource-card">
+            <div class="resource-thumb">
+              <span class="permission-tag ${perm.cls}">${perm.text}</span>
+              <button class="thumb-play-text" onclick="playResource('${r.id}')">播放</button>
+              <span class="duration">${r.duration}</span>
+            </div>
+            <div class="resource-info">
+              <div class="resource-title" title="${r.title}">${r.title}</div>
+              <div class="resource-meta">
+                ${r.course} · ${r.teacher}<br>
+                浏览 ${r.views} · 下载 ${r.downloads} · ${r.size}
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">
+                云盘同步：<span class="sync-tag ${isResourceSynced(r) ? 'on' : 'off'}">${isResourceSynced(r) ? '已同步' : '未同步'}</span>
+                ${r.clipping ? ' · 已剪辑' : ''}
+              </div>
+              <div class="resource-actions">
+                <div class="action-btn" onclick="playResource('${r.id}')">播放</div>
+                <div class="action-btn" onclick="openPermissionDialog('${r.id}')">权限</div>
+                <div class="action-btn" onclick="openSyncDialog('${r.id}')">同步</div>
+                <div class="action-btn" onclick="openInLms('${r.id}')">平台</div>
+                <div class="action-btn" onclick="deleteResource('${r.id}','${safeTitle}')">删除</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('') || '<div class="empty-state" style="grid-column:1/-1;">未找到匹配的资源</div>';
+    }
+
+    // ===== 外部视频接入：真实 Bilibili 播放器；资源信息与字幕由平台继续维护 =====
+    function playResource(id) {
+      const r = mockResources.find(x => x.id === id);
+      if (!r) return;
+      document.getElementById('resourceSelect').value = id;
+      currentResId = id;
+      document.getElementById('vpTitle').textContent = r.title;
+      document.getElementById('vpDuration').textContent = '时长 ' + r.duration;
+      renderTranscript();
+      Toast.success('正在播放：' + r.title + '（外部视频已接入，字幕已同步）');
+    }
+
+    // ===== 字幕状态：当前视频 + 当前语种 =====
+    let currentResId = mockResources[0].id;
+    let currentLang = 'zh-CN';
+    let liveExtras = {};   // 每个视频的实时转写追加片段 { resId: [{time, original, raw, translated}] }
+    const LANG_NAMES = { 'zh-CN': '中文', en: '英语', de: '德语', fr: '法语', ja: '日语', ru: '俄语', es: '西班牙语', ko: '韩语', ar: '阿拉伯语', pt: '葡萄牙语', hi: '印地语' };
+
+    // 当前视频完整字幕（基础全片字幕 + 实时追加片段）
+    function getCurrentTranscript() {
+      const base = getTranscriptForResource(currentResId, currentLang);
+      return base.concat(liveExtras[currentResId] || []);
+    }
+
+    function renderTranscript() {
+      const r = getCurrentResource();
+      const list = getCurrentTranscript();
+      const hideTranslated = currentLang === 'zh-CN';
+      const countBar = '<div class="transcript-count">字幕与视频时长匹配 · 共 ' + list.length + ' 条 · 覆盖全片 ' + r.duration + ' · 译文语种：' + LANG_NAMES[currentLang] + '</div>';
+      document.getElementById('transcriptContainer').innerHTML = countBar + list.map((t, i) => {
+        const fixed = t.corrected ? '<span class="correct-badge">已根据前后文语义纠正</span>' : '';
+        const origHtml = t.raw && !t.corrected
+          ? '<div class="transcript-original transcript-raw">' + t.raw + '</div><div class="correct-note">语音识别中，正在结合前后文语义纠正…</div>'
+          : '<div class="transcript-original">' + t.original + fixed + '</div>';
+        return `
+          <div class="transcript-row" data-seg="${i}">
+            <div class="transcript-time-col">${t.time}</div>
+            <div class="transcript-content">
+              ${origHtml}
+              ${hideTranslated ? '' : '<div class="transcript-translated">' + (t.translated || '') + '</div>'}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ===== 实时转写 + 前后文语义动态纠正 =====
+    const MISHEAR = [['例题', '力题'], ['概念', '溉念'], ['练习', '连习'], ['复习', '付习'], ['掌握', '展握'], ['分析', '分西'], ['理解', '理结'], ['答案', '答辩'], ['问题', '问提'], ['内容', '内蓉'], ['题', '提'], ['课', '颗']];
+
+    function makeRaw(original) {
+      for (const [right, wrong] of MISHEAR) {
+        if (original.indexOf(right) >= 0) return original.replace(right, wrong);
+      }
+      return original;
+    }
+
+    function addLiveSegment() {
+      const list = getCurrentTranscript();
+      // 计算追加时间点（上一条 +15秒）
+      const last = list[list.length - 1];
+      let sec = 15;
+      if (last) {
+        const p = last.time.split(':').map(Number);
+        sec = (p[0] || 0) * 3600 + (p[1] || 0) * 60 + (p[2] || 0) + 15;
+      }
+      const pad = (n) => String(n).padStart(2, '0');
+      const ts = pad(Math.floor(sec / 3600)) + ':' + pad(Math.floor(sec % 3600 / 60)) + ':' + pad(sec % 60);
+      // 顺序取下一句课堂用语
+      const offset = currentResId.charCodeAt(currentResId.length - 1);
+      const s = transcriptSentencePool[(list.length + offset) % transcriptSentencePool.length];
+
+      const seg = {
+        time: ts,
+        original: s.zh,
+        translated: currentLang === 'zh-CN' ? s.zh : (s[currentLang] || s.en),
+        raw: makeRaw(s.zh),
+        corrected: false
+      };
+      if (!liveExtras[currentResId]) liveExtras[currentResId] = [];
+      liveExtras[currentResId].push(seg);
+      renderTranscript();
+
+      // 滚动到底部
+      const box = document.querySelector('.transcript-box');
+      if (box) box.scrollTop = box.scrollHeight;
+
+      // 模拟"根据前后文语义动态纠正"
+      Toast.info('新语音片段已识别，正在根据前后文语义纠正用词…');
+      setTimeout(() => {
+        seg.corrected = true;
+        renderTranscript();
+        const box2 = document.querySelector('.transcript-box');
+        if (box2) box2.scrollTop = box2.scrollHeight;
+        Toast.success('已自动纠正："' + seg.raw + '" → "' + seg.original + '"');
+      }, 1400);
+    }
+
+    // ===== 真实导出下载 =====
+    function secToSrt(sec) {
+      const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+      const pad = (n, l) => String(n).padStart(l || 2, '0');
+      return pad(h) + ':' + pad(m) + ':' + pad(s) + ',000';
+    }
+
+    function getCurrentResource() {
+      return mockResources.find(r => r.id === currentResId) || mockResources[0];
+    }
+
+    function exportSrt() {
+      const r = getCurrentResource();
+      const list = getCurrentTranscript();
+      const srt = list.map((t, i) => {
+        const parts = t.time.split(':').map(Number);
+        const start = (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0);
+        const end = start + 15;
+        const text = currentLang === 'zh-CN' ? t.original : t.original + '\n' + (t.translated || '');
+        return (i + 1) + '\n' + secToSrt(start) + ' --> ' + secToSrt(end) + '\n' + text + '\n';
+      }).join('\n');
+      downloadFile(r.title + '_' + (LANG_NAMES[currentLang] || '') + '.srt', srt, 'application/x-subrip');
+      Toast.success('字幕文件已开始下载（SRT格式，' + (LANG_NAMES[currentLang] || '') + '）');
+    }
+
+    function exportTranscript() {
+      const r = getCurrentResource();
+      const list = getCurrentTranscript();
+      const langName = LANG_NAMES[currentLang] || '中文';
+      downloadPdf(
+        r.title + '_转写文稿.pdf',
+        '录播课程语音转写文稿',
+        r.title + ' · ' + r.course + ' · ' + r.teacher + ' · 译文语种：' + langName,
+        [
+          { title: '一、文稿说明', desc: '由智慧课堂平台语音转写引擎自动生成，字幕覆盖全片（视频时长 ' + r.duration + '，共 ' + list.length + ' 条），语音识别准确率97.8%，已根据前后文语义自动纠正用词。', table: null },
+          { title: '二、转写内容', table: { headers: ['时间轴', '原文（中文）', '译文（' + langName + '）'], rows: list.map(t => [t.time, t.original, currentLang === 'zh-CN' ? '—' : (t.translated || '')]) } }
+        ]
+      );
+    }
+
+    function exportVideoManifest() {
+      const r = getCurrentResource();
+      downloadPdf(
+        r.title + '_导出信息单.pdf',
+        '录播视频导出信息单',
+        r.title,
+        [
+          { title: '一、视频信息', table: { headers: ['项目', '内容'], rows: [
+            ['视频标题', r.title], ['所属课程', r.course], ['授课教师', r.teacher],
+            ['视频时长', r.duration], ['文件大小', r.size], ['上传时间', r.uploadTime],
+            ['访问权限', getPermLabel(r.permission).text], ['云盘同步', isResourceSynced(r) ? '已同步（' + r.cloudPath + '）' : '未同步'],
+            ['累计浏览', r.views + ' 次'], ['累计下载', r.downloads + ' 次']
+          ] } },
+          { title: '二、导出说明', text: '本信息单随视频文件一并导出。视频文件已按平台标准转码（H.264/AAC，1080P），导出包含视频文件、字幕文件与本信息单。如需剪辑片段，请使用平台在线剪辑功能后再执行导出。' }
+        ]
+      );
+    }
+
+    function openClipEditor() {
+      document.getElementById('clipSection').style.display = 'block';
+      Toast.info('剪辑器已打开');
+    }
+
+    function openSyncDialog(id) {
+      const r = mockResources.find(x => x.id === (id || currentResId));
+      if (!r) return;
+      Modal.confirm(`
+        <div style="margin-bottom:12px;">同步资源：<b>${r.title}</b></div>
+        <div style="margin-bottom:12px;">同步目标：</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+          <label class="checkbox-wrapper"><input type="checkbox" checked> 校方在线教学平台 - 云盘/云存储</label>
+          <label class="checkbox-wrapper"><input type="checkbox" checked> 校方在线教学平台 - 课程资源库</label>
+          <label class="checkbox-wrapper"><input type="checkbox"> 本校自建MOOC平台</label>
+        </div>
+        <div style="padding:10px;background:var(--primary-light);border-radius:var(--radius);font-size:12px;color:var(--text-secondary);">
+          同步后资源将出现在教学平台"章节资源"版块，可在平台内自由调用
+        </div>
+      `, '同步至教学平台').then(ok => {
+        if (ok) {
+          syncResourceToLms(r.id);
+          renderResources();
+          Modal.open(`
+            <div style="text-align:center;padding:10px;">
+              <div style="font-weight:600;font-size:15px;margin-bottom:6px;">同步完成</div>
+              <div style="font-size:13px;color:var(--text-secondary);line-height:1.9;margin-bottom:14px;">
+                "<b>${r.title}</b>"已同步至校方在线教学平台<br>云盘目录：${r.cloudPath}<br>学生可在平台"章节资源"版块中调用
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="openInLms('${r.id}')">前往教学平台查看资源</button>
+            </div>
+          `, '同步成功', { footer: false });
+        }
+      });
+    }
+
+    // 跳转至教学平台"章节资源"版块调用该资源（未同步则先同步）
+    function openInLms(id) {
+      const r = mockResources.find(x => x.id === id);
+      if (!r) return;
+      if (!isResourceSynced(r)) {
+        syncResourceToLms(r.id);
+        renderResources();
+        Toast.info('资源尚未同步，已自动同步至教学平台');
+      }
+      const qs = new URLSearchParams({ course: r.course, tab: 'resource' });
+      window.open('lms-space.html?' + qs.toString(), '_blank');
+      Toast.success('已打开教学平台章节资源版块');
+    }
+
+    // 一键同步全部未同步资源
+    function syncAllToLms() {
+      const unsynced = mockResources.filter(r => !isResourceSynced(r));
+      if (unsynced.length === 0) { Toast.info('全部资源均已同步至教学平台'); return; }
+      unsynced.forEach(r => syncResourceToLms(r.id));
+      renderResources();
+      Toast.success('已同步 ' + unsynced.length + ' 个资源至教学平台');
+    }
+
+    function openPermissionDialog(id) {
+      const r = mockResources.find(x => x.id === id);
+      const currentPerm = r ? r.permission : 'public';
+      const overlay = Modal.open(`
+        <div style="line-height:2;">
+          <div class="form-group">
+            <label>访问权限</label>
+            <select class="form-control" id="permSelect">
+              <option value="public" ${currentPerm === 'public' ? 'selected' : ''}>公开（全校可见）</option>
+              <option value="students" ${currentPerm === 'students' ? 'selected' : ''}>仅学生可见</option>
+              <option value="class" ${currentPerm === 'class' ? 'selected' : ''}>指定班级可见</option>
+              <option value="teacher_only" ${currentPerm === 'teacher_only' ? 'selected' : ''}>仅教师可见</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>是否允许下载</label>
+            <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="form-group">
+            <label>是否允许剪辑导出</label>
+            <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      `, '权限管理');
+
+      overlay.querySelector('.modal-confirm').onclick = () => {
+        const perm = document.getElementById('permSelect').value;
+        if (r) r.permission = perm;
+        overlay.remove();
+        Toast.success('权限设置已更新');
+        renderResources();
+      };
+    }
+
+    function deleteResource(id, title) {
+      Modal.confirm('确定删除录播资源 "<b>' + title + '</b>" 吗？').then(ok => {
+        if (ok) {
+          const idx = mockResources.findIndex(r => r.id === id);
+          if (idx >= 0) mockResources.splice(idx, 1);
+          Toast.success('删除成功');
+          renderResources();
+        }
+      });
+    }
+
+    function openUpload() {
+      const overlay = Modal.open(`
+        <div style="padding:4px 0;">
+          <div id="uploadDrop" style="border:2px dashed var(--border);border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;transition:all 0.2s;">
+            <div style="font-weight:500;margin-bottom:6px;">点击选择本地录播视频，或将文件拖拽到此处</div>
+            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">支持 MP4 / MOV / AVI / MKV 格式，单文件最大 2GB</div>
+            <button class="btn btn-primary btn-sm" id="uploadPickBtn">选择文件</button>
+            <input type="file" id="uploadFileInput" accept=".mp4,.mov,.avi,.mkv,.flv,.wmv,video/mp4,video/quicktime,video/x-msvideo" style="display:none;">
+          </div>
+          <div id="uploadStatus" style="display:none;margin-top:18px;"></div>
+        </div>
+      `, '上传录播资源', { footer: false });
+
+      const drop = overlay.querySelector('#uploadDrop');
+      const input = overlay.querySelector('#uploadFileInput');
+      const status = overlay.querySelector('#uploadStatus');
+
+      drop.onclick = () => input.click();
+      overlay.querySelector('#uploadPickBtn').onclick = (e) => { e.stopPropagation(); input.click(); };
+
+      drop.ondragover = (e) => { e.preventDefault(); drop.style.borderColor = 'var(--primary)'; drop.style.background = 'var(--primary-bg)'; };
+      drop.ondragleave = () => { drop.style.borderColor = ''; drop.style.background = 'transparent'; };
+      drop.ondrop = (e) => {
+        e.preventDefault();
+        drop.style.borderColor = ''; drop.style.background = 'transparent';
+        const f = e.dataTransfer.files && e.dataTransfer.files[0];
+        if (f) startUpload(f);
+      };
+      input.onchange = () => {
+        const f = input.files && input.files[0];
+        if (f) startUpload(f);
+      };
+
+      function fmtSize(bytes) {
+        if (bytes >= 1024 * 1024 * 1024) return (bytes / 1024 / 1024 / 1024).toFixed(2) + 'GB';
+        if (bytes >= 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + 'MB';
+        return Math.round(bytes / 1024) + 'KB';
+      }
+
+      function startUpload(file) {
+        const isVideo = /\.(mp4|mov|avi|mkv|flv|wmv)$/i.test(file.name) || (file.type && file.type.indexOf('video') === 0);
+        if (!isVideo) {
+          Toast.error('仅支持 MP4 / MOV / AVI / MKV 等视频格式');
+          input.value = '';
+          return;
+        }
+        if (file.size > 2 * 1024 * 1024 * 1024) {
+          Toast.error('文件超过 2GB 上限，请分段上传');
+          input.value = '';
+          return;
+        }
+
+        const title = (file.name.replace(/\.[^.]+$/, '').replace(/[<>"']/g, '') || '未命名录播').slice(0, 40);
+        const sizeStr = fmtSize(file.size);
+        const estMin = Math.min(95, Math.max(25, Math.round(file.size / 1024 / 1024 / 8)));
+        const dur = estMin + ':' + String(10 + Math.round(file.size % 40) % 40).padStart(2, '0');
+
+        drop.style.display = 'none';
+        status.style.display = 'block';
+        status.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;">
+            <span style="font-weight:500;">${title}</span>
+            <span style="color:var(--text-secondary);">${sizeStr} · 预计时长 ${dur}</span>
+          </div>
+          <div style="background:var(--border-light);border-radius:6px;height:8px;overflow:hidden;margin-bottom:8px;">
+            <div id="uploadBar" style="height:100%;width:0%;background:var(--primary);border-radius:6px;transition:width 0.3s;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);">
+            <span id="uploadStage">正在上传至平台存储…</span>
+            <span id="uploadPct">0%</span>
+          </div>
+        `;
+
+        const bar = status.querySelector('#uploadBar');
+        const pctEl = status.querySelector('#uploadPct');
+        const stage = status.querySelector('#uploadStage');
+        let pct = 0;
+        const timer = setInterval(() => {
+          pct = Math.min(100, pct + 4 + Math.round(Math.random() * 9));
+          bar.style.width = pct + '%';
+          pctEl.textContent = pct + '%';
+          if (pct >= 100) {
+            clearInterval(timer);
+            stage.textContent = '上传完成，语音转写已自动启动';
+            setTimeout(() => {
+              overlay.remove();
+              const now = new Date();
+              const pad = (n) => String(n).padStart(2, '0');
+              const newRes = {
+                id: 'r' + Date.now(),
+                title: title,
+                course: '高等数学（上）',
+                teacher: '李明华',
+                duration: dur,
+                size: sizeStr,
+                uploadTime: now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()),
+                views: 0, downloads: 0,
+                permission: 'teacher_only', clipping: false, synced: false, cloudPath: ''
+              };
+              mockResources.unshift(newRes);
+              document.getElementById('resourceSelect').innerHTML = mockResources
+                .map(r => `<option value="${r.id}">${r.title}</option>`).join('');
+              renderResources();
+              Toast.success('录播「' + title + '」上传完成，正在转写语音字幕');
+            }, 900);
+          }
+        }, 240);
+      }
+    }
+
+    // 初始化
+    document.getElementById('resourceFrame').src = BILI_VIDEO.embedUrl;
+    document.getElementById('resourceSelect').innerHTML = mockResources
+      .map(r => `<option value="${r.id}">${r.title}</option>`).join('');
+
+    // 资源切换：播放器信息与字幕同步切换
+    document.getElementById('resourceSelect').onchange = (e) => {
+      const r = mockResources.find(x => x.id === e.target.value);
+      if (r) {
+        currentResId = r.id;
+        document.getElementById('vpTitle').textContent = r.title;
+        document.getElementById('vpDuration').textContent = '时长 ' + r.duration;
+        renderTranscript();
+        Toast.info('已切换至：' + r.title + '（外部视频已接入）');
+      }
+    };
+
+    // 语种切换：译文实时切换
+    document.querySelectorAll('.lang-tab').forEach(tab => {
+      tab.onclick = () => {
+        document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentLang = tab.dataset.lang;
+        renderTranscript();
+        Toast.info('翻译目标语言已切换：' + (LANG_NAMES[currentLang] || currentLang) + '，译文已实时更新');
+      };
+    });
+
+    renderResources();
+    renderTranscript();
+  </script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>课堂活动时间轴 - 智慧课堂</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .lms-card {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-white);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .lms-card .info { display:flex; align-items:center; gap:10px; }
+    .lms-status-dot { width:8px;height:8px;border-radius:50%; }
+    .lms-status-dot.on { background:var(--success); }
+    .lms-status-dot.off { background:var(--danger); }
+
+    .activity-type-filter {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+    }
+    .type-chip {
+      padding: 6px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+      background: var(--bg-white);
+    }
+    .type-chip.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .course-selector {
+      display: flex; flex-direction: column; align-items: stretch; gap: 6px;
+    }
+    .course-selector label { font-weight: 500; }
+    .course-field { color:var(--text-secondary);font-size:13px; }
+
+    .sync-indicator {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; background: var(--success); color:white; border-radius:12px; font-size:12px;
+    }
+    .meta-sep { margin: 0 4px; color: var(--border); }
+  </style>
+</head>
+<body>
+  <script src="../js/common.js"></script>
+  <script src="../js/data.js"></script>
+  <script>
+    Auth.guard();
+    renderSidebar('timeline');
+  </script>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">首页</a> ›
+          <span class="current">课堂活动时间轴</span>
+        </div>
+      </div>
+      <div class="topbar-right" data-topbar-actions></div>
+    </div>
+
+    <div class="page-content">
+      <!-- 页面标题区 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="margin:0 0 4px;font-size:22px;">课堂活动时间轴</h2>
+          <p style="margin:0;color:var(--text-secondary);font-size:13px;">对接校方已有教学平台，自动同步课程活动至时间轴展示</p>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-outline btn-sm" onclick="manualSync()">手动同步</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddActivity()">新增活动</button>
+        </div>
+      </div>
+
+      <div class="grid-3" style="grid-template-columns: 1fr 1fr 1fr;">
+        <!-- 左：课程选择 + 活动统计 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>选择课程</div>
+          </div>
+          <div class="course-selector">
+            <label>课程</label>
+            <select id="courseSelect" class="form-control"></select>
+
+            <label style="margin-top:12px;">开课学院</label>
+            <div class="course-field" id="courseCollege">-</div>
+
+            <label style="margin-top:12px;">授课教师</label>
+            <div class="course-field" id="courseTeacher">-</div>
+
+            <label style="margin-top:12px;">上课班级</label>
+            <div class="course-field" id="courseClass">-</div>
+          </div>
+
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-light);">
+            <h4 style="margin:0 0 12px;font-size:14px;color:var(--text-primary);">活动类型统计</h4>
+            <div id="activityStats"></div>
+          </div>
+        </div>
+
+        <!-- 中：时间轴 -->
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>活动时间轴 <span class="sync-indicator" id="syncStatus" style="margin-left:10px">已自动同步</span></div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <select id="dateFilter" class="form-control" style="padding:6px 10px;font-size:13px;">
+                <option value="all">全部时间</option>
+                <option value="today">今日</option>
+                <option value="week">本周</option>
+                <option value="month">本月</option>
+              </select>
+              <span style="color:var(--text-secondary);font-size:13px;">共 <b id="eventCount">0</b> 项活动</span>
+            </div>
+          </div>
+
+          <div class="activity-type-filter" id="typeFilter">
+            <div class="type-chip active" data-type="all">全部</div>
+            <div class="type-chip" data-type="signin">签到</div>
+            <div class="type-chip" data-type="quiz">测验</div>
+            <div class="type-chip" data-type="discuss">讨论</div>
+            <div class="type-chip" data-type="task">任务</div>
+          </div>
+
+          <div class="timeline" id="timelineContainer"></div>
+        </div>
+      </div>
+
+      <!-- 底部：教学平台对接管理 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon"></span>教学平台对接管理</div>
+          <button class="btn btn-outline btn-sm" onclick="Toast.info('打开平台配置向导')">配置平台</button>
+        </div>
+        <div id="lmsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 当前状态
+    let currentCourseId = 'c001';
+    let currentTypeFilter = 'all';
+    let currentEvents = [];
+
+    // 初始化
+    function init() {
+      // 填充课程下拉框（含教师与班级以作区分）
+      document.getElementById('courseSelect').innerHTML = mockCourses
+        .map(c => `<option value="${c.id}">${c.name}（${c.teacher} · ${c.class}）</option>`).join('');
+      document.getElementById('courseSelect').value = currentCourseId;
+
+      updateCourseInfo();
+      renderTimeline();
+      renderLmsList();
+      bindTypeFilter();
+    }
+
+    function updateCourseInfo() {
+      const c = mockCourses.find(x => x.id === currentCourseId);
+      document.getElementById('courseCollege').textContent = c ? c.college : '-';
+      document.getElementById('courseTeacher').textContent = c ? c.teacher : '-';
+      document.getElementById('courseClass').textContent = c ? c.class : '-';
+    }
+
+    function bindTypeFilter() {
+      document.querySelectorAll('.type-chip').forEach(chip => {
+        chip.onclick = () => {
+          document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          currentTypeFilter = chip.dataset.type;
+          renderTimeline();
+        };
+      });
+    }
+
+    function renderTimeline() {
+      // 合并平台同步活动 + 智慧课堂发起的活动（存于localStorage，教学平台可同步看到）
+      const allEvents = getCourseEvents(currentCourseId);
+      currentEvents = currentTypeFilter === 'all'
+        ? allEvents.slice()
+        : allEvents.filter(e => e.type === currentTypeFilter);
+
+      // 按时间倒序
+      currentEvents.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+      document.getElementById('eventCount').textContent = currentEvents.length;
+
+      // 活动统计
+      const stats = {};
+      ['signin', 'quiz', 'discuss', 'task'].forEach(t => stats[t] = 0);
+      allEvents.forEach(e => { if (stats[e.type] !== undefined) stats[e.type]++; });
+      document.getElementById('activityStats').innerHTML = Object.entries(stats).map(([k, v]) => {
+        const t = activityTypes[k] || {};
+        return `
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--border-light);">
+            <span style="font-size:13px;"><span class="type-dot" style="background:${t.color || '#999'}"></span>${t.label || k}</span>
+            <span style="font-weight:600;color:var(--primary)">${v}</span>
+          </div>
+        `;
+      }).join('');
+
+      // 时间轴渲染
+      const container = document.getElementById('timelineContainer');
+      if (currentEvents.length === 0) {
+        container.innerHTML = '<div class="empty-state">当前筛选条件下暂无活动</div>';
+        return;
+      }
+
+      container.innerHTML = currentEvents.map(e => {
+        const act = activityTypes[e.type] || { label: '活动', color: '#999' };
+        const statusBadge = e.status === 'ongoing'
+          ? '<span class="badge badge-primary">进行中</span>'
+          : e.status === 'completed'
+            ? '<span class="badge badge-success">已完成</span>'
+            : '<span class="badge badge-warning">未开始</span>';
+        const fromSmartTag = e.fromSmart
+          ? '<span class="badge badge-info" style="margin-left:6px;">本平台发起</span>' : '';
+
+        return `
+          <div class="timeline-item activity-${e.type}">
+            <div class="timeline-date">${formatTime(e.time)}</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+              <div class="timeline-title" style="flex:1;">
+                <span class="type-dot" style="background:${act.color}"></span>${e.title}${fromSmartTag}
+              </div>
+              ${statusBadge}
+            </div>
+            <div class="timeline-desc">${e.description || act.label}</div>
+            <div class="timeline-meta">
+              <span>参与 ${e.participants || 0} 人</span>
+              <span class="meta-sep">|</span>
+              ${e.duration ? `<span>时长 ${e.duration}</span><span class="meta-sep">|</span>` : ''}
+              ${e.avgScore !== undefined ? `<span>均分 ${e.avgScore}</span>` : ''}
+            </div>
+            <div style="margin-top:10px;display:flex;gap:8px;">
+              <button class="btn-link" onclick="jumpToLms('${e.id}','${e.title.replace(/'/g, '')}')">跳转至教学平台</button>
+              <button class="btn-link" onclick="showActivityDetail('${e.id}')">查看详情</button>
+              <button class="btn-link" style="color:var(--danger)" onclick="deleteActivity('${e.id}','${e.title.replace(/'/g, '')}')">删除</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderLmsList() {
+      document.getElementById('lmsList').innerHTML = mockLmsPlatforms.map(p => `
+        <div class="lms-card">
+          <div class="info">
+            <div class="lms-status-dot ${p.connected ? 'on' : 'off'}"></div>
+            <div>
+              <div style="font-weight:500;">${p.name}</div>
+              <div style="font-size:12px;color:var(--text-muted);">上次同步: ${p.lastSync} · 共 ${p.courses} 门课程</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <span class="badge ${p.connected ? 'badge-success' : 'badge-danger'}">${p.connected ? '已连接' : '未连接'}</span>
+            <div class="toggle-switch ${p.connected ? 'on' : ''}" onclick="toggleLms(this, '${p.id}')"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleLms(el, id) {
+      el.classList.toggle('on');
+      const platform = mockLmsPlatforms.find(p => p.id === id);
+      if (platform) {
+        platform.connected = !platform.connected;
+        Toast.success(platform.name + (platform.connected ? ' 已连接' : ' 已断开'));
+        renderLmsList();
+      }
+    }
+
+    function manualSync() {
+      Toast.info('正在同步教学平台数据...');
+      const syncEl = document.getElementById('syncStatus');
+      syncEl.style.background = '#fef3c7';
+      syncEl.style.color = '#92400e';
+      syncEl.textContent = '同步中...';
+      setTimeout(() => {
+        syncEl.style.background = '';
+        syncEl.style.color = '';
+        syncEl.textContent = '已自动同步';
+        Toast.success('同步完成，数据已是最新');
+      }, 1500);
+    }
+
+    function jumpToLms(id, title) {
+      const e = (mockTimelineEvents[currentCourseId] || []).find(x => x.id === id);
+      const c = mockCourses.find(x => x.id === currentCourseId);
+      Modal.confirm(`
+        <div style="margin-bottom:12px;">即将跳转至教学平台查看活动参与情况：</div>
+        <div style="padding:12px;background:var(--bg-gray);border-radius:var(--radius);font-size:13px;line-height:1.8;">
+          <b>活动：</b>${title}<br>
+          <b>目标：</b>校方在线教学平台 - 课程教学空间<br>
+          <b>动作：</b>在新窗口中打开活动详情页
+        </div>
+      `, '跳转至教学平台').then(ok => {
+        if (ok) {
+          const qs = new URLSearchParams({ course: c ? c.name : '', activity: e ? e.title : title });
+          window.open('lms-space.html?' + qs.toString(), '_blank');
+          Toast.success('已在新窗口打开教学平台活动详情');
+        }
+      });
+    }
+
+    function showActivityDetail(id) {
+      const e = currentEvents.find(x => x.id === id);
+      if (!e) return;
+      const act = activityTypes[e.type] || {};
+      Modal.open(`
+        <div style="line-height:2;">
+          <div><b>活动类型：</b>${act.label || e.type}</div>
+          <div><b>活动时间：</b>${formatTime(e.time)}</div>
+          <div><b>活动时长：</b>${e.duration || '-'}</div>
+          <div><b>参与人数：</b>${e.participants || 0} 人</div>
+          <div><b>活动描述：</b>${e.description || '暂无描述'}</div>
+          ${e.avgScore !== undefined ? `<div><b>平均分：</b><span style="color:var(--primary);font-weight:600;">${e.avgScore}</span> / ${e.maxScore || 20}</div>` : ''}
+          <div style="margin-top:12px;padding:12px;background:var(--primary-light);border-radius:var(--radius);font-size:13px;">
+            点击"跳转至教学平台"可在原平台查看学生参与详情或发起其他教学活动
+          </div>
+        </div>
+      `, e.title, { footer: false });
+    }
+
+    function deleteActivity(id, title) {
+      Modal.confirm('确定要删除活动 "<b>' + title + '</b>" 吗？此操作将从智慧课堂平台移除该活动记录。').then(ok => {
+        if (ok) {
+          const list = mockTimelineEvents[currentCourseId];
+          const idx = list ? list.findIndex(e => e.id === id) : -1;
+          if (idx >= 0) list.splice(idx, 1);
+          else removeCustomEvent(id); // 本平台发起的活动存于本地共享存储
+          Toast.success('活动已删除');
+          renderTimeline();
+        }
+      });
+    }
+
+    function openAddActivity() {
+      const overlay = Modal.open(`
+        <div style="line-height:2;">
+          <div class="form-group"><label>活动标题 *</label><input type="text" class="form-control" id="newActTitle" placeholder="如：分组讨论：如何理解ε-N定义"></div>
+          <div class="form-group"><label>活动类型 *</label>
+            <select class="form-control" id="newActType">
+              <option value="discuss">主题讨论</option>
+              <option value="task">分组任务</option>
+              <option value="quiz">随堂测验</option>
+              <option value="signin">课堂签到</option>
+            </select>
+          </div>
+          <div class="form-group"><label>活动时长</label><input type="text" class="form-control" id="newActDuration" placeholder="如：15分钟"></div>
+          <div class="form-group"><label>活动描述</label><textarea class="form-control" id="newActDesc" rows="3" placeholder="请输入活动描述..."></textarea></div>
+          <div class="form-group" style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <label style="margin-bottom:2px;">同步发布至教学平台</label>
+              <div style="font-size:12px;color:var(--text-secondary);">开启后活动将同步至校方在线教学平台，学生可在平台参与</div>
+            </div>
+            <div class="toggle-switch on" id="syncToLmsToggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      `, '发起课堂活动');
+
+      overlay.querySelector('.modal-confirm').onclick = () => {
+        const title = document.getElementById('newActTitle').value.trim();
+        const type = document.getElementById('newActType').value;
+        const duration = document.getElementById('newActDuration').value.trim() || '20分钟';
+        const desc = document.getElementById('newActDesc').value.trim();
+        const syncOn = overlay.querySelector('#syncToLmsToggle').classList.contains('on');
+
+        if (!title) { Toast.error('请填写活动标题'); return; }
+
+        const newEvent = {
+          id: 'e' + Date.now(),
+          type: type,
+          title: title,
+          duration: duration,
+          time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+          participants: Math.floor(60 + Math.random() * 40),
+          status: 'ongoing',
+          description: desc || '由智慧课堂平台发起的活动',
+          fromSmart: true
+        };
+
+        addCustomEvent(currentCourseId, newEvent);
+        renderTimeline();
+        overlay.remove();
+
+        const c = mockCourses.find(x => x.id === currentCourseId);
+        if (syncOn) {
+          Toast.success('活动已创建并同步发布至教学平台');
+          const doneOverlay = Modal.open(`
+            <div style="text-align:center;padding:10px;">
+              <div style="font-weight:600;font-size:15px;margin-bottom:6px;">活动创建成功</div>
+              <div style="font-size:13px;color:var(--text-secondary);line-height:1.9;margin-bottom:14px;">
+                "<b>${title}</b>"已发布，并已同步至<br>校方在线教学平台 - ${c ? c.name : ''}课程教学空间
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="openLmsForActivity('${title.replace(/'/g, '')}')">前往教学平台查看</button>
+            </div>
+          `, '发起成功', { footer: false });
+        } else {
+          Toast.success('活动已创建（未同步至教学平台）');
+        }
+      };
+    }
+
+    function openLmsForActivity(title) {
+      const c = mockCourses.find(x => x.id === currentCourseId);
+      const qs = new URLSearchParams({ course: c ? c.name : '', activity: title, tab: 'space' });
+      window.open('lms-space.html?' + qs.toString(), '_blank');
+    }
+
+    // 课程切换
+    document.getElementById('courseSelect').onchange = (e) => {
+      currentCourseId = e.target.value;
+      updateCourseInfo();
+      renderTimeline();
+    };
+
+    // 日期筛选
+    document.getElementById('dateFilter').onchange = () => {
+      Toast.info('日期筛选已应用');
+      renderTimeline();
+    };
+
+    init();
+  </script>
+</body>
+</html>

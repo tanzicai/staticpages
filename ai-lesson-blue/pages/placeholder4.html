@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>系统设置 - 智慧课堂</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .setting-row {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .setting-row:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <script src="../js/common.js"></script>
+  <script src="../js/data.js"></script>
+  <script>
+    Auth.guard();
+    renderSidebar('placeholder4');
+  </script>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">首页</a> ›
+          <span class="current">系统设置</span>
+        </div>
+      </div>
+      <div class="topbar-right" data-topbar-actions></div>
+    </div>
+
+    <div class="page-content">
+      <div style="margin-bottom:20px;">
+        <h2 style="margin:0 0 4px;font-size:22px;">系统设置与智慧教室</h2>
+        <p style="margin:0;color:var(--text-secondary);font-size:13px;">平台参数配置、教室管理、集成对接与安全管理</p>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="smart-classroom" onclick="switchTab('smart-classroom')">智慧教室</div>
+        <div class="tab" data-tab="integrations" onclick="switchTab('integrations')">系统集成</div>
+        <div class="tab" data-tab="security" onclick="switchTab('security')">安全管理</div>
+        <div class="tab" data-tab="about" onclick="switchTab('about')">关于系统</div>
+      </div>
+
+      <div id="tab-smart-classroom">
+        <div class="stat-grid" id="classroomStats"></div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>教室设备状态</div>
+            <button class="btn btn-outline btn-sm" onclick="Toast.success('已刷新设备状态')">刷新</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>教室名称</th>
+                  <th>类型</th>
+                  <th>位置</th>
+                  <th>录播</th>
+                  <th>智能黑板</th>
+                  <th>摄像头</th>
+                  <th>当前排课</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody id="classroomTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-integrations" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>第三方系统集成</div>
+            <button class="btn btn-primary btn-sm" onclick="Toast.info('打开集成配置向导')">添加集成</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>集成系统</th>
+                  <th>类型</th>
+                  <th>对接方式</th>
+                  <th>同步状态</th>
+                  <th>上次同步</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="integrationTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-security" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>安全设置</div>
+          </div>
+          <div style="padding:8px 0;" id="securityList"></div>
+        </div>
+      </div>
+
+      <div id="tab-about" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-title-icon"></span>关于系统</div>
+          </div>
+          <div style="padding:20px;line-height:2;">
+            <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;">
+              <div style="width:80px;height:80px;background:linear-gradient(135deg,#1e6fd9,#4a90e2);border-radius:16px;display:flex;align-items:center;justify-content:center;color:white;font-size:28px;font-weight:bold;">智</div>
+              <div>
+                <h3 style="margin:0 0 4px;font-size:20px;">智慧课堂</h3>
+                <p style="margin:0;color:var(--text-secondary);font-size:13px;">Smart Classroom Platform</p>
+              </div>
+            </div>
+            <div class="grid-2" style="font-size:13px;">
+              <div><b>版本号：</b>v3.8.2</div>
+              <div><b>构建日期：</b>2026-09-01</div>
+              <div><b>部署模式：</b>私有化部署</div>
+              <div><b>数据库版本：</b>PostgreSQL 15.4</div>
+              <div><b>AI引擎：</b>自研教育大模型 v2.1</div>
+              <div><b>语音识别引擎：</b>Whisper Large-v3 定制版</div>
+              <div><b>联系支持：</b>support@example.com</div>
+              <div><b>授权到期：</b>2027-12-31</div>
+            </div>
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-light);">
+              <div style="font-weight:500;margin-bottom:8px;">技术栈</div>
+              <div style="font-size:12px;color:var(--text-secondary);">
+                前端：Vue3 + TypeScript + ElementPlus · 后端：Spring Boot 3 + Go Micro · 数据库：PostgreSQL + Redis + Elasticsearch · 消息队列：Kafka · 部署：Docker + Kubernetes
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(id) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+      ['smart-classroom', 'integrations', 'security', 'about'].forEach(t => {
+        document.getElementById('tab-' + t).style.display = (t === id) ? 'block' : 'none';
+      });
+    }
+
+    // 教室统计
+    const stats = [
+      { label: '智慧教室总数', value: '186' },
+      { label: '录播教室', value: '72' },
+      { label: '今日使用中', value: '38', color: 'var(--primary)' },
+      { label: '设备在线率', value: '98.2%', color: 'var(--success)' }
+    ];
+    document.getElementById('classroomStats').innerHTML = stats.map(s => `
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-label">${s.label}</div>
+          <div class="stat-value" ${s.color ? 'style="color:' + s.color + '"' : ''}>${s.value}</div>
+        </div>
+      </div>
+    `).join('');
+
+    // 教室设备表
+    const classrooms = [
+      ['教A-101', '大型阶梯教室', '教学楼A栋 1F', true, true, true, '线性代数', '正常'],
+      ['教A-301', '普通教室', '教学楼A栋 3F', true, true, true, '高等数学', '正常'],
+      ['教B-205', '语音教室', '教学楼B栋 2F', true, false, true, '大学英语', '正常'],
+      ['实验楼-302', '计算机实验室', '实验楼 3F', false, true, true, '程序设计基础', '正常'],
+      ['物理楼-201', '物理实验室', '物理楼 2F', true, false, true, '大学物理', '设备维护'],
+      ['教C-501', '多媒体教室', '教学楼C栋 5F', true, true, true, '-', '空闲']
+    ];
+    document.getElementById('classroomTable').innerHTML = classrooms.map(r => `
+      <tr>
+        <td style="font-weight:500;">${r[0]}</td>
+        <td>${r[1]}</td>
+        <td>${r[2]}</td>
+        <td>${r[3] ? '已配置' : '—'}</td>
+        <td>${r[4] ? '已配置' : '—'}</td>
+        <td>${r[5] ? '已配置' : '—'}</td>
+        <td>${r[6]}</td>
+        <td><span class="badge ${r[7] === '正常' ? 'badge-success' : r[7] === '设备维护' ? 'badge-warning' : 'badge-info'}">${r[7]}</span></td>
+      </tr>
+    `).join('');
+
+    // 集成表
+    const integrations = [
+      ['校方在线教学平台', '教学平台', 'REST API + OAuth2', true, '2026-09-09 08:00'],
+      ['智慧树', '教学平台', 'LTI 1.3', true, '2026-09-09 08:00'],
+      ['学校教务系统', '教务管理', '数据库直连', true, '2026-09-09 06:00'],
+      ['统一身份认证', '身份认证', 'CAS + SAML', true, '实时'],
+      ['学校云盘', '云存储', 'WebDAV + API', true, '2026-09-09 08:00'],
+      ['邮件服务器', '通知服务', 'SMTP/IMAP', true, '2026-09-09 08:00']
+    ];
+    document.getElementById('integrationTable').innerHTML = integrations.map(r => `
+      <tr>
+        <td style="font-weight:500;">${r[0]}</td>
+        <td>${r[1]}</td>
+        <td style="font-size:12px;">${r[2]}</td>
+        <td><span class="badge ${r[3] ? 'badge-success' : 'badge-danger'}">${r[3] ? '已连接' : '未连接'}</span></td>
+        <td style="font-size:12px;color:var(--text-secondary);">${r[4]}</td>
+        <td>
+          <button class="btn-link" onclick="Toast.info('配置详情')">配置</button>
+          <button class="btn-link" onclick="Toast.info('立即同步')">同步</button>
+        </td>
+      </tr>
+    `).join('');
+
+    // 安全设置
+    const settings = [
+      ['强制密码复杂度策略', '密码需包含大小写字母、数字、特殊字符，长度不少于8位', true],
+      ['账号登录失败锁定', '连续5次登录失败后锁定账号15分钟', true],
+      ['操作日志审计', '记录所有管理员操作，保留期180天', true],
+      ['数据加密存储', '敏感数据AES-256加密', true],
+      ['多因素认证（MFA）', '管理员强制启用，普通用户可选', false],
+      ['IP访问白名单', '限制仅校内IP可访问管理后台', true]
+    ];
+    document.getElementById('securityList').innerHTML = settings.map(s => `
+      <div class="setting-row">
+        <div>
+          <div style="font-weight:500;">${s[0]}</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${s[1]}</div>
+        </div>
+        <div class="toggle-switch ${s[2] ? 'on' : ''}" onclick="this.classList.toggle('on');Toast.success('设置已更新')"></div>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>
