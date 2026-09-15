@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>STC15 UART串口预习自测与定时器知识强化自测题</title>
+<style>
+:root{--blue:#0b4f7c;--cyan:#0ea5c6;--light:#eef7fb;--line:#c9dce8;--good:#0a7b48;--bad:#b42318;--warn:#9a6700;--ink:#172b3a;--muted:#587080}
+*{box-sizing:border-box}body{margin:0;background:#f2f6f8;color:var(--ink);font-family:"Microsoft YaHei","Noto Sans SC",Arial,sans-serif;line-height:1.65}
+.hero{background:linear-gradient(130deg,#073b61,#0b6f91);color:white;padding:30px 20px}.hero-inner{max-width:1050px;margin:auto}.eyebrow{font-size:14px;opacity:.85;letter-spacing:.08em}.hero h1{font-size:clamp(25px,4vw,38px);margin:6px 0 5px}.hero p{margin:0;opacity:.9}
+.wrap{max-width:1050px;margin:20px auto 60px;padding:0 16px}.panel{background:#fff;border:1px solid #dbe7ed;border-radius:14px;padding:20px;box-shadow:0 7px 24px rgba(18,55,75,.07);margin-bottom:18px}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.field label{display:block;font-weight:700;margin-bottom:4px}.field input{width:100%;padding:10px 12px;border:1px solid #a9c1cf;border-radius:8px;font:inherit}.note{background:#f4fafc;border-left:4px solid var(--cyan);padding:12px 14px;border-radius:6px;margin-top:14px;color:#274b5f}
+.progress{height:9px;background:#e6eef2;border-radius:10px;overflow:hidden;margin-top:12px}.progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#1aa7c8,#0a6e92);transition:.25s}
+.question{border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0;background:white;scroll-margin-top:16px}.question.unanswered{border-color:#e2a427;box-shadow:0 0 0 2px #fff1bd}.question.correct{border-color:#58b68d;background:#f4fbf7}.question.wrong{border-color:#e08a82;background:#fff7f6}.qhead{display:flex;gap:10px;align-items:flex-start}.qno{flex:0 0 auto;background:var(--blue);color:white;border-radius:7px;padding:1px 9px;font-weight:700}.qtext{font-weight:700}.badge{font-size:12px;padding:2px 7px;border:1px solid #9fc0d2;border-radius:99px;color:#315f76;margin-left:6px;white-space:nowrap}.options{display:grid;gap:9px;margin-top:13px}.option{display:flex;gap:9px;align-items:flex-start;padding:10px 12px;border:1px solid #d9e4e9;border-radius:8px;cursor:pointer}.option:hover{background:#f2f9fc}.option input{margin-top:6px;transform:scale(1.15)}.option-key{font-weight:700;color:var(--blue)}
+.feedback{display:none;margin-top:13px;padding:12px;border-radius:8px;background:#eef5f8}.submitted .feedback{display:block}.feedback.good{border-left:4px solid var(--good)}.feedback.bad{border-left:4px solid var(--bad)}
+.actions{position:sticky;bottom:0;z-index:5;background:rgba(242,246,248,.95);backdrop-filter:blur(7px);padding:12px 0;display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:9px;padding:11px 20px;font:700 16px inherit;cursor:pointer}.primary{background:var(--blue);color:white}.secondary{background:#dcecf3;color:#153f54}.btn:disabled{opacity:.45;cursor:not-allowed}
+.result{display:none}.result.show{display:block}.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.metric{background:var(--light);border-radius:10px;padding:14px}.metric b{display:block;color:var(--blue);font-size:24px}.diagnosis{border:1px solid #e7c768;background:#fffaf0;border-radius:11px;padding:16px;margin-top:14px}.diagnosis h3{color:#7f5600;margin:0 0 8px}.weak-list{display:grid;gap:10px}.weak-item{background:white;border-left:4px solid #e2a427;padding:10px 12px}.suggestions li{margin:7px 0}.all-good{border-left-color:var(--good)}
+.section-title{margin:24px 0 10px;padding:9px 13px;border-left:5px solid var(--cyan);background:var(--light);border-radius:7px;color:var(--blue)}.section-title:first-of-type{margin-top:10px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:720px){.info-grid,.score-grid{grid-template-columns:1fr}.hero{padding:22px 14px}.panel{padding:15px}.qhead{display:block}.qno{display:inline-block;margin-bottom:6px}.actions{position:static}.btn{width:100%}}
+@media print{.hero,.actions,.info-panel,.progress{display:none!important}.wrap{margin:0;max-width:none}.panel,.question{box-shadow:none;break-inside:avoid}.result{display:block!important}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-inner"><div class="eyebrow">《单片机应用技术》项目9 · T0预习诊断与定时器知识强化</div><h1>STC15 UART串口预习自测与定时器知识强化自测题</h1><p>依据UART附件工程参数编制。完成20题后提交，系统将生成总成绩、双模块达标结果、薄弱点诊断和提升建议。</p></div></header>
+<main class="wrap">
+  <section class="panel info-panel"><div class="info-grid">
+    <div class="field"><label for="studentName">姓名 *</label><input id="studentName" maxlength="30" autocomplete="name"></div>
+    <div class="field"><label for="studentId">学号 *</label><input id="studentId" maxlength="30"></div>
+    <div class="field"><label for="studentClass">班级</label><input id="studentClass" maxlength="40"></div>
+  </div><div class="note">答题说明：UART预习诊断10题、定时器强化10题，每题5分。单选题和判断题选择1项；多选题必须选择全部正确选项。两个模块分别达到40分为通过。提交后显示逐题反馈，结果可导出为Word兼容文档。</div><div class="progress" aria-label="答题进度"><span id="progressBar"></span></div><div id="progressText">已答0题</div></section>
+  <section id="questions" class="panel"></section>
+  <section id="result" class="panel result" aria-live="polite">
+    <h2>测试评价</h2><div class="score-grid"><div class="metric">总得分<b id="score"></b><span id="scoreBase"></span></div><div class="metric">正确率<b id="percent"></b></div><div class="metric">UART模块<b id="uartScore"></b><span id="uartPass"></span></div><div class="metric">定时器模块<b id="timerScore"></b><span id="timerPass"></span></div><div class="metric">评价等级<b id="level"></b></div><div class="metric">用时<b id="duration"></b></div></div>
+    <div id="diagnosis" class="diagnosis"></div>
+  </section>
+  <div class="actions"><button id="submitBtn" class="btn primary">提交测试</button><button id="exportBtn" class="btn secondary" disabled>导出测试结果</button><button id="resetBtn" class="btn secondary">重新作答</button></div>
+</main>
+<script>
+const TEST = {"resourceId":"P09-T02-H5-QUIZ-01","fileStem":"P09-T02-H5-QUIZ-01-任务2测一测-确定串口参数与文本格式","title":"任务2测一测：确定串口参数与文本格式","sectionLabel":"测一测（7题）","questions":[{"stem":"MCS-51串口方式1的数据帧通常为（　）。","options":[{"key":"A","text":"8位UART，可变波特率"},{"key":"B","text":"同步移位寄存器，固定波特率"},{"key":"C","text":"9位UART，固定波特率"},{"key":"D","text":"仅能发送不能接收"}],"type":"single","answer":["A"],"points":1,"tag":"UART工作方式与8N1帧","explanation":"方式1是10位帧结构的8位UART，波特率通常由Timer1等产生。","id":1},{"stem":"Timer1用于产生方式1波特率时，常配置为（　）。","options":[{"key":"A","text":"方式0，13位定时"},{"key":"B","text":"方式1，16位计数"},{"key":"C","text":"方式2，8位自动重装"},{"key":"D","text":"方式3，停止计数"}],"type":"single","answer":["C"],"points":1,"tag":"通信参数与波特率","explanation":"Timer1方式2可自动重装TH1，适合产生稳定波特率。","id":2},{"stem":"晶振11.0592 MHz、1T计数、SMOD=0、Timer1方式2，要获得9600 bit/s，常用TH1为（　）。","options":[{"key":"A","text":"0xDC"},{"key":"B","text":"0xF4"},{"key":"C","text":"0x00"},{"key":"D","text":"0xFF"}],"type":"single","answer":["A"],"points":1,"tag":"通信参数与波特率","explanation":"按方式1波特率公式计算，11.0592 MHz下TH1=0xDC可得到9600 bit/s。","id":3},{"stem":"只要发送端设置为9600 bit/s，接收端波特率可以任意设置。","options":[{"key":"A","text":"正确"},{"key":"B","text":"错误"}],"type":"single","answer":["B"],"points":1,"tag":"通信参数与波特率","explanation":"异步通信两端的波特率、数据位、校验和停止位必须匹配。","id":4},{"stem":"发送数值25.6时，串口实际发送“25.6”需要先完成（　）。","options":[{"key":"A","text":"数值到ASCII文本的格式化"},{"key":"B","text":"把RXD改为输出"},{"key":"C","text":"关闭Timer1"},{"key":"D","text":"删除小数点"}],"type":"single","answer":["A"],"points":1,"tag":"文本格式与行结束","explanation":"数值变量不能直接等同于可读文本，应按协议格式转换为ASCII字节序列。","id":5},{"stem":"采用CR/LF作为行结束符的作用包括（　）。","options":[{"key":"A","text":"帮助接收端识别一行结束"},{"key":"B","text":"便于虚拟终端分行显示"},{"key":"C","text":"自动修正波特率"},{"key":"D","text":"降低晶振频率"}],"type":"multiple","answer":["A","B"],"points":1,"tag":"文本格式与行结束","explanation":"CR/LF用于文本分帧和显示换行，不会改变底层波特率。","id":6},{"stem":"确定串口参数后，正确的校核步骤有（　）。","options":[{"key":"A","text":"计算实际波特率"},{"key":"B","text":"计算相对误差"},{"key":"C","text":"核对两端8N1设置"},{"key":"D","text":"只抄写推荐TH1值"}],"type":"multiple","answer":["A","B","C"],"points":1,"tag":"通信参数与波特率","explanation":"参数设计需有公式计算、误差校核和双端一致性检查。","id":7}]};
+const SUGGESTIONS = {"需求分析与可测判据":"把需求逐条改写为“条件—动作—可观察结果”，补齐角色、方向、刷新周期和验收阈值，再据此设计测试记录。","UART工作方式与8N1帧":"重画方式0～3的结构差异和8N1字符帧，标出起始位、数据位、停止位及每字符10位的时间关系。","通信参数与波特率":"从晶振、1T/12T、SMOD、Timer1方式2和TH1逐项重算实际波特率，再核对两端参数一致性与误差。","文本格式与行结束":"按“数值转ASCII—字段格式—CR/LF行结束”生成一帧示例，并逐字节检查接收端能否判定完整一行。","串口连线与电平边界":"重新核对TXD交叉接RXD、公共地和TTL/RS-232/RS-485电平边界，禁止把不同电平制式直接相连。","Proteus仿真与最小验证":"按晶振、复位、电源、串口交叉线、虚拟终端参数和HEX加载路径逐项检查，再用固定字符完成最小收发验证。","SCON与串口初始化":"对照目标工作方式逐位核对SM0/SM1、REN、TI、RI，并检查Timer1、波特率和中断总开关的初始化顺序。","串口中断与缓冲":"按“判断RI/TI—读写SBUF—清标志—写入缓冲/置事件标志”跟踪中断流程，把耗时解析和显示移到主循环。","接收缓冲与越界防护":"画出缓冲区索引变化，补上长度上限、CR/LF结束、溢出丢弃或复位策略，再用超长输入验证不会越界。","OLED显示与主循环分工":"使用串口中断只收数和置标志、主循环复制完整行并刷新OLED的结构，检查显示频率和共享数据一致性。","联调排故与测试闭环":"按电源与公共地、连线、电平、参数、程序标志、显示链路由底到顶排查，记录预期、实测、原因、修正和复测。","综合应用":"回到对应任务完成一次参数计算、一次连线或程序跟踪、一次异常测试，并用证据说明结论。"};
+const O=(...texts)=>texts.map((text,index)=>({key:'ABCD'[index],text}));
+Object.assign(TEST,{
+ resourceId:'P09-UART-TIMER-QUIZ-01',
+ fileStem:'P09-UART-TIMER-QUIZ-01-STC15-UART串口预习与定时器强化自测',
+ title:'STC15 UART串口预习自测与定时器知识强化自测题',
+ sectionLabel:'项目9课前诊断与知识强化（20题）',
+ questions:[
+ {id:1,module:'UART预习诊断',stem:'附件项目的UART1通信参数应设置为哪一组？',options:O('4800 bit/s，8E1','9600 bit/s，8N1','19200 bit/s，8O1','9600 bit/s，7E1'),type:'single',answer:['B'],points:5,tag:'通信参数与波特率',explanation:'U3与U4统一采用9600 bit/s、8位数据、无校验、1位停止位，即8N1。'},
+ {id:2,module:'UART预习诊断',stem:'执行SCON=0x50后，UART1处于什么状态？',options:O('方式0且禁止接收','方式1且允许接收','方式2且允许多机通信','仅允许发送，禁止接收'),type:'single',answer:['B'],points:5,tag:'SCON与串口初始化',explanation:'0x50使SM0/SM1为01，选择方式1；REN=1，允许串行接收。'},
+ {id:3,module:'UART预习诊断',stem:'语句TMOD=(TMOD&0x0F)|0x20的主要作用是什么？',options:O('保持Timer1并把Timer0设为方式2','保持Timer0低四位并把Timer1设为方式2','同时启动Timer0和Timer1','把UART切换到Timer2'),type:'single',answer:['B'],points:5,tag:'通信参数与波特率',explanation:'TMOD高四位属于Timer1。该语句保留Timer0配置，并把Timer1设为8位自动重装方式2。'},
+ {id:4,module:'UART预习诊断',stem:'11.0592 MHz、1T、SMOD=0、Timer1方式2产生9600 bit/s时，TH1和TL1应装入什么值？',options:O('0xFA','0xFC','0xDC','0xFF'),type:'single',answer:['C'],points:5,tag:'通信参数与波特率',explanation:'教案条件下N=36，TH1=TL1=0xDC，实际波特率9600 bit/s。'},
+ {id:5,module:'UART预习诊断',stem:'关于本次课UART初始化中的AUXR|=0x40与AUXR&=0xFE，正确的是哪些？',options:O('置T1x12位，使Timer1按1T计数','清S1ST2位，使UART1选择Timer1作为波特率源','两条语句都会启动Timer1','按位或与按位与操作保留其他无关位'),type:'multiple',answer:['A','B','D'],points:5,tag:'SCON与串口初始化',explanation:'bit6控制Timer1的1T/12T，bit0选择UART1波特率源；TR1=1才启动Timer1。'},
+ {id:6,module:'UART预习诊断',stem:'查询方式发送一个字节的正确顺序是？',options:O('清TI→等TI→写SBUF','写SBUF→等待TI=1→软件清TI','等待RI=1→读SBUF→清RI','写SCON→清RI→写SBUF'),type:'single',answer:['B'],points:5,tag:'串口发送流程',explanation:'写SBUF启动发送；硬件发送完成后置TI；软件检测到TI后清零。'},
+ {id:7,module:'UART预习诊断',stem:'串口接收中断检测到RI=1后，最关键的处理是？',options:O('先长时间刷新OLED','及时读取SBUF并清RI','立即重新配置波特率','只清TI，不处理RI'),type:'single',answer:['B'],points:5,tag:'串口中断与缓冲',explanation:'必须及时取走SBUF中的字节并清RI，避免重复中断或后续数据覆盖。'},
+ {id:8,module:'UART预习诊断',stem:'U3与U4进行TTL串口通信时，必须满足哪些接线要求？',options:O('U3 TXD连接U4 RXD','需要双向通信时U3 RXD连接U4 TXD','两节点GND可靠共地','TXD必须连接TXD'),type:'multiple',answer:['A','B','C'],points:5,tag:'串口连线与电平边界',explanation:'串口收发线应交叉连接并共地；单向遥测至少连接U3 TXD、U4 RXD和GND。'},
+ {id:9,module:'UART预习诊断',stem:'UART中断服务函数中可以直接执行OLED整屏刷新和长延时，以减少主循环代码。',options:O('正确','错误'),type:'single',displayType:'判断题',answer:['B'],points:5,tag:'串口中断与缓冲',explanation:'中断应短小，只完成收数、边界判断和置标志；命令解析与显示处理放在主循环。'},
+ {id:10,module:'UART预习诊断',stem:'UART接收缓冲区由中断写入、主循环读取时，哪些做法符合规范？',options:O('共享变量使用volatile','复制完整帧时短暂屏蔽ES','写缓冲区前检查索引边界','主循环可与ISR同时修改同一索引'),type:'multiple',answer:['A','B','C'],points:5,tag:'接收缓冲与越界防护',explanation:'volatile、临界区快照和边界检查共同保证共享接收数据的一致性与安全性。'},
+ {id:11,module:'定时器知识强化',stem:'11.0592 MHz系统在12T定时器模式下，计数频率约为多少？',options:O('11.0592 MHz','921.6 kHz','92.16 kHz','9.216 kHz'),type:'single',answer:['B'],points:5,tag:'定时器计数基础',explanation:'12T模式下计数频率为FOSC/12，即921.6 kHz。'},
+ {id:12,module:'定时器知识强化',stem:'Timer1作为UART波特率发生器时，附件项目选择方式2的主要原因是？',options:O('方式2支持16位计数','溢出后可自动重装8位初值','方式2不需要晶振','方式2自动清除RI'),type:'single',answer:['B'],points:5,tag:'定时器工作方式',explanation:'方式2为8位自动重装，TL1溢出后自动装入TH1，适合连续产生稳定波特率。'},
+ {id:13,module:'定时器知识强化',stem:'在12T计数模式的强化练习中，Timer0方式1约1 ms时基装入TH0=0xFC、TL0=0x67。组合后的16位初值是？',options:O('0xFC67','0xFF67','0xFD00','0x0067'),type:'single',answer:['A'],points:5,tag:'定时器初值计算',explanation:'高8位TH0与低8位TL0组合为0xFC67，对应约921个12T计数周期。'},
+ {id:14,module:'定时器知识强化',stem:'在12T计数模式的强化练习中，Timer0方式1产生约100 μs中断，TH0=0xFF、TL0=0xA4。一次溢出约计数多少次？',options:O('46','92','256','922'),type:'single',answer:['B'],points:5,tag:'定时器初值计算',explanation:'0xFFA4到0xFFFF共92个计数增量；12T下约为99.8 μs。'},
+ {id:15,module:'定时器知识强化',stem:'Timer0方式1是16位自动重装方式，因此中断函数中不需要重新写TH0和TL0。',options:O('正确','错误'),type:'single',displayType:'判断题',answer:['B'],points:5,tag:'定时器工作方式',explanation:'方式1不是自动重装。附件Timer0 ISR每次都重新写入TH0和TL0。'},
+ {id:16,module:'定时器知识强化',stem:'Timer0方式1定时中断初始化通常应包含哪些步骤？',options:O('设置TMOD对应方式位','装入TH0与TL0','清TF0并允许ET0','置TR0启动定时器'),type:'multiple',answer:['A','B','C','D'],points:5,tag:'定时器初始化',explanation:'方式选择、初值、标志/分中断和启动计数均属于完整初始化。'},
+ {id:17,module:'定时器知识强化',stem:'1 ms中断中执行if(++count>=500)后置位任务标志，该任务周期约为？',options:O('5 ms','50 ms','500 ms','5 s'),type:'single',answer:['C'],points:5,tag:'软件分频与任务周期',explanation:'每次中断1 ms，累计500次约为500 ms。'},
+ {id:18,module:'定时器知识强化',stem:'使用定时中断产生10 ms、100 ms、500 ms和1 s任务标志时，哪些做法正确？',options:O('ISR只累计计数并置标志','耗时传感器读取放在主循环','任务标志声明为volatile','在ISR内阻塞发送整帧'),type:'multiple',answer:['A','B','C'],points:5,tag:'定时任务调度',explanation:'定时ISR保持短小；耗时业务放在主循环；共享任务标志使用volatile。'},
+ {id:19,module:'定时器知识强化',stem:'Timer0负责系统时基、Timer1负责UART波特率时，修改TMOD最安全的原则是？',options:O('直接TMOD=0x21，不考虑原配置','只修改目标定时器所属四位并保留另一半','每次中断都清零TMOD','Timer0与Timer1不能同时使用'),type:'single',answer:['B'],points:5,tag:'定时器资源协同',explanation:'TMOD高低四位分别属于Timer1和Timer0，应使用掩码避免破坏另一计时任务。'},
+ {id:20,module:'定时器知识强化',stem:'串口出现稳定乱码但程序仍持续发送。按照分层诊断顺序，首先应核对什么？',options:O('OLED字模','波特率、晶振及1T/12T配置是否一致','温度显示的小数位数','字符串换行符'),type:'single',answer:['B'],points:5,tag:'联调排故与测试闭环',explanation:'稳定乱码通常优先指向通信参数不一致，应先核对晶振、波特率、SMOD和1T/12T模式。'}
+]});
+Object.assign(SUGGESTIONS,{
+ '串口发送流程':'按“写SBUF—等待TI—软件清TI”逐语句跟踪，并用连续字符串检查丢字、重字和乱码。',
+ '定时器计数基础':'先写出FOSC、1T/12T与计数频率关系，再换算一个计数周期。',
+ '定时器工作方式':'对照TMOD画出方式1和方式2，区分16位人工重装与8位自动重装。',
+ '定时器初值计算':'按“目标时间→计数次数→65536减计数次数→拆分TH/TL”完成复算。',
+ '定时器初始化':'按方式、初值、标志、分中断、启动、总中断顺序逐项核对。',
+ '软件分频与任务周期':'用基础中断周期乘累计次数，验证10 ms、100 ms、500 ms和1 s任务周期。',
+ '定时任务调度':'坚持ISR只计数和置标志，耗时采集、通信与显示放在主循环。',
+ '定时器资源协同':'使用位掩码分别修改TMOD高低四位，检查Timer0与Timer1互不覆盖。'
+});
+const startedAt = Date.now();
+let submitted = false;
+const answers = {};
+const qBox = document.getElementById('questions');
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function answerText(q,keys){return keys.map(k=>`${k}．${q.options.find(o=>o.key===k)?.text||''}`).join('；');}
+function render(){
+ let previousModule='';
+ qBox.innerHTML = `<h2>${esc(TEST.sectionLabel)}</h2>` + TEST.questions.map((q,i)=>{
+   const type=q.type==='multiple'?'checkbox':'radio'; const label=q.displayType||(q.type==='multiple'?'多项选择题':'单项选择题');
+   const section=q.module!==previousModule?`<h3 class="section-title">${esc(q.module)}（10题，共50分）</h3>`:'';
+   previousModule=q.module;
+   return section+`<article class="question" id="q-${q.id}" data-id="${q.id}"><div class="qhead"><span class="qno">${i+1}</span><div class="qtext">${esc(q.stem)} <span class="badge">${label}</span><span class="badge">${esc(q.tag)}</span></div></div><div class="options">${q.options.map(o=>`<label class="option"><input type="${type}" name="q${q.id}" value="${o.key}"><span class="option-key">${o.key}．</span><span>${esc(o.text)}</span></label>`).join('')}</div><div class="feedback" id="fb-${q.id}"></div></article>`;
+ }).join('');
+ qBox.querySelectorAll('input').forEach(input=>input.addEventListener('change',()=>{collectOne(input.name);updateProgress();}));
+}
+function collectOne(name){const id=Number(name.slice(1));answers[id]=[...document.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>x.value).sort();}
+function updateProgress(){const done=TEST.questions.filter(q=>(answers[q.id]||[]).length).length;document.getElementById('progressBar').style.width=`${done/TEST.questions.length*100}%`;document.getElementById('progressText').textContent=`已答${done}题，共${TEST.questions.length}题`;}
+function same(a,b){return JSON.stringify([...a].sort())===JSON.stringify([...b].sort());}
+function formatTime(ms){const total=Math.max(1,Math.round(ms/1000));return `${Math.floor(total/60)}分${total%60}秒`;}
+function grade(p){return p>=90?'优秀':p>=80?'良好':p>=60?'合格':'需要加强';}
+function buildDiagnosis(results){
+ const wrong=results.filter(r=>!r.correct); const box=document.getElementById('diagnosis');
+ const uartScore=results.filter(r=>r.q.module==='UART预习诊断'&&r.correct).reduce((n,r)=>n+r.q.points,0),timerScore=results.filter(r=>r.q.module==='定时器知识强化'&&r.correct).reduce((n,r)=>n+r.q.points,0);
+ const moduleSummary=`<p><b>模块达标：</b>UART ${uartScore}/50（${uartScore>=40?'通过':'未通过'}）；定时器 ${timerScore}/50（${timerScore>=40?'通过':'未通过'}）。</p>`;
+ if(!wrong.length){box.innerHTML='<h3>学习诊断</h3>'+moduleSummary+'<div class="weak-item all-good"><b>本次未发现明显薄弱点。</b><br>建议进入综合迁移练习：调整参数或边界条件，重新判断程序、接口和测试结论是否仍然成立。</div>';return;}
+ const counts={}; wrong.forEach(r=>counts[r.q.tag]=(counts[r.q.tag]||0)+1);
+ const weak=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+ box.innerHTML=`<h3>主要薄弱点与提升建议</h3>${moduleSummary}<p>本次共答错${wrong.length}题。建议优先补强以下知识点，而不是只记忆正确选项。</p><div class="weak-list">${weak.map(([tag,count])=>`<div class="weak-item"><b>${esc(tag)}</b>：涉及${count}道错题<br><span>${esc(SUGGESTIONS[tag]||'重新阅读对应关键知识，完成一次操作验证并记录结果。')}</span></div>`).join('')}</div><h4>建议复习顺序</h4><ol class="suggestions">${weak.slice(0,5).map(([tag])=>`<li>先复习“${esc(tag)}”，再重新完成对应错题。</li>`).join('')}<li>复习后重新作答，比较两次结果并确认错误原因已经消除。</li></ol>`;
+}
+function submitTest(){
+ if(submitted)return;
+ const name=document.getElementById('studentName').value.trim(), sid=document.getElementById('studentId').value.trim();
+ if(!name||!sid){alert('请先填写姓名和学号。');(!name?document.getElementById('studentName'):document.getElementById('studentId')).focus();return;}
+ document.querySelectorAll('.question').forEach(x=>x.classList.remove('unanswered'));
+ const unanswered=TEST.questions.filter(q=>!(answers[q.id]||[]).length);
+ if(unanswered.length){unanswered.forEach(q=>document.getElementById(`q-${q.id}`).classList.add('unanswered'));document.getElementById(`q-${unanswered[0].id}`).scrollIntoView({behavior:'smooth'});alert(`还有${unanswered.length}题未作答。`);return;}
+ submitted=true; let score=0;
+ const results=TEST.questions.map(q=>{const selected=answers[q.id]||[];const correct=same(selected,q.answer);if(correct)score+=q.points;const card=document.getElementById(`q-${q.id}`);card.classList.add('submitted',correct?'correct':'wrong');card.querySelectorAll('input').forEach(x=>x.disabled=true);const fb=document.getElementById(`fb-${q.id}`);fb.classList.add(correct?'good':'bad');fb.innerHTML=`<b>${correct?'回答正确':'需要改进'}</b><br>你的答案：${esc(answerText(q,selected))}<br>正确答案：${esc(answerText(q,q.answer))}<br>解析：${esc(q.explanation)}`;return{q,selected,correct};});
+ const max=TEST.questions.reduce((s,q)=>s+q.points,0), percent=Math.round(score/max*100), elapsed=Date.now()-startedAt;
+ const uartScore=results.filter(r=>r.q.module==='UART预习诊断'&&r.correct).reduce((n,r)=>n+r.q.points,0),timerScore=results.filter(r=>r.q.module==='定时器知识强化'&&r.correct).reduce((n,r)=>n+r.q.points,0);
+ document.getElementById('score').textContent=score;document.getElementById('scoreBase').textContent=`满分${max}分`;document.getElementById('percent').textContent=`${percent}%`;document.getElementById('uartScore').textContent=`${uartScore}/50`;document.getElementById('uartPass').textContent=uartScore>=40?'通过':'未通过';document.getElementById('timerScore').textContent=`${timerScore}/50`;document.getElementById('timerPass').textContent=timerScore>=40?'通过':'未通过';document.getElementById('level').textContent=grade(percent);document.getElementById('duration').textContent=formatTime(elapsed);buildDiagnosis(results);document.getElementById('result').classList.add('show');document.getElementById('submitBtn').disabled=true;document.getElementById('exportBtn').disabled=false;window.__result={name,sid,clazz:document.getElementById('studentClass').value.trim(),score,max,percent,uartScore,timerScore,level:grade(percent),elapsed,results,submittedAt:new Date()};document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+function exportResult(){
+ const r=window.__result;if(!r){alert('请先提交测试。');return;}
+ const wrong=r.results.filter(x=>!x.correct);const counts={};wrong.forEach(x=>counts[x.q.tag]=(counts[x.q.tag]||0)+1);const weak=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+ const rows=r.results.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.q.stem)}</td><td>${esc(answerText(x.q,x.selected))}</td><td>${esc(answerText(x.q,x.q.answer))}</td><td>${x.correct?'正确':'错误'}</td><td>${esc(x.q.explanation)}</td></tr>`).join('');
+ const weakHtml=weak.length?`<ol>${weak.map(([tag,count])=>`<li><b>${esc(tag)}</b>（${count}题）：${esc(SUGGESTIONS[tag]||'重新阅读对应关键知识并完成操作验证。')}</li>`).join('')}</ol>`:'<p>本次未发现明显薄弱点，建议开展变式和迁移练习。</p>';
+ const doc=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(TEST.title)}</title><style>body{font-family:'Microsoft YaHei';font-size:11pt;line-height:1.6}h1,h2{color:#0b4f7c}table{border-collapse:collapse;width:100%}td,th{border:1px solid #777;padding:6px;vertical-align:top}th{background:#eaf4f8}</style></head><body><h1>${esc(TEST.title)}测试结果</h1><p>姓名：${esc(r.name)}　学号：${esc(r.sid)}　班级：${esc(r.clazz||'未填写')}</p><p>提交时间：${r.submittedAt.toLocaleString()}　用时：${formatTime(r.elapsed)}</p><p><b>总分：${r.score}/${r.max}　正确率：${r.percent}%　评价：${r.level}</b></p><p><b>UART预习诊断：${r.uartScore}/50（${r.uartScore>=40?'通过':'未通过'}）　定时器知识强化：${r.timerScore}/50（${r.timerScore>=40?'通过':'未通过'}）</b></p><h2>主要薄弱点与提升建议</h2>${weakHtml}<h2>逐题结果</h2><table><thead><tr><th>题号</th><th>题目</th><th>作答</th><th>正确答案</th><th>结果</th><th>解析</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
+ const blob=new Blob(['\ufeff',doc],{type:'application/msword;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${TEST.resourceId}-${r.sid}-${r.name}-测试结果.doc`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+function resetTest(){if(!confirm('确定清除本次作答并重新开始吗？'))return;location.reload();}
+document.getElementById('submitBtn').addEventListener('click',submitTest);document.getElementById('exportBtn').addEventListener('click',exportResult);document.getElementById('resetBtn').addEventListener('click',resetTest);render();updateProgress();
+</script>
+</body></html>

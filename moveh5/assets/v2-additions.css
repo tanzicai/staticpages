@@ -1,0 +1,130 @@
+.sim-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.sim-card {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 26px #0f3b5b10;
+}
+
+.sim-card label {
+  display: grid;
+  gap: 7px;
+  margin: 14px 0;
+}
+
+.oled-screen {
+  min-height: 118px;
+  margin: 16px 0;
+  padding: 24px;
+  border: 8px solid #293744;
+  border-radius: 9px;
+  background: #061922;
+  color: #7ef7da;
+  white-space: pre-line;
+  font: 700 22px/1.55 Consolas, monospace;
+  text-shadow: 0 0 10px #22d3ee66;
+}
+
+.sim-console {
+  min-height: 240px;
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+.dual-link {
+  display: grid;
+  grid-template-columns: 1fr minmax(170px, .48fr) 1fr;
+  gap: 14px;
+  align-items: center;
+}
+
+.link-line {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0891b2, #f97316);
+}
+
+.link-line::after {
+  content: "▶";
+  position: absolute;
+  right: -4px;
+  top: -11px;
+  color: #ea580c;
+}
+
+.link-line span {
+  position: absolute;
+  left: 0;
+  top: -39px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: #082f49;
+  color: #a7f3d0;
+  font: 700 13px Consolas, monospace;
+  white-space: nowrap;
+}
+
+.packet-run {
+  animation: packetRun .5s linear;
+}
+
+@keyframes packetRun {
+  from {
+    left: 0;
+    transform: translateX(0);
+  }
+  to {
+    left: 100%;
+    transform: translateX(-100%);
+  }
+}
+
+.sim-controls {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+
+.sim-controls label {
+  display: grid;
+  gap: 6px;
+}
+
+.table-scroll {
+  overflow: auto;
+}
+
+.resource-link {
+  color: var(--blue);
+  font-weight: 800;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .sim-grid,
+  .dual-link {
+    grid-template-columns: 1fr;
+  }
+
+  .link-line {
+    margin: 30px 20px;
+  }
+
+  .sim-controls {
+    align-items: stretch;
+  }
+
+  .sim-controls > * {
+    flex: 1 1 210px;
+  }
+}

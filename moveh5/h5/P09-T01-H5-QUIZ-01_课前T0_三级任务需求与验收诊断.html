@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>课前T0测一测：三级任务需求与验收诊断</title>
+<style>
+:root{--blue:#0b4f7c;--cyan:#0ea5c6;--light:#eef7fb;--line:#c9dce8;--good:#0a7b48;--bad:#b42318;--warn:#9a6700;--ink:#172b3a;--muted:#587080}
+*{box-sizing:border-box}body{margin:0;background:#f2f6f8;color:var(--ink);font-family:"Microsoft YaHei","Noto Sans SC",Arial,sans-serif;line-height:1.65}
+.hero{background:linear-gradient(130deg,#073b61,#0b6f91);color:white;padding:30px 20px}.hero-inner{max-width:1050px;margin:auto}.eyebrow{font-size:14px;opacity:.85;letter-spacing:.08em}.hero h1{font-size:clamp(25px,4vw,38px);margin:6px 0 5px}.hero p{margin:0;opacity:.9}
+.wrap{max-width:1050px;margin:20px auto 60px;padding:0 16px}.panel{background:#fff;border:1px solid #dbe7ed;border-radius:14px;padding:20px;box-shadow:0 7px 24px rgba(18,55,75,.07);margin-bottom:18px}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.field label{display:block;font-weight:700;margin-bottom:4px}.field input{width:100%;padding:10px 12px;border:1px solid #a9c1cf;border-radius:8px;font:inherit}.note{background:#f4fafc;border-left:4px solid var(--cyan);padding:12px 14px;border-radius:6px;margin-top:14px;color:#274b5f}
+.progress{height:9px;background:#e6eef2;border-radius:10px;overflow:hidden;margin-top:12px}.progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#1aa7c8,#0a6e92);transition:.25s}
+.question{border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0;background:white;scroll-margin-top:16px}.question.unanswered{border-color:#e2a427;box-shadow:0 0 0 2px #fff1bd}.question.correct{border-color:#58b68d;background:#f4fbf7}.question.wrong{border-color:#e08a82;background:#fff7f6}.qhead{display:flex;gap:10px;align-items:flex-start}.qno{flex:0 0 auto;background:var(--blue);color:white;border-radius:7px;padding:1px 9px;font-weight:700}.qtext{font-weight:700}.badge{font-size:12px;padding:2px 7px;border:1px solid #9fc0d2;border-radius:99px;color:#315f76;margin-left:6px;white-space:nowrap}.options{display:grid;gap:9px;margin-top:13px}.option{display:flex;gap:9px;align-items:flex-start;padding:10px 12px;border:1px solid #d9e4e9;border-radius:8px;cursor:pointer}.option:hover{background:#f2f9fc}.option input{margin-top:6px;transform:scale(1.15)}.option-key{font-weight:700;color:var(--blue)}
+.feedback{display:none;margin-top:13px;padding:12px;border-radius:8px;background:#eef5f8}.submitted .feedback{display:block}.feedback.good{border-left:4px solid var(--good)}.feedback.bad{border-left:4px solid var(--bad)}
+.actions{position:sticky;bottom:0;z-index:5;background:rgba(242,246,248,.95);backdrop-filter:blur(7px);padding:12px 0;display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:9px;padding:11px 20px;font:700 16px inherit;cursor:pointer}.primary{background:var(--blue);color:white}.secondary{background:#dcecf3;color:#153f54}.btn:disabled{opacity:.45;cursor:not-allowed}
+.result{display:none}.result.show{display:block}.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{background:var(--light);border-radius:10px;padding:14px}.metric b{display:block;color:var(--blue);font-size:24px}.diagnosis{border:1px solid #e7c768;background:#fffaf0;border-radius:11px;padding:16px;margin-top:14px}.diagnosis h3{color:#7f5600;margin:0 0 8px}.weak-list{display:grid;gap:10px}.weak-item{background:white;border-left:4px solid #e2a427;padding:10px 12px}.suggestions li{margin:7px 0}.all-good{border-left-color:var(--good)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:720px){.info-grid,.score-grid{grid-template-columns:1fr}.hero{padding:22px 14px}.panel{padding:15px}.qhead{display:block}.qno{display:inline-block;margin-bottom:6px}.actions{position:static}.btn{width:100%}}
+@media print{.hero,.actions,.info-panel,.progress{display:none!important}.wrap{margin:0;max-width:none}.panel,.question{box-shadow:none;break-inside:avoid}.result{display:block!important}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-inner"><div class="eyebrow">《单片机应用技术》项目9 · P09-T01-H5-QUIZ-01 · 课前 · 项目发布与需求分析 · T0诊断</div><h1>课前T0测一测：三级任务需求与验收诊断</h1><p>紧邻对应知识学习节点完成；正确率达到80%为达标，错题须即时订正并回到接线、参数或代码复测。</p></div></header>
+<main class="wrap">
+  <section class="panel info-panel"><div class="info-grid">
+    <div class="field"><label for="studentName">姓名 *</label><input id="studentName" maxlength="30" autocomplete="name"></div>
+    <div class="field"><label for="studentId">学号 *</label><input id="studentId" maxlength="30"></div>
+    <div class="field"><label for="studentClass">班级</label><input id="studentClass" maxlength="40"></div>
+  </div><div class="note"><b>答题说明：</b>单项题和判断题选择1项，多项题须选择全部正确选项。测试用于诊断、即时订正和学习过程记录，不单独形成项目总分；提交后可导出Word兼容结果。</div><div class="progress" aria-label="答题进度"><span id="progressBar"></span></div><div id="progressText">已答0题</div></section>
+  <section id="questions" class="panel"></section>
+  <section id="result" class="panel result" aria-live="polite">
+    <h2>测试评价</h2><div class="score-grid"><div class="metric">得分<b id="score"></b><span id="scoreBase"></span></div><div class="metric">正确率<b id="percent"></b></div><div class="metric">评价等级<b id="level"></b></div><div class="metric">用时<b id="duration"></b></div></div>
+    <div id="diagnosis" class="diagnosis"></div>
+  </section>
+  <div class="actions"><button id="submitBtn" class="btn primary">提交测试</button><button id="exportBtn" class="btn secondary" disabled>导出测试结果</button><button id="resetBtn" class="btn secondary">重新作答</button></div>
+</main>
+<script>
+const TEST = {"resourceId":"P09-T01-H5-QUIZ-01","fileStem":"P09-T01-H5-QUIZ-01_课前T0_三级任务需求与验收诊断_V2.1","title":"课前T0测一测：三级任务需求与验收诊断","sectionLabel":"三级任务需求诊断（6题）","questions":[{"stem":"本项目进入串口开发前必须保留的功能基线包括（　）。","options":[{"key":"A","text":"LM35温度采集"},{"key":"B","text":"ADC滤波与工程值换算"},{"key":"C","text":"OLED本地显示"},{"key":"D","text":"删除传感器功能只发送固定文本"}],"type":"multiple","answer":["A","B","C"],"points":1,"tag":"三级任务需求与验收","explanation":"三级任务均在LM35采集、ADC处理和OLED显示基线上增量开发串口功能。","id":1},{"stem":"基础任务相对原LM35+OLED工程新增的核心功能是（　）。","options":[{"key":"A","text":"UART方式1初始化"},{"key":"B","text":"每500 ms输出温度文本"},{"key":"C","text":"虚拟终端显示与字符回显"},{"key":"D","text":"重新开发一套温度传感器驱动"}],"type":"multiple","answer":["A","B","C"],"points":1,"tag":"三级任务需求与验收","explanation":"基础任务复用采集显示模块，只新增单机与虚拟终端的串口通信功能。","id":2},{"stem":"进阶任务的发送端和接收端分工正确的是（　）。","options":[{"key":"A","text":"U3采集并发送温度帧，U4接收解析并显示"},{"key":"B","text":"U4只发送，U3只显示"},{"key":"C","text":"两端均不需要OLED"},{"key":"D","text":"只连接电源即可传输数据"}],"type":"single","answer":["A"],"points":1,"tag":"三级任务需求与验收","explanation":"U3是现场采集发送节点，U4是值班接收显示节点。","id":3},{"stem":"提升任务把既有串口能力迁移到PC后，应完成（　）。","options":[{"key":"A","text":"USB-TTL接口连接"},{"key":"B","text":"PC保存温度日志"},{"key":"C","text":"PING或STATUS命令应答"},{"key":"D","text":"改用标准RS-232电平直接连接单片机"}],"type":"multiple","answer":["A","B","C"],"points":1,"tag":"三级任务需求与验收","explanation":"提升任务增加PC接口、日志和命令交互，仍须保证TTL电平兼容。","id":4},{"stem":"能够直接支撑任务验收的证据包括（　）。","options":[{"key":"A","text":"参数配置截图"},{"key":"B","text":"连续运行日志和测试数据"},{"key":"C","text":"源码、HEX及接线图"},{"key":"D","text":"只写一句“已经完成”"}],"type":"multiple","answer":["A","B","C"],"points":1,"tag":"学习过程记录与评价边界","explanation":"证据必须能对应参数、功能和测试条件，形成可追溯验证链。","id":5},{"stem":"课前T0测试和阶段知识测试的主要作用是诊断、订正和学习过程记录，不单独形成新的项目总分。","options":[{"key":"A","text":"正确"},{"key":"B","text":"错误"}],"type":"single","answer":["A"],"points":1,"tag":"学习过程记录与评价边界","explanation":"项目只形成一次T1总评；知识测试结果用于发现薄弱点并支撑后续改进。","displayType":"判断题","id":6}]};
+const SUGGESTIONS = {"三级任务需求与验收":"用一张表分别写出基础、进阶、提升任务的复用基线、新增功能、可观察指标和必交证据。","学习过程记录与评价边界":"区分T0诊断、阶段测试、T1唯一总评和T2同口径复测，检查每个评分点是否有对应证据。","UART工作方式与8N1帧":"重画方式1的起始位、8位数据和停止位，结合9600 bit/s计算单字符传输时间。","通信参数与波特率":"按11.0592 MHz、1T、SMOD=0、Timer1方式2重新计算TH1，并核对两端参数。","SCON与串口初始化":"逐位标注SCON的SM0、SM1、REN、TI和RI，按时钟、Timer1、SCON、TR1顺序复核初始化。","文本格式与行结束":"把temperature_x10转换成LM35=xx.xC字符序列，逐字节标出ASCII码和CR/LF边界。","参数校核与证据":"补齐参数计算表、接口图和终端设置截图，让每个配置值都有数据手册或实测依据。","虚拟终端接口":"检查单片机TXD到终端RXD；需要回显时再连接终端TXD到单片机RXD，并统一8N1。","双机串口接口":"重画U3与U4的TXD/RXD交叉线和公共地，核对两端电平及串口参数。","USB-TTL与PC接口":"按TTL电平、TXD/RXD交叉、共地、COM口、9600/8N1逐项检查并截图。","LM35与OLED基线":"确认LM35接P1.0/ADC0、OLED SCL/SDA接P2.0/P2.1，并用同一温度快照驱动显示与通信。","Proteus仿真与最小验证":"按HEX、供电复位、时钟、串口参数和连线顺序排查，再用固定短串完成最小验证。","电路绘制与证据":"在完整接口图中标出信号方向、引脚、公共地、电平和终端参数，避免无上下文截图。","SBUF与TI发送":"单步跟踪写SBUF、TI置位和软件清TI，确认轮询发送与串口中断不会争抢TI。","温度文本格式":"用256代表25.6 ℃完成整数、小数点和一位小数的ASCII转换，并核对CR/LF。","500 ms周期调度":"把周期控制放在主循环或定时调度中，记录连续20次输出间隔，不在ISR中长延时。","RI中断与字符回显":"按判断RI、读SBUF、清RI、置标志、主循环回显的顺序跟踪变量。","中断与主循环分工":"把ISR限制为收数和置标志，字符串比较、显示、日志及长耗时操作放入主循环。","定长帧与数据解析":"按教案画出AA 55帧头和14字节缓冲，标记收帧边界；字段映射以核实后的配套源码为准。","U3采集与发送":"用同一次LM35采样依次完成OLED显示、组帧发送和周期等待，记录关键变量。","RI中断与主循环":"在流程图中分开ISR字节投递和主循环整帧解析、显示，检查每一步的标志变化。","帧同步与边界保护":"模拟帧头前出现干扰字节、半帧和连续帧，验证识别AA 55帧头后开始且不会越界。","共享数据与快照":"检查volatile、缓冲边界和取帧临界区，确保主循环读取的是同一完整帧。","双机一致性测试":"用低、中、高三点比较U3与U4显示，并连续运行5分钟记录差异。","超时提示与恢复":"断开链路超过2 s观察NO DATA，再恢复发送并确认OLED自动回到温度显示。","COM口与通信参数":"在设备管理器确认COM号，在串口助手核对9600、8N1、无校验和无流控。","PC日志与一致性":"保存带时间戳日志，用低、中、高三点与OLED显示逐项对照。","PC命令与文本边界":"分别发送PING、STATUS、未知命令和连续命令，核对CR/LF边界及响应日志。","分层诊断与日志":"按供电/HEX到SBUF/TI、RI/缓冲区逐级排查，每次只改变一个变量并保留复测证据。"};
+const startedAt = Date.now();
+let submitted = false;
+const answers = {};
+const qBox = document.getElementById('questions');
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function answerText(q,keys){return keys.map(k=>`${k}．${q.options.find(o=>o.key===k)?.text||''}`).join('；');}
+function render(){
+ qBox.innerHTML = `<h2>${esc(TEST.sectionLabel)}</h2>` + TEST.questions.map((q,i)=>{
+   const type=q.type==='multiple'?'checkbox':'radio'; const label=q.displayType||(q.type==='multiple'?'多项选择题':'单项选择题');
+   return `<article class="question" id="q-${q.id}" data-id="${q.id}"><div class="qhead"><span class="qno">${i+1}</span><div class="qtext">${esc(q.stem)} <span class="badge">${label}</span></div></div><div class="options">${q.options.map(o=>`<label class="option"><input type="${type}" name="q${q.id}" value="${o.key}"><span class="option-key">${o.key}．</span><span>${esc(o.text)}</span></label>`).join('')}</div><div class="feedback" id="fb-${q.id}"></div></article>`;
+ }).join('');
+ qBox.querySelectorAll('input').forEach(input=>input.addEventListener('change',()=>{collectOne(input.name);updateProgress();}));
+}
+function collectOne(name){const id=Number(name.slice(1));answers[id]=[...document.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>x.value).sort();}
+function updateProgress(){const done=TEST.questions.filter(q=>(answers[q.id]||[]).length).length;document.getElementById('progressBar').style.width=`${done/TEST.questions.length*100}%`;document.getElementById('progressText').textContent=`已答${done}题，共${TEST.questions.length}题`;}
+function same(a,b){return JSON.stringify([...a].sort())===JSON.stringify([...b].sort());}
+function formatTime(ms){const total=Math.max(1,Math.round(ms/1000));return `${Math.floor(total/60)}分${total%60}秒`;}
+function grade(p){return p>=90?'优秀':p>=80?'达标':'需要订正';}
+function buildDiagnosis(results){
+ const wrong=results.filter(r=>!r.correct); const box=document.getElementById('diagnosis');
+ if(!wrong.length){box.innerHTML='<h3>学习诊断</h3><div class="weak-item all-good"><b>本次未发现明显薄弱点。</b><br>建议进入综合迁移练习：调整参数或边界条件，重新判断程序、接口和测试结论是否仍然成立。</div>';return;}
+ const counts={}; wrong.forEach(r=>counts[r.q.tag]=(counts[r.q.tag]||0)+1);
+ const weak=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+ box.innerHTML=`<h3>主要薄弱点与提升建议</h3><p>本次共答错${wrong.length}题。建议优先补强以下知识点，而不是只记忆正确选项。</p><div class="weak-list">${weak.map(([tag,count])=>`<div class="weak-item"><b>${esc(tag)}</b>：涉及${count}道错题<br><span>${esc(SUGGESTIONS[tag]||'重新阅读对应关键知识，完成一次操作验证并记录结果。')}</span></div>`).join('')}</div><h4>建议复习顺序</h4><ol class="suggestions">${weak.slice(0,5).map(([tag])=>`<li>先复习“${esc(tag)}”，再重新完成对应错题。</li>`).join('')}<li>复习后重新作答，比较两次结果并确认错误原因已经消除。</li></ol>`;
+}
+function submitTest(){
+ if(submitted)return;
+ const name=document.getElementById('studentName').value.trim(), sid=document.getElementById('studentId').value.trim();
+ if(!name||!sid){alert('请先填写姓名和学号。');(!name?document.getElementById('studentName'):document.getElementById('studentId')).focus();return;}
+ document.querySelectorAll('.question').forEach(x=>x.classList.remove('unanswered'));
+ const unanswered=TEST.questions.filter(q=>!(answers[q.id]||[]).length);
+ if(unanswered.length){unanswered.forEach(q=>document.getElementById(`q-${q.id}`).classList.add('unanswered'));document.getElementById(`q-${unanswered[0].id}`).scrollIntoView({behavior:'smooth'});alert(`还有${unanswered.length}题未作答。`);return;}
+ submitted=true; let score=0;
+ const results=TEST.questions.map(q=>{const selected=answers[q.id]||[];const correct=same(selected,q.answer);if(correct)score+=q.points;const card=document.getElementById(`q-${q.id}`);card.classList.add('submitted',correct?'correct':'wrong');card.querySelectorAll('input').forEach(x=>x.disabled=true);const fb=document.getElementById(`fb-${q.id}`);fb.classList.add(correct?'good':'bad');fb.innerHTML=`<b>${correct?'回答正确':'需要改进'}</b><br>你的答案：${esc(answerText(q,selected))}<br>正确答案：${esc(answerText(q,q.answer))}<br>解析：${esc(q.explanation)}`;return{q,selected,correct};});
+ const max=TEST.questions.reduce((s,q)=>s+q.points,0), percent=Math.round(score/max*100), elapsed=Date.now()-startedAt;
+ document.getElementById('score').textContent=score;document.getElementById('scoreBase').textContent=`满分${max}分`;document.getElementById('percent').textContent=`${percent}%`;document.getElementById('level').textContent=grade(percent);document.getElementById('duration').textContent=formatTime(elapsed);buildDiagnosis(results);document.getElementById('result').classList.add('show');document.getElementById('submitBtn').disabled=true;document.getElementById('exportBtn').disabled=false;window.__result={name,sid,clazz:document.getElementById('studentClass').value.trim(),score,max,percent,level:grade(percent),elapsed,results,submittedAt:new Date()};document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+function exportResult(){
+ const r=window.__result;if(!r){alert('请先提交测试。');return;}
+ const wrong=r.results.filter(x=>!x.correct);const counts={};wrong.forEach(x=>counts[x.q.tag]=(counts[x.q.tag]||0)+1);const weak=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+ const rows=r.results.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.q.stem)}</td><td>${esc(answerText(x.q,x.selected))}</td><td>${esc(answerText(x.q,x.q.answer))}</td><td>${x.correct?'正确':'错误'}</td><td>${esc(x.q.explanation)}</td></tr>`).join('');
+ const weakHtml=weak.length?`<ol>${weak.map(([tag,count])=>`<li><b>${esc(tag)}</b>（${count}题）：${esc(SUGGESTIONS[tag]||'重新阅读对应关键知识并完成操作验证。')}</li>`).join('')}</ol>`:'<p>本次未发现明显薄弱点，建议开展变式和迁移练习。</p>';
+ const doc=`<!doctype html><html><head><meta charset="utf-8"><title>课前T0测一测：三级任务需求与验收诊断</title><style>body{font-family:'Microsoft YaHei';font-size:11pt;line-height:1.6}h1,h2{color:#0b4f7c}table{border-collapse:collapse;width:100%}td,th{border:1px solid #777;padding:6px;vertical-align:top}th{background:#eaf4f8}</style></head><body><h1>${esc(TEST.title)}测试结果</h1><p>姓名：${esc(r.name)}　学号：${esc(r.sid)}　班级：${esc(r.clazz||'未填写')}</p><p>提交时间：${r.submittedAt.toLocaleString()}　用时：${formatTime(r.elapsed)}</p><p><b>得分：${r.score}/${r.max}　正确率：${r.percent}%　评价：${r.level}</b></p><h2>主要薄弱点与提升建议</h2>${weakHtml}<h2>逐题结果</h2><table><thead><tr><th>题号</th><th>题目</th><th>作答</th><th>正确答案</th><th>结果</th><th>解析</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
+ const blob=new Blob(['\ufeff',doc],{type:'application/msword;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${TEST.resourceId}-${r.sid}-${r.name}-测试结果.doc`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+function resetTest(){if(!confirm('确定清除本次作答并重新开始吗？'))return;location.reload();}
+document.getElementById('submitBtn').addEventListener('click',submitTest);document.getElementById('exportBtn').addEventListener('click',exportResult);document.getElementById('resetBtn').addEventListener('click',resetTest);render();updateProgress();
+</script>
+</body></html>
