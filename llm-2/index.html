@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#123f2a" />
+    <title>植物保护学科大模型 · 核心知识服务</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Source+Han+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+    <header class="topbar">
+      <a class="brand" href="#/" aria-label="返回首页">
+        <span class="brand-mark">✦</span>
+        <span><strong>西南大学</strong><small>SOUTHWEST UNIVERSITY</small></span>
+      </a>
+      <nav class="topnav" aria-label="主导航">
+        <a href="#/" data-route="home">核心知识服务</a>
+        <a href="#/frontier" data-route="frontier">行业前沿</a>
+        <a href="#/academic" data-route="academic">AI学术追踪</a>
+        <a href="#/expert" data-route="expert">AI专家对话</a>
+        <a href="#/data" data-route="data">数据中心</a>
+      </nav>
+      <button class="login-btn" id="loginBtn">登录</button>
+    </header>
+
+    <main id="app" class="page-shell"></main>
+
+    <div class="toast" id="toast" role="status"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
