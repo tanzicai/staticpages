@@ -1,0 +1,35 @@
+/* ==========================================================================
+   第二课堂成绩单系统 · 设计令牌（Design Tokens）
+   视觉基线取自项目界面稿：浅色后台体系，主色 #2563eb
+   仅保留 light 主题；如后续要加暗色，在 [data-theme="dark"] 下重定义同名变量即可
+   ========================================================================== */
+:root{
+  /* —— 主色 —— */
+  --primary:#2563eb; --primary-2:#3b82f6; --primary-l:#eff6ff; --primary-l2:#dbeafe;
+
+  /* —— 中性 / 容器 —— */
+  --bg:#f6f8fc; --side:#f9fbff; --card:#ffffff; --line:#e8eef7; --line-2:#f1f5fb;
+  --text:#111827; --text2:#5b6b82; --text3:#9aa8bc;
+
+  /* —— 语义色 —— */
+  --ok:#10b981; --ok-l:#ecfdf5;
+  --warn:#f59e0b; --warn-l:#fff8eb;
+  --err:#ef4444; --err-l:#fef2f2;
+  --purple:#8b5cf6; --purple-l:#f5f3ff;
+  --cyan:#06b6d4; --cyan-l:#ecfeff;
+  --pink:#ec4899; --pink-l:#fdf2f8;
+  --star:#f59e0b; --star-l:#fff7e6;
+  --indigo:#6366f1; --indigo-l:#eef2ff;
+
+  /* —— 形状 / 阴影 —— */
+  --radius:14px; --radius-s:10px;
+  --shadow:0 1px 2px rgba(16,40,90,.04), 0 10px 28px rgba(16,40,90,.07);
+  --shadow-s:0 1px 2px rgba(16,40,90,.05), 0 4px 12px rgba(16,40,90,.05);
+
+  /* —— 尺寸 —— */
+  --sidew:238px; --toph:62px;
+
+  /* —— 图表调色（与语义色同源，保证图表与徽标一致）—— */
+  --c1:#3b82f6; --c2:#10b981; --c3:#f59e0b; --c4:#8b5cf6;
+  --c5:#06b6d4; --c6:#ec4899; --c7:#6366f1; --c8:#f97316;
+}
