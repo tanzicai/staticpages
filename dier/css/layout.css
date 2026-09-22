@@ -1,0 +1,120 @@
+/* ==========================================================================
+   布局层：顶栏 / 侧栏 / 主区 / 栅格 / 窄屏抽屉导航
+   注意：本系统的模块导航全部收在左侧栏，因此窄屏绝不能 display:none 隐藏侧栏，
+        否则整站没有导航 —— 窄屏改为「抽屉式」侧栏（汉堡按钮开关 + 遮罩）。
+   ========================================================================== */
+
+/* ============ 顶栏 ============ */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--toph);background:#fff;
+  border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:0 22px;z-index:60}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:.2px;white-space:nowrap}
+.brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#2563eb,#4f8ef7);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;
+  box-shadow:0 4px 12px rgba(37,99,235,.32)}
+.brand small{font-weight:500;color:var(--text3);font-size:11.5px;margin-left:2px;
+  border-left:1px solid var(--line);padding-left:9px;letter-spacing:0}
+.tb-search{flex:1;max-width:360px;position:relative}
+.tb-search input{width:100%;background:var(--bg);border-color:transparent;padding-left:32px;border-radius:999px}
+.tb-search input:focus{background:#fff;border-color:var(--primary)}
+.tb-search::before{content:"";position:absolute;left:12px;top:50%;width:13px;height:13px;transform:translateY(-50%);
+  background:no-repeat center/contain
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa8bc' stroke-width='2.4'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E")}
+.nav-toggle{display:none;width:34px;height:34px;border-radius:10px;align-items:center;justify-content:center;
+  color:var(--text2);flex:0 0 34px}
+.nav-toggle:hover{background:var(--primary-l);color:var(--primary)}
+.tb-spacer{flex:1}
+.tb-right{display:flex;align-items:center;gap:12px}
+.role-pick{display:flex;background:var(--bg);border-radius:999px;padding:3px;gap:2px}
+.role-pick button{padding:5px 13px;border-radius:999px;font-size:12.5px;color:var(--text2);transition:.18s}
+.role-pick button.on{background:#fff;color:var(--primary);font-weight:600;box-shadow:0 1px 4px rgba(16,40,90,.1)}
+.tb-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  color:var(--text2);position:relative;transition:.15s}
+.tb-ic:hover{background:var(--primary-l);color:var(--primary)}
+.tb-ic .dot{position:absolute;top:6px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--err);border:1.5px solid #fff}
+.avatar{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border-radius:999px;transition:.15s;position:relative}
+.avatar:hover{background:var(--bg)}
+.avatar .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#60a5fa,#2563eb);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600}
+.avatar b{font-size:13px;font-weight:600}
+.avatar span{font-size:11.5px;color:var(--text3);display:block;line-height:1.25}
+.avatar .who{display:flex;flex-direction:column}
+
+/* 顶部搜索联想 / 通知 / 用户下拉 —— 统一用 .pop 面板 */
+.pop{position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid var(--line);
+  border-radius:12px;box-shadow:var(--shadow);min-width:250px;z-index:120;padding:9px;animation:pop .16s}
+.pop.left{right:auto;left:0}
+.pop h5{font-size:12px;color:var(--text3);font-weight:600;padding:5px 9px 7px;letter-spacing:.4px}
+.pop-i{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;font-size:13px;color:var(--text2);transition:.14s}
+.pop-i:hover{background:var(--primary-l);color:var(--primary)}
+.pop-i .rt{margin-left:auto;font-size:11px;color:var(--text3)}
+.pop .hr{margin:7px 0}
+.search-pop{left:0;right:auto;top:calc(100% + 8px);min-width:100%;max-height:340px;overflow-y:auto;padding:7px}
+.search-pop .s-it{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer}
+.search-pop .s-it:hover{background:var(--primary-l)}
+.search-pop .s-it .sg{margin-left:auto;font-size:11px;color:var(--text3)}
+
+/* ============ 侧栏 ============ */
+.sidebar{position:fixed;top:var(--toph);bottom:0;left:0;width:var(--sidew);background:var(--side);
+  border-right:1px solid var(--line);overflow-y:auto;padding:12px 10px 26px;z-index:50}
+.side-group{margin:12px 0 4px;padding:0 10px;font-size:11px;font-weight:600;color:var(--text3);letter-spacing:1.2px}
+.side-group:first-child{margin-top:2px}
+.nav-i{display:flex;align-items:center;gap:9px;padding:8.5px 11px;border-radius:10px;color:var(--text2);
+  font-size:13.5px;cursor:pointer;transition:.15s;position:relative;margin-bottom:1px}
+.nav-i:hover{background:#fff;color:var(--text);box-shadow:var(--shadow-s)}
+.nav-i.on{background:#fff;color:var(--primary);font-weight:600;box-shadow:var(--shadow-s)}
+.nav-i.on::before{content:"";position:absolute;left:-10px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--primary)}
+.nav-i .ic{width:17px;height:17px;flex:0 0 17px;opacity:.85}
+.nav-i.on .ic{opacity:1}
+.nav-i .cnt{margin-left:auto;font-size:11px;background:var(--line-2);color:var(--text3);border-radius:999px;padding:1px 7px;font-weight:600}
+.nav-i.on .cnt{background:var(--primary-l);color:var(--primary)}
+.nav-i .cnt.hot{background:var(--err-l);color:var(--err)}
+.scrim{position:fixed;inset:var(--toph) 0 0 0;background:rgba(17,24,39,.36);z-index:49;animation:fade .16s}
+
+/* ============ 主区 ============ */
+.main{margin-left:var(--sidew);padding:calc(var(--toph) + 20px) 24px 40px;max-width:1560px}
+.page-hd{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.page-hd h1{font-size:21px;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;gap:9px}
+.page-hd p{color:var(--text3);font-size:12.5px;margin-top:3px}
+.page-hd .hd-act{margin-left:auto;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.star-chip{font-size:11.5px;font-weight:700;color:#b45309;background:var(--star-l);border:1px solid #fde68a;
+  border-radius:7px;padding:2px 8px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.req-note{background:linear-gradient(90deg,#fffdf5,#fff);border:1px solid #fde9b8;border-left:3px solid var(--star);
+  border-radius:10px;padding:9px 14px;font-size:12.5px;color:#7c5a12;margin-bottom:14px;line-height:1.7}
+.req-note b{color:#b45309}
+.crumb{font-size:12px;color:var(--text3);margin-bottom:5px}
+.crumb b{color:var(--text2);font-weight:600}
+
+/* ============ 栅格 ============ */
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.g-21{grid-template-columns:2fr 1fr}
+.g-12{grid-template-columns:1fr 2fr}
+.g-31{grid-template-columns:3fr 1.25fr}
+.g-11{grid-template-columns:1fr 1fr}
+
+@media(max-width:1400px){.g5{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1280px){
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g-21,.g-12,.g-31{grid-template-columns:1fr}
+}
+@media(max-width:980px){
+  .g2,.g3{grid-template-columns:1fr}
+  .g5{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* 窄屏：侧栏变抽屉，绝不 display:none */
+  .sidebar{transform:translateX(-104%);transition:transform .22s ease;box-shadow:0 18px 50px rgba(16,40,90,.2)}
+  .sidebar.open{transform:none}
+  .main{margin-left:0;padding:calc(var(--toph) + 16px) 14px 34px}
+  .nav-toggle{display:flex}
+  .tb-search{max-width:none}
+  .brand small{display:none}
+  .avatar .who{display:none}
+}
+@media(max-width:640px){
+  .g4,.g5{grid-template-columns:1fr}
+  .topbar{gap:10px;padding:0 12px}
+  .role-pick button{padding:5px 9px;font-size:12px}
+  .page-hd h1{font-size:18px}
+}

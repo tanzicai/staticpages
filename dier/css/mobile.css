@@ -1,0 +1,278 @@
+/* ==========================================================================
+   mobile.css —— 手机端（m.html）专用样式
+   与 PC 端共用 tokens.css 的色板与字体，只重排布局：
+   顶部标题栏 + 可滚动内容区 + 底部标签栏（TabBar），最大宽度 480px 居中。
+   ========================================================================== */
+:root {
+  --m-hd: 52px;
+  --m-tab: 58px;
+  --m-max: 480px;
+}
+
+html, body { height: 100%; }
+body.m-body {
+  background: #eef2f8;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------- 手机外框（PC 打开时居中显示为设备） ---------------- */
+.m-stage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.m-device {
+  width: 100%;
+  max-width: var(--m-max);
+  height: 100vh;
+  max-height: 900px;
+  background: #f4f7fc;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 18px 60px rgba(15, 23, 42, .16);
+}
+@media (min-width: 560px) {
+  .m-stage { padding: 22px; }
+  .m-device { border-radius: 30px; border: 9px solid #111827; height: 860px; }
+}
+
+/* ---------------- 顶部栏 ---------------- */
+.m-hd {
+  height: var(--m-hd);
+  flex: 0 0 var(--m-hd);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 13px;
+  position: relative;
+  z-index: 20;
+}
+.m-hd.plain { background: #fff; color: var(--text); border-bottom: 1px solid var(--line); }
+.m-hd .m-back {
+  width: 30px; height: 30px; border: 0; background: rgba(255, 255, 255, .16); color: inherit;
+  border-radius: 9px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex: 0 0 30px;
+}
+.m-hd.plain .m-back { background: #f1f5fb; }
+.m-hd .m-ttl { font-weight: 700; font-size: 15px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-hd .m-sub { font-size: 10.5px; opacity: .82; font-weight: 400; margin-top: 1px; }
+.m-hd .m-act { display: flex; gap: 7px; align-items: center; }
+.m-hd .m-ib {
+  width: 30px; height: 30px; border: 0; border-radius: 9px; background: rgba(255, 255, 255, .16);
+  color: inherit; font-size: 14px; cursor: pointer; flex: 0 0 30px;
+}
+.m-hd.plain .m-ib { background: #f1f5fb; color: var(--text2); }
+
+/* ---------------- 内容区 ---------------- */
+.m-main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 12px calc(var(--m-tab) + 16px);
+  -webkit-overflow-scrolling: touch;
+}
+.m-main.no-tab { padding-bottom: 16px; }
+
+/* ---------------- 底部标签栏 ---------------- */
+.m-tabbar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: var(--m-tab);
+  background: #fff;
+  border-top: 1px solid var(--line);
+  display: flex;
+  z-index: 25;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.m-tabbar .m-tab {
+  flex: 1;
+  border: 0;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 10.5px;
+  padding: 5px 0;
+  position: relative;
+}
+.m-tabbar .m-tab .ti { font-size: 18px; line-height: 1; }
+.m-tabbar .m-tab.on { color: #2563eb; font-weight: 650; }
+.m-tabbar .m-tab .bd {
+  position: absolute; top: 3px; right: 50%; margin-right: -20px;
+  background: #ef4444; color: #fff; font-size: 9.5px; min-width: 15px; height: 15px;
+  border-radius: 99px; display: flex; align-items: center; justify-content: center; padding: 0 4px;
+  font-weight: 700;
+}
+
+/* ---------------- 通用移动端卡片 ---------------- */
+.m-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 13px;
+  margin-bottom: 11px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+}
+.m-card.flush { padding: 0; overflow: hidden; }
+.m-card .m-ch {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.m-card .m-ch h3 { margin: 0; font-size: 13.5px; font-weight: 700; flex: 1; }
+.m-card .m-ch .more { font-size: 11.5px; color: #2563eb; cursor: pointer; }
+.m-sec-t {
+  font-size: 13px; font-weight: 700; margin: 4px 2px 9px; display: flex; align-items: center; gap: 6px;
+}
+.m-sec-t i { width: 3px; height: 12px; border-radius: 2px; background: #2563eb; display: inline-block; }
+.m-sec-t .r { margin-left: auto; font-size: 11.5px; font-weight: 400; color: var(--text3); }
+
+/* ---------------- 指标条 ---------------- */
+.m-kpis { display: flex; gap: 8px; margin-bottom: 11px; }
+.m-kpis .m-kpi {
+  flex: 1; background: #fff; border-radius: 12px; padding: 10px 8px; text-align: center;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+}
+.m-kpis .m-kpi .v { font-size: 18px; font-weight: 750; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.m-kpis .m-kpi .v i { font-size: 10px; font-weight: 400; color: var(--text3); font-style: normal; margin-left: 1px; }
+.m-kpis .m-kpi .l { font-size: 10.5px; color: var(--text3); margin-top: 3px; }
+
+/* ---------------- 活动卡片（列表） ---------------- */
+.m-act { display: flex; gap: 10px; padding: 10px; border-bottom: 1px solid #f1f5fb; cursor: pointer; }
+.m-act:last-child { border-bottom: 0; }
+.m-act .cv {
+  width: 92px; height: 66px; border-radius: 9px; flex: 0 0 92px; position: relative; overflow: hidden;
+  display: flex; align-items: flex-end; padding: 5px 7px; color: #fff; font-size: 10px; font-weight: 600;
+}
+.m-act .bd { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.m-act .bd .t { font-weight: 650; font-size: 13px; line-height: 1.4; }
+.m-act .bd .m { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.m-act .bd .foot { margin-top: auto; display: flex; align-items: center; gap: 7px; }
+
+/* ---------------- 大图活动卡（首页横幅） ---------------- */
+.m-banner {
+  border-radius: 14px; overflow: hidden; position: relative; height: 138px; margin-bottom: 11px;
+  display: flex; flex-direction: column; justify-content: flex-end; padding: 13px; color: #fff;
+}
+.m-banner .t { font-weight: 750; font-size: 15.5px; line-height: 1.4; text-shadow: 0 1px 8px rgba(15, 23, 42, .4); }
+.m-banner .m { font-size: 11.5px; opacity: .94; margin-top: 4px; }
+
+/* ---------------- 列表行 ---------------- */
+.m-row {
+  display: flex; align-items: center; gap: 10px; padding: 12px 13px; border-bottom: 1px solid #f1f5fb;
+  cursor: pointer; background: #fff;
+}
+.m-row:last-child { border-bottom: 0; }
+.m-row .ic {
+  width: 34px; height: 34px; border-radius: 10px; flex: 0 0 34px;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.m-row .tx { flex: 1; min-width: 0; }
+.m-row .tx .t { font-size: 13px; font-weight: 600; }
+.m-row .tx .d { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.m-row .rt { font-size: 11.5px; color: var(--text3); text-align: right; }
+
+/* ---------------- 成绩单（移动端精简版） ---------------- */
+.m-score-hd {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  border-radius: 14px; padding: 15px; color: #fff; margin-bottom: 11px;
+}
+.m-score-hd .nm { font-size: 15px; font-weight: 700; }
+.m-score-hd .sub { font-size: 11px; opacity: .86; margin-top: 3px; }
+.m-score-hd .big { font-size: 33px; font-weight: 800; line-height: 1.1; margin-top: 11px; font-variant-numeric: tabular-nums; }
+.m-score-hd .big i { font-size: 12px; font-weight: 400; opacity: .86; font-style: normal; margin-left: 3px; }
+.m-score-hd .line { font-size: 11px; opacity: .9; margin-top: 5px; }
+
+.m-catbar { margin-bottom: 9px; }
+.m-catbar .h { display: flex; align-items: center; gap: 7px; font-size: 12px; margin-bottom: 5px; }
+.m-catbar .h .n { font-weight: 600; flex: 1; }
+.m-catbar .h .v { font-size: 11.5px; color: var(--text3); font-variant-numeric: tabular-nums; }
+.m-catbar .track { height: 7px; border-radius: 99px; background: #eef3fa; overflow: hidden; }
+.m-catbar .track i { display: block; height: 100%; border-radius: 99px; }
+
+/* ---------------- 签到页 ---------------- */
+.m-sign-box {
+  background: #fff; border-radius: 16px; padding: 18px; text-align: center; margin-bottom: 11px;
+}
+.m-sign-qr { width: 216px; height: 216px; margin: 0 auto 12px; }
+.m-sign-box .cd {
+  font-size: 12px; color: var(--text3); margin-bottom: 10px;
+}
+.m-sign-box .cd b { color: #2563eb; font-size: 15px; font-variant-numeric: tabular-nums; }
+.m-btn-block {
+  display: block; width: 100%; border: 0; border-radius: 11px; padding: 12px; font-size: 14px;
+  font-weight: 650; cursor: pointer; background: #2563eb; color: #fff;
+}
+.m-btn-block.ghost { background: #f1f5fb; color: var(--text2); }
+.m-btn-block.danger { background: #ef4444; }
+.m-btn-block:disabled { background: #cbd5e1; color: #fff; cursor: not-allowed; }
+
+.m-radar-row { display: flex; gap: 8px; align-items: center; padding: 10px; background: #fff; border-radius: 12px; margin-bottom: 11px; }
+.m-radar-row .lbl { font-size: 11px; color: var(--text3); line-height: 1.7; }
+
+/* ---------------- 消息 ---------------- */
+.m-msg { padding: 12px 13px; border-bottom: 1px solid #f1f5fb; background: #fff; cursor: pointer; }
+.m-msg.unread { background: #f5f9ff; }
+.m-msg .t { font-size: 13px; font-weight: 650; display: flex; align-items: center; gap: 6px; }
+.m-msg .d { font-size: 11.8px; color: var(--text2); line-height: 1.7; margin-top: 4px; }
+.m-msg .m { font-size: 10.5px; color: var(--text3); margin-top: 5px; display: flex; gap: 9px; }
+.m-msg .dt { width: 6px; height: 6px; border-radius: 50%; background: #ef4444; flex: 0 0 6px; }
+
+/* ---------------- 我的（个人中心） ---------------- */
+.m-me-hd {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff;
+  padding: 16px 15px 20px; border-radius: 0 0 18px 18px; margin: -12px -12px 11px;
+}
+.m-me-hd .top { display: flex; align-items: center; gap: 11px; }
+.m-me-hd .av {
+  width: 50px; height: 50px; border-radius: 50%; background: rgba(255, 255, 255, .22);
+  display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 700; flex: 0 0 50px;
+}
+.m-me-hd .nm { font-size: 16px; font-weight: 750; }
+.m-me-hd .sub { font-size: 11.5px; opacity: .88; margin-top: 3px; }
+.m-me-hd .role {
+  margin-top: 12px; display: flex; gap: 7px; flex-wrap: wrap;
+}
+.m-me-hd .role button {
+  border: 1px solid rgba(255, 255, 255, .45); background: rgba(255, 255, 255, .12); color: #fff;
+  border-radius: 99px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;
+}
+.m-me-hd .role button.on { background: #fff; color: #2563eb; font-weight: 700; border-color: #fff; }
+
+/* ---------------- 空态与提示 ---------------- */
+.m-empty { text-align: center; padding: 44px 20px; color: var(--text3); }
+.m-empty .e-ic { font-size: 34px; margin-bottom: 9px; }
+.m-empty .e-t { font-size: 13px; font-weight: 600; color: var(--text2); }
+.m-note {
+  background: #f5f9ff; border: 1px solid #dbe9ff; border-radius: 10px; padding: 9px 11px;
+  font-size: 11.5px; line-height: 1.75; color: #1d4ed8; margin-bottom: 11px;
+}
+
+/* ---------------- 筛选胶囊 ---------------- */
+.m-chips { display: flex; gap: 7px; overflow-x: auto; padding: 2px 0 10px; }
+.m-chips::-webkit-scrollbar { display: none; }
+.m-chips button {
+  border: 1px solid var(--line); background: #fff; color: var(--text2); border-radius: 99px;
+  padding: 6px 13px; font-size: 12px; white-space: nowrap; cursor: pointer; flex: 0 0 auto;
+}
+.m-chips button.on { background: #2563eb; color: #fff; border-color: #2563eb; font-weight: 650; }
+
+.m-search {
+  width: 100%; border: 1px solid var(--line); border-radius: 11px; padding: 10px 12px;
+  font-size: 13px; margin-bottom: 11px; box-sizing: border-box; background: #fff;
+}
+
+/* 手机端复用 PC 的 toast / modal，但要贴近屏幕 */
+.m-device .toast-wrap { position: absolute; }
+.m-device .mask { position: absolute; border-radius: 0; }
+@media (min-width: 560px) {
+  .m-device .mask { border-radius: 21px; }
+}
