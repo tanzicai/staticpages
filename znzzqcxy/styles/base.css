@@ -1,0 +1,142 @@
+/* ============================================================
+ * base.css - 基础重置 · CSS 变量 · 全局样式 · 滚动条
+ * 重庆电子科技职业大学·智能制造与汽车学院（航空学院）
+ * ============================================================ */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:    #061229;
+  --bg-mid:     #0a1f3d;
+  --bg-card:    #0e2a52;
+  --bg-card-hi: #143764;
+  --border:     #1d4576;
+  --border-hi:  #2b6db8;
+  --text-main:  #e6f1ff;
+  --text-sub:   #8faacb;
+  --text-mute:  #5d7da0;
+  --primary:    #2d8cf0;
+  --primary-hi: #5cadff;
+  --success:    #19be6b;
+  --warning:    #ff9900;
+  --danger:     #ed3f3f;
+  --gold:       #f5b841;
+  --bg-grad:    linear-gradient(135deg, #0a1f3d 0%, #0e2a52 50%, #0a1f3d 100%);
+}
+
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-main);
+  overflow: hidden;
+  height: 100vh;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(45,140,240,0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(245,184,65,0.06) 0%, transparent 40%);
+}
+
+/* ===== 滚动条美化 ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(45,140,240,0.04); }
+::-webkit-scrollbar-thumb { background: rgba(45,140,240,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(45,140,240,0.5); }
+
+/* ===== 暗/亮主题切换（由 app.js 的 [data-theme] 控制） ===== */
+[data-theme="light"] {
+  --bg-deep:    #f4f7fb;
+  --bg-mid:     #ffffff;
+  --bg-card:    #ffffff;
+  --bg-card-hi: #f8fafc;
+  --border:     #e2e8f0;
+  --border-hi:  #cbd5e1;
+  --text-main:  #1e293b;
+  --text-sub:   #475569;
+  --text-mute:  #94a3b8;
+  --primary:    #2563eb;
+  --primary-hi: #1d4ed8;
+  --success:    #16a34a;
+  --warning:    #ea580c;
+  --danger:     #dc2626;
+  --gold:       #ca8a04;
+  --bg-grad:    linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%);
+}
+[data-theme="light"] body {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(37,99,235,0.04) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(202,138,4,0.04) 0%, transparent 40%);
+}
+[data-theme="light"] .topbar {
+  background: linear-gradient(90deg, #ffffff 0%, #f8fafc 50%, #ffffff 100%) !important;
+  border-bottom-color: var(--border) !important;
+}
+[data-theme="light"] .sidebar {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  border-right-color: var(--border) !important;
+}
+[data-theme="light"] .kpi-value {
+  background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+[data-theme="light"] .task-table th {
+  background: rgba(37,99,235,0.06);
+  color: var(--primary);
+}
+[data-theme="light"] .task-table tr:hover td {
+  background: rgba(37,99,235,0.04);
+}
+
+/* ===== 响应式断点 ===== */
+@media (max-width: 1440px) {
+  .grid-4 { grid-template-columns: repeat(3, 1fr); }
+  .grid-6 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 1200px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-6 { grid-template-columns: repeat(2, 1fr); }
+  .topbar-center { display: none !important; }
+  .sidebar { width: 200px; }
+  .logo { min-width: auto; }
+  .page-title { font-size: 18px; }
+}
+@media (max-width: 960px) {
+  .layout { flex-direction: column; }
+  .sidebar {
+    width: 100%; height: auto; max-height: 200px;
+    border-right: none; border-bottom: 1px solid var(--border);
+    display: flex; gap: 8px; flex-wrap: wrap;
+    padding: 10px;
+  }
+  .menu-group { margin-bottom: 0; flex: 0 0 auto; }
+  .menu-group-title { display: none; }
+  .menu-item { padding: 6px 10px; font-size: 12px; }
+  .grid-2, .grid-3, .grid-4, .grid-6 { grid-template-columns: 1fr; }
+  .row { flex-direction: column; }
+  .col { width: 100%; }
+  .task-flow { flex-wrap: wrap; gap: 12px; }
+  .flow-step { flex: 0 0 30%; }
+}
+@media (max-width: 640px) {
+  .topbar { padding: 0 12px; }
+  .logo-title { font-size: 13px; }
+  .logo-sub { display: none; }
+  .role-tag { display: none; }
+  .main { padding: 12px; }
+}
+
+/* ===== 全屏大屏模式 ===== */
+.fullscreen-mode .topbar,
+.fullscreen-mode .sidebar {
+  display: none !important;
+}
+.fullscreen-mode .layout {
+  height: 100vh;
+}
+.fullscreen-mode .main {
+  padding: 20px 30px;
+}
+.fullscreen-mode .card {
+  padding: 24px;
+}
