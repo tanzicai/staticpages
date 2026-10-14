@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>长江师范学院《食品工程原理》· 第一章 流体流动 · 管道输送虚拟仿真</title>
+<style>
+  :root{
+    --bg:#f4f6fa; --card:#ffffff; --card2:#fbfcfe; --border:#e3e8f0; --border2:#cfd8e6;
+    --text:#1b2536; --muted:#6b7a90; --accent:#1d4ed8; --accent-s:#e8effd;
+    --teal:#0f766e; --amber:#b45309; --red:#b91c1c; --green:#15803d;
+    --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 14px rgba(16,24,40,.05);
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:system-ui,-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:13px;line-height:1.55;}
+  header{background:linear-gradient(100deg,#123a8c,#1d4ed8 45%,#0e7490);color:#fff;padding:10px 18px;
+    display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);position:sticky;top:0;z-index:20}
+  header h1{font-size:16px;margin:0;font-weight:650;letter-spacing:.5px}
+  header h1 .sch{display:inline-block;margin-left:0;font-size:11px;font-weight:600;
+    background:rgba(255,255,255,.20);border:1px solid rgba(255,255,255,.42);
+    border-radius:999px;padding:2px 10px;vertical-align:2px;letter-spacing:.3px}
+  header .sub{font-size:11.5px;opacity:.85}
+  header .sub .sep{display:inline-block;margin:0 10px;color:rgba(255,255,255,.5)}
+  .badge{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;
+    padding:3px 11px;font-size:11.5px;font-family:var(--mono);white-space:nowrap}
+  .spacer{flex:1}
+  header button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);
+    border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px}
+  header button:hover{background:rgba(255,255,255,.26)}
+
+  .app{display:grid;grid-template-columns:300px minmax(540px,1fr) 336px;gap:12px;padding:12px;
+       align-items:start;min-width:1200px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);
+        margin-bottom:10px;overflow:hidden}
+  .card>h3{margin:0;padding:8px 12px;font-size:12.5px;font-weight:650;letter-spacing:.4px;
+    background:linear-gradient(180deg,#f7f9fc,#eef2f8);border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:6px}
+  .card>h3 .tag{margin-left:auto;font-weight:400;font-size:11px;color:var(--muted);font-family:var(--mono)}
+  .card .body{padding:10px 12px}
+  .sec-title{font-size:11px;color:var(--muted);margin:8px 0 5px;letter-spacing:.3px}
+  .sec-title:first-child{margin-top:0}
+
+  label.f{display:block;font-size:11.5px;color:var(--muted);margin:7px 0 3px}
+  select,input[type=text]{width:100%;padding:5px 7px;border:1px solid var(--border2);border-radius:6px;
+    background:#fff;font-size:12.5px;color:var(--text);font-family:inherit}
+  input[type=range]{width:100%;accent-color:var(--accent);margin:2px 0}
+  .row{display:flex;gap:7px;align-items:center}
+  .row>*{min-width:0}
+  .val{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600}
+  .hint{font-size:10.5px;color:var(--muted);line-height:1.45;margin-top:4px}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px}
+  .btn{padding:6px 8px;border:1px solid var(--border2);background:#fff;border-radius:7px;cursor:pointer;
+    font-size:12px;text-align:center;color:var(--text);transition:.12s;font-family:inherit}
+  .btn:hover{border-color:var(--accent);background:var(--accent-s)}
+  .btn.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  .btn.sm{padding:4px 6px;font-size:11.5px}
+  .btn.big{padding:9px 14px;font-size:13.5px;font-weight:600}
+  .btn.go{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.go:hover{background:#1741b8}
+  .btn.warn{background:#fff;border-color:#e5b567;color:var(--amber)}
+  .chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-family:var(--mono)}
+  .dot{width:11px;height:11px;border-radius:3px;border:1px solid rgba(0,0,0,.18)}
+
+  .locked{opacity:.45;pointer-events:none;filter:grayscale(.5)}
+  .locknote{font-size:10.5px;color:var(--amber);background:#fff8ec;border:1px solid #f2dfbb;
+    border-radius:6px;padding:4px 7px;margin-bottom:8px;display:none}
+  .locknote.show{display:block}
+
+  .stage{position:relative;background:#eef1f6;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  #frontCv{display:block;width:100%;height:100%}
+  .legend{position:absolute;left:10px;bottom:8px;display:flex;gap:10px;background:rgba(255,255,255,.86);
+    border:1px solid var(--border);border-radius:7px;padding:4px 8px;font-size:11px;backdrop-filter:blur(3px)}
+  .clock{position:absolute;right:10px;top:8px;background:rgba(255,255,255,.88);border:1px solid var(--border);
+    border-radius:7px;padding:4px 9px;font-family:var(--mono);font-size:11.5px;text-align:right;line-height:1.5}
+  .center-col{display:flex;flex-direction:column;gap:10px}
+  .lower{display:grid;grid-template-columns:212px minmax(300px,1fr);gap:10px}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);
+     padding:8px 10px 10px}
+  .panel .pt{font-size:12px;font-weight:650;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .panel .pt .tag{margin-left:auto;font-weight:400;color:var(--muted);font-size:10.5px;font-family:var(--mono)}
+  #crossCv{width:192px;height:192px;display:block;margin:0 auto;background:#f8fafc;border:1px solid var(--border);border-radius:8px}
+  #chartM{width:100%;height:192px;display:block}
+  #chartH{width:100%;height:158px;display:block}
+
+  table.kv{width:100%;border-collapse:collapse;font-size:12px}
+  table.kv td{padding:3px 0;border-bottom:1px dashed #eef1f6}
+  table.kv td:first-child{color:var(--muted);font-size:11.5px}
+  table.kv td:last-child{text-align:right;font-family:var(--mono);font-weight:600;white-space:nowrap}
+  table.kv td .u{font-weight:400;color:var(--muted);font-size:10.5px;margin-left:2px}
+  table.seg{width:100%;border-collapse:collapse;font-size:11.5px}
+  table.seg th{padding:3px 4px;border-bottom:1px solid var(--border2);font-size:10.5px;
+    color:var(--text);font-weight:650;text-align:right;background:var(--card2);white-space:nowrap}
+  table.seg th:first-child{text-align:left}
+  table.seg td{padding:3px 4px;border-bottom:1px dashed #eef1f6}
+  table.seg td:first-child{color:var(--muted);font-size:11px}
+  table.seg td:not(:first-child){text-align:right;font-family:var(--mono);font-weight:600;white-space:nowrap}
+  .bar{height:7px;background:#eef1f6;border-radius:99px;overflow:hidden;margin-top:5px}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,#38bdf8,#1d4ed8);border-radius:99px;width:0%}
+  .bar.ok>i{background:linear-gradient(90deg,#34d399,#15803d)}
+  .pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+  .pill{font-size:10.5px;padding:2px 7px;border-radius:99px;background:#eef2f8;color:var(--muted);border:1px solid var(--border)}
+  .pill.a{background:#e8effd;color:var(--accent);border-color:#c7d7fb}
+  .pill.g{background:#e7f7ef;color:var(--green);border-color:#bfe6d2}
+  .pill.r{background:#fdecec;color:var(--red);border-color:#f6cdcd}
+  .pill.w{background:#fff6e6;color:var(--amber);border-color:#f4dbb0}
+
+  table.log{width:100%;border-collapse:collapse;font-size:10.5px;font-family:var(--mono)}
+  table.log th{background:#f3f6fb;color:var(--muted);font-weight:600;padding:4px 3px;border-bottom:1px solid var(--border)}
+  table.log td{padding:3px;border-bottom:1px solid #f1f4f8;text-align:right}
+  table.log td:first-child,table.log th:first-child{text-align:left}
+  .empty{color:var(--muted);font-size:11px;text-align:center;padding:10px 0;font-family:inherit}
+
+  .footbar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);padding:8px 14px;
+    display:flex;align-items:center;gap:12px;box-shadow:0 -2px 10px rgba(16,24,40,.05);z-index:15;min-width:1200px}
+  .footbar .t{font-family:var(--mono);font-size:12.5px}
+  .footbar .st{font-size:12px;color:var(--muted)}
+  .progress{flex:1;height:8px;background:#eef1f6;border-radius:99px;overflow:hidden;min-width:150px}
+  .progress>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#93c5fd,#1d4ed8)}
+  .progress.done>i{background:linear-gradient(90deg,#6ee7b7,#15803d)}
+
+  .mask{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;z-index:50;align-items:center;justify-content:center}
+  .mask.show{display:flex}
+  .modal{background:#fff;border-radius:12px;max-width:860px;width:92%;max-height:84vh;overflow:auto;padding:18px 22px;
+    box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .modal h2{margin:0 0 12px;font-size:16px}
+  .modal h4{margin:14px 0 5px;font-size:12.5px;color:var(--accent)}
+  .modal p,.modal li{font-size:12.5px;line-height:1.75}
+  .modal code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:12px}
+  .modal table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+  .modal th,.modal td{border:1px solid var(--border);padding:5px 7px;text-align:left}
+  .modal th{background:#f3f6fb}
+  .close{float:right;background:#f1f5f9;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;cursor:pointer}
+  .warnbox{background:#fff8ec;border:1px solid #f2dfbb;border-radius:8px;padding:8px 10px;font-size:12px;color:#8a5a12;margin-top:8px}
+</style>
+</head>
+<body>
+
+<!-- 脚本异常提示条：任何未捕获错误都会在此显形，便于课堂排障 -->
+<div id="errBar" style="display:none;position:sticky;top:0;z-index:99;background:#fee2e2;
+  border-bottom:1px solid #f87171;color:#991b1b;font:12px/1.6 ui-monospace,monospace;padding:6px 12px"></div>
+<script>
+(function(){
+  function show(txt){
+    var b=document.getElementById('errBar'); if(!b) return;
+    b.style.display='block';
+    b.textContent='⚠ 脚本异常：'+txt+' — 页面功能可能受影响，请刷新重试。';
+  }
+  window.addEventListener('error',function(e){
+    var f=(e.filename||'').split('/').pop();
+    show((e.message||'未知')+(f?'（'+f+':'+(e.lineno||'-')+'）':''));
+  });
+  window.addEventListener('unhandledrejection',function(e){
+    show('Promise: '+((e.reason&&e.reason.message)||e.reason||'未知'));
+  });
+})();
+</script>
+
+<header>
+  <div>
+    <h1><span class="sch">长江师范学院《食品工程原理》课程</span> 流体在管道内的流动</h1>
+    <div class="sub">第一章 流体流动<span class="sep"></span>制作人：李文峰<span class="sep"></span>制作时间：2026年10月</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="badge" id="hdRe">Re = —</div>
+  <div class="badge" id="hdLam">λ = —</div>
+  <div class="badge" id="hdDp">Δp = —</div>
+  <div class="badge" id="hdU">u = —</div>
+  <button onclick="openHelp()">公式与原理</button>
+  <button onclick="openGuide()">实验指导</button>
+</header>
+
+<div class="app">
+
+  <!-- ================= 左：参数 ================= -->
+  <div>
+    <div class="locknote" id="lockNote">输送进行中 · 物料 / 管材 / 内径 / 管长 / 提升高度 / 温度已锁定，如需修改请先「重置」。<br>流速、管件与阀门仍可在运行中调节（相当于现场调阀）。</div>
+
+    <div class="card">
+      <h3>① 输送物料<span class="tag" id="tagFluid"></span></h3>
+      <div class="body" id="fluidBox">
+        <div class="grid2" id="fluidBtns"></div>
+        <div class="row" style="margin-top:8px">
+          <span class="chip"><i class="dot" id="dA"></i><span id="nA">物料</span></span>
+        </div>
+        <div class="hint" id="fluidNote"></div>
+        <table class="kv" style="margin-top:6px">
+          <tr><td>密度 ρ(20 ℃)</td><td><span id="fRho">—</span><span class="u">kg/m³</span></td></tr>
+          <tr><td>参考黏度 μ<sub>ref</sub></td><td><span id="fMu">—</span><span class="u">mPa·s</span></td></tr>
+          <tr><td>流变指数 n</td><td><span id="fN">—</span></td></tr>
+          <tr><td>黏温活化能 E<sub>a</sub></td><td><span id="fEa">—</span><span class="u">kJ/mol</span></td></tr>
+        </table>
+        <label class="f">自定义参考黏度 μ<sub>ref</sub>（mPa·s，对数）</label>
+        <input type="range" id="muSlider" min="0" max="1000" value="200">
+        <div class="row"><span style="font-size:11px;color:var(--muted)">覆盖值</span><span class="spacer" style="flex:1"></span><span class="val" id="muVal">—</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>② 管道材质<span class="tag" id="tagPipe"></span></h3>
+      <div class="body" id="pipeBox">
+        <div class="grid2" id="pipeBtns"></div>
+        <div class="hint" id="pipeNote"></div>
+        <table class="kv" style="margin-top:6px">
+          <tr><td>绝对粗糙度 ε</td><td><span id="pEps">—</span><span class="u">mm</span></td></tr>
+          <tr><td>相对粗糙度 ε/d</td><td><span id="pRel">—</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>③ 管道几何<span class="tag" id="tagGeo"></span></h3>
+      <div class="body" id="geoBox">
+        <label class="f">内径 d = <span class="val" id="dVal">50</span> mm</label>
+        <input type="range" id="dS" min="10" max="200" step="1" value="50">
+        <div class="grid4" style="margin-top:3px">
+          <button class="btn sm" data-d="25">25</button>
+          <button class="btn sm" data-d="50">50</button>
+          <button class="btn sm" data-d="80">80</button>
+          <button class="btn sm" data-d="100">100</button>
+        </div>
+        <label class="f">管长 L = <span class="val" id="lVal">20.0</span> m</label>
+        <input type="range" id="lS" min="1" max="200" step="1" value="20">
+        <div class="grid4" style="margin-top:3px">
+          <button class="btn sm" data-l="5">5</button>
+          <button class="btn sm" data-l="20">20</button>
+          <button class="btn sm" data-l="50">50</button>
+          <button class="btn sm" data-l="100">100</button>
+        </div>
+        <label class="f">提升高度 Δz = <span class="val" id="zVal">3.0</span> m（出口高于进口）</label>
+        <input type="range" id="zS" min="0" max="30" step="0.5" value="3">
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>④ 操作条件<span class="tag" id="tagOp"></span></h3>
+      <div class="body">
+        <div class="sec-title">设定方式</div>
+        <div class="grid2">
+          <button class="btn sm on" data-mode="u">按平均流速 u</button>
+          <button class="btn sm" data-mode="Q">按体积流量 Q</button>
+        </div>
+        <label class="f"><span id="opLabel">平均流速 u</span> = <span class="val" id="opVal">1.00</span> <span id="opUnit">m/s</span></label>
+        <input type="range" id="opS" min="0" max="1000" value="500">
+        <div class="row" style="margin-top:2px">
+          <span style="font-size:11px;color:var(--muted)" id="opAlt">Q = — m³/h</span>
+        </div>
+        <div class="sec-title" style="margin-top:9px">输送温度 T</div>
+        <label class="f">T = <span class="val" id="tVal">20</span> ℃（影响 ρ、μ，运行中锁定）</label>
+        <input type="range" id="tS" min="5" max="90" step="1" value="20">
+        <div class="grid4" style="margin-top:3px">
+          <button class="btn sm" data-t="5">5 ℃</button>
+          <button class="btn sm" data-t="20">20 ℃</button>
+          <button class="btn sm" data-t="60">60 ℃</button>
+          <button class="btn sm" data-t="85">85 ℃</button>
+        </div>
+        <div class="sec-title" style="margin-top:9px">泵机组效率 η</div>
+        <div class="row"><input type="range" id="etaS" min="40" max="85" step="1" value="65" style="flex:1">
+          <span class="val" id="etaVal">65%</span></div>
+        <div class="sec-title">管件与阀门（运行中可调，相当于现场调阀）</div>
+        <div class="grid4" id="elbBtns"></div>
+        <select id="valveS" style="margin-top:5px"></select>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>⑤ 显示与分析设置</h3>
+      <div class="body">
+        <div class="grid3">
+          <button class="btn sm" data-disp="part">粒子</button>
+          <button class="btn sm" data-disp="streak">流线</button>
+          <button class="btn sm on" data-disp="both">流线+粒子</button>
+        </div>
+        <div class="sec-title">叠加显示</div>
+        <label style="display:flex;gap:6px;align-items:center;font-size:11.5px"><input type="checkbox" id="cbProf" checked> 截面速度分布曲线</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:11.5px"><input type="checkbox" id="cbPiezo" checked> 测压管（水头线）</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:11.5px"><input type="checkbox" id="cbDim" checked> 几何标注 (d / L / Δz)</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:11.5px"><input type="checkbox" id="cbCross" checked> 圆管截面等速线图</label>
+        <div class="sec-title">仿真倍速</div>
+        <div class="grid4" id="spdBtns"></div>
+        <div class="sec-title">示踪粒子数</div>
+        <div class="grid3" id="npBtns"></div>
+        <div class="hint">仿真倍速仅加快动画时间；所有物理量均按真实工况计算。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>⑥ 预设实验场景</h3>
+      <div class="body" id="preBox"></div>
+    </div>
+  </div>
+
+  <!-- ================= 中：视图 ================= -->
+  <div class="center-col">
+    <div class="stage" style="aspect-ratio:16/9.4">
+      <canvas id="frontCv"></canvas>
+      <div class="clock" id="clock">t = 0.00 s<br>累计输送 0.00 m³</div>
+      <div class="legend">
+        <span class="chip"><i class="dot" id="lgA"></i><span id="lgAn">物料</span></span>
+        <span class="chip" id="lgTr" style="display:none"><i class="dot" style="background:#111827"></i>示踪剂</span>
+        <span class="chip" style="color:var(--muted)">管道纵剖面（示意，纵向/高程未按比例）</span>
+      </div>
+    </div>
+    <div class="lower">
+      <div class="panel">
+        <div class="pt">圆管截面<span class="tag">等速线</span></div>
+        <canvas id="crossCv" width="192" height="192"></canvas>
+        <div class="hint" style="text-align:center" id="crossHint">层流：抛物面；湍流：中心平坦、近壁陡峭</div>
+      </div>
+      <div class="panel">
+        <div class="pt">摩擦系数图（Moody 图）<span class="tag">λ – Re</span></div>
+        <canvas id="chartM"></canvas>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="pt">沿程能量线<span class="tag">EGL / HGL / 管中心线</span></div>
+      <canvas id="chartH"></canvas>
+    </div>
+  </div>
+
+  <!-- ================= 右：指标 ================= -->
+  <div>
+    <div class="card">
+      <h3>流动状态与物性<span class="tag">Re · regime</span></h3>
+      <div class="body">
+        <table class="kv">
+          <tr><td>雷诺数 Re<span id="reStar" style="color:var(--muted)"></span></td><td><span id="mRe">—</span></td></tr>
+          <tr><td>流型判据</td><td><span id="mReg">—</span></td></tr>
+          <tr><td>平均流速 u</td><td><span id="mU">—</span><span class="u">m/s</span></td></tr>
+          <tr><td>体积流量 Q</td><td><span id="mQ">—</span><span class="u">m³/h</span></td></tr>
+          <tr><td>质量流量 ṁ</td><td><span id="mM">—</span><span class="u">t/h</span></td></tr>
+          <tr><td>质量流速 G</td><td><span id="mG">—</span><span class="u">kg/(m²·s)</span></td></tr>
+          <tr><td>管中心最大流速 u<sub>max</sub></td><td><span id="mUm">—</span><span class="u">m/s</span></td></tr>
+          <tr><td>u<sub>max</sub> / u</td><td><span id="mUr">—</span></td></tr>
+        </table>
+        <div class="pills"><span class="pill" id="pReg">—</span><span class="pill" id="pEcon">—</span></div>
+        <div class="sec-title">当前温度下的物性</div>
+        <table class="kv">
+          <tr><td>密度 ρ(T)</td><td><span id="fRhoT">—</span><span class="u">kg/m³</span></td></tr>
+          <tr><td>表观黏度 μ<sub>app</sub>(T)</td><td><span id="fMuT">—</span><span class="u">mPa·s</span></td></tr>
+          <tr><td>μ 相对 20 ℃ 变化</td><td><span id="fMuR">—</span></td></tr>
+          <tr><td>运动黏度 ν</td><td><span id="fNu">—</span></td></tr>
+          <tr><td>稠度系数 K / 指数 n</td><td><span id="fK">—</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>阻力与压降<span class="tag">Darcy–Weisbach</span></h3>
+      <div class="body">
+        <table class="kv">
+          <tr><td>摩擦系数 λ</td><td><span id="rLam">—</span></td></tr>
+          <tr><td>光滑管 λ<sub>smooth</sub>（对比）</td><td><span id="rLamS">—</span></td></tr>
+          <tr><td>沿程阻力 h<sub>f</sub></td><td><span id="rHf">—</span><span class="u">m</span></td></tr>
+          <tr><td>沿程压降 Δp<sub>f</sub></td><td><span id="rDpf">—</span><span class="u">kPa</span></td></tr>
+          <tr><td>单位管长压降</td><td><span id="rDpm">—</span><span class="u">Pa/m</span></td></tr>
+          <tr><td>局部压降 Δp<sub>ζ</sub></td><td><span id="rDpl">—</span><span class="u">kPa</span></td></tr>
+          <tr><td>位差压降 Δp<sub>z</sub></td><td><span id="rDpz">—</span><span class="u">kPa</span></td></tr>
+          <tr><td>泵需提供总压 Δp</td><td><span id="rDp">—</span><span class="u">kPa</span></td></tr>
+          <tr><td>起点表压 p<sub>1</sub></td><td><span id="rP1">—</span><span class="u">kPa</span></td></tr>
+          <tr><td>终点表压 p<sub>2</sub></td><td>0.00<span class="u">kPa（常压）</span></td></tr>
+          <tr><td>壁面剪应力 τ<sub>w</sub></td><td><span id="rTau">—</span><span class="u">Pa</span></td></tr>
+          <tr><td>摩擦速度 u*</td><td><span id="rUs">—</span><span class="u">m/s</span></td></tr>
+          <tr><td>黏性底层厚 δ<sub>ν</sub></td><td><span id="rDel">—</span></td></tr>
+          <tr><td>入口段长度 L<sub>e</sub></td><td><span id="rLe">—</span><span class="u">m</span></td></tr>
+        </table>
+        <div class="sec-title">局部阻力明细（ζ · u²/2g）</div>
+        <table class="seg" id="zetaTab"></table>
+        <div class="pills"><span class="pill" id="pRough">—</span><span class="pill" id="pDev">—</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>输送功率与能耗<span class="tag">pump duty</span></h3>
+      <div class="body">
+        <table class="kv">
+          <tr><td>泵扬程 H</td><td><span id="wH">—</span><span class="u">m</span></td></tr>
+          <tr><td>有效功率 P<sub>e</sub></td><td><span id="wPe">—</span><span class="u">kW</span></td></tr>
+          <tr><td>轴功率 P = P<sub>e</sub>/η</td><td><span id="wP">—</span><span class="u">kW</span></td></tr>
+          <tr><td>吨料电耗</td><td><span id="wE">—</span><span class="u">kWh/t</span></td></tr>
+          <tr><td>管内持料体积 V</td><td><span id="wV">—</span><span class="u">L</span></td></tr>
+          <tr><td>管内持料质量</td><td><span id="wM">—</span><span class="u">kg</span></td></tr>
+          <tr><td>累计输送体积</td><td><span id="wVt">—</span><span class="u">m³</span></td></tr>
+          <tr><td>累计电耗</td><td><span id="wEt">—</span><span class="u">kWh</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>停留时间与剪切<span class="tag">residence · shear</span></h3>
+      <div class="body">
+        <table class="kv">
+          <tr><td>平均停留时间 t̄ = L/u</td><td><span id="sTr">—</span><span class="u">s</span></td></tr>
+          <tr><td>管中心最短停留 t<sub>min</sub></td><td><span id="sTm">—</span><span class="u">s</span></td></tr>
+          <tr><td>停留时间比 t̄/t<sub>min</sub></td><td><span id="sRt">—</span></td></tr>
+          <tr><td>壁面剪切速率 γ̇<sub>w</sub></td><td><span id="sSr">—</span><span class="u">s⁻¹</span></td></tr>
+          <tr><td>示踪剂前沿 / 尾部</td><td><span id="sTr1">—</span><span class="u">m</span></td></tr>
+          <tr><td>示踪剂展宽 Δx/L</td><td><span id="sSp">—</span><span class="u">%</span></td></tr>
+        </table>
+        <div class="pills" id="diagPills"></div>
+        <div class="hint">停留时间比越接近 1，管内物料受热/受热史越一致。层流牛顿流体该值为 2.0（管中心物料停留只有平均的一半），是 UHT 杀菌必须避免层流的原因。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>实验记录表<span class="tag">对比不同方案</span></h3>
+      <div class="body">
+        <div class="row" style="margin-bottom:6px">
+          <button class="btn sm" onclick="logRun()">记录本次</button>
+          <button class="btn sm" onclick="exportCsv()">导出CSV</button>
+          <button class="btn sm warn" onclick="clearLog()">清空</button>
+        </div>
+        <div id="logWrap"><div class="empty">尚无记录。设定好参数并开始输送后点击「记录本次」。</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footbar">
+  <button class="btn big go" id="btnRun" onclick="toggleRun()">▶ 开始输送</button>
+  <button class="btn big" onclick="doReset()">↺ 重置</button>
+  <button class="btn big" onclick="injectTracer()">◉ 注入示踪剂</button>
+  <div class="t" id="ftT">t = 0.00 s</div>
+  <div class="st" id="ftSt">待启动 · 请在开始输送前设定参数</div>
+  <div class="progress" id="ftProg"><i></i></div>
+  <div class="t" id="ftRe">Re = —</div>
+</div>
+
+<div class="mask" id="mask" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<script>
+"use strict";
+/* =========================================================================
+   长江师范学院《食品工程原理》 — 第一章 流体流动
+   流体在管道内的流动（输送）虚拟仿真教学演示
+   模型：Darcy–Weisbach + Colebrook 摩擦系数 + 幂律广义雷诺数
+        + Arrhenius 黏温关系 + 拉格朗日示踪粒子流场可视化
+   ========================================================================= */
+
+/* ---------------- 基础工具 ---------------- */
+/* 容错选择器：允许写 $('opS') 或 $('#opS')，避免漏写 # 时整页脚本中断 */
+const $  = s=>document.querySelector(/^[#.\[]/.test(s)?s:'#'+s);
+const $$ = s=>Array.from(document.querySelectorAll(s));
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const PI=Math.PI, G_ACC=9.81, R_GAS=8.314;
+function fmt(v,d){ if(!isFinite(v)) return '—';
+  const a=Math.abs(v); if(a!==0&&(a<1e-3||a>=1e6)) return v.toExponential(2);
+  return v.toFixed(d===undefined?2:d); }
+function fmtSI(v){ const a=Math.abs(v);
+  if(a>=1e6) return [fmt(v/1e6,2),'M']; if(a>=1e3) return [fmt(v/1e3,2),'k'];
+  if(a<1e-6) return [fmt(v*1e9,2),'n']; if(a<1e-3) return [fmt(v*1e6,2),'μ'];
+  if(a<1) return [fmt(v*1e3,2),'m'];
+  return [fmt(v,2),'']; }
+function hex2rgb(h){h=h.replace('#','');return [parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)];}
+function rgbCss(c,a){return 'rgba('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+','+(a===undefined?1:a)+')';}
+function lum(h){const c=hex2rgb(h);return (0.299*c[0]+0.587*c[1]+0.114*c[2])/255;}
+function gauss(){return (Math.random()+Math.random()+Math.random()-1.5)*2;}
+
+/* =========================================================================
+   1. 物料物性库（液态 / 半液态食品）
+      rho : 20 ℃ 密度 kg/m³
+      muRef: 20 ℃ 参考黏度 mPa·s（幂律流体为参考剪切速率 gRef 下的表观黏度）
+      n   : 流变指数（1 = 牛顿流体）
+      Ea  : 黏温活化能 kJ/mol（Arrhenius）；beta: 体积膨胀系数 1/℃
+      solids   : 含固相颗粒（有沉降风险）
+      shearSen : 剪切敏感（高剪切会破坏结构 / 脂肪球 / 果肉）
+   ========================================================================= */
+const FLUIDS=[
+ {id:'water', name:'清水',        c:'#8FD3F4', rho:998, muRef:1.00, gRef:50, n:1.00, Ea:15, beta:0.00021, solids:false, shearSen:false,
+  note:'牛顿流体，低黏度。管道输送的能耗基准；常温常压下极易进入湍流区。'},
+ {id:'apple', name:'澄清苹果汁',   c:'#EBCA6B', rho:1040, muRef:1.60, gRef:50, n:1.00, Ea:20, beta:0.00035, solids:false, shearSen:false,
+  note:'低黏度牛顿流体，黏度接近水，输送阻力小，是果汁管线的"理想流体"。'},
+ {id:'milk',  name:'全脂牛奶',     c:'#F7F4EA', rho:1030, muRef:2.00, gRef:50, n:1.00, Ea:20, beta:0.00030, solids:false, shearSen:true,
+  note:'近似牛顿流体。含脂肪球，属剪切敏感物料，泵型宜选低剪切（螺杆泵 / 离心泵大叶轮）。'},
+ {id:'soy',   name:'豆浆',         c:'#EFE7CE', rho:1020, muRef:3.00, gRef:50, n:0.90, Ea:25, beta:0.00035, solids:true,  shearSen:false,
+  note:'弱剪切稀化的蛋白胶体悬浮液。加热后蛋白变性使黏度上升，杀菌段压降会随之增大。'},
+ {id:'beer',  name:'啤酒',         c:'#E3A62B', rho:1010, muRef:1.50, gRef:50, n:1.00, Ea:18, beta:0.00035, solids:false, shearSen:false,
+  note:'低黏度牛顿流体。输送须避免湍流过度与压力骤降，否则 CO₂ 析出产生气阻。'},
+ {id:'oj',    name:'橙汁（含果肉）', c:'#F2931F', rho:1045, muRef:12.0, gRef:50, n:0.80, Ea:22, beta:0.00035, solids:true,  shearSen:true,
+  note:'含果肉悬浮液，典型假塑性流体。流速过低果肉沉降分层，过高则剪切破坏颗粒口感——存在"经济流速窗口"。'},
+ {id:'cream', name:'稀奶油（20%）', c:'#FBF1DA', rho:1010, muRef:12.0, gRef:50, n:0.92, Ea:25, beta:0.00040, solids:false, shearSen:true,
+  note:'中等黏度乳浊液，弱剪切稀化。高剪切会破坏脂肪球膜，导致搅打性能下降。'},
+ {id:'oil',   name:'大豆油',        c:'#E3D065', rho:920,  muRef:55.0, gRef:50, n:1.00, Ea:30, beta:0.00068, solids:false, shearSen:false,
+  note:'牛顿流体，黏度对温度极敏感——加热（60~80 ℃）输送是食用油管路最有效的节能手段。'},
+ {id:'cmilk', name:'甜炼乳',        c:'#F3E3C4', rho:1120, muRef:45.0, gRef:50, n:0.95, Ea:35, beta:0.00045, solids:false, shearSen:false,
+  note:'高浓度乳体系，中等黏度、弱假塑性。黏度随温度下降明显，常采用温热输送。'},
+ {id:'syrup', name:'玉米糖浆',       c:'#D8A24A', rho:1380, muRef:600,  gRef:20, n:1.00, Ea:45, beta:0.00050, solids:false, shearSen:false,
+  note:'高黏牛顿流体。常温输送几乎必在层流区；加热可显著降低泵功率与管径需求。'},
+ {id:'yog',   name:'搅拌型酸奶',     c:'#F5F1E3', rho:1040, muRef:400,  gRef:10, n:0.50, Ea:25, beta:0.00040, solids:true,  shearSen:true,
+  note:'强剪切稀化、具触变性的凝胶。泵送剪切不可逆破坏凝胶结构，工程上用大管径 + 低流速 + 螺杆泵。'},
+ {id:'cho',   name:'巧克力浆',       c:'#6B4226', rho:1200, muRef:900,  gRef:50, n:0.70, Ea:40, beta:0.00050, solids:true,  shearSen:false,
+  note:'高固含量假塑性流体，必须保温输送（35~45 ℃）；降温会急剧增黏甚至堵管。'},
+ {id:'tom',   name:'番茄酱',        c:'#C6342F', rho:1120, muRef:3500, gRef:10, n:0.35, Ea:35, beta:0.00045, solids:true,  shearSen:false,
+  note:'强假塑性（实际含屈服应力，本模型按幂律近似）。层流输送，壁面剪切速率是关键设计参数。'},
+ {id:'jam',   name:'草莓果酱',       c:'#C53A6C', rho:1240, muRef:6000, gRef:10, n:0.45, Ea:50, beta:0.00050, solids:true,  shearSen:false,
+  note:'高黏半固态，常温输送压降极大；工业上普遍采用 60~80 ℃ 热灌装 / 保温管路输送。'},
+ {id:'honey', name:'蜂蜜',          c:'#E3A21A', rho:1400, muRef:8000, gRef:10, n:1.00, Ea:75, beta:0.00050, solids:false, shearSen:false,
+  note:'高黏牛顿流体，黏温活化能最高。20 ℃ 与 60 ℃ 输送的压降可相差一个数量级——本软件最典型的对比实验。'}
+];
+
+/* ---------------- 管材库（绝对粗糙度 ε，mm） ---------------- */
+const PIPES=[
+ {id:'ss',    name:'不锈钢卫生管', eps:0.0015, col:'#c3cbd6',
+  note:'食品厂主流管材（316L，内壁抛光）。粗糙度极小，通常可视为"水力光滑管"，λ 仅由 Re 决定。'},
+ {id:'glass', name:'玻璃管',      eps:0.0015, col:'#bfe3ea',
+  note:'实验室与中试装置用管。内壁光滑且透明，最便于直接观察流型与示踪剂运动。'},
+ {id:'plastic',name:'PE/PVC 塑料管', eps:0.0015, col:'#d9e6f2',
+  note:'轻质耐蚀、内壁光滑（水力光滑管）。食品厂常用于水与低黏液体，但耐温耐压受限。'},
+ {id:'cu',    name:'铜管',        eps:0.0015, col:'#dfa184',
+  note:'导热性好、内壁光滑，多用于换热与制冷工段。'},
+ {id:'steel', name:'无缝钢管（新）', eps:0.045,  col:'#98a2b0',
+  note:'工业碳钢管，绝对粗糙度约 0.02~0.05 mm。湍流时 λ 明显大于不锈钢管。'},
+ {id:'galv',  name:'镀锌钢管',      eps:0.15,   col:'#a6aeb9',
+  note:'早期给水与冷却水管道。粗糙度较大，且长期使用易结垢使阻力进一步上升。'},
+ {id:'cast',  name:'铸铁管',        eps:0.26,   col:'#7c848f',
+  note:'粗糙度高，多用于大口径输送干线。在阻力平方区 λ 与 Re 无关，只取决于 ε/d。'},
+ {id:'rubber',name:'橡胶软管',      eps:0.30,   col:'#8c8c8c',
+  note:'柔性连接与临时管线。内壁粗糙且承压易变形，阻力大，不宜长距离输送。'},
+ {id:'old',   name:'旧钢管（锈蚀）', eps:0.80,   col:'#8a6a52',
+  note:'结垢锈蚀后的碳钢管，ε 可达 0.5~1 mm。与同规格新不锈钢管对比，可直观看出"管路老化"的能耗代价。'}
+];
+
+/* ---------------- 局部阻力 ---------------- */
+const Z_INLET=0.5, Z_OUTLET=1.0, Z_ELBOW=0.75;
+const VALVES=[
+ {id:'none',  name:'无阀门（仅管路）', z:0},
+ {id:'gate',  name:'闸阀（全开） ζ=0.17', z:0.17},
+ {id:'butter',name:'蝶阀（全开） ζ=0.30', z:0.30},
+ {id:'check', name:'止回阀 ζ=2.0',      z:2.0},
+ {id:'ball',  name:'球阀（全开） ζ=6.0', z:6.0},
+ {id:'globe', name:'截止阀（全开） ζ=6.4',z:6.4}
+];
+
+const PRESETS=[
+ {t:'清水 · DN50 不锈钢 · 湍流基准', f:'water',pipe:'ss',d:50,L:20,T:20,u:1.5,dz:3,elb:2,val:'gate'},
+ {t:'全脂牛奶 · 4 ℃ 冷链输送',      f:'milk', pipe:'ss',d:50,L:20,T:4, u:1.5,dz:3,elb:2,val:'gate'},
+ {t:'全脂牛奶 · 60 ℃ 热输送（对照）', f:'milk', pipe:'ss',d:50,L:20,T:60,u:1.5,dz:3,elb:2,val:'gate'},
+ {t:'蜂蜜 · 20 ℃ 常温输送（困难）',  f:'honey',pipe:'ss',d:50,L:20,T:20,u:0.5,dz:3,elb:2,val:'gate'},
+ {t:'蜂蜜 · 60 ℃ 加热输送（节能）',  f:'honey',pipe:'ss',d:50,L:20,T:60,u:0.5,dz:3,elb:2,val:'gate'},
+ {t:'番茄酱 · DN80 层流输送',        f:'tom',  pipe:'ss',d:80,L:20,T:45,u:0.6,dz:3,elb:1,val:'butter'},
+ {t:'橙汁含果肉 · 低流速（沉降风险）', f:'oj',   pipe:'ss',d:50,L:20,T:20,u:0.2,dz:3,elb:2,val:'gate'},
+ {t:'橙汁含果肉 · 经济流速 1.5 m/s',  f:'oj',   pipe:'ss',d:50,L:20,T:20,u:1.5,dz:3,elb:2,val:'gate'},
+ {t:'管路老化对照：旧钢管 vs 不锈钢',  f:'water',pipe:'old',d:50,L:50,T:20,u:2.0,dz:5,elb:4,val:'gate'},
+ {t:'管径影响：DN25 细管（Δp∝d⁻⁵）',  f:'water',pipe:'ss',d:25,L:20,T:20,u:1.5,dz:3,elb:2,val:'gate'},
+ {t:'管径影响：DN100 粗管（对照）',    f:'water',pipe:'ss',d:100,L:20,T:20,u:1.5,dz:3,elb:2,val:'gate'},
+ {t:'UHT 保温管 · 层流停留时间分布',   f:'yog',  pipe:'ss',d:32,L:30,T:20,u:0.3,dz:2,elb:1,val:'none'}
+];
+
+/* ---------------- 状态 ---------------- */
+const S={
+  ui:{fluid:0, pipe:0, valve:1, elb:2, d:50, L:20, dz:3, T:20, eta:0.65,
+      mode:'u', opv:1.5, disp:'both', speed:5, npart:2400,
+      prof:true, piezo:true, dim:true, cross:true, muOverride:null},
+  running:false, t:0, initialized:false,
+  P:null, series:[], logs:[], tracer:false,
+  front:0, tail:0, vtot:0, etot:0, arrived:false
+};
+
+/* =========================================================================
+   2. 流体力学计算
+   ========================================================================= */
+
+/* 黏温关系：Arrhenius  μ(T) = μ_ref·exp[(Ea/R)(1/T − 1/T_ref)] */
+function muOf(f,T){ return f.muRef*Math.exp((f.Ea*1000/R_GAS)*(1/(T+273.15)-1/293.15)); } // mPa·s
+function rhoOf(f,T){ return f.rho*(1-f.beta*(T-20)); }
+
+/* Colebrook–White 隐式方程（Darcy 摩擦系数） */
+function colebrook(Re,rel){
+  if(Re<1e-4) return 0.1;
+  let l=0.025;
+  for(let i=0;i<60;i++){
+    const a=rel/3.7+2.51/(Re*Math.sqrt(l));
+    const s=-2*Math.log10(a);
+    if(s<=0) return 0.1;
+    const nl=1/(s*s);
+    if(Math.abs(nl-l)<1e-11){ l=nl; break; }
+    l=l+0.75*(nl-l);
+  }
+  return l;
+}
+/* 摩擦系数：层流 64/Re；过渡区在层流线与湍流值之间平滑过渡；湍流 Colebrook */
+function frictionFactor(Re,rel){
+  if(Re<=2000) return 64/Math.max(Re,1e-6);
+  const lt=colebrook(Re,rel);
+  if(Re>=4000) return lt;
+  const t=(Re-2000)/2000;
+  return (1-t)*(64/Re)+t*lt;
+}
+
+/* 湍流速度分布指数（1/m 次幂律），Nikuradse 实测数据插值 */
+const M_TABLE=[[4e3,6.0],[2.3e4,6.6],[1.1e5,7.0],[1.1e6,8.8],[2.0e6,10.0]];
+function mOfRe(Re){
+  const t=M_TABLE;
+  if(Re<=t[0][0]) return t[0][1];
+  if(Re>=t[t.length-1][0]) return t[t.length-1][1];
+  for(let i=0;i<t.length-1;i++){
+    if(Re<=t[i+1][0]){
+      const a=Math.log10(Re), b0=Math.log10(t[i][0]), b1=Math.log10(t[i+1][0]);
+      return t[i][1]+(t[i+1][1]-t[i][1])*((a-b0)/(b1-b0));
+    }
+  }
+  return 10;
+}
+
+function readParams(){
+  const u=S.ui, f=FLUIDS[u.fluid];
+  const f2=Object.assign({},f);
+  if(u.muOverride!=null) f2.muRef=u.muOverride;
+  const d=u.d/1000, L=u.L, A=PI*d*d/4;
+  let v=u.opv, U,Q;
+  if(u.mode==='u'){ U=v; Q=U*A*3600; } else { Q=v; U=Q/3600/A; }
+  U=clamp(U,1e-4,60); Q=U*A*3600;
+  return {fluid:f2, pipe:PIPES[u.pipe], valve:VALVES[u.valve], elb:u.elb,
+          d,L,A,T:u.T,dz:u.dz,eta:u.eta,U,Q,
+          zeta:Z_INLET+u.elb*Z_ELBOW+VALVES[u.valve].z+Z_OUTLET};
+}
+
+function computeHydro(p){
+  const T=p.T, fl=p.fluid, d=p.d, L=p.L, u=p.U, A=p.A;
+  const rho=rhoOf(fl,T);
+  const muRef=muOf(fl,T)/1000;                 // Pa·s（20 ℃ 基准换算到 T）
+  const mu20=fl.muRef/1000;
+  const n=fl.n, K=muRef*Math.pow(fl.gRef,1-n); // 幂律稠度系数 Pa·s^n
+  /* 壁面剪切速率：牛顿 8u/d；幂律 (3n+1)/(4n)·8u/d */
+  const sr=((3*n+1)/(4*n))*(8*u/d);
+  const muApp=K*Math.pow(Math.max(sr,1e-6),n-1);   // 表观黏度 Pa·s
+  /* 广义雷诺数（Metzner–Reed） */
+  const Re=Math.max(1e-6, rho*Math.pow(u,2-n)*Math.pow(d,n)/
+            (Math.pow(8,n-1)*K*Math.pow((3*n+1)/(4*n),n)));
+  const eps=p.pipe.eps/1000, rel=eps/d;
+  const lam=frictionFactor(Re,rel), lamS=frictionFactor(Re,0);
+  const uh=u*u/(2*G_ACC);                       // 动压头 m
+  const hf=lam*(L/d)*uh;                        // 沿程阻力 m
+  const hLocal=p.zeta*uh;                       // 局部阻力 m
+  const H=p.dz+hf+hLocal;                       // 泵扬程 m
+  const dpF=rho*G_ACC*hf, dpL=rho*G_ACC*hLocal, dpZ=rho*G_ACC*p.dz;
+  const dp=rho*G_ACC*H;                         // 泵需提供的总压 Pa
+  const p1=rho*G_ACC*Math.max(H-1.5*uh,0);      // 管内起点表压（扣除入口损失与动压头）
+  const tau=lam*rho*u*u/8;                      // 壁面剪应力 Pa
+  const ustar=Math.sqrt(tau/rho);               // 摩擦速度 m/s
+  const nu=muApp/rho;
+  const deltaV=Re>2300?5*nu/Math.max(ustar,1e-9):NaN;   // 黏性底层厚度 m
+  const Le=Re<=2300?0.06*Re*d:4.4*d*Math.pow(Re,1/6);   // 入口段长度 m
+  const Qs=u*A;                                 // m³/s
+  const Pe=rho*G_ACC*Qs*H;                      // 有效功率 W
+  const Ps=Pe/Math.max(p.eta,0.05);             // 轴功率 W
+  const mdot=rho*Qs;                            // kg/s
+  const kWh_t=Ps/(3600*Math.max(mdot,1e-9));    // kWh per tonne
+  /* 速度分布 */
+  const laminar=Re<=2000;
+  let mExp=NaN, umax;
+  if(laminar) umax=u*(3*n+1)/(n+1);
+  else { mExp=mOfRe(Re); umax=u*(mExp+1)*(2*mExp+1)/(2*mExp*mExp); }
+  const regime = Re<=2000?['层流','r']:(Re<4000?['过渡区（不稳定）','w']:['湍流','g']);
+  return Object.assign({rho,muApp,muRef,mu20,n,K,sr,nu,Re,rel,eps,lam,lamS,uh,hf,hLocal,H,
+      dpF,dpL,dpZ,dp,p1,tau,ustar,deltaV,Le,Qs,Pe,Ps,mdot,kWh_t,G:rho*u,
+      laminar,mExp,umax,u,L,d,A,regime,Vpipe:A*L,tres:L/u,
+      tmin:L/Math.max(umax,1e-9),zratio:umax/u});
+}
+
+/* 充分发展段速度分布：a = |y|/R ∈ [0,1] */
+function profU(h,a){
+  if(a>=1) return 0;
+  if(h.laminar){
+    if(h.n<0.999) return h.umax*(1-Math.pow(a,(h.n+1)/h.n));
+    return h.umax*(1-a*a);
+  }
+  return h.umax*Math.pow(1-a,1/Math.max(h.mExp,3));
+}
+/* 含入口段发展：x 处（m）的速度 */
+function uAtX(h,x,y){
+  const dev=clamp(x/Math.max(h.Le,1e-6),0,1);
+  return h.u*(1-dev)+profU(h,Math.abs(y))*dev;
+}
+/* 沿程水头：返回管长比例 xf 处断面的 z / EGL(总水头) / HGL(测压管水头) / 表压 p
+   注意：出口损失 ζ=1 发生在"管出口 → 高位槽液面"之间，管内末断面尚未扣除，
+   故 x=1 处 EGL = Δz + u²/2g、HGL = Δz、p = 0（与常压排放一致）。 */
+function headAt(h,p,xf){
+  const z=xf*p.dz;
+  let e=h.H-Z_INLET*h.uh-xf*h.hf;
+  if(xf>=0.55) e-=p.elb*Z_ELBOW*h.uh+VALVES[S.ui.valve].z*h.uh;
+  const hgl=e-h.uh;
+  return {z,egl:e,hgl,p:h.rho*G_ACC*(hgl-z)};
+}
+
+/* 经济流速推荐范围（按表观黏度，mPa·s） */
+function econRange(mu){
+  if(mu<10)   return [1.0,3.0];
+  if(mu<100)  return [0.6,1.8];
+  if(mu<1000) return [0.3,1.0];
+  return [0.1,0.6];
+}
+
+/* =========================================================================
+   3. 示踪粒子
+   ========================================================================= */
+function initParticles(p,h){
+  const n=S.ui.npart, L=p.L;
+  const x=new Float32Array(n), y=new Float32Array(n), tg=new Uint8Array(n);
+  for(let i=0;i<n;i++){
+    x[i]=Math.random()*L;
+    // 圆截面内均匀分布投影到直径：密度 ∝ √(1−y²)（弦长加权），保证统计正确
+    let yy; for(let k=0;k<24;k++){ yy=Math.random()*2-1; if(Math.random()<=Math.sqrt(Math.max(0,1-yy*yy))) break; }
+    y[i]=clamp(yy,-0.995,0.995);
+    tg[i]=0;
+  }
+  S.P={x,y,tg,n,__L:L};
+  S.t=0; S.tracer=false; S.front=0; S.tail=0; S.vtot=0; S.etot=0; S.arrived=false;
+  S.series=[];
+}
+function advance(dt,p,h){
+  const {x,y,tg}=S.P, n=S.P.n, L=p.L;
+  const turbI=h.laminar?0:clamp((Math.log10(Math.max(h.Re,10))-3.3)/2.7,0,1);
+  // 湍流径向脉动（涡扩散），以无量纲半径计
+  const Dxi=0.010*turbI*h.u/p.d;
+  const sig=Math.min(Math.sqrt(2*Dxi*dt),0.12);
+  for(let i=0;i<n;i++){
+    let X=x[i]+uAtX(h,x[i],y[i])*dt;
+    if(X>=L) X-=L;
+    if(sig>0){
+      let Y=y[i]+gauss()*sig;
+      if(Y>0.995) Y=1.99-Y; if(Y<-0.995) Y=-1.99-Y;   // 壁面反射
+      y[i]=clamp(Y,-0.995,0.995);
+    }
+    x[i]=X;
+  }
+  if(S.tracer){
+    let f=-1e9,t=1e9,c=0;
+    for(let i=0;i<n;i++){ if(tg[i]){ c++; if(x[i]>f) f=x[i]; if(x[i]<t) t=x[i]; } }
+    if(c>0){ S.front=f; S.tail=t; } else S.tracer=false;
+  }
+  S.vtot+=h.Qs*dt; S.etot+=h.Ps*dt/3.6e6;
+}
+function stepSim(dt,p,h,budget){
+  const dtStable=clamp(0.006*p.L/Math.max(h.u,0.01),1e-4,0.5);
+  let nsub=clamp(Math.ceil(dt/dtStable),1,budget||40);
+  const hh=dt/nsub;
+  for(let k=0;k<nsub;k++) advance(hh,p,h);
+  S.t+=dt;
+  return dt;
+}
+function injectTracer(){
+  if(!S.P) return;
+  const p=CUR, L=p.L, {x,tg}=S.P;
+  for(let i=0;i<S.P.n;i++) tg[i]=(x[i]<0.05*L)?1:0;
+  S.tracer=true; S.front=0.05*L; S.tail=0;
+  document.getElementById('lgTr').style.display='inline-flex';
+}
+
+/* =========================================================================
+   4. 渲染：主视图（管道纵剖面）
+   ========================================================================= */
+function fitCanvas(cv){
+  const dpr=window.devicePixelRatio||1;
+  const w=cv.clientWidth||cv.width, h=cv.clientHeight||cv.height;
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){
+    cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+  }
+  const ctx=cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+  return {ctx,w,h};
+}
+let frontCv=document.getElementById('frontCv'), crossCv=document.getElementById('crossCv');
+
+function arrow(ctx,x1,y1,x2,y2,col,w){
+  ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=w||1.2;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  const a=Math.atan2(y2-y1,x2-x1), Lh=5+(w||1.2);
+  ctx.beginPath(); ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-Lh*Math.cos(a-0.4), y2-Lh*Math.sin(a-0.4));
+  ctx.lineTo(x2-Lh*Math.cos(a+0.4), y2-Lh*Math.sin(a+0.4));
+  ctx.closePath(); ctx.fill();
+}
+function pipeHeight(Hp,dmm){
+  const t=clamp((dmm-10)/190,0,1);
+  return 18+t*(0.30*Hp-18);
+}
+
+function drawFront(){
+  if(!CUR||!HY||!S.P) return;
+  const p=CUR,h=HY;
+  const {ctx,w,h:Hp}=fitCanvas(frontCv);
+  ctx.fillStyle='#eef1f6'; ctx.fillRect(0,0,w,Hp);
+
+  const yc=0.60*Hp;
+  const dh=pipeHeight(Hp,S.ui.d);           // 管内径可视高度
+  const wall=Math.max(3,0.13*dh);           // 壁厚
+  const rp=clamp(0.045*Hp,12,26);           // 泵半径
+  const pcx=0.115*w;                        // 泵中心
+  const x0=pcx+rp+0.012*w, x1=0.845*w;      // 管段起止
+  const span=x1-x0;
+  const dzVis=clamp(p.dz/30,0,1)*0.26*Hp;   // 提升高度可视
+  const top=yc-dzVis;
+
+  const fc=hex2rgb(p.fluid.c), fcol=p.fluid.c;
+  const tc=lum(p.fluid.c)>0.55?'#111827':'#ffffff';
+
+  /* ---- 槽液位模型：开始时低位槽满、高位槽空；随输送此消彼长。
+         槽容量取当前流量下 1 min 的输送量，使液位变化在课堂上可视 ---- */
+  const Vtank=Math.max(60*h.Qs,0.05);
+  const lvf=clamp(S.vtot/Vtank,0,1);
+
+  /* ---- 低位槽（供料槽） ---- */
+  const tkL=0.010*w, tkR=0.062*w, tkT=yc-0.17*Hp, tkB=yc+0.17*Hp;
+  const lowLv=0.85-0.68*lvf;
+  ctx.strokeStyle='#475569'; ctx.lineWidth=1.6;
+  ctx.beginPath(); ctx.moveTo(tkL,tkT); ctx.lineTo(tkL,tkB); ctx.lineTo(tkR,tkB); ctx.lineTo(tkR,tkT);
+  ctx.stroke();
+  ctx.fillStyle=rgbCss(fc,0.95);
+  ctx.fillRect(tkL+1.5,tkB-lowLv*(tkB-tkT),(tkR-tkL)-3,lowLv*(tkB-tkT));
+  ctx.font='10px sans-serif'; ctx.fillStyle='#475569'; ctx.textAlign='center';
+  ctx.fillText('低位槽',(tkL+tkR)/2,tkT-4);
+  ctx.font='9px ui-monospace,monospace'; ctx.fillStyle='#94a3b8';
+  ctx.fillText(Math.round(lowLv*100)+'%',(tkL+tkR)/2,tkB+11);
+
+  /* ---- 吸入管 / 排出管 ---- */
+  ctx.strokeStyle='#64748b'; ctx.lineWidth=Math.max(2,0.35*dh);
+  ctx.beginPath(); ctx.moveTo(tkR,yc+0.10*Hp); ctx.lineTo(tkR+0.012*w,yc+0.10*Hp);
+  ctx.lineTo(pcx-rp*0.35,yc+rp*0.72); ctx.stroke();
+
+  /* ---- 泵（叶轮示意，运行时旋转；不再画成形似"播放"键的三角） ---- */
+  ctx.beginPath(); ctx.arc(pcx,yc,rp,0,2*PI);
+  ctx.fillStyle='#e2e8f0'; ctx.fill(); ctx.strokeStyle='#334155'; ctx.lineWidth=2; ctx.stroke();
+  ctx.save(); ctx.translate(pcx,yc); ctx.rotate(S.running?S.t*5:0.6);
+  for(let k=0;k<3;k++){
+    ctx.rotate(2*PI/3);
+    ctx.beginPath(); ctx.moveTo(0,0);
+    ctx.quadraticCurveTo(rp*0.42,-rp*0.30,rp*0.66,-rp*0.06);
+    ctx.quadraticCurveTo(rp*0.34,rp*0.10,0,0);
+    ctx.closePath(); ctx.fillStyle='#1d4ed8'; ctx.fill();
+  }
+  ctx.beginPath(); ctx.arc(0,0,rp*0.15,0,2*PI); ctx.fillStyle='#1e3a8a'; ctx.fill();
+  ctx.restore();
+  ctx.beginPath(); ctx.moveTo(pcx+rp*0.72,yc); ctx.lineTo(x0+1,yc); ctx.stroke();   // 泵→管路短接管
+  ctx.font='10px sans-serif'; ctx.fillStyle='#1d4ed8'; ctx.textAlign='center';
+  ctx.fillText('泵',pcx,yc+rp+12);
+
+  /* ---- 管壁（外形） ---- */
+  const outer=dh/2+wall;
+  ctx.fillStyle=p.pipe.col;
+  ctx.fillRect(x0,yc-outer,span,wall);
+  ctx.fillRect(x0,yc+dh/2,span,wall);
+  ctx.strokeStyle='#334155'; ctx.lineWidth=1.2;
+  ctx.strokeRect(x0,yc-outer,span,wall);
+  ctx.strokeRect(x0,yc+dh/2,span,wall);
+  // 管壁剖面线（材质示意）
+  ctx.save(); ctx.beginPath(); ctx.rect(x0,yc+dh/2,span,wall); ctx.clip();
+  ctx.strokeStyle='rgba(51,65,85,.35)'; ctx.lineWidth=1;
+  for(let gx=x0-10;gx<x1+10;gx+=6){ ctx.beginPath(); ctx.moveTo(gx,yc+dh/2+wall); ctx.lineTo(gx+wall,yc+dh/2); ctx.stroke(); }
+  ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.rect(x0,yc-outer,span,wall); ctx.clip();
+  for(let gx=x0-10;gx<x1+10;gx+=6){ ctx.beginPath(); ctx.moveTo(gx,yc-outer+wall); ctx.lineTo(gx+wall,yc-outer); ctx.stroke(); }
+  ctx.restore();
+
+  /* ---- 流体区 ---- */
+  ctx.fillStyle=rgbCss(fc,0.85); ctx.fillRect(x0,yc-dh/2,span,dh);
+
+  /* ---- 粒子 / 流线 ---- */
+  const {x,y,tg}=S.P, n=S.P.n;
+  ctx.save(); ctx.beginPath(); ctx.rect(x0,yc-dh/2,span,dh); ctx.clip();
+  const disp=S.ui.disp;
+  for(let i=0;i<n;i++){
+    const X=x0+x[i]/p.L*span, Y=yc-y[i]*(dh/2-1);
+    const un=uAtX(h,x[i],y[i])/Math.max(h.umax,1e-9);
+    const len=clamp(un*11,1.6,11);
+    if(disp==='streak'||disp==='both'){
+      ctx.strokeStyle=tg[i]?tc:'rgba(20,30,50,0.34)';
+      ctx.lineWidth=tg[i]?2.0:1.15;
+      ctx.beginPath(); ctx.moveTo(X-len/2,Y); ctx.lineTo(X+len/2,Y); ctx.stroke();
+    }
+    if(disp==='part'||disp==='both'){
+      ctx.fillStyle=tg[i]?tc:rgbCss(fc.map(v=>clamp(v*0.55,0,255)),0.9);
+      ctx.fillRect(X-0.85,Y-0.85,tg[i]?2.0:1.7,tg[i]?2.0:1.7);
+    }
+  }
+  ctx.restore();
+
+  /* ---- 截面速度分布曲线 ---- */
+  if(S.ui.prof){
+    const stations=[[x0+0.10*span,'入口段'],[x1-0.16*span,'充分发展']];
+    const pw=0.055*w;
+    stations.forEach(st=>{
+      const xs=st[0];
+      const frac=clamp((xs-x0)/span,0,1);
+      ctx.beginPath();
+      ctx.moveTo(xs,yc+dh/2);
+      for(let k=0;k<=48;k++){
+        const a=-1+2*k/48;
+        const uu=uAtX(h,frac*p.L,a)/Math.max(h.umax,1e-9);
+        ctx.lineTo(xs+uu*pw, yc-a*(dh/2));
+      }
+      ctx.lineTo(xs,yc-dh/2); ctx.closePath();
+      ctx.fillStyle='rgba(29,78,216,0.16)'; ctx.fill();
+      ctx.strokeStyle='#1d4ed8'; ctx.lineWidth=1.6; ctx.stroke();
+      ctx.font='9.5px sans-serif'; ctx.fillStyle='#1d4ed8'; ctx.textAlign='center';
+      ctx.fillText(st[1],xs+pw*0.5,yc-dh/2-6);
+    });
+  }
+
+  /* ---- 测压管（水头线） ---- */
+  if(S.ui.piezo){
+    const ref=Math.max(h.H-1.5*h.uh,1e-6)*h.rho*G_ACC;   // 起点表压为满量程参考
+    const colMax=0.24*Hp;
+    [0.10,0.36,0.60,0.84].forEach(xf=>{
+      const hd=headAt(h,p,xf);
+      const X=x0+xf*span;
+      const frac=clamp(hd.p/ref,0,1.15);
+      const Hcol=frac*colMax;
+      const yTopT=yc-outer-Hcol-0.10*Hp;
+      ctx.strokeStyle='#64748b'; ctx.lineWidth=1.1;
+      ctx.beginPath(); ctx.moveTo(X,yc-outer); ctx.lineTo(X,yTopT); ctx.stroke();
+      ctx.strokeStyle=hd.p<0?'#b91c1c':'#0f766e'; ctx.lineWidth=3.2;
+      ctx.beginPath(); ctx.moveTo(X,yc-outer); ctx.lineTo(X,Math.max(yTopT,yc-outer-Hcol)); ctx.stroke();
+      ctx.beginPath(); ctx.arc(X,yTopT,2.6,0,2*PI);
+      ctx.fillStyle=hd.p<0?'#b91c1c':'#0f766e'; ctx.fill();
+      ctx.font='9.5px ui-monospace,monospace'; ctx.fillStyle=hd.p<0?'#b91c1c':'#0f766e';
+      ctx.textAlign='center'; ctx.fillText(fmt(hd.p/1000,1),X,yTopT-5);
+    });
+    ctx.font='9.5px sans-serif'; ctx.fillStyle='#0f766e'; ctx.textAlign='left';
+    ctx.fillText('测压管水头 p/ρg (kPa)',x0+0.02*span,yc-outer-0.24*Hp-0.10*Hp-4);
+  }
+
+  /* ---- 阀门 ---- */
+  if(VALVES[S.ui.valve].z>0){
+    const X=x0+0.70*span, vw=Math.max(7,0.16*dh), vh=dh+2*wall;
+    ctx.beginPath();
+    ctx.moveTo(X-vw,yc-vh/2); ctx.lineTo(X+vw,yc+vh/2);
+    ctx.lineTo(X+vw,yc-vh/2); ctx.lineTo(X-vw,yc+vh/2); ctx.closePath();
+    ctx.fillStyle='#94a3b8'; ctx.fill(); ctx.strokeStyle='#334155'; ctx.lineWidth=1.4; ctx.stroke();
+    ctx.strokeStyle='#334155'; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.moveTo(X,yc-vh/2-4); ctx.lineTo(X,yc-vh/2-14); ctx.stroke();
+    ctx.font='9.5px sans-serif'; ctx.fillStyle='#334155'; ctx.textAlign='center';
+    ctx.fillText('阀 ζ='+VALVES[S.ui.valve].z,X,yc-vh/2-17);
+  }
+
+  /* ---- 出口立管 / 高位槽（槽体整体位于立管右侧，不与管道重叠） ---- */
+  const riserW=Math.max(2,0.35*dh);
+  const xz=x1+riserW/2+8;                          // Δz 尺寸线位置（立管右侧空档）
+  const t2L=Math.max(x1+0.052*w,xz+16);            // 高位槽左壁，给尺寸线留出空间
+  const t2R=Math.min(t2L+0.082*w,0.985*w);
+  ctx.strokeStyle='#475569'; ctx.lineWidth=riserW;
+  if(p.dz>0.05){
+    ctx.beginPath(); ctx.moveTo(x1,yc); ctx.lineTo(x1,top); ctx.stroke();
+    const t2B=top, t2T=top-0.11*Hp;
+    const hiLv=0.04+0.68*lvf;
+    ctx.lineWidth=1.6; ctx.strokeStyle='#475569';
+    ctx.beginPath(); ctx.moveTo(t2L,t2T); ctx.lineTo(t2L,t2B); ctx.lineTo(t2R,t2B); ctx.lineTo(t2R,t2T);
+    ctx.stroke();
+    ctx.fillStyle=rgbCss(fc,0.95);
+    ctx.fillRect(t2L+1.5,t2B-hiLv*(t2B-t2T),(t2R-t2L)-3,hiLv*(t2B-t2T));
+    ctx.font='10px sans-serif'; ctx.fillStyle='#475569'; ctx.textAlign='center';
+    ctx.fillText('高位槽',(t2L+t2R)/2,t2T-4);
+    ctx.font='9px ui-monospace,monospace'; ctx.fillStyle='#94a3b8';
+    ctx.fillText(Math.round(hiLv*100)+'%',(t2L+t2R)/2,t2B+11);
+  } else {
+    ctx.beginPath(); ctx.moveTo(x1,yc); ctx.lineTo(x1+0.03*w,yc); ctx.stroke();
+    arrow(ctx,x1+0.03*w,yc,x1+0.07*w,yc,'#475569',1.6);
+    ctx.font='10px sans-serif'; ctx.fillStyle='#475569'; ctx.textAlign='left';
+    ctx.fillText('常压排放',x1+0.03*w,yc-10);
+  }
+
+  /* ---- 几何标注 ---- */
+  if(S.ui.dim){
+    ctx.font='10.5px ui-monospace,monospace'; ctx.fillStyle='#334155'; ctx.textAlign='center';
+    const xd=x0+0.04*span;
+    arrow(ctx,xd,yc-dh/2,xd,yc+dh/2,'#1d4ed8',1);
+    arrow(ctx,xd,yc+dh/2,xd,yc-dh/2,'#1d4ed8',1);
+    ctx.fillStyle='#1d4ed8';
+    ctx.fillText('d='+(p.d*1000).toFixed(0),xd,yc-outer-7);   // 标在管上方，避免压住速度分布曲线
+    const yl=yc+outer+22;
+    ctx.fillStyle='#334155';
+    arrow(ctx,x0,yl,x1,yl,'#64748b',1); arrow(ctx,x1,yl,x0,yl,'#64748b',1);
+    ctx.fillText('L = '+fmt(p.L,1)+' m',(x0+x1)/2,yl-4);
+    if(p.dz>0.05){
+      ctx.fillStyle='#0f766e';
+      arrow(ctx,xz,yc,xz,top,'#0f766e',1); arrow(ctx,xz,top,xz,yc,'#0f766e',1);
+      ctx.textAlign='center';
+      ctx.fillText('Δz='+fmt(p.dz,1)+' m',(t2L+t2R)/2,top-0.11*Hp-17);  // 高位槽标题上方，避免与槽体重叠
+    }
+  }
+
+  /* ---- 流型角标 ---- */
+  ctx.font='11px sans-serif'; ctx.textAlign='left';
+  const rg=h.regime;
+  ctx.fillStyle=rg[1]==='r'?'#b91c1c':(rg[1]==='w'?'#b45309':'#15803d');
+  ctx.fillText(p.fluid.name+' · '+p.pipe.name+' · '+rg[0]+' · Re='+fmtSI(h.Re)[0]+fmtSI(h.Re)[1],8,14);
+  ctx.fillStyle='#475569';
+  ctx.fillText('u='+fmt(h.u,2)+' m/s   Q='+fmt(h.Qs*3600,1)+' m³/h   T='+p.T+' ℃',8,28);
+}
+
+/* =========================================================================
+   5. 渲染：圆管截面等速线
+   ========================================================================= */
+function velColor(t){
+  // 冷 → 暖 的速度色标
+  const stops=[[0.00,207,227,247],[0.25,96,165,250],[0.50,34,197,94],[0.75,245,158,11],[1.00,220,38,38]];
+  for(let i=0;i<stops.length-1;i++){
+    const a=stops[i],b=stops[i+1];
+    if(t<=b[0]){ const f=(t-a[0])/(b[0]-a[0]);
+      return [a[1]+(b[1]-a[1])*f, a[2]+(b[2]-a[2])*f, a[3]+(b[3]-a[3])*f]; }
+  }
+  return [220,38,38];
+}
+function drawCross(){
+  if(!CUR||!HY) return;
+  const {ctx,w,h:Hp}=fitCanvas(crossCv);
+  const p=CUR,h=HY;
+  ctx.clearRect(0,0,w,Hp); ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,w,Hp);
+  const cx=w/2, cy=Hp/2, R=Math.min(w,Hp)/2-6;
+  const NR=64;
+  for(let k=NR;k>=1;k--){
+    const r=k/NR;
+    const uu=profU(h,r)/Math.max(h.umax,1e-9);
+    ctx.beginPath(); ctx.arc(cx,cy,R*r,0,2*PI);
+    ctx.fillStyle=rgbCss(velColor(clamp(uu,0,1)),1); ctx.fill();
+  }
+  // 等速线（相邻等速线过密时自动跳过标注，避免百分比文字互相重叠）
+  ctx.lineWidth=0.7; ctx.strokeStyle='rgba(255,255,255,0.55)';
+  ctx.font='8.5px ui-monospace,monospace'; ctx.fillStyle='rgba(30,41,59,.85)';
+  const yOffs=[3,-9,-21,3];                         // 标注纵向交错，进一步防重叠
+  let lastR=-1, li=0;
+  [0.2,0.4,0.6,0.8].forEach(v=>{
+    let r;
+    if(h.laminar){ if(h.n<0.999) r=Math.pow(1-v,h.n/(h.n+1)); else r=Math.sqrt(1-v); }
+    else r=1-Math.pow(v,h.mExp);
+    if(!isFinite(r)||r<0||r>1) return;
+    ctx.beginPath(); ctx.arc(cx,cy,R*r,0,2*PI); ctx.stroke();
+    const tooClose=(r-lastR)<0.07; lastR=r;
+    if(tooClose) return;
+    const yo=yOffs[li++%4], tx=cx+R*r+2, txt=(v*100).toFixed(0)+'%';
+    ctx.textAlign=(tx+ctx.measureText(txt).width>w-3)?'right':'left';
+    ctx.fillText(txt,ctx.textAlign==='right'?cx+R*r-2:tx,cy+yo);
+  });
+  // 管壁
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,2*PI); ctx.strokeStyle='#334155'; ctx.lineWidth=2; ctx.stroke();
+  // 色标
+  const bw=w-24, bx=12, by=Hp-9;
+  for(let i=0;i<bw;i++){
+    ctx.fillStyle=rgbCss(velColor(i/bw),1); ctx.fillRect(bx+i,by,1,5);
+  }
+  ctx.strokeStyle='#cfd8e6'; ctx.strokeRect(bx,by,bw,5);
+  ctx.textAlign='left'; ctx.fillStyle='#64748b'; ctx.font='8.5px sans-serif';
+  ctx.fillText('0',bx-1,by-2);
+  ctx.textAlign='right'; ctx.fillText('u_max='+fmt(h.umax,2)+' m/s',bx+bw,by-2);
+  document.getElementById('crossHint').textContent=
+    h.laminar? ('层流：u_max/u = '+fmt(h.zratio,2)+'（牛顿流体理论值 2.00）')
+             : ('湍流：1/'+fmt(h.mExp,1)+' 次幂分布，u_max/u = '+fmt(h.zratio,2));
+}
+
+/* =========================================================================
+   6. 图表：通用绘制 / Moody 图 / 能量线
+   ========================================================================= */
+function drawChart(cv,cfg){
+  const {ctx,w,h}=fitCanvas(cv);
+  const L=cfg.padL||48,Rr=cfg.padR||10,Tp=12,B=24;
+  const pw=w-L-Rr, ph=h-Tp-B;
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+  const lg=Math.log10;
+  const x0v=cfg.logx?lg(cfg.xmin):cfg.xmin, x1v=cfg.logx?lg(cfg.xmax):cfg.xmax;
+  const y0v=cfg.logy?lg(cfg.ymin):cfg.ymin, y1v=cfg.logy?lg(cfg.ymax):cfg.ymax;
+  const X=v=>L+pw*((cfg.logx?lg(v):v)-x0v)/(x1v-x0v);
+  const Y=v=>Tp+ph*(1-((cfg.logy?lg(v):v)-y0v)/(y1v-y0v));
+  // 网格
+  ctx.strokeStyle='#eef1f6'; ctx.lineWidth=1;
+  ctx.font='9.5px ui-monospace,monospace'; ctx.fillStyle='#94a3b8';
+  if(cfg.logy){
+    for(let e=Math.ceil(y0v);e<=Math.floor(y1v);e++){
+      for(let m=1;m<10;m++){ const v=m*Math.pow(10,e); if(v<cfg.ymin||v>cfg.ymax) continue;
+        const y=Y(v); ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(L+pw,y); ctx.stroke(); }
+      const v=Math.pow(10,e), y=Y(v);
+      ctx.strokeStyle='#e2e8f0'; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(L+pw,y); ctx.stroke();
+      ctx.strokeStyle='#eef1f6';
+      ctx.textAlign='right'; ctx.fillText(cfg.yfmt?cfg.yfmt(v):fmt(v,3),L-4,y+3);
+    }
+  } else {
+    for(let k=0;k<=4;k++){ const v=cfg.ymin+(cfg.ymax-cfg.ymin)*k/4, y=Y(v);
+      ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(L+pw,y); ctx.stroke();
+      ctx.textAlign='right'; ctx.fillText(fmt(v,cfg.yd!==undefined?cfg.yd:2),L-4,y+3); }
+  }
+  if(cfg.logx){
+    for(let e=Math.ceil(x0v);e<=Math.floor(x1v);e++){
+      const v=Math.pow(10,e), x=X(v);
+      ctx.strokeStyle='#e2e8f0'; ctx.beginPath(); ctx.moveTo(x,Tp); ctx.lineTo(x,Tp+ph); ctx.stroke();
+      ctx.strokeStyle='#eef1f6';
+      ctx.textAlign='center'; ctx.fillText(cfg.xfmt?cfg.xfmt(v):'1e'+e,x,HpOf(h,B));
+    }
+  } else {
+    for(let k=0;k<=4;k++){ const v=cfg.xmin+(cfg.xmax-cfg.xmin)*k/4, x=X(v);
+      ctx.beginPath(); ctx.moveTo(x,Tp); ctx.lineTo(x,Tp+ph); ctx.stroke();
+      ctx.textAlign='center'; ctx.fillText(fmt(v,cfg.xd!==undefined?cfg.xd:1),x,HpOf(h,B)); }
+  }
+  function HpOf(hh,B){ return hh-B+13; }
+  ctx.textAlign='center'; ctx.fillStyle='#64748b'; ctx.font='9.5px sans-serif';
+  ctx.fillText(cfg.xLabel||'',L+pw/2,h-4);
+  if(cfg.yLabel){ ctx.save(); ctx.translate(11,Tp+ph/2); ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center'; ctx.fillText(cfg.yLabel,0,0); ctx.restore(); }
+  // 区域着色
+  (cfg.bands||[]).forEach(bd=>{
+    const xa=X(bd.x0), xb=X(bd.x1);
+    ctx.fillStyle=bd.c; ctx.fillRect(xa,Tp,xb-xa,ph);
+  });
+  // 参考线
+  (cfg.hlines||[]).forEach(hl=>{
+    const y=Y(hl.v); ctx.setLineDash([4,3]); ctx.strokeStyle=hl.c; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(L+pw,y); ctx.stroke(); ctx.setLineDash([]);
+    if(hl.label){ ctx.fillStyle=hl.c; ctx.font='9.5px sans-serif'; ctx.textAlign='left';
+      ctx.fillText(hl.label,L+4,y-3); }
+  });
+  // 曲线
+  cfg.series.forEach(se=>{
+    if(!se.pts||!se.pts.length) return;
+    ctx.strokeStyle=se.c; ctx.lineWidth=se.w||1.6;
+    if(se.dash) ctx.setLineDash(se.dash);
+    ctx.beginPath();
+    se.pts.forEach((pt,i)=>{ const x=X(pt[0]), y=Y(clamp(pt[1],cfg.ymin,cfg.ymax)); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    ctx.stroke(); ctx.setLineDash([]);
+    if(se.label){ // 曲线右端标注
+      const last=se.pts[se.pts.length-1];
+      ctx.fillStyle=se.c; ctx.font='9px ui-monospace,monospace'; ctx.textAlign='left';
+      const y=Y(clamp(last[1],cfg.ymin,cfg.ymax));
+      if(y>Tp+6&&y<Tp+ph-2) ctx.fillText(se.label,X(last[0])+3,y+3);
+    }
+  });
+  // 标记点
+  (cfg.marks||[]).forEach(mk=>{
+    const x=X(mk.x), y=Y(clamp(mk.y,cfg.ymin,cfg.ymax));
+    ctx.beginPath(); ctx.arc(x,y,mk.r||4.5,0,2*PI);
+    ctx.fillStyle=mk.fill||'#b91c1c'; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.4; ctx.stroke();
+    if(mk.label){ ctx.fillStyle=mk.fill||'#b91c1c'; ctx.font='9.5px sans-serif';
+      ctx.textAlign=x>L+pw*0.6?'right':'left';
+      ctx.fillText(mk.label,x+(x>L+pw*0.6?-7:7),y-5); }
+  });
+  ctx.strokeStyle='#cfd8e6'; ctx.lineWidth=1; ctx.strokeRect(L,Tp,pw,ph);
+  // 图例（legendR=true 时右对齐置于绘图区右上，避免压住左侧 y 轴刻度与曲线标注）
+  if(cfg.legend){ ctx.font='9.5px sans-serif';
+    let tw=0; cfg.legend.forEach(it=>{ tw+=13+ctx.measureText(it.name).width+10; });
+    let lx=cfg.legendR?(L+pw-6-tw):(L+6);
+    const ly=cfg.legendY||(Tp+10);
+    ctx.textAlign='left';
+    cfg.legend.forEach(it=>{ ctx.fillStyle=it.c; ctx.fillRect(lx,ly-3,10,3);
+      ctx.fillStyle='#475569'; ctx.fillText(it.name,lx+13,ly);
+      lx+=13+ctx.measureText(it.name).width+10; });
+  }
+}
+
+/* Moody 图曲线（预计算一次） */
+const MOODY_RELS=[0,0.0002,0.0005,0.001,0.002,0.005,0.01,0.02,0.05];
+const MOODY_CURVES=MOODY_RELS.map(rel=>{
+  const pts=[];
+  for(let i=0;i<=72;i++){
+    const Re=Math.pow(10,Math.log10(2300)+(Math.log10(1e8)-Math.log10(2300))*i/72);
+    pts.push([Re,frictionFactor(Re,rel)]);
+  }
+  return {rel,pts};
+});
+function drawMoody(){
+  const h=HY;
+  const series=[];
+  series.push({name:'层流 64/Re',c:'#94a3b8',w:1.8,pts:[[600,64/600],[2000,64/2000]],label:'64/Re'});
+  MOODY_CURVES.forEach((cv2,i)=>{
+    if(i>0&&i%2===0&&cv2.rel<0.01) return;    // 抽稀标签避免拥挤
+    series.push({pts:cv2.pts,c:cv2.rel===0?'#1d4ed8':'#94a3b8',w:cv2.rel===0?2.0:1.1,
+      label:'ε/d='+cv2.rel});
+  });
+  const lamSmooth=frictionFactor(Math.max(h.Re,2300),0);
+  drawChart(document.getElementById('chartM'),{
+    logx:true,logy:true,xmin:600,xmax:1e8,ymin:0.007,ymax:0.12,
+    xfmt:v=>{const e=Math.round(Math.log10(v));return '1e'+e;},
+    yfmt:v=>fmt(v,3),
+    xLabel:'雷诺数 Re（对数）', yLabel:'摩擦系数 λ（Darcy）',
+    bands:[{x0:2000,x1:4000,c:'rgba(180,83,9,0.08)'}],
+    series,
+    marks:[{x:clamp(h.Re,600,1e8),y:clamp(h.lam,0.007,0.12),fill:'#b91c1c',r:5.5,label:'当前 λ='+fmt(h.lam,4)},
+           {x:clamp(h.Re,600,1e8),y:clamp(lamSmooth,0.007,0.12),fill:'#1d4ed8',r:4,label:'光滑管'}],
+    legend:[{name:'光滑管',c:'#1d4ed8'},{name:'不同 ε/d',c:'#94a3b8'},{name:'当前工况',c:'#b91c1c'}],
+    legendY:20, legendR:true, padL:46
+  });
+}
+function drawHeadChart(){
+  const p=CUR,h=HY;
+  const pts=[],hz=[],he=[],hh=[];
+  const N=80;
+  for(let i=0;i<=N;i++){
+    const xf=i/N, hd=headAt(h,p,xf);
+    hz.push([xf*p.L,hd.z]); he.push([xf*p.L,hd.egl]); hh.push([xf*p.L,hd.hgl]);
+  }
+  let vmax=h.H, vmin=0;
+  he.forEach(a=>{vmax=Math.max(vmax,a[1]); vmin=Math.min(vmin,a[1]);});
+  hh.forEach(a=>{vmin=Math.min(vmin,a[1]);});
+  const sp=Math.max(vmax-vmin,0.5);
+  drawChart(document.getElementById('chartH'),{
+    xmin:0,xmax:p.L,ymin:vmin-0.08*sp,ymax:vmax+0.10*sp,
+    xLabel:'沿管位置 x / m', yLabel:'水头 / m',
+    hlines:[{v:p.dz,c:'#94a3b8',label:'高位槽液面'},{v:0,c:'#cbd5e1'}],
+    series:[{name:'总水头线 EGL',c:'#b91c1c',w:2,pts:he},
+            {name:'测压管水头线 HGL',c:'#0f766e',w:2,pts:hh},
+            {name:'管中心线 z',c:'#94a3b8',w:1.4,dash:[4,3],pts:hz}],
+    legend:[{name:'EGL',c:'#b91c1c'},{name:'HGL',c:'#0f766e'},{name:'管中心线',c:'#94a3b8'}],
+    legendY:20, legendR:true, padL:46
+  });
+}
+
+/* =========================================================================
+   7. 参数应用 / 面板更新
+   ========================================================================= */
+let CUR=null, HY=null;
+function recompute(reset){
+  const p=readParams();
+  HY=computeHydro(p); CUR=p;
+  if(reset||!S.P||S.P.n!==S.ui.npart||S.P.x===undefined) initParticles(p,HY);
+  else if(S.P.x && Math.abs(S.P.__L-p.L)>1e-9){ // 管长变化：按比例映射
+    const k=p.L/S.P.__L; for(let i=0;i<S.P.n;i++) S.P.x[i]*=k; S.P.__L=p.L;
+  }
+  if(!S.P.__L) S.P.__L=p.L;
+  updatePanels(); renderAll();
+}
+function renderAll(){
+  if(!CUR||!HY||!S.P) return;
+  drawFront();
+  if(S.ui.cross) drawCross();
+  drawMoody(); drawHeadChart();
+}
+
+function setTxt(id,v){ const e=document.getElementById(id); if(e) e.innerHTML=v; }
+function updatePanels(){
+  const p=CUR,h=HY;
+  const reS=fmtSI(h.Re)[0]+fmtSI(h.Re)[1];
+  setTxt('hdRe','Re = '+reS);
+  setTxt('hdLam','λ = '+fmt(h.lam,h.lam<0.01?4:3));
+  setTxt('hdDp','Δp = '+fmt(h.dp/1000,h.dp/1000<10?2:0)+' kPa');
+  setTxt('hdU','u = '+fmt(h.u,2)+' m/s');
+
+  // 流动状态
+  setTxt('mRe',reS);
+  document.getElementById('reStar').innerHTML=(p.fluid.n<0.999?'*':'');
+  const rg=h.regime;
+  setTxt('mReg',rg[0]); document.getElementById('mReg').style.color=
+    rg[1]==='r'?'var(--red)':(rg[1]==='w'?'var(--amber)':'var(--green)');
+  setTxt('mU',fmt(h.u,3)); setTxt('mQ',fmt(h.Qs*3600,h.Qs*3600<10?2:1));
+  setTxt('mM',fmt(h.mdot*3.6,h.mdot*3.6<10?2:1)); setTxt('mG',fmt(h.G,0));
+  setTxt('mUm',fmt(h.umax,3)); setTxt('mUr',fmt(h.zratio,3));
+  const ec=econRange(h.muApp*1000);
+  const inEcon=h.u>=ec[0]&&h.u<=ec[1];
+  const pe=document.getElementById('pEcon');
+  pe.textContent='经济流速 '+ec[0].toFixed(1)+'~'+ec[1].toFixed(1)+' m/s：'+(inEcon?'合适':'偏离');
+  pe.className='pill'+(inEcon?' g':' w');
+  const pr=document.getElementById('pReg');
+  pr.textContent=(h.laminar?'层流 Re ≤ 2000':(h.Re<4000?'过渡区 2000 < Re < 4000':'湍流 Re ≥ 4000'));
+  pr.className='pill '+(rg[1]==='r'?'a':(rg[1]==='w'?'w':'g'));
+
+  // 物性
+  setTxt('fRhoT',fmt(h.rho,0));
+  setTxt('fMuT',fmt(h.muApp*1000,h.muApp*1000<10?2:0));
+  const ratio=h.muApp/h.mu20;
+  setTxt('fMuR','×'+fmt(ratio,ratio<10?2:1));
+  setTxt('fNu',fmtSI(h.nu)[0]+fmtSI(h.nu)[1]+'m²/s');
+  setTxt('fK',fmt(h.K,h.K<0.01?4:2)+' / '+fmt(h.n,2));
+  setTxt('fRho',fmt(p.fluid.rho,0));
+  setTxt('fMu',fmt(p.fluid.muRef,p.fluid.muRef<10?2:0));
+  setTxt('fN',fmt(p.fluid.n,2)); setTxt('fEa',fmt(p.fluid.Ea,0));
+
+  // 阻力
+  setTxt('rLam',fmt(h.lam,h.lam<0.01?4:3)); setTxt('rLamS',fmt(h.lamS,h.lamS<0.01?4:3));
+  setTxt('rHf',fmt(h.hf,h.hf<10?2:1)); setTxt('rDpf',fmt(h.dpF/1000,h.dpF/1000<10?2:1));
+  setTxt('rDpm',fmt(h.dpF/p.L,h.dpF/p.L<10?1:0));
+  setTxt('rDpl',fmt(h.dpL/1000,h.dpL/1000<10?2:1));
+  setTxt('rDpz',fmt(h.dpZ/1000,h.dpZ/1000<10?2:1));
+  setTxt('rDp',fmt(h.dp/1000,h.dp/1000<10?2:0));
+  setTxt('rP1',fmt(h.p1/1000,h.p1/1000<10?2:1));
+  setTxt('rTau',fmt(h.tau,h.tau<10?2:1)); setTxt('rUs',fmt(h.ustar,3));
+  setTxt('rDel',isFinite(h.deltaV)?fmt(h.deltaV*1e6,0)+' μm':'层流不适用');
+  setTxt('rLe',fmt(h.Le,h.Le<10?2:1));
+  // 局部阻力明细
+  const rows=[['入口（容器→管）',Z_INLET],['90° 弯头 ×'+p.elb,p.elb*Z_ELBOW],
+              [p.valve.name.split(' ')[0],p.valve.z],['出口（管→容器）',Z_OUTLET]];
+  let zt='<tr><th>管件</th><th>ζ</th><th>Δp / kPa</th></tr>';
+  rows.forEach(r=>{ zt+='<tr><td>'+r[0]+'</td><td>'+fmt(r[1],2)+'</td><td>'+
+    fmt(h.rho*G_ACC*r[1]*h.uh/1000,2)+'</td></tr>'; });
+  zt+='<tr><td><b>合计</b></td><td><b>'+fmt(p.zeta,2)+'</b></td><td><b>'+fmt(h.dpL/1000,2)+'</b></td></tr>';
+  document.getElementById('zetaTab').innerHTML=zt;
+  const roughRatio=h.lam/Math.max(h.lamS,1e-9);
+  const pRo=document.getElementById('pRough');
+  pRo.textContent='粗糙度使 λ 增大 '+fmt((roughRatio-1)*100,0)+'%';
+  pRo.className='pill'+(roughRatio>1.15?' w':'');
+  const dev=h.Le<p.L;
+  const pDe=document.getElementById('pDev');
+  pDe.textContent=dev?'入口段 '+fmt(h.Le,1)+' m < L，末端已达充分发展':'入口段 '+fmt(h.Le,1)+' m ≥ L，全程未充分发展';
+  pDe.className='pill'+(dev?' g':' w');
+
+  // 功率
+  setTxt('wH',fmt(h.H,h.H<10?2:1));
+  setTxt('wPe',fmt(h.Pe/1000,h.Pe/1000<10?3:2));
+  setTxt('wP',fmt(h.Ps/1000,h.Ps/1000<10?3:2));
+  setTxt('wE',fmt(h.kWh_t,h.kWh_t<10?3:2));
+  setTxt('wV',fmt(h.Vpipe*1000,h.Vpipe*1000<100?1:0));
+  setTxt('wM',fmt(h.rho*h.Vpipe,h.rho*h.Vpipe<100?1:0));
+  setTxt('wVt',fmt(S.vtot,S.vtot<10?3:1));
+  setTxt('wEt',fmt(S.etot,S.etot<10?4:2));
+
+  // 停留时间
+  setTxt('sTr',fmt(h.tres,h.tres<100?1:0));
+  setTxt('sTm',fmt(h.tmin,h.tmin<100?1:0));
+  setTxt('sRt',fmt(h.zratio,3));
+  setTxt('sSr',fmt(h.sr,0));
+  setTxt('sTr1',S.tracer?fmt(S.tail,1)+' ~ '+fmt(S.front,1):'—');
+  setTxt('sSp',S.tracer?fmt((S.front-S.tail)/p.L*100,1):'—');
+
+  // 诊断
+  const dg=[];
+  if(h.laminar&&p.fluid.solids&&h.u<0.5) dg.push(['r','层流 + 低流速：固相颗粒易沉降积垢']);
+  else if(p.fluid.solids&&h.u>2.5) dg.push(['w','流速偏高：颗粒与管壁磨损加剧']);
+  if(p.fluid.shearSen&&h.sr>800) dg.push(['w','剪切速率 '+fmt(h.sr,0)+' s⁻¹ 偏高，剪切敏感物料结构可能受损']);
+  if(h.laminar&&h.zratio>1.6) dg.push(['r','层流停留时间比 '+fmt(h.zratio,2)+'：管中心物料受热不足，不宜用于杀菌/保温管']);
+  if(!h.laminar&&h.Re<4000) dg.push(['w','处于过渡区：流型不稳定、压降波动，工程上应避免']);
+  if(h.p1/1000>800) dg.push(['w','起点压力 '+fmt(h.p1/1000,0)+' kPa 偏高，建议加大管径']);
+  if(h.kWh_t>3) dg.push(['w','吨料电耗 '+fmt(h.kWh_t,2)+' kWh/t 偏高，建议加粗管径或加热输送']);
+  if(h.Le>=p.L) dg.push(['w','管长小于入口段：速度分布全程未充分发展']);
+  if(!dg.length) dg.push(['g','当前工况无明显工程风险']);
+  document.getElementById('diagPills').innerHTML=
+    dg.map(d=>'<span class="pill '+d[0]+'">'+d[1]+'</span>').join('');
+
+  // 底部
+  setTxt('ftT','t = '+fmt(S.t,2)+' s');
+  setTxt('ftRe','Re = '+reS);
+  const prog=S.t/h.tres;
+  const pr2=document.getElementById('ftProg');
+  pr2.querySelector('i').style.width=(clamp(prog,0,1)*100).toFixed(1)+'%';
+  pr2.className='progress'+(S.arrived?' done':'');
+  setTxt('clock','t = '+fmt(S.t,2)+' s<br>累计输送 '+fmt(S.vtot,S.vtot<10?3:1)+' m³');
+  setTxt('tagFluid','ρ='+p.fluid.rho+' · μ='+p.fluid.muRef+' mPa·s');
+  setTxt('tagPipe','ε='+p.pipe.eps+' mm');
+  setTxt('tagGeo','d='+S.ui.d+' · L='+fmt(S.ui.L,1)+' m');
+  setTxt('tagOp','T='+S.ui.T+' ℃ · η='+Math.round(S.ui.eta*100)+'%');
+  setTxt('pEps',fmt(p.pipe.eps,4)); setTxt('pRel',fmtSI(h.rel)[0]+fmtSI(h.rel)[1]);
+  setTxt('opAlt',S.ui.mode==='u'?('Q = '+fmt(h.Qs*3600,2)+' m³/h'):('u = '+fmt(h.u,3)+' m/s'));
+}
+
+/* =========================================================================
+   8. 主循环
+   ========================================================================= */
+let lastTs=0, frameErr=0;
+function frame(ts){
+  try{
+    const dtReal=clamp((ts-lastTs)/1000||0.016,0,0.05); lastTs=ts;
+    if(S.running&&CUR&&HY&&S.P){
+      const want=dtReal*S.ui.speed;
+      const budget=clamp(Math.round(160000/Math.max(S.P.n,800)),6,40);
+      stepSim(want,CUR,HY,budget);
+      if(!S.arrived&&S.t>=HY.tres){
+        S.arrived=true;
+        document.getElementById('ftSt').innerHTML=
+          '<b style="color:var(--green)">首批物料已到达出口</b> · 平均停留 t̄ = '+fmt(HY.tres,2)+
+          ' s · 累计输送 '+fmt(S.vtot,2)+' m³';
+      }
+      updatePanels();
+    }
+    renderAll();
+  }catch(err){
+    // 单帧异常不得中断主循环（否则点击「开始输送」后画面会静止）
+    if(++frameErr<=3) console.warn('渲染帧异常：',err);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* =========================================================================
+   9. 控制
+   ========================================================================= */
+function toggleRun(){
+  if(!S.initialized) doReset();
+  S.running=!S.running;
+  const b=document.getElementById('btnRun');
+  b.textContent=S.running?'⏸ 暂停输送':'▶ 继续输送';
+  b.className='btn big'+(S.running?' go':'');
+  setLock(S.running);
+  if(S.running&&!S.arrived)
+    document.getElementById('ftSt').innerHTML='输送中 · 实时求解 Re / λ / Δp · 仿真倍速 '+S.ui.speed+'×';
+  else if(!S.running&&!S.arrived) document.getElementById('ftSt').textContent='已暂停 · 可继续或重置';
+}
+/* 运行中可调参数的即时重算（不打断输送、不重置粒子） */
+function liveUpdate(){
+  if(S.P){ CUR=readParams(); HY=computeHydro(CUR); S.P.__L=CUR.L; updatePanels(); }
+  else doReset();
+}
+function doReset(){
+  CUR=readParams(); HY=computeHydro(CUR);
+  S.P=null; initParticles(CUR,HY);
+  S.running=false; S.initialized=true;
+  document.getElementById('btnRun').textContent='▶ 开始输送';
+  document.getElementById('btnRun').className='btn big go';
+  document.getElementById('lgTr').style.display='none';
+  document.getElementById('ftSt').textContent='已重置 · 输送未开始 · 可先设定参数';
+  setLock(false); updatePanels(); renderAll();
+}
+function setLock(on){
+  ['fluidBox','pipeBox','geoBox'].forEach(id=>{
+    const e=document.getElementById(id); if(e) e.classList.toggle('locked',on); });
+  document.getElementById('tS').disabled=on;
+  document.getElementById('lockNote').classList.toggle('show',on);
+}
+
+/* =========================================================================
+   10. 记录表 / 导出
+   ========================================================================= */
+function logRun(){
+  const p=CUR,h=HY;
+  S.logs.push({f:p.fluid.name,pipe:p.pipe.name,d:S.ui.d,L:p.L,T:p.T,u:h.u,Q:h.Qs*3600,
+    Re:h.Re,reg:h.regime[0],lam:h.lam,mu:h.muApp*1000,dp:h.dp/1000,hf:h.hf,H:h.H,
+    P:h.Ps/1000,E:h.kWh_t,tr:h.tres,rt:h.zratio});
+  renderLog();
+}
+function renderLog(){
+  const w=document.getElementById('logWrap');
+  if(!S.logs.length){ w.innerHTML='<div class="empty">尚无记录。设定好参数并开始输送后点击「记录本次」。</div>'; return; }
+  let t='<table class="log"><tr><th>物料</th><th>d</th><th>T</th><th>u</th><th>Re</th><th>流型</th>'+
+        '<th>Δp</th><th>P</th><th>kWh/t</th></tr>';
+  S.logs.forEach(r=>{
+    t+='<tr><td>'+r.f.slice(0,5)+'</td><td>'+r.d+'</td><td>'+r.T+'</td><td>'+fmt(r.u,2)+'</td><td>'+
+       fmtSI(r.Re)[0]+fmtSI(r.Re)[1]+'</td><td>'+r.reg.slice(0,2)+'</td><td>'+fmt(r.dp,1)+'</td><td>'+
+       fmt(r.P,2)+'</td><td>'+fmt(r.E,2)+'</td></tr>';
+  });
+  t+='</table><div class="hint">Δp 单位 kPa；P 单位 kW；d 单位 mm；T 单位 ℃；u 单位 m/s。点击「导出CSV」获得完整字段。</div>';
+  w.innerHTML=t;
+}
+function clearLog(){ S.logs=[]; renderLog(); }
+function exportCsv(){
+  if(!S.logs.length){ alert('无记录可导出'); return; }
+  const head=['物料','管材','内径d_mm','管长L_m','温度T_C','流速u_m_s','流量Q_m3_h','雷诺数Re','流型',
+    '摩擦系数lambda','表观黏度_mPa_s','沿程阻力hf_m','总压降dp_kPa','扬程H_m','轴功率P_kW','吨料电耗kWh_t',
+    '平均停留时间t_s','停留时间比'];
+  const rows=S.logs.map(r=>[r.f,r.pipe,r.d,r.L,r.T,fmt(r.u,3),fmt(r.Q,3),fmt(r.Re,1),r.reg,
+    fmt(r.lam,5),fmt(r.mu,2),fmt(r.hf,3),fmt(r.dp,3),fmt(r.H,3),fmt(r.P,4),fmt(r.E,4),fmt(r.tr,2),fmt(r.rt,3)]);
+  const csv=[head].concat(rows).map(a=>a.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='流体管道输送实验记录.csv'; a.click();
+}
+
+/* =========================================================================
+   11. UI 构建与事件
+   ========================================================================= */
+const OP_RANGE={u:[0.02,6.0],Q:[0.1,400]};
+function sliderToVal(){
+  const r=OP_RANGE[S.ui.mode], t=+$('#opS').value/1000;
+  return r[0]*Math.pow(r[1]/r[0],t);
+}
+function valToSlider(v){
+  const r=OP_RANGE[S.ui.mode];
+  return Math.round(1000*Math.log(v/r[0])/Math.log(r[1]/r[0]));
+}
+function syncOp(){
+  const v=S.ui.opv;
+  $('#opS').value=clamp(valToSlider(v),0,1000);
+  $('#opVal').textContent=fmt(v,S.ui.mode==='u'?2:1);
+  $('#opUnit').textContent=S.ui.mode==='u'?'m/s':'m³/h';
+  $('#opLabel').textContent=S.ui.mode==='u'?'平均流速 u':'体积流量 Q';
+}
+
+function buildUI(){
+  // 物料
+  const fb=$('#fluidBtns');
+  FLUIDS.forEach((f,i)=>{
+    const b=document.createElement('button'); b.className='btn sm'+(i===0?' on':'');
+    b.innerHTML='<span class="chip"><i class="dot" style="background:'+f.c+'"></i></span><br>'+f.name;
+    b.onclick=()=>{ S.ui.fluid=i; $$('#fluidBtns .btn').forEach(e=>e.classList.remove('on')); b.classList.add('on');
+      S.ui.muOverride=null; syncFluid(); doReset(); };
+    fb.appendChild(b);
+  });
+  // 管材
+  const pb=$('#pipeBtns');
+  PIPES.forEach((q,i)=>{
+    const b=document.createElement('button'); b.className='btn sm'+(i===0?' on':'');
+    b.innerHTML='<span class="chip"><i class="dot" style="background:'+q.col+'"></i></span><br>'+q.name;
+    b.onclick=()=>{ S.ui.pipe=i; $$('#pipeBtns .btn').forEach(e=>e.classList.remove('on')); b.classList.add('on');
+      syncPipe(); doReset(); };
+    pb.appendChild(b);
+  });
+  // 弯头
+  const eb=$('#elbBtns');
+  [0,1,2,4].forEach(n=>{
+    const b=document.createElement('button'); b.className='btn sm'+(n===2?' on':'');
+    b.textContent=n===0?'无':n+' 个';
+    b.onclick=()=>{ S.ui.elb=n; $$('#elbBtns .btn').forEach(e=>e.classList.remove('on')); b.classList.add('on'); liveUpdate(); };
+    eb.appendChild(b);
+  });
+  // 阀门
+  const vs=$('#valveS');
+  VALVES.forEach((v,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=v.name; vs.appendChild(o); });
+  vs.value=1;
+  vs.onchange=()=>{ S.ui.valve=+vs.value; liveUpdate(); };
+  // 设定方式
+  $$('[data-mode]').forEach(b=>b.onclick=()=>{
+    const old=S.ui.mode;
+    S.ui.mode=b.dataset.mode;
+    // 保持当前工况连续
+    S.ui.opv = old==='u'&&S.ui.mode==='Q' ? (CUR?CUR.Q:S.ui.opv) : (CUR?CUR.U:S.ui.opv);
+    $$('[data-mode]').forEach(e=>e.classList.toggle('on',e===b));
+    syncOp(); recompute(false);
+  });
+  // 显示模式
+  $$('[data-disp]').forEach(b=>b.onclick=()=>{
+    S.ui.disp=b.dataset.disp; $$('[data-disp]').forEach(e=>e.classList.toggle('on',e===b));
+  });
+  // 倍速
+  const vb=$('#spdBtns');
+  [1,5,20,60].forEach(n=>{
+    const b=document.createElement('button'); b.className='btn sm'+(n===5?' on':'');
+    b.textContent=n+'×';
+    b.onclick=()=>{ S.ui.speed=n; $$('#spdBtns .btn').forEach(e=>e.classList.remove('on')); b.classList.add('on'); };
+    vb.appendChild(b);
+  });
+  // 粒子数
+  const np=$('#npBtns');
+  [[1200,'1.2k'],[2400,'2.4k'],[4000,'4k']].forEach(a=>{
+    const b=document.createElement('button'); b.className='btn sm'+(a[0]===2400?' on':'');
+    b.textContent=a[1];
+    b.onclick=()=>{ S.ui.npart=a[0]; $$('#npBtns .btn').forEach(e=>e.classList.remove('on')); b.classList.add('on'); doReset(); };
+    np.appendChild(b);
+  });
+  // 预设
+  const pre=$('#preBox');
+  PRESETS.forEach(ps=>{
+    const b=document.createElement('button'); b.className='btn sm'; b.style.width='100%';
+    b.style.marginBottom='5px'; b.style.textAlign='left'; b.textContent=ps.t;
+    b.onclick=()=>applyPreset(ps); pre.appendChild(b);
+  });
+  // 快选按钮
+  $$('[data-d]').forEach(b=>b.onclick=()=>{ S.ui.d=+b.dataset.d; $('#dS').value=S.ui.d; $('#dVal').textContent=S.ui.d; doReset(); });
+  $$('[data-l]').forEach(b=>b.onclick=()=>{ S.ui.L=+b.dataset.l; $('#lS').value=S.ui.L; $('#lVal').textContent=fmt(S.ui.L,1); doReset(); });
+  $$('[data-t]').forEach(b=>b.onclick=()=>{ S.ui.T=+b.dataset.t; $('#tS').value=S.ui.T; $('#tVal').textContent=S.ui.T; doReset(); });
+  // 滑杆
+  $('#dS').oninput=e=>{ S.ui.d=+e.target.value; $('#dVal').textContent=S.ui.d; };
+  $('#dS').onchange=()=>doReset();
+  $('#lS').oninput=e=>{ S.ui.L=+e.target.value; $('#lVal').textContent=fmt(S.ui.L,1); };
+  $('#lS').onchange=()=>doReset();
+  $('#zS').oninput=e=>{ S.ui.dz=+e.target.value; $('#zVal').textContent=fmt(S.ui.dz,1); };
+  $('#zS').onchange=()=>doReset();
+  $('#tS').oninput=e=>{ S.ui.T=+e.target.value; $('#tVal').textContent=S.ui.T; };
+  $('#tS').onchange=()=>doReset();
+  $('#etaS').oninput=e=>{ S.ui.eta=+e.target.value/100; $('#etaVal').textContent=e.target.value+'%'; liveUpdate(); };
+  $('#opS').oninput=e=>{ S.ui.opv=sliderToVal(); syncOp(); liveUpdate(); };
+  const muS=$('#muSlider');
+  muS.oninput=()=>{ const v=Math.pow(10,-0.3+(muS.value/1000)*(4.9+0.3));
+    S.ui.muOverride=Math.round(v*10)/10; $('#muVal').textContent=fmt(S.ui.muOverride,1)+' mPa·s'; };
+  muS.onchange=()=>{ syncFluid(); doReset(); };
+  $('#cbProf').onchange=e=>S.ui.prof=e.target.checked;
+  $('#cbPiezo').onchange=e=>S.ui.piezo=e.target.checked;
+  $('#cbDim').onchange=e=>S.ui.dim=e.target.checked;
+  $('#cbCross').onchange=e=>S.ui.cross=e.target.checked;
+  document.addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT') return;
+    if(e.code==='Space'){ e.preventDefault(); toggleRun(); }
+    if(e.key==='r'||e.key==='R') doReset();
+  });
+  syncFluid(); syncPipe(); syncOp();
+}
+function syncFluid(){
+  const f=FLUIDS[S.ui.fluid];
+  $('#nA').textContent=f.name; $('#dA').style.background=f.c;
+  $('#lgA').style.background=f.c; $('#lgAn').textContent=f.name;
+  $('#fluidNote').textContent=f.note;
+  const v=S.ui.muOverride!=null?S.ui.muOverride:f.muRef;
+  $('#muVal').textContent=fmt(v,1)+' mPa·s';
+  $('#muSlider').value=Math.round((Math.log10(v)+0.3)/5.2*1000);
+}
+function syncPipe(){
+  const q=PIPES[S.ui.pipe];
+  $('#pipeNote').textContent=q.note;
+}
+function applyPreset(ps){
+  const fi=FLUIDS.findIndex(f=>f.id===ps.f), pi=PIPES.findIndex(q=>q.id===ps.pipe);
+  S.ui.fluid=fi<0?0:fi; S.ui.pipe=pi<0?0:pi;
+  S.ui.d=ps.d; S.ui.L=ps.L; S.ui.T=ps.T; S.ui.dz=ps.dz; S.ui.elb=ps.elb;
+  S.ui.valve=Math.max(0,VALVES.findIndex(v=>v.id===ps.val));
+  S.ui.mode='u'; S.ui.opv=ps.u; S.ui.muOverride=null;
+  $('#dS').value=ps.d; $('#dVal').textContent=ps.d;
+  $('#lS').value=ps.L; $('#lVal').textContent=fmt(ps.L,1);
+  $('#zS').value=ps.dz; $('#zVal').textContent=fmt(ps.dz,1);
+  $('#tS').value=ps.T; $('#tVal').textContent=ps.T;
+  $('#valveS').value=S.ui.valve;
+  $$('#fluidBtns .btn').forEach((e,i)=>e.classList.toggle('on',i===S.ui.fluid));
+  $$('#pipeBtns .btn').forEach((e,i)=>e.classList.toggle('on',i===S.ui.pipe));
+  $$('#elbBtns .btn').forEach((e,i)=>e.classList.toggle('on',[0,1,2,4][i]===ps.elb));
+  $$('[data-mode]').forEach(e=>e.classList.toggle('on',e.dataset.mode==='u'));
+  syncFluid(); syncPipe(); syncOp(); doReset();
+}
+
+/* ---------------- 模态 ---------------- */
+function openModal(html){ $('#modalBox').innerHTML=html; $('#mask').classList.add('show'); }
+function closeModal(){ $('#mask').classList.remove('show'); }
+function openHelp(){
+  openModal('<button class="close" onclick="closeModal()">关闭</button><h2>关键公式与判据</h2>'+
+  '<div class="hint" style="margin:-4px 0 10px">长江师范学院《食品工程原理》课程 · 第一章 流体流动</div>'+
+  '<h4>1. 流动状态与雷诺数</h4><table><tr><th>量</th><th>定义</th><th>说明</th></tr>'+
+  '<tr><td>雷诺数</td><td><code>Re = duρ/μ</code></td><td>Re ≤ 2000 层流；2000~4000 过渡区；Re ≥ 4000 湍流</td></tr>'+
+  '<tr><td>广义雷诺数（幂律）</td><td><code>Re* = ρ u^{2−n} d^{n} / [8^{n−1} K ((3n+1)/4n)^{n}]</code></td>'+
+  '<td>Metzner–Reed；n = 1 时退化为 duρ/μ</td></tr>'+
+  '<tr><td>平均流速 / 流量</td><td><code>u = Q / (πd²/4)</code></td><td>圆管截面积 A = πd²/4</td></tr>'+
+  '<tr><td>壁面剪切速率</td><td><code>γ̇_w = (3n+1)/(4n) · 8u/d</code></td><td>牛顿流体 n = 1，即 8u/d</td></tr></table>'+
+  '<h4>2. 直管阻力</h4><table>'+
+  '<tr><td>Darcy–Weisbach</td><td><code>h_f = λ (L/d) u²/(2g)</code>，<code>Δp_f = λ (L/d) ρu²/2</code></td><td>本软件 λ 为 Darcy 摩擦系数（非 Fanning）</td></tr>'+
+  '<tr><td>层流</td><td><code>λ = 64/Re</code></td><td>与管壁粗糙度无关，Δp ∝ u</td></tr>'+
+  '<tr><td>湍流</td><td><code>1/√λ = −2 lg( ε/(3.7d) + 2.51/(Re√λ) )</code></td><td>Colebrook–White 隐式式，本软件迭代求解</td></tr>'+
+  '<tr><td>光滑管近似</td><td><code>λ = 0.3164/Re^{0.25}</code>（Blasius）</td><td>Re = 5×10³~10⁵，仅作对照</td></tr>'+
+  '<tr><td>壁面剪应力</td><td><code>τ_w = λρu²/8</code>，<code>u* = √(τ_w/ρ)</code></td><td>u* 为摩擦速度</td></tr>'+
+  '<tr><td>黏性底层</td><td><code>δ_ν ≈ 5ν/u*</code></td><td>δ_ν > ε 时表现为"水力光滑管"</td></tr>'+
+  '<tr><td>入口段</td><td>层流 <code>L_e ≈ 0.06 Re·d</code>；湍流 <code>L_e ≈ 4.4 d Re^{1/6}</code></td><td>L &lt; L_e 时速度分布未充分发展</td></tr></table>'+
+  '<h4>3. 局部阻力与管路总能量方程</h4>'+
+  '<p><code>h_局部 = Σζ · u²/(2g)</code>。本软件计入：容器→管入口 ζ = 0.5；90° 标准弯头 ζ = 0.75 / 个；'+
+  '阀门按选型取值；管→容器出口 ζ = 1.0（动能全部损失）。</p>'+
+  '<p>以供料槽液面（1）与高位槽液面（2）列 Bernoulli 方程（两处 p = 0 表压、u ≈ 0）：</p>'+
+  '<p style="font-size:14px"><code>H = Δz + Σh_f + Σh_ζ = Δz + [ λ L/d + Σζ ] · u²/(2g)</code></p>'+
+  '<p><code>Δp = ρgH</code>（泵需提供的总压）；<code>P_e = ρgQH</code>；<code>P = P_e/η</code>。</p>'+
+  '<h4>4. 速度分布</h4><table>'+
+  '<tr><td>层流（牛顿）</td><td><code>u(r) = u_max (1 − r²/R²)</code>，<code>u_max = 2u</code></td><td>u/u_max 呈抛物面</td></tr>'+
+  '<tr><td>层流（幂律）</td><td><code>u(r) = u_max [1 − (r/R)^{(n+1)/n}]</code>，<code>u_max/u = (3n+1)/(n+1)</code></td>'+
+  '<td>n 越小越"活塞流"</td></tr>'+
+  '<tr><td>湍流</td><td><code>u(r) = u_max (1 − r/R)^{1/m}</code></td><td>m 由 Nikuradse 实测按 Re 插值（Re = 4×10³ 时 m = 6，Re = 10⁶ 时 m ≈ 8.8）</td></tr></table>'+
+  '<h4>5. 停留时间（食品杀菌的关键）</h4>'+
+  '<p>平均停留 <code>t̄ = L/u = V/Q</code>；管中心物料最快，<code>t_min = L/u_max</code>。</p>'+
+  '<p style="font-size:14px"><code>t̄ / t_min = u_max / u</code>　层流 = 2.00；湍流 ≈ 1.2</p>'+
+  '<p>层流时管中心物料只停留平均时间的一半，受热不足而近壁物料过热——这正是 UHT / 保温杀菌管必须保证 Re ≥ 10⁴（湍流）的原因。'+
+  '点击「注入示踪剂」可直接看到层流下示踪剂被拉成抛物线状长尾、湍流下则近似"活塞"推进。</p>'+
+  '<h4>6. 温度效应（本软件特色）</h4>'+
+  '<p>黏度按 Arrhenius 关系随温度变化：<code>μ(T) = μ_ref·exp[(E_a/R)(1/T − 1/T_ref)]</code>，T_ref = 293.15 K；'+
+  '密度按 <code>ρ(T) = ρ_20[1 − β(T − 20)]</code> 修正。蜂蜜 E_a ≈ 75 kJ/mol，20 ℃ 与 60 ℃ 输送的压降可相差一个数量级。</p>'+
+  '<h4>7. 本仿真的方法与简化</h4><ul>'+
+  '<li>一维稳态不可压管流，解析速度分布 + Colebrook 摩擦系数，非牛顿流体按幂律（Metzner–Reed）处理。</li>'+
+  '<li>粒子为拉格朗日示踪点，按局部流速推进；湍流附加径向随机游走以体现涡扩散，层流则无径向混合。</li>'+
+  '<li>简化：不含屈服应力与触变（番茄酱、酸奶按幂律近似）；不计管壁传热导致的轴向温度/黏度变化；管径沿程不变。</li></ul>'+
+  '<div class="warnbox">口径说明：本软件 λ 为 <b>Darcy</b> 摩擦系数（Fanning 系数为 λ/4），请勿混用；'+
+  '数值量级具有工程合理性，宜作教学演示与趋势分析，具体设计请以实测或厂家资料为准。</div>');
+}
+function openGuide(){
+  openModal('<button class="close" onclick="closeModal()">关闭</button><h2>实验指导（课堂任务建议）</h2>'+
+  '<h4>任务一：认识三种流型</h4><p>固定「清水 / 不锈钢卫生管 / d = 50 mm / L = 20 m / 20 ℃」，'+
+  '分别在 u = 0.02、0.05、1.5 m/s 下运行，记录 Re、λ、Δp。观察：层流时 λ = 64/Re 且 Δp ∝ u；'+
+  '湍流时 λ 与 Re 弱相关，Δp ∝ u<sup>1.75~2</sup>。对照主视图中速度分布由抛物面变为"平坦 + 近壁陡峭"。</p>'+
+  '<h4>任务二：管径的影响（Δp ∝ d⁻⁵）</h4><p>用预设「DN25 细管」与「DN100 粗管」对比。保持流量 Q 相同（切换为按流量设定），'+
+  '记录 Δp、轴功率 P 与吨料电耗。讨论：为什么"加粗管径"是最有效的节能手段，以及管径加大后流速下降带来的沉降/卫生风险。</p>'+
+  '<h4>任务三：管材粗糙度的影响</h4><p>用预设「管路老化对照：旧钢管」与新建不锈钢管对比（d = 50 mm、L = 50 m、u = 2 m/s）。'+
+  '在 Moody 图上观察工况点从光滑管曲线移到 ε/d 较大的曲线上；读取"粗糙度使 λ 增大 __%"。'+
+  '再切到层流（u 降至 0.02 m/s）重复：观察 λ 与粗糙度<b>无关</b>——这是层流的本质特征。</p>'+
+  '<h4>任务四：温度——加热输送节能</h4><p>用预设「蜂蜜 20 ℃」与「蜂蜜 60 ℃」对比。记录 μ_app、Re、Δp、轴功率与吨料电耗。'+
+  '讨论：加热所耗蒸汽与节省的泵功是否相抵？为什么食品工业仍普遍采用热输送（黏度下降还带来更好的传热与灌装流动性）。</p>'+
+  '<h4>任务五：停留时间分布与食品安全</h4><p>选「搅拌型酸奶 / d = 32 mm / L = 30 m / u = 0.3 m/s」，'+
+  '读取停留时间比 t̄/t_min（层流接近 2）。点击「注入示踪剂」观察层流下示踪剂被拉成长尾；'+
+  '再把管径与流速调至使 Re ≥ 10⁴，重新注入示踪剂，观察到近似活塞流。'+
+  '讨论：UHT 保温管若误入层流，管中心物料的杀菌强度只有设计值的多少？</p>'+
+  '<h4>任务六：局部阻力占比</h4><p>固定 d = 50 mm、L = 5 m，把弯头数从 0 加到 4、把阀门依次换成蝶阀 / 球阀 / 截止阀，'+
+  '读取"局部压降 Δp_ζ"占"总压降 Δp"的比例。讨论：短管路与长管路中，优化重点分别是什么？</p>'+
+  '<h4>任务七：经济流速</h4><p>对「橙汁（含果肉）」分别在 u = 0.2 / 1.5 / 3.0 m/s 下运行，'+
+  '查看诊断标签：低速出现沉降风险，高速出现剪切破坏与磨损提示。结合经济流速范围，给出该物料的推荐操作窗口。</p>'+
+  '<div class="warnbox">教学提示：本软件为机理演示型仿真，数值量级具有工程合理性，不宜作为设计计算的唯一依据；'+
+  '真实管路设计请以实验测定、厂家资料或专业水力计算软件为准。</div>');
+}
+
+/* ---------------- 启动 ---------------- */
+buildUI();
+syncOp();
+doReset();
+requestAnimationFrame(frame);
+window.addEventListener('resize',()=>{ if(CUR) renderAll(); });
+</script>
+</body>
+</html>
