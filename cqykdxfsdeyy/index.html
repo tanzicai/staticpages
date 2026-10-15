@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SAGE 重医附二院医学教育一体化平台 · Demo</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- 顶栏 -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">S</div>
+        <div class="brand-text">
+          <h1><span class="brand-short">SAGE 重医二附院教学一体化平台</span><span class="brand-long">SAGE 重医附二院医学教育一体化平台</span></h1>
+          <small>医学教育一体化管理平台 · 演示系统</small>
+        </div>
+      </div>
+
+      <nav class="topmenu" id="topmenu"></nav>
+
+      <div class="topbar-right">
+        <div class="role-switch" id="roleSwitch">
+          <button class="active" data-role="teacher">教师</button>
+          <button data-role="major">专业负责人</button>
+          <button data-role="leader">领导</button>
+        </div>
+        <button class="icon-btn" id="helpBtn"><span id="helpIcon"></span><span class="lbl">帮助中心</span></button>
+        <button class="icon-btn bell" id="bellBtn"><span id="bellIcon"></span><i>6</i></button>
+        <div class="user">
+          <div class="avatar" id="topAvatar">张</div>
+          <div class="user-info">
+            <strong id="topUser">张明华</strong>
+            <span id="topRole">教师</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 主体 -->
+    <div class="main">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-head">
+          <h2 id="sideTitle">板块</h2>
+          <p id="sideDesc"></p>
+        </div>
+        <nav class="submenu" id="submenu"></nav>
+        <div class="sidebar-foot">
+          <span class="dot"></span> 数据同步：<b id="syncTime">--:--</b>
+        </div>
+      </aside>
+
+      <main class="content" id="content"></main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/icons.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/pages.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
