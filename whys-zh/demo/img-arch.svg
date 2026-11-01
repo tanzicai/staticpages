@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1d3b"/>
+      <stop offset="0.55" stop-color="#16305f"/>
+      <stop offset="1" stop-color="#0b1a33"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6d5bf6"/>
+      <stop offset="1" stop-color="#2f6bff"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <circle cx="700" cy="60" r="120" fill="#2f6bff" opacity="0.16"/>
+  <circle cx="90" cy="400" r="110" fill="#6d5bf6" opacity="0.14"/>
+  <text x="40" y="52" fill="#e8f0ff" font-size="24" font-weight="700" letter-spacing="2">智慧课程平台 · 核心能力架构</text>
+  <rect x="40" y="66" width="220" height="4" rx="2" fill="url(#bar)"/>
+
+  <g font-size="15" fill="#cfe0ff">
+    <rect x="40" y="92" width="720" height="72" rx="10" fill="#1d3a6d" opacity="0.85" stroke="#3f6cbf" stroke-width="1"/>
+    <text x="60" y="122" fill="#8fb4f7" font-size="13" letter-spacing="1">接入层</text>
+    <text x="60" y="145" fill="#e8f0ff" font-size="16" font-weight="600">统一门户 · 应用中心 · 个人空间 · 消息待办 · 移动端投屏</text>
+
+    <rect x="40" y="176" width="720" height="72" rx="10" fill="#1d3a6d" opacity="0.85" stroke="#3f6cbf" stroke-width="1"/>
+    <text x="60" y="206" fill="#8fb4f7" font-size="13" letter-spacing="1">业务层</text>
+    <text x="60" y="229" fill="#e8f0ff" font-size="16" font-weight="600">课程建设 · 教学管理 · 学情分析 · 知识图谱 · 考试与监考</text>
+
+    <rect x="40" y="260" width="720" height="72" rx="10" fill="#1d3a6d" opacity="0.85" stroke="#3f6cbf" stroke-width="1"/>
+    <text x="60" y="290" fill="#8fb4f7" font-size="13" letter-spacing="1">智能层</text>
+    <text x="60" y="313" fill="#e8f0ff" font-size="16" font-weight="600">AI 备课 · 智能出题 · 知识库 · 多智能体 · 学情预警</text>
+
+    <rect x="40" y="344" width="720" height="72" rx="10" fill="#1d3a6d" opacity="0.85" stroke="#3f6cbf" stroke-width="1"/>
+    <text x="60" y="374" fill="#8fb4f7" font-size="13" letter-spacing="1">数据层</text>
+    <text x="60" y="397" fill="#e8f0ff" font-size="16" font-weight="600">资源库 · 题库 · 行为日志 · 图谱存储 · 指标中心</text>
+  </g>
+</svg>
