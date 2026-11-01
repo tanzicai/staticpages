@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学情分析 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+/* ===== CourseFunction.vue（fn=learning 外壳，选择器加 .cf-page 前缀） ===== */
+.cf-page .cf-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.cf-page .cf-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  flex: none;
+}
+.cf-page .cf-info { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 180px; }
+.cf-page .cf-info strong { font-size: 12.5px; color: var(--ink-2); font-weight: 650; }
+.cf-page .cf-info span { font-size: 10px; color: var(--muted); }
+.cf-page .cf-back { flex: none; height: 30px; }
+.cf-page .breadcrumb { display: none; }
+
+/* ===== LearningAnalytics.vue scoped（选择器加 .la-page 前缀） ===== */
+.la-page .la-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+.la-page .la-kpi {
+  padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px;
+  background: linear-gradient(150deg, rgba(255,255,255,0.92), rgba(255,255,255,0.7));
+  box-shadow: var(--shadow-sm);
+}
+.la-page .la-kpi-label { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted); }
+.la-page .la-kpi-label svg { color: var(--violet); }
+.la-page .la-kpi-value { font-family: var(--num); font-size: 24px; font-weight: 720; color: var(--ink-2); margin-top: 4px; }
+.la-page .la-kpi-value small { font-size: 11px; color: var(--muted); margin-left: 3px; font-weight: 500; }
+.la-page .la-kpi-trend { font-size: 10px; color: var(--green); margin-top: 3px; }
+.la-page .la-kpi-trend.danger { color: var(--amber); }
+
+.la-page .la-tabs {
+  display: flex; gap: 6px; flex-wrap: wrap; padding: 8px; margin-bottom: 12px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+}
+.la-page .la-tabs button {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 30px; padding: 0 12px; border-radius: 7px;
+  border: 1px solid transparent; background: transparent;
+  font-size: 10.5px; color: var(--muted); cursor: pointer; transition: 0.15s;
+}
+.la-page .la-tabs button:hover { color: var(--ink-2); background: rgba(47,107,255,0.04); }
+.la-page .la-tabs button.active { background: var(--violet); color: #fff; }
+
+.la-page .la-body { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 12px; margin-bottom: 12px; }
+.la-page .la-body.solo { grid-template-columns: 1fr; }
+.la-page .la-detail-panel .panel-body { display: flex; flex-direction: column; gap: 10px; }
+
+.la-page .dim-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.la-page .dim-stat { padding: 9px 10px; border-radius: 9px; background: rgba(47, 107, 255, 0.05); }
+.la-page .dim-stat span { display: block; font-size: 9.5px; color: var(--muted); }
+.la-page .dim-stat strong { display: block; margin-top: 3px; font-size: 14px; font-family: var(--num); color: var(--ink-2); font-weight: 680; }
+
+.la-page .dim-table-head {
+  display: flex; justify-content: space-between;
+  padding: 0 4px; font-size: 9.5px; color: var(--muted-2); letter-spacing: 0.4px;
+}
+.la-page .dim-rows { display: flex; flex-direction: column; gap: 6px; max-height: 330px; overflow-y: auto; }
+.la-page .dim-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff;
+}
+.la-page .dim-main { flex: 1; min-width: 0; }
+.la-page .dim-main strong { display: block; font-size: 11.5px; font-weight: 630; color: var(--ink-2); }
+.la-page .dim-main span { display: block; margin-top: 2px; font-size: 9.5px; color: var(--muted); }
+.la-page .dim-bar { flex: none; display: flex; align-items: center; gap: 6px; width: 110px; }
+.la-page .dim-bar-track { flex: 1; height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.la-page .dim-bar-track i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #2f6bff, #0f9d8f); }
+.la-page .dim-bar-track i.warn { background: linear-gradient(90deg, #e7a13a, #e0762f); }
+.la-page .dim-bar-track i.danger { background: linear-gradient(90deg, #e0762f, #d64550); }
+.la-page .dim-bar b { font-family: var(--num); font-size: 9.5px; color: var(--muted); width: 30px; text-align: right; }
+.la-page .dim-value { flex: none; font-family: var(--num); font-size: 10.5px; color: var(--ink-2); min-width: 76px; text-align: right; }
+.la-page .dim-note {
+  display: flex; align-items: flex-start; gap: 5px; margin: 0;
+  padding: 8px 10px; border-radius: 8px;
+  background: rgba(109, 91, 246, 0.05); font-size: 9.5px; color: var(--muted); line-height: 1.6;
+}
+.la-page .dim-note svg { color: var(--violet); flex: none; margin-top: 2px; }
+
+.la-page .la-table-wrap { overflow-x: auto; }
+.la-page .la-table { font-size: 11px; }
+.la-page .la-table th { white-space: nowrap; font-size: 10px; }
+.la-page .la-table td.num { font-family: var(--num); text-align: center; }
+.la-page .la-table td.good { color: var(--green); font-weight: 620; }
+.la-page .la-table td.danger { color: var(--red); font-weight: 620; }
+.la-page .la-table td.strong { font-weight: 620; color: var(--ink-2); }
+.la-page .mini-progress { position: relative; width: 72px; height: 5px; border-radius: 3px; background: var(--line); display: inline-block; }
+.la-page .mini-progress i {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  border-radius: 3px; background: linear-gradient(90deg, #2f6bff, #0f9d8f);
+}
+.la-page .mini-progress i.danger { background: linear-gradient(90deg, #e0762f, #d64550); }
+.la-page .mini-progress span { font-family: var(--num); font-size: 9px; margin-left: 6px; color: var(--muted); }
+
+@media (max-width: 1024px) {
+  .la-page .la-kpis { grid-template-columns: repeat(2, 1fr); }
+  .la-page .la-body { grid-template-columns: 1fr; }
+  .la-page .dim-stats { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body data-platform="course" data-module="learning">
+<main class="content"><div class="page cf-page">
+  <!-- 顶部课程条（CourseFunction fn=learning） -->
+  <div class="panel cf-bar" id="cfBar"></div>
+
+  <div class="page la-page">
+    <div class="page-head module-head">
+      <div>
+        <div class="breadcrumb">
+          <a href="portal.html">首页</a><span>/</span>
+          <a href="platform.html?p=course">智慧课程</a><span>/</span>
+          <span>学情分析</span>
+        </div>
+        <div class="module-title-row">
+          <h1 class="page-title">学情分析</h1>
+          <span class="tag blue">12 个维度学情监测</span>
+          <span class="tag green">支持导出学生详细学习情况</span>
+        </div>
+        <p class="page-desc">学习动态监测、章节学习次数、章节任务点、签到、课程积分、作业、章节测验、考试、讨论、教学预警、互动测验、分组任务——全维度学情一屏掌握，可导出学生详细数据。</p>
+      </div>
+      <div class="page-actions">
+        <span class="tag green" id="exportTip" style="display:none">已导出 CSV 文件</span>
+        <button class="btn btn-primary" id="btnExport"></button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="la-kpis" id="laKpis"></div>
+
+    <div class="la-tabs" id="laTabs"></div>
+
+    <div class="la-body" id="laBody">
+      <section class="panel la-chart-panel" id="laChartPanel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span><span id="laChartTitle"></span></div>
+        </div>
+        <div class="panel-body">
+          <div id="laChart"></div>
+        </div>
+      </section>
+
+      <section class="panel la-detail-panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span><span id="dimTitle"></span></div>
+          <span class="muted tiny" id="dimDesc"></span>
+        </div>
+        <div class="panel-body">
+          <div class="dim-stats" id="dimStats"></div>
+          <div class="dim-table-head">
+            <span id="dimCol0"></span>
+            <span id="dimCol1"></span>
+          </div>
+          <div class="dim-rows" id="dimRows"></div>
+          <p class="dim-note" id="dimNote"></p>
+        </div>
+      </section>
+    </div>
+
+    <!-- 学生明细表 -->
+    <section class="panel la-student-panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="panel-titlebar"></span>学生详细学习情况</div>
+        <span class="muted tiny" id="stuCount"></span>
+      </div>
+      <div class="panel-body la-table-wrap">
+        <table class="table la-table">
+          <thead>
+            <tr>
+              <th>学生</th><th>分组</th><th>学习时长(h)</th><th>学习天数</th><th>章节次数</th>
+              <th>任务点</th><th>签到</th><th>积分</th><th>作业</th><th>测验</th>
+              <th>考试</th><th>讨论</th><th>互动测验</th><th>预警</th>
+            </tr>
+          </thead>
+          <tbody id="stuTbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div></main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/vendor/echarts.min.js"></script>
+<script>
+(function () {
+  const $ = (s, r) => (r || document).querySelector(s)
+  const icon = UI.icon, esc = UI.esc
+
+  /* ===== 顶部课程条（CourseFunction.vue fn=learning） ===== */
+  const course = UI.findCourse(UI.param('id'))
+  $('#cfBar').innerHTML =
+    `<span class="cf-avatar" style="background:${esc(course.cover)}">${esc(course.name.slice(0, 1))}</span>` +
+    `<div class="cf-info"><strong>${esc(course.name)}</strong>` +
+    `<span>${esc(course.code)} · ${esc(course.className)} · ${course.students} 名学生</span></div>` +
+    `<span class="tag blue">学习过程监控与管理</span>` +
+    `<a class="btn cf-back" href="course-workbench.html?id=${esc(course.id)}">${icon('arrow-left', 13)}返回管理信息</a>`
+
+  /* ===== LearningAnalytics.vue 数据 ===== */
+  const tabs = [
+    { key: 'dynamic', label: '学习动态监测', icon: 'activity' },
+    { key: 'chapter', label: '章节学习次数', icon: 'book-open' },
+    { key: 'task', label: '章节任务点', icon: 'list-checks' },
+    { key: 'checkin', label: '签到', icon: 'calendar-days' },
+    { key: 'point', label: '课程积分', icon: 'trophy' },
+    { key: 'homework', label: '作业', icon: 'file-text' },
+    { key: 'quiz', label: '章节测验', icon: 'circle-check' },
+    { key: 'exam', label: '考试', icon: 'shield-check' },
+    { key: 'discuss', label: '讨论', icon: 'message-square' },
+    { key: 'alert', label: '教学预警', icon: 'triangle-alert' },
+    { key: 'interaction', label: '互动测验', icon: 'zap' },
+    { key: 'group', label: '分组任务', icon: 'users' },
+  ]
+  let activeTab = 'dynamic'
+
+  const kpis = [
+    { label: '在册学生', value: '36', unit: '人', trend: '今日活跃 31 人', icon: 'activity' },
+    { label: '学习完成率', value: '78.6', unit: '%', trend: '+5.2% 本周', icon: 'circle-check' },
+    { label: '平均学习时长', value: '2.4', unit: '小时', trend: '+0.3h 环比', icon: 'book-open' },
+    { label: '教学预警', value: '3', unit: '条', trend: '1 条高风险待干预', icon: 'triangle-alert' },
+  ]
+
+  const dimConfigs = {
+    dynamic: {
+      title: '学习动态监测',
+      desc: '实时记录学生视频观看、任务提交、讨论互动等学习行为',
+      stats: [
+        { label: '今日活跃', value: '31 / 36' },
+        { label: '本周学习次数', value: '1,286' },
+        { label: '人均时长', value: '2.4 h' },
+        { label: '异常行为', value: '2 次' },
+      ],
+      columns: ['学习行为', '时长 / 得分'],
+      rows: [
+        { name: '张同学 观看《知识图谱构建原理》', sub: '09:42 · 移动端 · 第 3 章', pct: 100, value: '+25 分钟', status: 'good', tag: '正常' },
+        { name: '王同学 提交章节测验', sub: '09:18 · PC 端 · 第 3 章', pct: 100, value: '96 分', status: 'good', tag: '优秀' },
+        { name: '李同学 参与话题讨论', sub: '08:56 · 移动端 · 讨论区', pct: 100, value: '3 条回复', status: 'good', tag: '活跃' },
+        { name: '陈同学 观看《向量检索基础》', sub: '08:31 · PC 端 · 第 2 章', pct: 62, value: '12 分钟', status: 'warn', tag: '未完成' },
+        { name: '刘同学 完成分组任务提交', sub: '08:05 · PC 端 · C 组', pct: 100, value: '已提交', status: 'good', tag: '正常' },
+        { name: '赵同学 连续 3 天未登录', sub: '08:00 · 系统监测', pct: 0, value: '0 分钟', status: 'danger', tag: '异常' },
+      ],
+      note: '系统每 5 分钟同步一次学习行为，异常行为将自动触发教学预警。',
+    },
+    chapter: {
+      title: '章节学习次数',
+      desc: '统计每个章节的累计学习次数、学习人数与完成率',
+      stats: [
+        { label: '累计学习次数', value: '1,286' },
+        { label: '章均次数', value: '214' },
+        { label: '最高章节', value: '第 3 章 312' },
+        { label: '章节完成率', value: '78.6%' },
+      ],
+      columns: ['章节', '学习次数 / 完成率'],
+      rows: [
+        { name: '第1章 课程导论', sub: '28 人学过 · 平均 2.3 次', pct: 96, value: '286 次', status: 'good', tag: '已学完' },
+        { name: '第2章 基础知识', sub: '26 人学过 · 平均 2.1 次', pct: 88, value: '254 次', status: 'good', tag: '进行中' },
+        { name: '第3章 知识图谱构建', sub: '30 人学过 · 平均 2.6 次', pct: 83, value: '312 次', status: 'good', tag: '重点章' },
+        { name: '第4章 AI 辅助教学', sub: '18 人学过 · 平均 1.8 次', pct: 52, value: '178 次', status: 'warn', tag: '偏低' },
+        { name: '第5章 考试与评价', sub: '9 人学过 · 平均 1.2 次', pct: 31, value: '96 次', status: 'warn', tag: '待推进' },
+        { name: '补充材料（暂不开放）', sub: '3 人预览 · 隐藏模式', pct: 12, value: '24 次', status: 'danger', tag: '未开放' },
+      ],
+      note: '学习次数按“进入章节并产生学习行为”计次，同一章节重复学习累计计算。',
+    },
+    task: {
+      title: '章节任务点',
+      desc: '按章节统计任务点完成情况，未完成任务点将进入学生待办',
+      stats: [
+        { label: '任务点总数', value: '18' },
+        { label: '已完成', value: '15' },
+        { label: '待完成', value: '3' },
+        { label: '完成率', value: '83.3%' },
+      ],
+      columns: ['章节任务点', '完成进度'],
+      rows: [
+        { name: '第1章 · 4 个任务点', sub: '视频 2 · 图书 1 · 测验 1', pct: 100, value: '4 / 4', status: 'good', tag: '已完成' },
+        { name: '第2章 · 4 个任务点', sub: '视频 1 · 作业 1 · 测验 2', pct: 50, value: '2 / 4', status: 'warn', tag: '进行中' },
+        { name: '第3章 · 4 个任务点', sub: '视频 2 · 课件 1 · 作业 1', pct: 75, value: '3 / 4', status: 'good', tag: '进行中' },
+        { name: '第4章 · 3 个任务点', sub: '视频 1 · 测验 1 · 讨论 1', pct: 67, value: '2 / 4', status: 'warn', tag: '待推进' },
+        { name: '第5章 · 3 个任务点', sub: '视频 1 · 作业 1 · 测验 1', pct: 33, value: '1 / 3', status: 'danger', tag: '滞后' },
+      ],
+      note: '教师在「教学管理 · 任务驱动」中设置任务点，学生完成后待完成数量自动减一。',
+    },
+    checkin: {
+      title: '签到',
+      desc: '统计课堂签到出勤率、迟到与缺勤情况',
+      stats: [
+        { label: '已发起签到', value: '3 次' },
+        { label: '平均出勤率', value: '91.7%' },
+        { label: '迟到', value: '2 人次' },
+        { label: '缺勤', value: '3 人次' },
+      ],
+      columns: ['签到场次', '出勤率'],
+      rows: [
+        { name: '第 3 周 · 周一 第 1 节', sub: '08:00 - 08:10 · 手势签到', pct: 94, value: '34 / 36', status: 'good', tag: '已结束' },
+        { name: '第 3 周 · 周三 第 2 节', sub: '10:15 - 10:25 · 数字签到', pct: 86, value: '31 / 36', status: 'warn', tag: '已结束' },
+        { name: '第 3 周 · 周五 第 1 节', sub: '08:00 - 08:10 · 二维码签到', pct: 78, value: '28 / 36', status: 'warn', tag: '已结束' },
+      ],
+      note: '缺勤学生将自动收到督学提醒；连续 3 次缺勤进入教学预警。',
+    },
+    point: {
+      title: '课程积分',
+      desc: '汇总课堂互动、讨论、作业、测验等学习行为获得的积分',
+      stats: [
+        { label: '累计发放', value: '19,860' },
+        { label: '平均积分', value: '552' },
+        { label: '最高积分', value: '980' },
+        { label: '积分兑换', value: '6 人次' },
+      ],
+      columns: ['学生排行', '积分'],
+      rows: [
+        { name: '王同学', sub: 'B 组 · 全勤 · 讨论活跃', pct: 98, value: '980 分', status: 'good', tag: '第 1 名' },
+        { name: '张同学', sub: 'A 组 · 全勤', pct: 86, value: '860 分', status: 'good', tag: '第 2 名' },
+        { name: '陈同学', sub: 'C 组 · 出勤 17 次', pct: 79, value: '790 分', status: 'good', tag: '第 3 名' },
+        { name: '李同学', sub: 'A 组 · 迟到 1 次', pct: 72, value: '720 分', status: 'warn', tag: '第 4 名' },
+        { name: '刘同学', sub: 'C 组 · 讨论较少', pct: 54, value: '540 分', status: 'warn', tag: '第 5 名' },
+        { name: '赵同学', sub: 'B 组 · 多次缺勤', pct: 12, value: '120 分', status: 'danger', tag: '第 6 名' },
+      ],
+      note: '积分规则：签到 +10、讨论 +15、作业 +30、测验 +20，教师可自定义权重。',
+    },
+    homework: {
+      title: '作业',
+      desc: '统计每次作业的提交率、均分与批改状态',
+      stats: [
+        { label: '作业次数', value: '4 次' },
+        { label: '平均提交率', value: '94%' },
+        { label: '平均分', value: '84.0' },
+        { label: '逾期提交', value: '2 人次' },
+      ],
+      columns: ['作业', '提交率 / 均分'],
+      rows: [
+        { name: '第1章课后作业', sub: '截止 10-12 · 已全部批改', pct: 100, value: '36/36 · 88 分', status: 'good', tag: '已批改' },
+        { name: '第2章课后作业', sub: '截止 10-19 · 批改中', pct: 94, value: '34/36 · 82 分', status: 'good', tag: '批改中' },
+        { name: '第3章习题册', sub: '截止 10-26 · 逾期 2 人', pct: 89, value: '32/36 · 79 分', status: 'warn', tag: '有逾期' },
+        { name: '小组综合作业', sub: '截止 11-02 · 进行中', pct: 67, value: '24/36 · —', status: 'warn', tag: '进行中' },
+      ],
+      note: '作业权重可在「教学管理 · 辅助教学活动」中设置，支持计入课程成绩。',
+    },
+    quiz: {
+      title: '章节测验',
+      desc: '统计各章节测验的提交率、平均分与不及格人数',
+      stats: [
+        { label: '测验次数', value: '3 次' },
+        { label: '平均分', value: '78.4' },
+        { label: '最高分', value: '96' },
+        { label: '不及格', value: '4 人次' },
+      ],
+      columns: ['章节测验', '平均分 / 提交率'],
+      rows: [
+        { name: '第1章 章节测验 · 5 题', sub: '最高 96 · 最低 52', pct: 100, value: '提交 35/36 · 82 分', status: 'good', tag: '良好' },
+        { name: '第2章 章节测验 · 8 题', sub: '最高 92 · 最低 48', pct: 97, value: '提交 34/36 · 76 分', status: 'warn', tag: '一般' },
+        { name: '第3章 章节测验 · 6 题', sub: '最高 94 · 最低 41 · 4 人不及格', pct: 88, value: '提交 32/36 · 64 分', status: 'danger', tag: '偏低' },
+      ],
+      note: '第 3 章测验平均分偏低，建议课堂复盘讲解并安排针对性练习。',
+    },
+    exam: {
+      title: '考试',
+      desc: '统计各场考试的参考率、平均分与及格率',
+      stats: [
+        { label: '考试场次', value: '2 场' },
+        { label: '参考率', value: '91%' },
+        { label: '平均分', value: '76.5' },
+        { label: '及格率', value: '82%' },
+      ],
+      columns: ['考试', '参考率 / 均分'],
+      rows: [
+        { name: '期中考试（线上）', sub: '10-24 · 防作弊监考开启', pct: 92, value: '33/36 · 78 分', status: 'good', tag: '已结束' },
+        { name: '第2章阶段测试', sub: '10-17 · 3 人缺考', pct: 83, value: '30/36 · 75 分', status: 'warn', tag: '有缺考' },
+      ],
+      note: '缺考学生已在教学预警中标记，可一键推送补考通知。',
+    },
+    discuss: {
+      title: '讨论',
+      desc: '统计讨论区话题数量、发帖量与师生互动情况',
+      stats: [
+        { label: '讨论话题', value: '4 个' },
+        { label: '发帖总数', value: '128' },
+        { label: '参与人数', value: '30 / 36' },
+        { label: '教师回复', value: '24 条' },
+      ],
+      columns: ['讨论话题', '发帖 / 参与'],
+      rows: [
+        { name: '你眼中的知识图谱应用', sub: '置顶 · 教师已总结', pct: 100, value: '48 帖 · 28 人', status: 'good', tag: '已结题' },
+        { name: '实体抽取方法对比', sub: '第 3 章延伸讨论', pct: 74, value: '32 帖 · 21 人', status: 'good', tag: '进行中' },
+        { name: '本周学习困惑收集', sub: '课前预习讨论', pct: 58, value: '26 帖 · 19 人', status: 'warn', tag: '待回复' },
+        { name: '图谱质量评估经验分享', sub: '课后拓展讨论', pct: 41, value: '22 帖 · 14 人', status: 'warn', tag: '新话题' },
+      ],
+      note: '参与度低于 50% 的话题会自动进入“待激活”列表，建议教师引导。',
+    },
+    alert: {
+      title: '教学预警',
+      desc: '基于学习行为、成绩与出勤自动识别需干预的学生与教学环节',
+      stats: [
+        { label: '预警总数', value: '3 条' },
+        { label: '高风险', value: '1 条' },
+        { label: '中风险', value: '2 条' },
+        { label: '已处理', value: '1 条' },
+      ],
+      columns: ['预警事项', '风险等级'],
+      rows: [
+        { name: '赵同学 · 学习严重滞后', sub: '近 7 天学习时长 6.8h，章节完成率 33%', pct: 100, value: '高风险', status: 'danger', tag: '待干预' },
+        { name: '3 名学生 · 考试缺考', sub: '第 2 章阶段测试未提交试卷', pct: 72, value: '中风险', status: 'warn', tag: '已通知' },
+        { name: '第 3 章测验 · 平均分偏低', sub: '平均分 64 分，低于课程均值 14 分', pct: 55, value: '中风险', status: 'warn', tag: '待复盘' },
+      ],
+      note: '预警规则：连续 3 天未学习、单章完成率低于 40%、测验低于 60 分自动触发。',
+    },
+    interaction: {
+      title: '互动测验',
+      desc: '统计课堂内实时互动测验的参与率、正确率与作答用时',
+      stats: [
+        { label: '互动场次', value: '3 场' },
+        { label: '平均参与率', value: '92%' },
+        { label: '平均正确率', value: '74%' },
+        { label: '平均用时', value: '32 s' },
+      ],
+      columns: ['互动测验', '正确率 / 参与'],
+      rows: [
+        { name: '单选题：本章节核心概念', sub: '课中互动 · 视频 00:45 处插入', pct: 89, value: '正确率 89% · 33/36', status: 'good', tag: '已结束' },
+        { name: '多选题：前端技术栈选型', sub: '课中互动 · 视频 02:35 处插入', pct: 68, value: '正确率 68% · 31/36', status: 'warn', tag: '已结束' },
+        { name: '判断题：图谱可推荐资源', sub: '课末互动 · 视频 02:50 处插入', pct: 82, value: '正确率 82% · 35/36', status: 'good', tag: '已结束' },
+      ],
+      note: '互动测验数据来自视频互动编辑器中的时间点测验，可回看每题作答分布。',
+    },
+    group: {
+      title: '分组任务',
+      desc: '统计各小组任务完成进度、成员参与与教师评分',
+      stats: [
+        { label: '小组数', value: '3 组' },
+        { label: '任务数', value: '4 个' },
+        { label: '已完成', value: '3 个' },
+        { label: '平均评分', value: '86' },
+      ],
+      columns: ['小组', '任务完成 / 评分'],
+      rows: [
+        { name: 'A 组 · 12 人', sub: '知识图谱案例整理 · 全员参与', pct: 100, value: '3/4 · 90 分', status: 'good', tag: '优秀' },
+        { name: 'B 组 · 12 人', sub: '实体抽取实验 · 2 人未参与', pct: 83, value: '3/4 · 82 分', status: 'good', tag: '良好' },
+        { name: 'C 组 · 12 人', sub: '图谱质量评估 · 提交滞后', pct: 58, value: '2/4 · 76 分', status: 'warn', tag: '需督促' },
+      ],
+      note: '分组任务支持按小组导出评分表，成员贡献度可单独调整。',
+    },
+  }
+
+  const statusClass = (s) => (s === 'good' ? 'green' : s === 'warn' ? 'amber' : s === 'danger' ? 'red' : 'gray')
+  const showChart = () => activeTab === 'dynamic' || activeTab === 'chapter'
+
+  /* ===== 图表配置（LearningAnalytics.vue） ===== */
+  const axisStyle = {
+    axisLine: { lineStyle: { color: 'rgba(19,33,60,0.1)' } },
+    axisTick: { show: false },
+    axisLabel: { color: '#8c98ab', fontSize: 9 },
+  }
+  const yAxisStyle = {
+    type: 'value',
+    splitLine: { lineStyle: { color: 'rgba(19,33,60,0.06)', type: 'dashed' } },
+    axisLabel: { color: '#8c98ab', fontSize: 9 },
+  }
+  const tooltipStyle = { trigger: 'axis', backgroundColor: 'rgba(10,24,46,.94)', borderWidth: 0, textStyle: { color: '#fff', fontSize: 10 } }
+  const legendStyle = { textStyle: { fontSize: 10, color: '#8c98ab' }, top: 2, right: 0 }
+
+  const dynamicChart = {
+    grid: { top: 26, right: 12, bottom: 26, left: 36 },
+    tooltip: tooltipStyle,
+    legend: legendStyle,
+    xAxis: { type: 'category', data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'], ...axisStyle },
+    yAxis: yAxisStyle,
+    series: [
+      { name: '视频学习（分钟）', type: 'bar', data: [280, 320, 260, 380, 420, 520, 460], itemStyle: { borderRadius: [4, 4, 2, 2], color: '#2f6bff' } },
+      { name: '测验提交', type: 'line', smooth: true, data: [24, 28, 22, 34, 40, 48, 42], itemStyle: { color: '#6d5bf6' }, lineStyle: { width: 2, color: '#6d5bf6' } },
+    ],
+  }
+  const chapterChart = {
+    grid: { top: 26, right: 12, bottom: 26, left: 36 },
+    tooltip: tooltipStyle,
+    legend: legendStyle,
+    xAxis: { type: 'category', data: ['第1章', '第2章', '第3章', '第4章', '第5章', '补充'], ...axisStyle },
+    yAxis: yAxisStyle,
+    series: [
+      { name: '学习次数', type: 'bar', data: [286, 254, 312, 178, 96, 24], itemStyle: { borderRadius: [4, 4, 2, 2], color: '#0f9d8f' } },
+      { name: '完成率(%)', type: 'line', smooth: true, data: [96, 88, 83, 52, 31, 12], itemStyle: { color: '#6d5bf6' }, lineStyle: { width: 2, color: '#6d5bf6' } },
+    ],
+  }
+
+  /* ===== 学生详细学习情况 ===== */
+  const studentRows = [
+    { name: '张同学', group: 'A组', time: 24.6, days: 21, chapters: 12, tasks: 18, done: 16, checkin: 18, point: 860, homework: 88, quiz: 92, exam: 88, discuss: 34, interaction: 89, alert: 0 },
+    { name: '李同学', group: 'A组', time: 18.2, days: 17, chapters: 10, tasks: 18, done: 12, checkin: 16, point: 720, homework: 82, quiz: 85, exam: 82, discuss: 21, interaction: 74, alert: 1 },
+    { name: '王同学', group: 'B组', time: 26.1, days: 23, chapters: 14, tasks: 18, done: 18, checkin: 18, point: 980, homework: 94, quiz: 96, exam: 94, discuss: 48, interaction: 96, alert: 0 },
+    { name: '赵同学', group: 'B组', time: 6.8, days: 5, chapters: 4, tasks: 18, done: 4, checkin: 8, point: 120, homework: 42, quiz: 52, exam: 0, discuss: 2, interaction: 38, alert: 3 },
+    { name: '刘同学', group: 'C组', time: 15.4, days: 14, chapters: 9, tasks: 18, done: 10, checkin: 14, point: 540, homework: 74, quiz: 74, exam: 70, discuss: 12, interaction: 66, alert: 1 },
+    { name: '陈同学', group: 'C组', time: 22.0, days: 20, chapters: 13, tasks: 18, done: 15, checkin: 17, point: 790, homework: 84, quiz: 88, exam: 85, discuss: 28, interaction: 81, alert: 0 },
+  ]
+
+  /* ================= 渲染 ================= */
+  function renderKpis() {
+    $('#laKpis').innerHTML = kpis
+      .map(
+        (k) => `
+      <div class="la-kpi">
+        <div class="la-kpi-label"><span>${k.label}</span>${icon(k.icon, 13)}</div>
+        <div class="la-kpi-value">${k.value}<small>${k.unit}</small></div>
+        <div class="la-kpi-trend${k.label === '教学预警' ? ' danger' : ''}">${k.trend}</div>
+      </div>`,
+      )
+      .join('')
+  }
+
+  function renderTabs() {
+    $('#laTabs').innerHTML = tabs
+      .map((t) => `<button class="${activeTab === t.key ? 'active' : ''}" data-tab="${t.key}">${icon(t.icon, 13)}${t.label}</button>`)
+      .join('')
+  }
+
+  let chartInst = null
+  function renderChart() {
+    const show = showChart()
+    $('#laChartPanel').style.display = show ? '' : 'none'
+    $('#laBody').classList.toggle('solo', !show)
+    if (!show) return
+    const option = activeTab === 'chapter' ? chapterChart : dynamicChart
+    $('#laChartTitle').textContent = activeTab === 'chapter' ? '各章节学习次数与完成率' : '本周学习活动趋势'
+    if (chartInst) {
+      chartInst.setOption(option, true)
+      chartInst.resize()
+    } else {
+      chartInst = UI.chart($('#laChart'), option, '230px')
+    }
+  }
+
+  function renderDetail() {
+    const cfg = dimConfigs[activeTab]
+    $('#dimTitle').textContent = cfg.title
+    $('#dimDesc').textContent = cfg.desc
+    $('#dimStats').innerHTML = cfg.stats
+      .map((s) => `<div class="dim-stat"><span>${s.label}</span><strong>${s.value}</strong></div>`)
+      .join('')
+    $('#dimCol0').textContent = cfg.columns[0]
+    $('#dimCol1').textContent = cfg.columns[1]
+    $('#dimRows').innerHTML = cfg.rows
+      .map(
+        (r) => `
+      <div class="dim-row">
+        <div class="dim-main">
+          <strong>${esc(r.name)}</strong>
+          ${r.sub ? `<span>${esc(r.sub)}</span>` : ''}
+        </div>
+        ${
+          r.pct !== undefined
+            ? `<div class="dim-bar"><div class="dim-bar-track"><i style="width:${r.pct}%" class="${r.status || ''}"></i></div><b>${r.pct}%</b></div>`
+            : ''
+        }
+        <span class="dim-value">${esc(r.value || '')}</span>
+        ${r.tag ? `<span class="tag ${statusClass(r.status)}">${r.tag}</span>` : ''}
+      </div>`,
+      )
+      .join('')
+    $('#dimNote').innerHTML = cfg.note ? `${icon('bell', 12)}${esc(cfg.note)}` : ''
+    $('#dimNote').style.display = cfg.note ? '' : 'none'
+  }
+
+  function renderStudents() {
+    $('#stuCount').textContent = `共 ${studentRows.length} 条示例 · 完整班级 36 人 · 支持导出`
+    $('#stuTbody').innerHTML = studentRows
+      .map((s) => {
+        const taskPct = (s.done / s.tasks) * 100
+        const hwCls = s.homework >= 80 ? ' good' : s.homework < 60 ? ' danger' : ''
+        const qzCls = s.quiz >= 80 ? ' good' : s.quiz < 60 ? ' danger' : ''
+        const exCls = s.exam >= 80 ? ' good' : s.exam > 0 && s.exam < 60 ? ' danger' : ''
+        const inCls = s.interaction >= 80 ? ' good' : s.interaction < 60 ? ' danger' : ''
+        return `
+      <tr>
+        <td class="strong">${s.name}</td>
+        <td><span class="tag gray">${s.group}</span></td>
+        <td class="num">${s.time.toFixed(1)}</td>
+        <td class="num">${s.days}</td>
+        <td class="num">${s.chapters}</td>
+        <td><div class="mini-progress"><i style="width:${taskPct}%${s.done / s.tasks < 0.5 ? '" class="danger' : ''}"></i><span>${s.done}/${s.tasks}</span></div></td>
+        <td class="num">${s.checkin}</td>
+        <td class="num">${s.point}</td>
+        <td class="num${hwCls}">${s.homework}</td>
+        <td class="num${qzCls}">${s.quiz}</td>
+        <td class="num${exCls}">${s.exam || '—'}</td>
+        <td class="num">${s.discuss}</td>
+        <td class="num${inCls}">${s.interaction}%</td>
+        <td${s.alert > 0 ? ' class="danger"' : ''}>${s.alert ? s.alert + ' 条' : '—'}</td>
+      </tr>`
+      })
+      .join('')
+  }
+
+  /* ===== 导出 CSV（LearningAnalytics.vue exportCSV） ===== */
+  function exportCSV() {
+    const header = [
+      '学生', '分组', '学习时长(h)', '学习天数', '章节学习次数', '任务点完成', '任务点总数',
+      '签到次数', '课程积分', '作业均分', '章节测验', '考试', '讨论发帖', '互动测验正确率(%)', '教学预警(条)',
+    ]
+    const lines = studentRows.map((s) => [
+      s.name, s.group, s.time.toFixed(1), s.days, s.chapters, s.done, s.tasks,
+      s.checkin, s.point, s.homework, s.quiz, s.exam, s.discuss, s.interaction, s.alert,
+    ])
+    const csv = '﻿' + [header, ...lines]
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\r\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `学情分析_学生详细学习情况_${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    $('#exportTip').style.display = ''
+    setTimeout(() => {
+      $('#exportTip').style.display = 'none'
+    }, 2000)
+  }
+
+  /* ================= 事件 ================= */
+  $('#laTabs').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-tab]')
+    if (!b) return
+    activeTab = b.dataset.tab
+    renderTabs()
+    renderChart()
+    renderDetail()
+  })
+  $('#btnExport').addEventListener('click', exportCSV)
+
+  /* ================= 初始化 ================= */
+  $('#btnExport').innerHTML = `${icon('download', 15)}导出学生详细学习情况`
+  renderKpis()
+  renderTabs()
+  renderChart()
+  renderDetail()
+  renderStudents()
+})()
+</script>
+</body>
+</html>

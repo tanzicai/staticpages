@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识图谱 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+[hidden] { display: none !important; }
+.module-head { align-items: flex-start; }
+.module-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.gn-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) 380px; gap: 12px; }
+.gn-graph-body { display: grid; place-items: center; padding: 10px; border-radius: 10px; background: radial-gradient(circle at 50% 45%, rgba(109,91,246,0.09), rgba(47,107,255,0.02) 65%); overflow: hidden; }
+.gn-graph-body svg { width: 100%; height: auto; }
+.edge-group line { stroke: rgba(109,91,246,0.2); stroke-width: 1.2; transition: 0.15s; }
+.edge-group line.active { stroke: rgba(109,91,246,0.85); stroke-width: 2; }
+.node-group { transition: opacity 0.2s; }
+.node-group.dim { opacity: 0.3; }
+.node-group.focus circle { filter: drop-shadow(0 0 6px rgba(109,91,246,0.5)); }
+.panel-tools { display: flex; align-items: center; gap: 6px; }
+.gn-tool-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--line); background: #fff; display: grid; place-items: center; cursor: pointer; color: var(--muted); }
+.gn-tool-btn:hover { color: var(--violet); }
+.zoom-label { font-family: var(--num); font-size: 10px; color: var(--muted); min-width: 32px; text-align: center; }
+.gn-graph-foot { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 8px 14px; border-top: 1px solid var(--line); font-size: 10.5px; color: var(--muted); }
+.gn-legend { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+.gn-legend.core { background: #6d5bf6; }
+.gn-legend.concept { background: #2f6bff; }
+.gn-legend.resource { background: #0f9d8f; }
+.ml-auto { margin-left: auto; }
+.gn-node-flag { display: inline-flex; align-items: center; font-size: 10.5px; color: var(--ink-2); font-weight: 600; }
+.empty-hint { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 60px 20px; text-align: center; color: var(--muted); font-size: 11px; }
+.empty-hint .violet { color: var(--violet); }
+.gn-resource-panel .panel-body { display: flex; flex-direction: column; gap: 10px; }
+.gn-summary { display: flex; gap: 12px; flex-wrap: wrap; padding: 7px 10px; border-radius: 8px; background: rgba(109, 91, 246, 0.05); font-size: 10px; color: var(--muted); }
+.gn-summary span { display: inline-flex; align-items: center; gap: 4px; }
+.gn-summary svg { color: var(--violet); }
+.gn-section-label { font-size: 9.5px; color: var(--muted-2); letter-spacing: 0.4px; }
+.gn-neighbors { display: flex; flex-direction: column; gap: 5px; }
+.gn-neighbor-list { display: flex; flex-wrap: wrap; gap: 5px; }
+.gn-neighbor { height: 24px; padding: 0 9px; border-radius: 12px; border: 1px solid rgba(109, 91, 246, 0.25); background: rgba(109, 91, 246, 0.07); color: var(--violet); font-size: 10px; cursor: pointer; transition: 0.12s; }
+.gn-neighbor:hover { background: var(--violet); color: #fff; border-color: transparent; }
+.gn-neighbor.resource { border-color: rgba(15, 157, 143, 0.3); background: rgba(15, 157, 143, 0.08); color: var(--green); }
+.gn-neighbor.resource:hover { background: var(--green); color: #fff; }
+.gn-neighbor.core { border-color: rgba(109, 91, 246, 0.4); font-weight: 600; }
+.gn-filters { display: flex; flex-wrap: wrap; gap: 5px; }
+.gn-filters button { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 9px; border-radius: 6px; border: 1px solid var(--line); background: #fff; font-size: 10px; color: var(--muted); cursor: pointer; transition: 0.12s; }
+.gn-filters button em { font-style: normal; font-family: var(--num); font-size: 9px; padding: 1px 5px; border-radius: 4px; background: rgba(24, 42, 80, 0.06); color: var(--muted-2); }
+.gn-filters button:hover { border-color: rgba(109, 91, 246, 0.4); color: var(--violet); }
+.gn-filters button.active { background: var(--violet); border-color: transparent; color: #fff; }
+.gn-filters button.active em { background: rgba(255, 255, 255, 0.2); color: #fff; }
+.resource-list { display: flex; flex-direction: column; gap: 7px; flex: 1; max-height: 420px; overflow-y: auto; }
+.resource-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 10px; background: #fff; transition: 0.15s; }
+.resource-item:hover { border-color: rgba(109,91,246,0.35); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(28, 44, 80, 0.06); }
+.resource-icon { width: 32px; height: 32px; border-radius: 8px; color: #fff; display: grid; place-items: center; flex: none; }
+.resource-info { min-width: 0; }
+.resource-info strong { display: block; font-size: 11.5px; font-weight: 620; color: var(--ink-2); line-height: 1.45; }
+.resource-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+.resource-meta .muted { font-size: 9.5px; }
+.resource-desc { margin: 5px 0 0; font-size: 9.5px; line-height: 1.6; color: var(--muted); }
+.gn-empty { padding: 16px; text-align: center; font-size: 10px; color: var(--muted); }
+.gn-resource-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+@media (max-width: 1100px) { .gn-layout { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-platform="course" data-module="graph-build">
+<main class="content"><div class="page gn-page" id="gnPage"></div></main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const $ = UI.$, icon = UI.icon, esc = UI.esc;
+  const root = $('#gnPage');
+  const nodes = [
+    { id: 'n1', label: '知识图谱', x: 300, y: 210, type: 'core' },
+    { id: 'n2', label: '实体识别', x: 180, y: 210, type: 'concept' },
+    { id: 'n3', label: '关系抽取', x: 420, y: 210, type: 'concept' },
+    { id: 'n4', label: '本体建模', x: 240, y: 314, type: 'concept' },
+    { id: 'n5', label: '知识融合', x: 360, y: 314, type: 'concept' },
+    { id: 'n6', label: '语义检索', x: 240, y: 106, type: 'concept' },
+    { id: 'n7', label: '向量检索', x: 360, y: 106, type: 'concept' },
+    { id: 'n8', label: '文本挖掘', x: 485, y: 270, type: 'resource' },
+    { id: 'n9', label: '图嵌入', x: 415, y: 368, type: 'resource' },
+    { id: 'n10', label: 'GNN', x: 300, y: 405, type: 'resource' },
+    { id: 'n11', label: 'Neo4j', x: 185, y: 368, type: 'resource' },
+    { id: 'n12', label: 'RDF/OWL', x: 115, y: 270, type: 'resource' },
+    { id: 'n13', label: 'TransE', x: 115, y: 150, type: 'resource' },
+    { id: 'n14', label: 'BERT', x: 185, y: 52, type: 'resource' },
+    { id: 'n15', label: '注意力机制', x: 300, y: 15, type: 'resource' },
+    { id: 'n16', label: '向量库', x: 415, y: 52, type: 'resource' },
+    { id: 'n17', label: '知识推理', x: 485, y: 150, type: 'resource' },
+  ];
+  const edges = [
+    ['n1','n2'],['n1','n3'],['n1','n4'],['n1','n5'],['n1','n6'],['n1','n7'],
+    ['n2','n14'],['n2','n15'],['n3','n8'],['n4','n12'],['n4','n11'],['n5','n13'],['n5','n17'],
+    ['n6','n17'],['n7','n16'],['n7','n10'],['n7','n9'],['n2','n4'],['n3','n5'],['n6','n7'],['n5','n6'],['n3','n7'],
+  ].map(([from, to]) => ({ from, to }));
+  const nodeByType = {
+    core: { r: 26, fill: '#6d5bf6', stroke: '#fff' },
+    concept: { r: 18, fill: '#2f6bff', stroke: 'rgba(255,255,255,0.6)' },
+    resource: { r: 13, fill: '#0f9d8f', stroke: 'rgba(255,255,255,0.5)' },
+  };
+  const nodeById = id => nodes.find(n => n.id === id);
+  const toneByType = { '知识词条': '#2f6bff', '学术期刊': '#e0762f', '图书': '#0f9d8f', '学术论著': '#6d5bf6' };
+  const iconByType = { '知识词条': 'file-text', '图书': 'library', '学术论著': 'graduation-cap', '学术期刊': 'book-open' };
+  const curated = {
+    n1: [
+      { title: '知识图谱（Knowledge Graph）', type: '知识词条', source: 'Wikipedia', year: '2024', desc: '概念定义、发展脉络与典型应用场景' },
+      { title: 'A Survey on Knowledge Graphs', type: '学术期刊', source: 'IEEE TKDE', year: '2021', desc: '系统梳理图谱表示学习与推理研究进展' },
+      { title: 'Knowledge Graph Embedding: A Survey', type: '学术期刊', source: 'ACM CSUR', year: '2022', desc: '嵌入模型的分类、训练目标与评测方法' },
+      { title: '《知识图谱：方法、实践与应用》', type: '图书', source: '机械工业出版社 · 馆藏', year: '2020', desc: '从本体设计到行业落地的完整实践指南' },
+      { title: '大规模知识图谱的构建与应用', type: '学术论著', source: '中科院自动化所', year: '2023', desc: '面向开放领域的图谱构建与质量评估' },
+    ],
+    n2: [
+      { title: '命名实体识别（NER）', type: '知识词条', source: '学科知识库', year: '2024', desc: '实体边界识别与类型判定的基础概念' },
+      { title: '中文命名实体识别研究综述', type: '学术期刊', source: '中文信息学报', year: '2023', desc: '序列标注、词典增强与预训练模型对比' },
+      { title: 'BERT for Named Entity Recognition', type: '学术论著', source: 'ACL', year: '2019', desc: '预训练语言模型在 NER 任务上的迁移效果' },
+      { title: '《自然语言处理综论》', type: '图书', source: '校图书馆馆藏', year: '2018', desc: '实体识别相关章节与经典算法推导' },
+    ],
+    n3: [
+      { title: '关系抽取（Relation Extraction）', type: '知识词条', source: '学科知识库', year: '2024', desc: '从文本中判定实体间语义关系的任务定义' },
+      { title: 'Relation Extraction: A Survey', type: '学术期刊', source: 'Computational Linguistics', year: '2022', desc: '监督、远程监督与少样本关系抽取方法' },
+      { title: '基于远程监督的关系抽取研究', type: '学术论著', source: '万方学位论文库', year: '2023', desc: '噪声鲁棒性与实体对表示学习实验' },
+      { title: '《信息抽取技术与应用》', type: '图书', source: '校图书馆馆藏', year: '2021', desc: '关系抽取在领域图谱构建中的工程实践' },
+    ],
+    n4: [
+      { title: '本体（Ontology）', type: '知识词条', source: 'Wikipedia', year: '2024', desc: '概念化规范说明与本体描述语言' },
+      { title: 'Ontology Learning and Population', type: '学术期刊', source: 'IEEE Intelligent Systems', year: '2022', desc: '概念层次与本体公理的自动学习方法' },
+      { title: '《本体工程：方法与实践》', type: '图书', source: '电子工业出版社 · 馆藏', year: '2019', desc: '本体建模流程、复用与一致性检查' },
+      { title: '面向教育领域的本体构建研究', type: '学术论著', source: 'CNKI 学位论文', year: '2023', desc: '课程知识本体的设计与实现案例' },
+    ],
+    n5: [
+      { title: '知识融合（Knowledge Fusion）', type: '知识词条', source: '学科知识库', year: '2024', desc: '多源异构知识的对齐、消歧与合并' },
+      { title: 'Entity Alignment: A Survey', type: '学术期刊', source: 'IJCAI', year: '2023', desc: '基于结构与属性相似度的实体对齐方法' },
+      { title: '多源知识融合中的实体消歧研究', type: '学术论著', source: '万方学位论文库', year: '2024', desc: '上下文与图结构联合消歧模型' },
+      { title: '《数据融合与知识集成》', type: '图书', source: '校图书馆馆藏', year: '2020', desc: '冲突消解策略与融合质量评估指标' },
+    ],
+    n6: [
+      { title: '语义检索（Semantic Search）', type: '知识词条', source: '学科知识库', year: '2024', desc: '基于语义理解而非字面匹配的检索方式' },
+      { title: 'Semantic Search over Knowledge Graphs', type: '学术期刊', source: 'SIGIR', year: '2022', desc: '图谱增强的查询改写与排序模型' },
+      { title: '《信息检索导论》', type: '图书', source: '校图书馆馆藏', year: '2018', desc: '检索模型、索引结构与评价指标' },
+      { title: '基于图嵌入的课程资源语义检索', type: '学术论著', source: 'CNKI 学位论文', year: '2024', desc: '面向教育资源的语义相似度计算' },
+    ],
+    n7: [
+      { title: '向量检索（Vector Search）', type: '知识词条', source: '学科知识库', year: '2024', desc: '高维向量空间中的近邻检索技术' },
+      { title: 'Approximate Nearest Neighbor Search: A Survey', type: '学术期刊', source: 'ACM Computing Surveys', year: '2023', desc: 'HNSW、IVF 等索引结构的性能对比' },
+      { title: '《向量检索与嵌入实践》', type: '图书', source: '校图书馆馆藏', year: '2023', desc: '向量库选型、索引调优与混合检索' },
+      { title: '面向大规模图谱的向量索引优化', type: '学术论著', source: '万方学位论文库', year: '2024', desc: '量化压缩与增量更新策略' },
+    ],
+    n14: [
+      { title: 'BERT：双向编码器表示', type: '知识词条', source: '学科知识库', year: '2024', desc: '预训练语言模型的架构与微调范式' },
+      { title: 'Pre-training of Deep Bidirectional Transformers', type: '学术论著', source: 'NAACL', year: '2019', desc: 'MLM 与 NSP 预训练目标的原始论文' },
+      { title: '《预训练语言模型》', type: '图书', source: '校图书馆馆藏', year: '2022', desc: '从 Transformer 到领域微调的完整路径' },
+      { title: '领域语料持续预训练方法研究', type: '学术期刊', source: '软件学报', year: '2023', desc: '小样本领域适配与灾难性遗忘缓解' },
+    ],
+    n11: [
+      { title: 'Neo4j 图数据库', type: '知识词条', source: '官方文档', year: '2024', desc: '属性图模型与 Cypher 查询语言' },
+      { title: '《图数据库实战》', type: '图书', source: '校图书馆馆藏', year: '2021', desc: '图谱存储建模、索引与查询优化' },
+      { title: 'Graph Database Benchmarking', type: '学术期刊', source: 'VLDB', year: '2022', desc: '主流图数据库在复杂查询下的性能评测' },
+      { title: '基于 Neo4j 的课程图谱存储设计', type: '学术论著', source: 'CNKI 学位论文', year: '2024', desc: '教育图谱模式设计与批量导入实践' },
+    ],
+  };
+  function fallbackResources(label) {
+    return [
+      { title: `${label} · 知识词条`, type: '知识词条', source: '学科知识库', year: '2024', desc: '概念定义、发展脉络与典型应用' },
+      { title: `${label} 相关研究综述`, type: '学术期刊', source: 'CNKI 学术期刊', year: '2023', desc: '近五年代表性期刊论文与研究方法' },
+      { title: `《${label}实践指南》`, type: '图书', source: '校图书馆馆藏', year: '2022', desc: '系统讲解原理、案例与实操步骤' },
+      { title: `${label} 领域学位论文精选`, type: '学术论著', source: '万方学位论文库', year: '2023', desc: '硕博论文中的前沿探索与实验结论' },
+    ];
+  }
+
+  const G = { selected: null, zoom: 1, filter: '全部' };
+  const svgW = 600, svgH = 470;
+
+  root.innerHTML = `
+    <div class="page-head module-head">
+      <div>
+        <div class="breadcrumb">
+          <a href="portal.html">首页</a><span>/</span>
+          <a href="platform.html?p=course">智慧课程</a><span>/</span>
+          <span>知识图谱构建和管理</span>
+        </div>
+        <div class="module-title-row">
+          <h1 class="page-title">知识图谱管理</h1>
+          <span class="tag violet">网状结构图谱</span>
+          <span class="tag blue">词条 / 期刊 / 图书 / 论著</span>
+        </div>
+        <p class="page-desc">知识图谱以网状结构可视化呈现，点击任意节点可查看关联知识点与多类型资源：知识词条、学术期刊、图书、学术论著，为学生提供全面的知识视角。</p>
+      </div>
+    </div>
+    <div class="gn-layout">
+      <section class="panel gn-graph-panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>课程知识图谱 · 点击节点查看关联资源</div>
+          <div class="panel-tools">
+            <button class="gn-tool-btn" title="缩小" data-gn="zoom-out">${icon('minus', 13)}</button>
+            <span class="zoom-label" id="gnZoom"></span>
+            <button class="gn-tool-btn" title="放大" data-gn="zoom-in">${icon('plus', 13)}</button>
+          </div>
+        </div>
+        <div class="panel-body gn-graph-body" id="gnSvgWrap"></div>
+        <div class="gn-graph-foot" id="gnFoot"></div>
+      </section>
+      <aside class="panel gn-resource-panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>关联资源列表</div>
+          <span class="gn-node-flag" id="gnFlag" hidden></span>
+        </div>
+        <div class="panel-body" id="gnPanel"></div>
+      </aside>
+    </div>`;
+
+  function isAttachEdge(e) { return nodeById(e.to).type === 'resource' || nodeById(e.from).type === 'resource'; }
+  function edgeActive(e) { return G.selected && (e.from === G.selected.id || e.to === G.selected.id); }
+  function isFocus(id) {
+    if (!G.selected) return true;
+    if (G.selected.id === id) return true;
+    return edges.some(e => (e.from === G.selected.id && e.to === id) || (e.to === G.selected.id && e.from === id));
+  }
+  function currentResources() {
+    if (!G.selected) return [];
+    return curated[G.selected.id] || fallbackResources(G.selected.label);
+  }
+  function neighbors() {
+    if (!G.selected) return [];
+    const ids = new Set();
+    for (const e of edges) { if (e.from === G.selected.id) ids.add(e.to); if (e.to === G.selected.id) ids.add(e.from); }
+    return nodes.filter(n => ids.has(n.id));
+  }
+  function renderGraph() {
+    const sel = G.selected;
+    $('#gnSvgWrap', root).innerHTML = `
+    <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
+      <defs><radialGradient id="glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="rgba(109,91,246,0.35)"/><stop offset="100%" stop-color="rgba(109,91,246,0)"/>
+      </radialGradient></defs>
+      <g transform="scale(${G.zoom})">
+        ${edges.map(e => {
+          const a = nodeById(e.from), b = nodeById(e.to);
+          return `<g class="edge-group"><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" class="${edgeActive(e) ? 'active' : ''}"${isAttachEdge(e) ? ' stroke-dasharray="5 4"' : ''}/></g>`;
+        }).join('')}
+        ${nodes.map(n => {
+          const t = nodeByType[n.type], isSel = sel && sel.id === n.id;
+          return `<g class="node-group${sel && !isFocus(n.id) ? ' dim' : ''}${isSel ? ' focus' : ''}" data-gn="node" data-id="${n.id}" style="cursor:pointer">
+            ${isSel ? `<circle cx="${n.x}" cy="${n.y}" r="${t.r + 8}" fill="url(#glow)"/>` : ''}
+            <circle cx="${n.x}" cy="${n.y}" r="${t.r}" fill="${t.fill}" stroke="${isSel ? '#fff' : t.stroke}" stroke-width="${isSel ? 3 : 1.5}"/>
+            <text x="${n.x}" y="${n.y + t.r + 12}" text-anchor="middle" font-size="10" fill="var(--ink-2)" font-weight="500">${n.label}</text>
+          </g>`;
+        }).join('')}
+      </g>
+    </svg>`;
+    $('#gnZoom', root).textContent = Math.round(G.zoom * 100) + '%';
+    const counts = { core: 0, concept: 0, resource: 0 };
+    nodes.forEach(n => counts[n.type]++);
+    $('#gnFoot', root).innerHTML = `
+      <span><span class="gn-legend core"></span>核心概念 ${counts.core}</span>
+      <span><span class="gn-legend concept"></span>知识点 ${counts.concept}</span>
+      <span><span class="gn-legend resource"></span>资源/工具 ${counts.resource}</span>
+      <span class="ml-auto muted tiny">共 ${nodes.length} 节点 · ${edges.length} 条关系 · 选中及邻接 ${neighbors().length}</span>`;
+  }
+  function renderPanel() {
+    const sel = G.selected;
+    const flag = $('#gnFlag', root);
+    const panel = $('#gnPanel', root);
+    if (!sel) {
+      flag.hidden = true;
+      panel.innerHTML = `<div class="empty-hint">${icon('sparkles', 24).replace('<svg', '<svg class="violet"')}<span>点击图谱中任意节点，查看该知识点关联的多类型资源</span></div>`;
+      return;
+    }
+    flag.hidden = false;
+    flag.innerHTML = `<span class="gn-legend ${sel.type}"></span>${esc(sel.label)}`;
+    const res = currentResources();
+    const filters = [
+      { key: '全部', count: res.length },
+      { key: '知识词条', count: res.filter(r => r.type === '知识词条').length },
+      { key: '学术期刊', count: res.filter(r => r.type === '学术期刊').length },
+      { key: '图书', count: res.filter(r => r.type === '图书').length },
+      { key: '学术论著', count: res.filter(r => r.type === '学术论著').length },
+    ].filter(f => f.key === '全部' || f.count > 0);
+    const filtered = G.filter === '全部' ? res : res.filter(r => r.type === G.filter);
+    panel.innerHTML = `
+      <div class="gn-summary">
+        <span>${icon('network', 12)}${res.length} 条资源</span>
+        <span>${icon('link-2', 12)}关联 ${neighbors().length} 个知识点</span>
+      </div>
+      <div class="gn-neighbors">
+        <span class="gn-section-label">关联知识点</span>
+        <div class="gn-neighbor-list">
+          ${neighbors().map(nb => `<button class="gn-neighbor ${nb.type}" data-gn="node" data-id="${nb.id}">${esc(nb.label)}</button>`).join('')}
+        </div>
+      </div>
+      <div class="gn-filters">
+        ${filters.map(f => `<button class="${G.filter === f.key ? 'active' : ''}" data-gn="filter" data-key="${f.key}">${f.key}<em>${f.count}</em></button>`).join('')}
+      </div>
+      <div class="resource-list">
+        ${filtered.map(r => `
+          <div class="resource-item">
+            <div class="resource-icon" style="background:${toneByType[r.type]}">${icon(iconByType[r.type] || 'book-open', 14)}</div>
+            <div class="resource-info">
+              <strong>${esc(r.title)}</strong>
+              <div class="resource-meta">
+                <span class="tag" style="background:${toneByType[r.type]}18;color:${toneByType[r.type]}">${r.type}</span>
+                <span class="muted">${esc(r.source)} · ${r.year}</span>
+              </div>
+              <p class="resource-desc">${esc(r.desc)}</p>
+            </div>
+          </div>`).join('')}
+        ${filtered.length ? '' : '<div class="gn-empty">该类型暂无资源</div>'}
+      </div>
+      <div class="gn-resource-foot">
+        <span class="muted tiny">覆盖 ${filters.length - 1} 类资源 · 支持按类型筛选</span>
+        <button class="btn btn-sm" data-gn="clear">${icon('x', 13)}清除选择</button>
+      </div>`;
+  }
+  root.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-gn]');
+    if (!el || !root.contains(el)) return;
+    const act = el.dataset.gn;
+    if (act === 'node') { G.selected = nodeById(el.dataset.id); G.filter = '全部'; renderGraph(); renderPanel(); }
+    else if (act === 'filter') { G.filter = el.dataset.key; renderPanel(); }
+    else if (act === 'clear') { G.selected = null; renderGraph(); renderPanel(); }
+    else if (act === 'zoom-in') { G.zoom = Math.min(1.8, Math.round((G.zoom + 0.1) * 100) / 100); renderGraph(); }
+    else if (act === 'zoom-out') { G.zoom = Math.max(0.5, Math.round((G.zoom - 0.1) * 100) / 100); renderGraph(); }
+  });
+  renderGraph(); renderPanel();
+});
+</script>
+</body>
+</html>

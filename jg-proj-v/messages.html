@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>消息与待办 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+.message-kpis {
+  margin-bottom: 16px;
+}
+
+.msg-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.7fr);
+  gap: 16px;
+}
+
+.msg-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 22px 0;
+}
+
+.msg-body {
+  padding-top: 8px;
+}
+
+.msg-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  padding: 11px 8px;
+  border: 0;
+  border-bottom: 1px solid rgba(19, 33, 60, 0.045);
+  background: transparent;
+  text-align: left;
+  transition: 0.16s;
+}
+
+.msg-row:last-child {
+  border-bottom: 0;
+}
+
+.msg-row:hover {
+  background: rgba(47, 107, 255, 0.04);
+}
+
+.msg-ic {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  flex: none;
+}
+
+.msg-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.msg-title-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.msg-title-row strong {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.msg-row.unread .msg-title-row strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.unread-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex: none;
+}
+
+.msg-meta {
+  display: block;
+  margin-top: 3px;
+  font-size: 9.5px;
+  color: var(--muted-2);
+}
+
+.msg-arrow {
+  color: var(--muted-2);
+  margin-top: 8px;
+  opacity: 0;
+  transition: 0.18s;
+}
+
+.msg-row:hover .msg-arrow {
+  opacity: 1;
+  color: var(--blue);
+}
+
+.side-todo {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 0;
+  border-bottom: 1px dashed var(--line);
+}
+
+.side-todo:last-child {
+  border-bottom: 0;
+}
+
+.side-priority {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex: none;
+}
+
+.side-priority.high {
+  background: var(--red);
+}
+
+.side-priority.medium {
+  background: var(--amber);
+}
+
+.side-priority.low {
+  background: var(--muted-2);
+}
+
+.side-todo strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.side-todo span {
+  display: block;
+  margin-top: 2px;
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+.subscribe-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+
+.subscribe-row span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.subscribe-note {
+  margin-top: 11px;
+  font-size: 9.5px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+@media (max-width: 1100px) {
+  .msg-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body data-page="messages">
+<main class="content"><div class="page" id="page"></div></main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+(function () {
+  const esc = UI.esc
+  const icon = UI.icon
+  const todos = SEED.portal.todos
+  const list = SEED.portal.messages.map((m) => ({ ...m, read: !m.unread }))
+
+  const tabs = ['全部', '未读', '审批', '预警', '考试', '系统']
+  let tab = '全部'
+  let query = ''
+
+  function toneColor(tone) {
+    return {
+      green: '#0f9d8f',
+      red: '#d64550',
+      amber: '#e0762f',
+      violet: '#6d5bf6',
+      blue: '#2f6bff',
+      gray: '#67758d',
+    }[tone] ?? '#2f6bff'
+  }
+
+  const page = document.getElementById('page')
+  page.innerHTML = `
+    <div class="page-head">
+      <div>
+        <div class="breadcrumb"><a href="portal.html">首页</a><span>/</span><span>消息与待办</span></div>
+        <h1 class="page-title">消息与待办</h1>
+        <p class="page-desc">统一消息中心承载站内信、短信、推送与企微模板消息；统一待办聚合 7 个平台的审批、评审、监考与督学任务。</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn">${icon('filter', 15)}消息订阅</button>
+        <button class="btn btn-primary" id="markAll">${icon('check-check', 15)}全部标为已读</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid message-kpis">
+      <div class="kpi"><div class="kpi-label">未读消息</div><div class="kpi-value"><span id="unreadCount">0</span><span class="kpi-unit">条</span></div><div class="kpi-foot"><span class="kpi-trend">待处理</span></div></div>
+      <div class="kpi"><div class="kpi-label">待办任务</div><div class="kpi-value">6<span class="kpi-unit">项</span></div><div class="kpi-foot"><span style="color: var(--red)">2 项高优</span></div></div>
+      <div class="kpi"><div class="kpi-label">今日通知</div><div class="kpi-value">18<span class="kpi-unit">条</span></div><div class="kpi-foot">发送成功率 99.2%</div></div>
+      <div class="kpi"><div class="kpi-label">已订阅模板</div><div class="kpi-value">12<span class="kpi-unit">个</span></div><div class="kpi-foot">站内 / 短信 / 推送 / 企微</div></div>
+    </div>
+
+    <div class="msg-grid">
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>消息中心</div>
+          <div class="segmented" id="msgTabs">
+            ${tabs.map((t, i) => `<button${i === 0 ? ' class="active"' : ''} data-tab="${t}">${t}</button>`).join('')}
+          </div>
+        </div>
+        <div class="msg-toolbar">
+          <div class="search-box">
+            ${icon('search', 15)}
+            <input id="msgQuery" placeholder="搜索消息标题或来源" />
+          </div>
+          <span class="tiny muted" id="msgCount"></span>
+        </div>
+        <div class="panel-body msg-body" id="msgBody"></div>
+      </section>
+
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>统一待办</div>
+            <a href="map.html" class="link-more">全部待办${icon('arrow-right', 12)}</a>
+          </div>
+          <div class="panel-body">
+            ${todos.slice(0, 4).map((todo) => `
+            <div class="side-todo">
+              <span class="side-priority ${esc(todo.priority)}"></span>
+              <div>
+                <strong>${esc(todo.title)}</strong>
+                <span>${esc(todo.source)} · ${esc(todo.due)}</span>
+              </div>
+            </div>`).join('')}
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>消息订阅模型</div>
+          </div>
+          <div class="panel-body">
+            <div class="subscribe-row"><span>${icon('mail', 14)}站内信</span><span class="tag green">全部</span></div>
+            <div class="subscribe-row"><span>${icon('bell', 14)}APP 推送</span><span class="tag green">开启</span></div>
+            <div class="subscribe-row"><span>${icon('circle-alert', 14)}学习预警</span><span class="tag amber">实时</span></div>
+            <div class="subscribe-row"><span>${icon('shield-check', 14)}安全告警</span><span class="tag red">强制</span></div>
+            <div class="subscribe-note">订阅—模板—渠道三级模型，发送成功率与延迟纳入运行监控。</div>
+          </div>
+        </section>
+      </div>
+    </div>`
+
+  const body = page.querySelector('#msgBody')
+  const countEl = page.querySelector('#msgCount')
+  const unreadEl = page.querySelector('#unreadCount')
+  const queryEl = page.querySelector('#msgQuery')
+
+  function filtered() {
+    const q = query.trim()
+    return list.filter((m) => {
+      if (tab === '未读' && m.read) return false
+      if (tab !== '全部' && tab !== '未读' && m.type !== tab) return false
+      return !q || m.title.includes(q) || m.from.includes(q)
+    })
+  }
+
+  function render() {
+    const rows = filtered()
+    unreadEl.textContent = list.filter((m) => !m.read).length
+    countEl.textContent = `${rows.length} 条消息`
+    body.innerHTML = rows.map((m, i) => {
+      const c = toneColor(m.tone)
+      const idx = list.indexOf(m)
+      return `
+      <button class="msg-row${m.read ? '' : ' unread'}" data-idx="${idx}">
+        <span class="msg-ic" style="color: ${c}; background: ${c}12">
+          ${icon('bell', 16)}
+        </span>
+        <span class="msg-main">
+          <span class="msg-title-row">
+            <strong>${esc(m.title)}</strong>
+            <span class="tag gray">${esc(m.type)}</span>
+            ${m.read ? '' : '<span class="unread-dot"></span>'}
+          </span>
+          <span class="msg-meta">${esc(m.from)} · ${esc(m.time)}</span>
+        </span>
+        ${icon('arrow-right', 14).replace('<svg', '<svg class="msg-arrow"')}
+      </button>`
+    }).join('') + (rows.length ? '' : '<div class="empty">没有符合条件的消息</div>')
+    body.querySelectorAll('.msg-row').forEach((b) => b.addEventListener('click', () => {
+      list[Number(b.dataset.idx)].read = true
+      render()
+    }))
+  }
+
+  const tabBtns = Array.from(page.querySelectorAll('#msgTabs button'))
+  tabBtns.forEach((b) => b.addEventListener('click', () => {
+    tab = b.dataset.tab
+    tabBtns.forEach((x) => x.classList.toggle('active', x === b))
+    render()
+  }))
+  queryEl.addEventListener('input', () => { query = queryEl.value; render() })
+  page.querySelector('#markAll').addEventListener('click', () => {
+    list.forEach((m) => { m.read = true })
+    render()
+  })
+  render()
+})()
+</script>
+</body>
+</html>

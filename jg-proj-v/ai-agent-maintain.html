@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平台设置 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+/* ===== AgentMaintain.vue scoped ===== */
+.am-page .am-agent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+.am-page .am-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  flex: none;
+}
+.am-page .am-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.am-page .am-info strong { font-size: 14px; color: var(--ink); font-weight: 650; }
+.am-page .am-info span { font-size: 11px; color: var(--muted); }
+
+.am-page .am-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.am-page .am-tabs button {
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: 0.12s;
+}
+.am-page .am-tabs button:hover { color: var(--ink-2); }
+.am-page .am-tabs button.active {
+  background: var(--violet);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 600;
+}
+
+.am-page .am-body { padding: 14px 16px; }
+
+/* ===== AgentCorePanel.vue scoped ===== */
+.am-page .core-title-bar { font-size: 12px; font-weight: 650; color: var(--ink-2); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.am-page .debug-panel { padding: 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
+.am-page .debug-input { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.am-page .debug-input textarea {
+  height: 60px; padding: 10px; border-radius: 8px; border: 1px solid var(--line);
+  font-size: 11.5px; resize: none; outline: 0; font-family: inherit;
+}
+.am-page .debug-input .btn { align-self: flex-end; }
+.am-page .debug-runs { display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; }
+.am-page .run-item {
+  display: flex; gap: 8px; padding: 6px 10px; border-radius: 6px;
+  background: #fff; border: 1px solid var(--line); font-size: 10.5px;
+}
+.am-page .run-item .time { font-family: var(--num); color: var(--muted); }
+.am-page .run-item .query { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.am-page .run-item .result.good { color: var(--green); }
+.am-page .run-item .result.amber { color: var(--amber); }
+.am-page .run-item .tokens, .am-page .run-item .latency { color: var(--muted); font-family: var(--num); }
+
+.am-page .table-list { display: flex; flex-direction: column; gap: 6px; }
+.am-page .resource-row {
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  font-size: 11px;
+}
+.am-page .resource-row strong { flex: 1; font-size: 11.5px; font-weight: 620; }
+.am-page .resource-row .num { font-family: var(--num); color: var(--muted); }
+.am-page .resource-row .status.good { color: var(--green); font-size: 10px; }
+.am-page .quota { position: relative; width: 60px; height: 5px; border-radius: 3px; background: var(--line); font-size: 9px; color: var(--muted); margin-left: auto; }
+.am-page .quota i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(90deg, #0f9d8f, #2f6bff); }
+
+.am-page .settings-grid { display: flex; flex-direction: column; gap: 6px; }
+.am-page .setting-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  font-size: 11px;
+}
+.am-page .toggle { width: 36px; height: 20px; border-radius: 10px; background: var(--line); position: relative; cursor: pointer; padding: 0; border: 0; }
+.am-page .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; left: 2px; top: 2px; background: #fff; transition: 0.15s; }
+.am-page .toggle.on { background: var(--green); }
+.am-page .toggle.on::after { left: 18px; }
+.am-page .num-input { width: 60px; height: 26px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px; font-family: var(--num); font-size: 11px; }
+
+.am-page .channels-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.am-page .channel-card {
+  display: flex; flex-direction: column; gap: 4px; padding: 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: #fff; text-align: center;
+  font-size: 10.5px;
+}
+.am-page .channel-card svg { color: var(--violet); margin-bottom: 4px; }
+.am-page .channel-card strong { font-size: 11.5px; font-weight: 620; }
+.am-page .channel-card .status.good { color: var(--green); font-size: 10px; }
+
+.am-page .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.am-page .stats-grid div {
+  padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; text-align: center;
+}
+.am-page .stats-grid span { display: block; font-size: 10px; color: var(--muted); }
+.am-page .stats-grid strong { font-family: var(--num); font-size: 22px; color: var(--ink-2); display: block; margin-top: 2px; }
+.am-page .stats-grid strong small { font-size: 12px; color: var(--muted); font-weight: 500; }
+.am-page .stats-grid em { font-style: normal; font-size: 9.5px; color: var(--green); display: block; }
+
+.am-page .logs-list { display: flex; flex-direction: column; gap: 4px; }
+.am-page .log-item {
+  display: grid; grid-template-columns: 150px 80px 140px 1fr; gap: 10px;
+  padding: 7px 12px; border: 1px solid var(--line); border-radius: 7px;
+  font-size: 10.5px; background: #fff;
+}
+.am-page .log-item .time { font-family: var(--num); color: var(--muted); }
+.am-page .log-item .user { color: var(--violet); font-weight: 600; }
+.am-page .log-item .action { color: var(--amber); }
+.am-page .log-item .target { color: var(--ink-2); }
+
+.am-page .qa-panel { margin-top: 12px; }
+.am-page .qa-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 12px; }
+.am-page .qa-list { display: flex; flex-direction: column; gap: 5px; }
+.am-page .qa-item {
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  cursor: pointer; transition: 0.12s;
+}
+.am-page .qa-item:hover { border-color: rgba(109,91,246,0.3); }
+.am-page .qa-item.active { border-color: var(--violet); background: rgba(109,91,246,0.04); }
+.am-page .qa-item strong { display: block; font-size: 11px; font-weight: 620; }
+.am-page .qa-item span { display: block; font-size: 10px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.am-page .qa-editor-label { font-size: 10px; font-weight: 600; color: var(--muted); margin-bottom: 4px; display: block; }
+.am-page .qa-input { width: 100%; height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 7px; font-size: 11.5px; outline: 0; }
+.am-page .rich-toolbar {
+  display: flex; align-items: center; gap: 3px; flex-wrap: wrap;
+  padding: 6px; border: 1px solid var(--line); border-bottom: 0; border-radius: 7px 7px 0 0;
+  background: var(--surface);
+}
+.am-page .rich-btn {
+  width: 28px; height: 26px; border: 0; border-radius: 5px; background: transparent;
+  font-size: 10px; cursor: pointer; color: var(--muted); transition: 0.1s;
+}
+.am-page .rich-btn:hover { background: rgba(47,107,255,0.08); color: var(--violet); }
+.am-page .rich-divider { width: 1px; height: 18px; background: var(--line); margin: 0 4px; }
+.am-page .rich-btn:last-child { width: auto; padding: 0 8px; display: inline-flex; align-items: center; gap: 4px; color: var(--blue); font-size: 10px; font-weight: 600; }
+.am-page .rich-editor {
+  min-height: 140px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 0 0 7px 7px;
+  background: #fff; font-size: 11.5px; line-height: 1.8; outline: 0;
+  color: var(--ink-2);
+}
+.am-page .rich-editor strong { color: var(--violet); }
+.am-page .rich-editor em { color: var(--amber); }
+.am-page .rich-editor .highlight { background: rgba(255, 206, 107, 0.3); padding: 0 3px; border-radius: 3px; }
+.am-page .qa-att-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.am-page .qa-att { padding: 8px 12px; border-radius: 7px; background: rgba(47,107,255,0.06); border: 1px dashed rgba(47,107,255,0.25); font-size: 11px; color: var(--blue); }
+.am-page .qa-att.upload { background: transparent; border-style: dashed; color: var(--muted); cursor: pointer; }
+.am-page .qa-att.upload:hover { border-color: var(--blue); color: var(--blue); }
+
+.am-page .bar-spacer { flex: 1; }
+.am-page .icon-btn {
+  width: 22px; height: 22px; border-radius: 5px; border: 1px solid var(--line);
+  background: #fff; color: var(--muted); display: grid; place-items: center; cursor: pointer;
+}
+.am-page .icon-btn:hover { color: var(--red); border-color: rgba(214, 69, 80, 0.4); }
+.am-page .status.off { color: var(--muted); background: rgba(19, 33, 60, 0.05); }
+.am-page .period-switch { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.am-page .period-switch button {
+  height: 24px; padding: 0 10px; border: 0; background: #fff;
+  font-size: 10px; color: var(--muted); cursor: pointer;
+}
+.am-page .period-switch button.active { background: var(--violet); color: #fff; }
+.am-page .log-search {
+  height: 26px; width: 190px; padding: 0 8px; border-radius: 6px;
+  border: 1px solid var(--line); font-size: 10px; outline: none;
+}
+.am-page .log-search:focus { border-color: rgba(109, 91, 246, 0.45); }
+.am-page .log-empty { padding: 14px; text-align: center; font-size: 10px; color: var(--muted); }
+
+.am-page .acp-mask {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(10, 24, 46, 0.36); backdrop-filter: blur(2px);
+  display: grid; place-items: center; padding: 20px;
+}
+.am-page .acp-dialog { width: min(420px, 92vw); border-radius: 12px; background: #fff; box-shadow: 0 24px 60px rgba(10, 24, 46, 0.24); overflow: hidden; }
+.am-page .acp-dialog-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid var(--line);
+  font-size: 12px; font-weight: 650; color: var(--ink-2);
+}
+.am-page .acp-dialog-head button { border: 0; background: transparent; cursor: pointer; color: var(--muted); font-size: 15px; }
+.am-page .acp-dialog-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 9px; }
+.am-page .acp-field { display: flex; flex-direction: column; gap: 4px; }
+.am-page .acp-field > span { font-size: 10px; color: var(--muted); }
+.am-page .acp-field input, .am-page .acp-field select {
+  height: 30px; padding: 0 9px; border-radius: 7px;
+  border: 1px solid var(--line); font-size: 11px; color: var(--ink-2); outline: none;
+}
+.am-page .acp-field input:focus, .am-page .acp-field select:focus { border-color: rgba(109, 91, 246, 0.5); }
+.am-page .acp-dialog-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); }
+</style>
+</head>
+<body data-platform="ai" data-module="agents">
+<main class="content"><div class="page am-page">
+  <div class="page-head module-head">
+    <div>
+      <div class="breadcrumb">
+        <a href="portal.html">首页</a><span>/</span>
+        <a href="platform.html?p=ai">AI 能力中心</a><span>/</span>
+        <a href="ai-agents.html">智能体生成平台</a><span>/</span>
+        <span>平台设置</span>
+      </div>
+      <div class="module-title-row">
+        <h1 class="page-title">平台设置</h1>
+        <span class="tag violet" id="agentNameTag"></span>
+      </div>
+      <p class="page-desc">对智能体进行基础调试、资源管理、大模型配置、基础设置、接入渠道、数据统计、导出与操作日志等平台级设置。</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn" href="ai-agents.html" id="backBtn">返回智能体列表</a>
+    </div>
+  </div>
+
+  <div class="panel am-agent">
+    <span class="am-dot" id="agentDot"></span>
+    <div class="am-info">
+      <strong id="agentName"></strong>
+      <span id="agentDesc"></span>
+    </div>
+    <span class="tag green">运行中</span>
+  </div>
+
+  <div class="panel am-tabs" id="coreTabs"></div>
+
+  <div class="panel am-body">
+    <div id="acpCore"></div>
+
+    <!-- 问答对管理 -->
+    <section class="panel qa-panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="panel-titlebar"></span>问答对管理 · 录入问题 / 答案（富文本） / 附件</div>
+        <button class="btn btn-sm primary" id="newQaBtn">新增问答对</button>
+      </div>
+      <div class="panel-body qa-layout">
+        <div class="qa-list" id="qaList"></div>
+        <div class="qa-editor">
+          <div class="qa-editor-label">问题</div>
+          <input class="qa-input" id="qaQuestion" />
+          <div class="qa-editor-label">答案（富文本编辑器）</div>
+          <div class="rich-toolbar" id="richToolbar"></div>
+          <div class="rich-editor" id="qaAnswer" contenteditable="true"></div>
+          <div class="qa-att-row">
+            <span class="qa-editor-label">附件</span>
+            <div id="qaAttachment"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 添加资源弹窗 -->
+  <div class="acp-mask" id="resDialog" style="display:none">
+    <div class="acp-dialog">
+      <div class="acp-dialog-head">
+        <strong>添加智能体资源</strong>
+        <button data-res-close>×</button>
+      </div>
+      <div class="acp-dialog-body">
+        <label class="acp-field"><span>资源名称</span><input id="newResName" placeholder="如：课程题库资源" /></label>
+        <label class="acp-field">
+          <span>资源类型</span>
+          <select id="newResType">
+            <option value="向量库">向量库</option>
+            <option value="文件" selected>文件</option>
+            <option value="结构化">结构化</option>
+          </select>
+        </label>
+        <label class="acp-field"><span>资源数量</span><input id="newResCount" type="number" min="1" value="10" /></label>
+      </div>
+      <div class="acp-dialog-foot">
+        <button class="btn btn-sm" data-res-close>取消</button>
+        <button class="btn btn-sm primary" id="addResBtn">确定添加</button>
+      </div>
+    </div>
+  </div>
+</div></main>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+(function () {
+  const $ = UI.$, $$ = UI.$$, icon = UI.icon, esc = UI.esc
+  const toast = UI.toast
+
+  /* ===== 智能体（按 URL id 取 SEED.agentList） ===== */
+  const agent = UI.findAgent(UI.param('id')) || SEED.agentList[0]
+  document.title = `平台设置 · ${agent.name} · 智慧教育一体化平台`
+  $('#agentNameTag').textContent = agent.name
+  $('#agentName').textContent = agent.name
+  $('#agentDesc').textContent = agent.desc
+  $('#agentDot').style.background = agent.color
+  $('#agentDot').innerHTML = icon('bot', 18)
+  $('#backBtn').insertAdjacentHTML('afterbegin', icon('arrow-left', 13))
+
+  /* ===== 核心功能 Tab ===== */
+  const coreTabs = [
+    { key: 'debug', label: '基础调试', icon: 'activity' },
+    { key: 'resource', label: '资源管理', icon: 'file-text' },
+    { key: 'model', label: '大模型', icon: 'sparkles' },
+    { key: 'setting', label: '基础设置', icon: 'settings' },
+    { key: 'channel', label: '接入渠道', icon: 'network' },
+    { key: 'stat', label: '数据统计', icon: 'database' },
+    { key: 'export', label: '导出中心', icon: 'file' },
+    { key: 'log', label: '操作日志', icon: 'list-checks' },
+  ]
+  const state = {
+    tab: 'debug',
+    debugQuery: '生成《知识图谱》章节教案',
+    debugRuns: [
+      { time: '10:28', query: '生成《知识图谱》教案', result: '成功', tokens: 1240, latency: '1.2s' },
+      { time: '10:24', query: '出 10 道选择题', result: '成功', tokens: 860, latency: '0.8s' },
+      { time: '10:20', query: '分析班级学情', result: '部分成功', tokens: 520, latency: '1.8s' },
+    ],
+    resources: [
+      { name: '知识库 · 教学文档', type: '向量库', count: 38, size: '1.2GB' },
+      { name: '课程资源库', type: '文件', count: 264, size: '3.8GB' },
+      { name: '题库 · 公开题库', type: '结构化', count: 12400, size: '120MB' },
+    ],
+    models: [
+      { name: 'GPT-4o Mini', provider: 'OpenAI', type: '对话', enabled: true, quota: 86 },
+      { name: 'DeepSeek-V3', provider: '深度求索', type: '对话/代码', enabled: true, quota: 92 },
+      { name: 'Qwen-VL', provider: '阿里云', type: '多模态', enabled: true, quota: 74 },
+    ],
+    currentModel: 'DeepSeek-V3',
+    channels: [
+      { name: '首页嵌入', type: 'SDK / iframe', connected: true },
+      { name: '企业微信机器人', type: 'Webhook', connected: true },
+      { name: '课程内部问答', type: 'API', connected: false },
+    ],
+    settings: { identity: true, multiTerminal: true, trace: true, safety: true, memory: 20, temperature: 0.7 },
+    statsPeriod: 'today',
+    logs: [
+      { time: '2026-10-30 10:28', user: '王老师', action: '更新问答对', target: '什么是知识图谱' },
+      { time: '2026-10-30 10:15', user: '王老师', action: '发布智能体', target: '课程智能备课 v1.2' },
+      { time: '2026-10-30 09:40', user: '管理员', action: '模型路由配置', target: '新增 Qwen-VL' },
+    ],
+    logFilter: '',
+    qaPairs: [
+      { id: 'q1', question: '什么是知识图谱？', answer: '知识图谱是通过 <strong>实体</strong>、<em>关系</em>、属性三类要素，构建的可计算的知识网络。...' },
+      { id: 'q2', question: '如何在视频中插入互动测验？', answer: '进入课程建设 → 视频编辑，在时间轴任意位置点击「插入测验」，选择单选题 / 多选题 / 对错题。' },
+      { id: 'q3', question: '投屏功能需要第三方软件吗？', answer: '不需要。平台内置投屏能力，手机端 <span class="highlight">一键投屏</span> 到教室大屏。', attachment: '投屏操作手册.pdf' },
+    ],
+    editingQA: null,
+  }
+  const statsByPeriod = {
+    today: [
+      { label: '今日调用', value: '1,240', delta: '+12.4%' },
+      { label: '活跃用户', value: '186', delta: '+8' },
+      { label: '平均满意度', value: '4.6', delta: '+0.1' },
+      { label: '首字延迟 P95', value: '1.4s', delta: '-0.2s' },
+    ],
+    week: [
+      { label: '本周调用', value: '8,640', delta: '+9.1%' },
+      { label: '活跃用户', value: '412', delta: '+26' },
+      { label: '平均满意度', value: '4.5', delta: '+0.1' },
+      { label: '首字延迟 P95', value: '1.5s', delta: '-0.1s' },
+    ],
+    month: [
+      { label: '本月调用', value: '36,720', delta: '+14.6%' },
+      { label: '活跃用户', value: '1,286', delta: '+104' },
+      { label: '平均满意度', value: '4.6', delta: '+0.2' },
+      { label: '首字延迟 P95', value: '1.6s', delta: '-0.3s' },
+    ],
+  }
+  const richCommands = [
+    { label: '加粗', icon: 'B' }, { label: '斜体', icon: 'I' }, { label: '插入图片', icon: '🖼️' },
+    { label: '外链', icon: '🔗' }, { label: '附件', icon: '📎' }, { label: '表格', icon: '📋' },
+    { label: '引用', icon: '❝' }, { label: '高亮块', icon: '💡' }, { label: '代码块', icon: '&lt;/&gt;' },
+    { label: '链接', icon: '🔗' }, { label: '字体', icon: 'Aa' }, { label: '序列', icon: '1.' },
+    { label: '对齐', icon: '⬌' },
+  ]
+
+  function nowTime() {
+    const d = new Date()
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  }
+  function nowStamp() {
+    const d = new Date()
+    const p = (n) => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+  }
+  function addLog(action, target) {
+    state.logs.unshift({ time: nowStamp(), user: '王老师', action, target })
+  }
+  const currentQA = () => state.editingQA || state.qaPairs[0]
+
+  /* ===== tabs ===== */
+  $('#coreTabs').innerHTML = coreTabs.map((t) =>
+    `<button data-tab="${t.key}" class="${state.tab === t.key ? 'active' : ''}">${icon(t.icon, 13)}${t.label}</button>`).join('')
+  $('#coreTabs').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-tab]')
+    if (!b) return
+    state.tab = b.dataset.tab
+    $$('#coreTabs button').forEach((x) => x.classList.toggle('active', x === b))
+    renderCore()
+  })
+
+  /* ===== 核心区渲染 ===== */
+  function renderCore() {
+    const el = $('#acpCore')
+    const t = state.tab
+    if (t === 'debug') {
+      el.innerHTML = `
+        <div class="core-title-bar">${icon('activity', 15)}基础调试 · ${esc(agent.name)}</div>
+        <div class="debug-panel">
+          <div class="debug-input">
+            <textarea id="debugQuery" rows="3" placeholder="输入测试 Query...">${esc(state.debugQuery)}</textarea>
+            <button class="btn btn-primary" data-act="run-debug">${icon('zap', 13)}执行</button>
+          </div>
+          <div class="debug-runs">
+            ${state.debugRuns.map((r) => `
+              <div class="run-item">
+                <span class="time">${r.time}</span>
+                <span class="query">${esc(r.query)}</span>
+                <span class="result ${r.result === '成功' ? 'good' : 'amber'}">${r.result}</span>
+                <span class="tokens">${r.tokens} tokens</span>
+                <span class="latency">${r.latency}</span>
+              </div>`).join('')}
+          </div>
+        </div>`
+    } else if (t === 'resource') {
+      el.innerHTML = `
+        <div class="core-title-bar">
+          ${icon('file-text', 15)}资源管理
+          <span class="bar-spacer"></span>
+          <button class="btn btn-sm btn-primary" data-act="open-res">${icon('plus', 12)}添加资源</button>
+        </div>
+        <div class="table-list">
+          ${state.resources.map((r) => `
+            <div class="resource-row">
+              ${icon('file-text', 14)}
+              <strong>${esc(r.name)}</strong>
+              <span class="tag">${r.type}</span>
+              <span class="num">${r.count} 条</span>
+              <span class="num muted">${r.size}</span>
+              <button class="icon-btn" title="移除" data-remove-res="${esc(r.name)}">${icon('trash-2', 12)}</button>
+            </div>`).join('')}
+        </div>`
+    } else if (t === 'model') {
+      el.innerHTML = `
+        <div class="core-title-bar">
+          ${icon('sparkles', 15)}大模型配置
+          <span class="bar-spacer"></span>
+          <span class="muted tiny">当前默认：${esc(state.currentModel || '未设置')}</span>
+        </div>
+        <div class="table-list">
+          ${state.models.map((m) => `
+            <div class="resource-row">
+              ${icon('sparkles', 14)}
+              <strong>${m.name}</strong>
+              <span class="tag gray">${m.provider}</span>
+              <span class="tag violet">${m.type}</span>
+              <span class="status ${m.enabled ? 'good' : 'off'}">${m.enabled ? '在线' : '已停用'}</span>
+              ${state.currentModel === m.name ? '<span class="tag green">默认</span>' : ''}
+              <div class="quota"><i style="width:${m.quota}%"></i>${m.quota}%</div>
+              <button class="btn btn-sm" ${!m.enabled || state.currentModel === m.name ? 'disabled' : ''} data-set-model="${m.name}">设为默认</button>
+              <button class="btn btn-sm" data-toggle-model="${m.name}">${m.enabled ? '停用' : '启用'}</button>
+            </div>`).join('')}
+        </div>`
+    } else if (t === 'setting') {
+      const s = state.settings
+      const row = (label, key) => `
+        <div class="setting-row">
+          <span>${label}</span>
+          <button class="toggle ${s[key] ? 'on' : ''}" data-toggle-setting="${key}" aria-label="${label}"></button>
+        </div>`
+      el.innerHTML = `
+        <div class="core-title-bar">${icon('settings', 15)}基础设置</div>
+        <div class="settings-grid">
+          ${row('身份识别', 'identity')}
+          ${row('多终端入口', 'multiTerminal')}
+          ${row('AI 溯源开关', 'trace')}
+          ${row('内容安全审核', 'safety')}
+          <div class="setting-row"><span>会话记忆长度</span><input class="num-input" type="number" min="1" max="50" value="${s.memory}" data-setting-num="memory" /></div>
+          <div class="setting-row"><span>温度系数</span><input class="num-input" type="number" min="0" max="1" step="0.1" value="${s.temperature}" data-setting-num="temperature" /></div>
+        </div>`
+    } else if (t === 'channel') {
+      el.innerHTML = `
+        <div class="core-title-bar">${icon('network', 15)}接入渠道</div>
+        <div class="channels-grid">
+          ${state.channels.map((c) => `
+            <div class="channel-card">
+              ${icon('network', 18)}
+              <strong>${c.name}</strong>
+              <span>${c.type}</span>
+              <span class="status ${c.connected ? 'good' : 'off'}">${c.connected ? '已接入' : '未接入'}</span>
+              <button class="btn btn-sm" data-toggle-channel="${c.name}">${c.connected ? '断开' : '接入'}</button>
+            </div>`).join('')}
+        </div>`
+    } else if (t === 'stat') {
+      const cards = statsByPeriod[state.statsPeriod]
+      el.innerHTML = `
+        <div class="core-title-bar">
+          ${icon('database', 15)}数据统计
+          <span class="bar-spacer"></span>
+          <div class="period-switch">
+            <button data-period="today" class="${state.statsPeriod === 'today' ? 'active' : ''}">今日</button>
+            <button data-period="week" class="${state.statsPeriod === 'week' ? 'active' : ''}">本周</button>
+            <button data-period="month" class="${state.statsPeriod === 'month' ? 'active' : ''}">本月</button>
+          </div>
+        </div>
+        <div class="stats-grid">
+          ${cards.map((s) => `<div><span>${s.label}</span><strong>${s.value}</strong><em>${s.delta}</em></div>`).join('')}
+        </div>`
+    } else if (t === 'export') {
+      el.innerHTML = `
+        <div class="core-title-bar">${icon('file', 15)}导出中心</div>
+        <div class="table-list">
+          <div class="resource-row">${icon('file', 14)}<strong>智能体配置 JSON</strong><span class="tag blue">JSON</span><button class="btn btn-sm" data-export="config">导出</button></div>
+          <div class="resource-row">${icon('database', 14)}<strong>问答对数据</strong><span class="tag green">CSV</span><button class="btn btn-sm" data-export="qa">导出</button></div>
+          <div class="resource-row">${icon('list-checks', 14)}<strong>操作日志</strong><span class="tag violet">CSV</span><button class="btn btn-sm" data-export="logs">导出</button></div>
+        </div>`
+    } else if (t === 'log') {
+      const kw = state.logFilter.trim()
+      const list = state.logs.filter((l) => !kw || `${l.user}${l.action}${l.target}`.includes(kw))
+      el.innerHTML = `
+        <div class="core-title-bar">
+          ${icon('list-checks', 15)}操作日志
+          <span class="bar-spacer"></span>
+          <input class="log-search" id="logSearch" placeholder="搜索操作人 / 操作 / 对象" value="${esc(state.logFilter)}" />
+        </div>
+        <div class="logs-list">
+          ${list.map((l) => `
+            <div class="log-item">
+              <span class="time">${l.time}</span>
+              <span class="user">${l.user}</span>
+              <span class="action">${esc(l.action)}</span>
+              <span class="target">${esc(l.target)}</span>
+            </div>`).join('')}
+          ${list.length ? '' : '<div class="log-empty">未匹配到日志</div>'}
+        </div>`
+      const ls = $('#logSearch')
+      ls.addEventListener('input', () => {
+        state.logFilter = ls.value
+        const pos = ls.selectionStart
+        renderCore()
+        const again = $('#logSearch')
+        again.focus()
+        again.setSelectionRange(pos, pos)
+      })
+    }
+  }
+
+  /* ===== 问答对 ===== */
+  function renderQaList() {
+    $('#qaList').innerHTML = state.qaPairs.map((q) => `
+      <div class="qa-item ${currentQA() && currentQA().id === q.id ? 'active' : ''}" data-qa="${q.id}">
+        <strong>${esc(q.question)}</strong>
+        <span class="muted">${q.answer.slice(0, 30)}…</span>
+      </div>`).join('')
+  }
+  function renderQaEditor() {
+    const qa = currentQA()
+    if (!qa) return
+    $('#qaQuestion').value = qa.question
+    $('#qaAnswer').innerHTML = qa.answer
+    $('#qaAttachment').innerHTML = qa.attachment
+      ? `<div class="qa-att">📎 ${esc(qa.attachment)}</div>`
+      : `<div class="qa-att upload">📎 上传附件 · 支持 PDF / 图片 / 文档</div>`
+  }
+  $('#richToolbar').innerHTML =
+    richCommands.map((c) => `<button class="rich-btn" title="${c.label}" type="button">${c.icon}</button>`).join('') +
+    `<div class="rich-divider"></div><button class="rich-btn" type="button">${icon('check', 13)}预览</button>`
+
+  $('#qaList').addEventListener('click', (e) => {
+    const item = e.target.closest('[data-qa]')
+    if (!item) return
+    state.editingQA = state.qaPairs.find((q) => q.id === item.dataset.qa)
+    renderQaList()
+    renderQaEditor()
+  })
+  $('#newQaBtn').addEventListener('click', () => {
+    state.editingQA = { id: 'new', question: '', answer: '' }
+    renderQaList()
+    renderQaEditor()
+    $('#qaQuestion').focus()
+  })
+  $('#qaQuestion').addEventListener('input', (e) => {
+    const qa = currentQA()
+    qa.question = e.target.value
+    const item = $(`#qaList [data-qa="${qa.id}"] strong`)
+    if (item) item.textContent = qa.question
+  })
+  $('#qaAnswer').addEventListener('input', (e) => {
+    const qa = currentQA()
+    qa.answer = e.target.innerHTML
+    const item = $(`#qaList [data-qa="${qa.id}"] span`)
+    if (item) item.innerHTML = qa.answer.slice(0, 30) + '…'
+  })
+
+  /* ===== 核心交互（事件委托） ===== */
+  $('#acpCore').addEventListener('click', (e) => {
+    const t = e.target
+    const actBtn = t.closest('[data-act]')
+    if (actBtn && actBtn.dataset.act === 'run-debug') {
+      const q = ($('#debugQuery').value || '').trim()
+      state.debugQuery = $('#debugQuery').value
+      if (!q) return
+      state.debugRuns.unshift({
+        time: nowTime(), query: q, result: '成功',
+        tokens: 600 + Math.round(Math.random() * 900),
+        latency: `${(0.6 + Math.random() * 1.2).toFixed(1)}s`,
+      })
+      addLog('执行基础调试', q)
+      toast('调试执行完成，结果已写入记录')
+      renderCore()
+      return
+    }
+    if (actBtn && actBtn.dataset.act === 'open-res') { openResDialog(); return }
+
+    const rm = t.closest('[data-remove-res]')
+    if (rm) {
+      const name = rm.dataset.removeRes
+      state.resources = state.resources.filter((r) => r.name !== name)
+      addLog('移除智能体资源', name)
+      toast('资源已移除')
+      renderCore()
+      return
+    }
+    const sm = t.closest('[data-set-model]')
+    if (sm) {
+      state.currentModel = sm.dataset.setModel
+      addLog('设置默认大模型', state.currentModel)
+      toast(`已切换默认模型：${state.currentModel}`)
+      renderCore()
+      return
+    }
+    const tm = t.closest('[data-toggle-model]')
+    if (tm) {
+      const m = state.models.find((x) => x.name === tm.dataset.toggleModel)
+      if (!m) return
+      m.enabled = !m.enabled
+      if (!m.enabled && state.currentModel === m.name) {
+        const next = state.models.find((x) => x.enabled)
+        state.currentModel = next ? next.name : ''
+      }
+      addLog(m.enabled ? '启用大模型' : '停用大模型', m.name)
+      renderCore()
+      return
+    }
+    const ts = t.closest('[data-toggle-setting]')
+    if (ts) {
+      const key = ts.dataset.toggleSetting
+      state.settings[key] = !state.settings[key]
+      const labels = { identity: '身份识别', multiTerminal: '多终端入口', trace: 'AI 溯源', safety: '内容安全审核' }
+      addLog('基础设置', `${labels[key]} ${state.settings[key] ? '开启' : '关闭'}`)
+      ts.classList.toggle('on', state.settings[key])
+      return
+    }
+    const tc = t.closest('[data-toggle-channel]')
+    if (tc) {
+      const c = state.channels.find((x) => x.name === tc.dataset.toggleChannel)
+      if (!c) return
+      c.connected = !c.connected
+      addLog(c.connected ? '接入渠道' : '断开渠道', c.name)
+      toast(c.connected ? `${c.name} 已接入` : `${c.name} 已断开`)
+      renderCore()
+      return
+    }
+    const p = t.closest('[data-period]')
+    if (p) {
+      state.statsPeriod = p.dataset.period
+      renderCore()
+      return
+    }
+    const ex = t.closest('[data-export]')
+    if (ex) {
+      if (ex.dataset.export === 'config') exportConfig()
+      else if (ex.dataset.export === 'qa') exportQA()
+      else exportLogs()
+    }
+  })
+  $('#acpCore').addEventListener('change', (e) => {
+    const n = e.target.closest('[data-setting-num]')
+    if (n) state.settings[n.dataset.settingNum] = Number(n.value)
+  })
+
+  /* ===== 添加资源弹窗 ===== */
+  const resDialog = $('#resDialog')
+  function openResDialog() {
+    $('#newResName').value = ''
+    $('#newResType').value = '文件'
+    $('#newResCount').value = 10
+    resDialog.style.display = 'grid'
+  }
+  function closeResDialog() { resDialog.style.display = 'none' }
+  resDialog.addEventListener('click', (e) => {
+    if (e.target === resDialog || e.target.closest('[data-res-close]')) closeResDialog()
+  })
+  $('#addResBtn').addEventListener('click', () => {
+    const name = $('#newResName').value.trim()
+    if (!name) return
+    state.resources.push({ name, type: $('#newResType').value, count: Number($('#newResCount').value) || 1, size: '—' })
+    closeResDialog()
+    addLog('新增智能体资源', name)
+    toast('资源已添加')
+    renderCore()
+  })
+  $('#newResName').addEventListener('input', (e) => {
+    $('#addResBtn').disabled = !e.target.value.trim()
+  })
+
+  /* ===== 导出 ===== */
+  function downloadFile(filename, content, mime) {
+    const blob = new Blob([content], { type: mime })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+  function exportConfig() {
+    downloadFile(
+      '智能体配置.json',
+      JSON.stringify({ agent: agent.name, settings: state.settings, models: state.models }, null, 2),
+      'application/json;charset=utf-8',
+    )
+    addLog('导出智能体配置', 'JSON')
+    toast('智能体配置已导出')
+  }
+  function exportQA() {
+    const rows = [['问题', '答案', '附件'], ...state.qaPairs.map((q) => [q.question, q.answer.replace(/<[^>]+>/g, ''), q.attachment || ''])]
+    const csv = '﻿' + rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    downloadFile('智能体问答对.csv', csv, 'text/csv;charset=utf-8')
+    addLog('导出问答对数据', 'CSV')
+    toast('问答对数据已导出')
+  }
+  function exportLogs() {
+    const rows = [['时间', '操作人', '操作', '对象'], ...state.logs.map((l) => [l.time, l.user, l.action, l.target])]
+    const csv = '﻿' + rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    downloadFile('智能体操作日志.csv', csv, 'text/csv;charset=utf-8')
+    toast('操作日志已导出')
+  }
+
+  renderCore()
+  renderQaList()
+  renderQaEditor()
+})()
+</script>
+</body>
+</html>

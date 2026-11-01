@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教学管理 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+/* ===== CourseFunction.vue（fn=teach 外壳，选择器加 .cf-page 前缀） ===== */
+.cf-page .cf-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.cf-page .cf-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  flex: none;
+}
+.cf-page .cf-info { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 180px; }
+.cf-page .cf-info strong { font-size: 12.5px; color: var(--ink-2); font-weight: 650; }
+.cf-page .cf-info span { font-size: 10px; color: var(--muted); }
+.cf-page .cf-back { flex: none; height: 30px; }
+.cf-page .breadcrumb { display: none; }
+
+/* ===== TeachingManage.vue scoped（选择器加 .tm-page 前缀） ===== */
+.tm-page .tm-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.tm-page .tm-tabs button {
+  height: 36px; padding: 0 14px;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: #fff; font-size: 11.5px;
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--ink-2); cursor: pointer;
+}
+.tm-page .tm-tabs button.active { background: var(--violet); border-color: transparent; color: #fff; }
+
+.tm-page .tm-head-actions { display: flex; align-items: center; gap: 8px; }
+.tm-page .tm-stage-bar { display: flex; gap: 6px; margin-bottom: 12px; }
+.tm-page .tm-stage-bar button {
+  flex: 1; height: 34px;
+  border: 1px solid var(--line); border-radius: 9px;
+  background: #fff; font-size: 11.5px;
+  cursor: pointer; color: var(--muted); transition: 0.15s;
+}
+.tm-page .tm-stage-bar button.active { background: rgba(109, 91, 246, 0.08); border-color: var(--violet); color: var(--violet); font-weight: 600; }
+
+.tm-page .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.tm-page .plan-field { display: flex; flex-direction: column; gap: 5px; }
+.tm-page .plan-field.wide { grid-column: span 2; }
+.tm-page .plan-field > span { font-size: 10.5px; color: var(--muted); font-weight: 600; }
+.tm-page .plan-field input, .tm-page .plan-field select, .tm-page .plan-field textarea {
+  width: 100%;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: #fff; font-size: 11.5px; color: var(--ink-2);
+  outline: none; font-family: inherit;
+}
+.tm-page .plan-field input, .tm-page .plan-field select { height: 32px; padding: 0 10px; }
+.tm-page .plan-field textarea { padding: 8px 10px; line-height: 1.7; resize: vertical; }
+.tm-page .plan-field input:focus, .tm-page .plan-field select:focus, .tm-page .plan-field textarea:focus {
+  border-color: rgba(109, 91, 246, 0.55); box-shadow: 0 0 0 2px rgba(109, 91, 246, 0.1);
+}
+
+.tm-page .tm-activities { display: flex; flex-direction: column; gap: 8px; }
+.tm-page .tm-activity {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff;
+}
+.tm-page .tm-activity.draft { opacity: 0.72; border-style: dashed; }
+.tm-page .tm-act-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  display: grid; place-items: center; color: #fff; flex: none;
+}
+.tm-page .tm-act-icon.作业 { background: #e0762f; }
+.tm-page .tm-act-icon.考试 { background: #d64550; }
+.tm-page .tm-act-icon.讨论 { background: #0f9d8f; }
+.tm-page .tm-act-icon.投票 { background: #2f6bff; }
+.tm-page .tm-act-icon.抢答 { background: #e0762f; }
+.tm-page .tm-act-icon.随堂测验 { background: #6d5bf6; }
+.tm-page .tm-act-icon.课堂活动 { background: #1fb6c9; }
+.tm-page .tm-act-main { flex: 1; min-width: 0; }
+.tm-page .tm-act-meta { display: flex; gap: 6px; margin-top: 4px; }
+.tm-page .tm-weight {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 8px; border-radius: 7px;
+  background: rgba(224, 118, 47, 0.07); color: var(--amber);
+  font-size: 10.5px; flex: none;
+}
+.tm-page .tm-weight input {
+  width: 44px; height: 22px;
+  border: 1px solid rgba(224, 118, 47, 0.3); border-radius: 5px;
+  background: #fff; font-size: 11px; text-align: center;
+  color: var(--amber); font-family: var(--num); outline: none;
+}
+.tm-page .tm-mini-btn {
+  height: 26px; padding: 0 9px; flex: none;
+  border: 1px solid var(--line); border-radius: 6px;
+  background: #fff; font-size: 10px; color: var(--ink-2); cursor: pointer;
+}
+.tm-page .tm-mini-btn:hover { border-color: var(--violet); color: var(--violet); }
+.tm-page .tm-mini {
+  width: 26px; height: 26px; border: 0; border-radius: 6px; flex: none;
+  background: transparent; color: var(--muted-2);
+  display: grid; place-items: center; cursor: pointer;
+}
+.tm-page .tm-mini.danger:hover { background: rgba(214, 69, 80, 0.1); color: var(--red); }
+.tm-page .tm-empty { padding: 18px; text-align: center; font-size: 11px; color: var(--muted); }
+
+.tm-page .hidden-input { display: none; }
+.tm-page .ppt-layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 14px; }
+.tm-page .ppt-side { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.tm-page .ppt-decks { display: flex; flex-direction: column; gap: 5px; }
+.tm-page .ppt-deck {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px;
+  background: #fff; font-size: 10.5px; color: var(--ink-2);
+  cursor: pointer; transition: 0.12s; text-align: left;
+}
+.tm-page .ppt-deck span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tm-page .ppt-deck em { font-style: normal; font-size: 9px; color: var(--muted); font-family: var(--num); }
+.tm-page .ppt-deck.active { border-color: var(--violet); background: rgba(109, 91, 246, 0.07); color: var(--violet); }
+.tm-page .ppt-pages { display: flex; flex-direction: column; gap: 5px; max-height: 360px; overflow-y: auto; }
+.tm-page .ppt-page {
+  position: relative;
+  display: flex; flex-direction: column; gap: 2px; align-items: flex-start;
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: #fff; cursor: pointer; transition: 0.12s; text-align: left;
+}
+.tm-page .ppt-page.active { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(109, 91, 246, 0.12); }
+.tm-page .ppt-page.bound::after {
+  content: ''; position: absolute; top: 8px; right: 8px;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+}
+.tm-page .ppt-page-title {
+  font-size: 10.5px; font-weight: 600; color: var(--ink-2);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+}
+.tm-page .ppt-page-no { font-size: 9px; color: var(--muted); font-family: var(--num); }
+
+.tm-page .ppt-detail { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.tm-page .ppt-preview { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+.tm-page .ppt-preview-head {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 12px; font-size: 11px; color: var(--violet); font-weight: 600;
+  border-bottom: 1px solid var(--line); background: rgba(109, 91, 246, 0.04);
+}
+.tm-page .ppt-slide { padding: 18px 22px; background: linear-gradient(135deg, #f0f3ff, #fff); }
+.tm-page .ppt-slide-title { font-size: 16px; font-weight: 700; color: #1a2b4a; margin-bottom: 8px; }
+.tm-page .ppt-slide-bullets { font-size: 11px; line-height: 2; color: #334; }
+.tm-page .ppt-pager { display: flex; justify-content: center; gap: 8px; padding: 10px; border-top: 1px solid var(--line); }
+.tm-page .ppt-pager button {
+  height: 28px; padding: 0 11px; border: 1px solid var(--line); border-radius: 7px;
+  background: #fff; font-size: 10.5px; color: var(--ink-2);
+  display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
+}
+.tm-page .ppt-pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.tm-page .ppt-bind { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tm-page .ppt-bind-block { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: #fff; }
+.tm-page .ppt-bind-title {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 650; color: var(--ink-2); margin-bottom: 8px;
+}
+.tm-page .ppt-bind-title svg { color: var(--violet); }
+.tm-page .ppt-add-row { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.tm-page .ppt-add-row select, .tm-page .ppt-add-row input {
+  height: 30px; padding: 0 9px;
+  border: 1px solid var(--line); border-radius: 7px;
+  font-size: 11px; color: var(--ink-2); background: #fff; outline: none;
+  font-family: inherit;
+}
+.tm-page .ppt-add-row input { flex: 1; min-width: 120px; }
+.tm-page .ppt-add-row .btn { height: 30px; }
+.tm-page .ppt-bind-list { display: flex; flex-direction: column; gap: 5px; max-height: 150px; overflow-y: auto; }
+.tm-page .ppt-bind-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 9px; border-radius: 7px;
+  background: rgba(47, 107, 255, 0.05); border: 1px solid rgba(47, 107, 255, 0.12);
+  font-size: 10.5px; color: var(--ink-2);
+}
+.tm-page .ppt-bind-item svg { flex: none; color: var(--blue); }
+.tm-page .ppt-bind-item span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tm-page .ppt-bind-item button {
+  width: 20px; height: 20px; border: 0; border-radius: 5px; flex: none;
+  background: transparent; color: var(--muted-2);
+  display: grid; place-items: center; cursor: pointer;
+}
+.tm-page .ppt-bind-item button:hover { background: rgba(214, 69, 80, 0.1); color: var(--red); }
+.tm-page .ppt-bind-empty { padding: 10px; text-align: center; font-size: 10px; color: var(--muted); }
+
+/* 教学班切换与章节配置 */
+.tm-page .class-bar {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  padding: 8px 10px; margin-bottom: 10px;
+  border-radius: 10px; background: rgba(24, 42, 80, 0.035);
+}
+.tm-page .class-bar-label {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; color: var(--muted); font-weight: 600; margin-right: 2px;
+}
+.tm-page .class-chip {
+  height: 28px; padding: 0 11px;
+  border: 1px solid var(--line); border-radius: 7px;
+  background: #fff; font-size: 10.5px; color: var(--ink-2);
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.12s;
+}
+.tm-page .class-chip em { font-style: normal; font-size: 9px; color: var(--muted); font-family: var(--num); }
+.tm-page .class-chip:hover { border-color: rgba(109, 91, 246, 0.5); }
+.tm-page .class-chip.active { background: var(--violet); border-color: transparent; color: #fff; }
+.tm-page .class-chip.active em { color: rgba(255, 255, 255, 0.75); }
+
+.tm-page .class-summary {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; flex-wrap: wrap; margin-bottom: 10px;
+  font-size: 10.5px; color: var(--muted);
+}
+.tm-page .class-summary b { color: var(--ink-2); }
+.tm-page .summary-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.tm-page .chapter-modes { display: flex; flex-direction: column; gap: 8px; }
+.tm-page .chapter-block {
+  border: 1px solid var(--line); border-radius: 10px; background: #fff;
+  overflow: hidden; transition: 0.15s;
+}
+.tm-page .chapter-block.expanded { border-color: rgba(109, 91, 246, 0.4); box-shadow: 0 4px 14px rgba(28, 44, 80, 0.06); }
+.tm-page .chapter-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 10px 12px; flex-wrap: wrap;
+}
+.tm-page .chapter-no {
+  width: 22px; height: 22px; border-radius: 6px; flex: none;
+  display: grid; place-items: center;
+  background: rgba(109, 91, 246, 0.1); color: var(--violet);
+  font-family: var(--num); font-size: 10px; font-weight: 700;
+}
+.tm-page .chapter-detail {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 10px 12px 12px; border-top: 1px dashed var(--line);
+  background: rgba(109, 91, 246, 0.025);
+}
+.tm-page .detail-item { display: flex; align-items: center; gap: 7px; }
+.tm-page .detail-item.grow { flex: 1; min-width: 240px; }
+.tm-page .detail-item label {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; color: var(--muted); font-weight: 600; white-space: nowrap;
+}
+.tm-page .detail-item input, .tm-page .detail-item select {
+  height: 28px; padding: 0 8px;
+  border: 1px solid var(--line); border-radius: 7px;
+  background: #fff; font-size: 10.5px; color: var(--ink-2);
+  font-family: inherit; outline: none;
+}
+.tm-page .detail-item input[type='number'] { width: 64px; }
+.tm-page .detail-item input:focus, .tm-page .detail-item select:focus { border-color: rgba(109, 91, 246, 0.55); }
+.tm-page .content-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+.tm-page .content-chips button {
+  height: 26px; padding: 0 10px;
+  border: 1px dashed var(--line); border-radius: 6px;
+  background: #fff; font-size: 10px; color: var(--muted-2);
+  cursor: pointer; transition: 0.12s;
+}
+.tm-page .content-chips button.on {
+  border-style: solid; border-color: rgba(15, 157, 143, 0.45);
+  background: rgba(15, 157, 143, 0.08); color: var(--green); font-weight: 600;
+}
+
+.tm-page .mode-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.tm-page .mode-legend-item { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--muted); }
+.tm-page .mode-legend-item strong { color: var(--ink-2); font-weight: 600; }
+.tm-page .mode-dot { width: 8px; height: 8px; border-radius: 50%; }
+.tm-page .mode-dot.open { background: #0f9d8f; }
+.tm-page .mode-dot.scheduled { background: #2f6bff; }
+.tm-page .mode-dot.progressive { background: #6d5bf6; }
+.tm-page .mode-dot.hidden { background: #8c98ab; }
+.tm-page .mode-dot.review { background: #e0762f; }
+
+.tm-page .chapter-info { display: flex; align-items: center; gap: 8px; min-width: 280px; flex-wrap: wrap; }
+.tm-page .chapter-info strong { font-size: 12px; font-weight: 620; }
+.tm-page .chapter-info .tag { flex: none; }
+.tm-page .chapter-mode-picker { display: flex; gap: 5px; flex-wrap: wrap; }
+.tm-page .mode-chip {
+  height: 26px; padding: 0 10px; border-radius: 6px; border: 1px solid var(--line);
+  background: #fff; font-size: 10px; color: var(--muted); cursor: pointer; transition: 0.12s;
+}
+.tm-page .mode-chip.active { color: #fff; border-color: transparent; }
+.tm-page .mode-chip.active.open { background: #0f9d8f; }
+.tm-page .mode-chip.active.scheduled { background: #2f6bff; }
+.tm-page .mode-chip.active.progressive { background: #6d5bf6; }
+.tm-page .mode-chip.active.hidden { background: #8c98ab; }
+.tm-page .mode-chip.active.review { background: #e0762f; }
+
+.tm-page .task-progress { padding: 12px; border-radius: 10px; background: rgba(24, 42, 80, 0.03); margin-bottom: 12px; }
+.tm-page .task-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.tm-page .task-stat-grid > div { padding: 8px 10px; border-radius: 8px; background: #fff; border: 1px solid var(--line); }
+.tm-page .task-stat-grid span { display: block; font-size: 10px; color: var(--muted); }
+.tm-page .task-stat-grid strong {
+  display: block; margin-top: 3px;
+  font-family: var(--num); font-size: 19px; color: var(--ink-2); font-weight: 650;
+}
+.tm-page .task-stat-grid strong small { font-size: 10px; color: var(--muted); margin-left: 2px; font-weight: 500; }
+.tm-page .task-stat-grid strong.green { color: var(--green); }
+.tm-page .task-stat-grid strong.amber { color: var(--amber); }
+.tm-page .task-progress-bar { height: 6px; margin-top: 10px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.tm-page .bar-fill { height: 100%; background: linear-gradient(90deg, #0f9d8f, #2f6bff); border-radius: 3px; transition: width 0.3s; }
+.tm-page .task-tip { margin: 8px 0 0; font-size: 10px; color: var(--muted); }
+
+.tm-page .task-groups { display: flex; flex-direction: column; gap: 10px; }
+.tm-page .task-group { border: 1px solid var(--line); border-radius: 10px; background: #fff; overflow: hidden; }
+.tm-page .task-group-head {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 9px 12px; background: rgba(24, 42, 80, 0.03); border-bottom: 1px solid var(--line);
+  font-size: 10.5px; color: var(--muted);
+}
+.tm-page .task-group-title {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11.5px; font-weight: 650; color: var(--ink-2);
+}
+.tm-page .task-group-title svg { color: var(--violet); }
+.tm-page .task-group .task-row { border-radius: 0; border-bottom: 1px dashed rgba(30, 45, 75, 0.06); cursor: default; }
+.tm-page .task-group .task-row:last-child { border-bottom: 0; }
+.tm-page .task-group .task-row:hover { background: rgba(47, 107, 255, 0.03); }
+.tm-page .task-row { display: flex; align-items: center; gap: 10px; padding: 9px 10px; transition: 0.12s; }
+.tm-page .task-icon {
+  width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; color: #fff; flex: none;
+}
+.tm-page .task-icon.video { background: #6d5bf6; }
+.tm-page .task-icon.book { background: #0f9d8f; }
+.tm-page .task-icon.homework { background: #e0762f; }
+.tm-page .task-icon.quiz { background: #2f6bff; }
+.tm-page .task-icon.discuss { background: #22a6c9; }
+.tm-page .task-info { flex: 1; min-width: 0; }
+.tm-page .task-info strong { display: block; font-size: 11.5px; font-weight: 620; }
+.tm-page .task-info span { font-size: 10px; color: var(--muted); }
+.tm-page .task-student-state {
+  flex: none; padding: 3px 8px; border-radius: 5px;
+  font-size: 9.5px; color: var(--muted-2); background: rgba(24, 42, 80, 0.04);
+}
+.tm-page .task-student-state.on { color: var(--green); background: rgba(15, 157, 143, 0.09); }
+.tm-page .task-toggle {
+  flex: none; height: 27px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: 7px;
+  background: #fff; font-size: 10px; color: var(--muted);
+  display: inline-flex; align-items: center; gap: 5px; cursor: pointer; transition: 0.12s;
+}
+.tm-page .task-toggle-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #c3cbd6; transition: 0.12s;
+}
+.tm-page .task-toggle:hover { border-color: rgba(15, 157, 143, 0.5); color: var(--green); }
+.tm-page .task-toggle.on {
+  border-color: rgba(15, 157, 143, 0.45);
+  background: rgba(15, 157, 143, 0.08); color: var(--green); font-weight: 600;
+}
+.tm-page .task-toggle.on .task-toggle-dot { background: var(--green); }
+
+/* student */
+.tm-page .student-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+.tm-page .student-kpi div { padding: 12px; border-radius: 10px; background: rgba(47,107,255,0.05); text-align: center; }
+.tm-page .student-kpi span { display: block; font-size: 10px; color: var(--muted); }
+.tm-page .student-kpi strong { font-family: var(--num); font-size: 22px; color: var(--ink-2); display: block; margin-top: 4px; }
+.tm-page .student-kpi strong small { font-size: 10px; color: var(--muted); margin-left: 2px; font-weight: 500; }
+.tm-page .student-kpi strong.green { color: var(--green); }
+.tm-page .student-kpi strong.amber { color: var(--amber); }
+
+.tm-page .stu-progress { padding: 10px 12px; border-radius: 10px; background: rgba(24, 42, 80, 0.03); margin-bottom: 14px; }
+.tm-page .stu-progress-head { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted); }
+.tm-page .stu-progress-head span:last-child { font-family: var(--num); color: var(--ink-2); }
+.tm-page .stu-groups { display: flex; flex-direction: column; gap: 10px; }
+.tm-page .stu-group { border: 1px solid var(--line); border-radius: 10px; background: #fff; overflow: hidden; }
+.tm-page .stu-group-head {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 9px 11px; background: rgba(24, 42, 80, 0.03); border-bottom: 1px solid var(--line);
+}
+.tm-page .stu-group-head > svg { color: var(--violet); flex: none; }
+.tm-page .stu-group-title { flex: 1; min-width: 0; font-size: 11.5px; font-weight: 650; color: var(--ink-2); }
+.tm-page .stu-group-count { font-size: 9.5px; color: var(--violet); background: rgba(109,91,246,0.09); padding: 2px 8px; border-radius: 5px; }
+.tm-page .stu-task {
+  display: flex; align-items: center; gap: 8px; padding: 9px 11px;
+  font-size: 11px; color: var(--ink-2); cursor: pointer; transition: 0.12s;
+  border-bottom: 1px dashed rgba(30, 45, 75, 0.06);
+}
+.tm-page .stu-task:last-child { border-bottom: 0; }
+.tm-page .stu-task:hover { background: rgba(47, 107, 255, 0.04); }
+.tm-page .stu-task.done { opacity: 0.55; }
+.tm-page .stu-task.done .stu-task-title { text-decoration: line-through; }
+.tm-page .stu-task.locked { cursor: not-allowed; opacity: 0.45; }
+.tm-page .stu-task .done { color: var(--green); flex: none; display: inline-flex; }
+.tm-page .stu-task .muted-ic { color: var(--muted); flex: none; display: inline-flex; }
+.tm-page .stu-task-title { flex: 1; min-width: 0; }
+
+/* 发布活动弹窗 */
+.tm-page .tm-mask {
+  position: fixed; inset: 0; z-index: 90;
+  background: rgba(6, 14, 30, 0.55); backdrop-filter: blur(3px);
+  display: grid; place-items: center; padding: 24px;
+}
+.tm-page .tm-dialog {
+  width: min(520px, 100%);
+  border-radius: 14px; background: #fff;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+}
+.tm-page .tm-dialog-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 16px; border-bottom: 1px solid var(--line);
+  font-size: 13px; color: var(--ink-2);
+}
+.tm-page .tm-dialog-head strong { display: inline-flex; align-items: center; gap: 6px; color: var(--violet); }
+.tm-page .tm-dialog-head button { border: 0; background: transparent; color: var(--muted-2); cursor: pointer; }
+.tm-page .tm-dialog-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.tm-page .tm-dialog-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.tm-page .tm-dialog-grid.two { grid-template-columns: 1fr 1fr; }
+.tm-page .tm-dialog-foot {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 12px 16px; border-top: 1px solid var(--line);
+}
+.tm-page .tm-dialog-foot .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+@media (max-width: 1100px) {
+  .tm-page .ppt-layout { grid-template-columns: 1fr; }
+  .tm-page .ppt-bind { grid-template-columns: 1fr; }
+  .tm-page .plan-grid { grid-template-columns: 1fr; }
+  .tm-page .plan-field.wide { grid-column: span 1; }
+  .tm-page .task-stat-grid, .tm-page .student-kpi { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body data-platform="course" data-module="teaching">
+<main class="content"><div class="page cf-page">
+  <!-- 顶部课程条（CourseFunction fn=teach） -->
+  <div class="panel cf-bar" id="cfBar"></div>
+
+  <div class="page tm-page">
+    <div class="page-head module-head">
+      <div>
+        <div class="breadcrumb">
+          <a href="portal.html">首页</a><span>/</span>
+          <a href="platform.html?p=course">智慧课程</a><span>/</span>
+          <span>教学管理</span>
+        </div>
+        <div class="module-title-row">
+          <h1 class="page-title">教学管理</h1>
+          <span class="tag blue">辅助教学活动 · 权重设置</span>
+          <span class="tag violet">备课教案 · 课前/课中/课后</span>
+          <span class="tag green">教案 PPT · 单页互动与资源</span>
+        </div>
+        <p class="page-desc">发布作业、考试、讨论等活动并设置权重；按课前/课中/课后填写备课教案并插入课堂活动；按教学班配置章节学习模式（开放 / 定时开放 / 逐步解锁 / 隐藏 / 复习）与可见学习内容。</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn" id="btnStudentView"></button>
+      </div>
+    </div>
+
+    <!-- 教师端 -->
+    <div id="teacherView">
+      <div class="tm-tabs" id="tmTabs"></div>
+
+      <!-- Tab 1: 备课教案与课堂活动 -->
+      <div id="tabPlan">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>备课教案 · 按教学环节填写</div>
+            <div class="tm-head-actions">
+              <button class="btn btn-sm" id="btnInsertAct"></button>
+              <button class="btn btn-sm btn-primary" id="btnSavePlan"></button>
+            </div>
+          </div>
+          <div class="tm-stage-bar" id="stageBar"></div>
+          <div class="plan-grid">
+            <label class="plan-field">
+              <span>本环节教学目标</span>
+              <textarea id="planGoals" rows="2"></textarea>
+            </label>
+            <label class="plan-field">
+              <span>重点与难点</span>
+              <textarea id="planKeys" rows="2"></textarea>
+            </label>
+            <label class="plan-field wide">
+              <span>教学设计（教学安排、活动组织、评价方式）</span>
+              <textarea id="planContent" rows="3"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span><span id="actPanelTitle"></span></div>
+            <div class="tm-head-actions">
+              <span class="muted tiny" id="weightInfo"></span>
+              <button class="btn btn-sm btn-primary" id="btnOpenPublish"></button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="tm-activities" id="actList"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>教案 PPT · 基于单页添加互动与资源</div>
+            <div class="tm-head-actions">
+              <span class="muted tiny" id="boundInfo"></span>
+              <button class="btn btn-sm" id="btnPickPpt"></button>
+            </div>
+          </div>
+          <input class="hidden-input" type="file" id="pptInput" accept=".ppt,.pptx">
+          <div class="ppt-layout">
+            <div class="ppt-side">
+              <div class="ppt-decks" id="pptDecks"></div>
+              <div class="ppt-pages" id="pptPages"></div>
+            </div>
+            <div class="ppt-detail" id="pptDetail"></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab 2: 章节学习控制 -->
+      <section class="panel" id="tabMode" style="display:none">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>章节学习控制 · 按教学班配置</div>
+          <div class="tm-head-actions">
+            <span class="tag green" id="copiedTip" style="display:none">已同步到其他班级</span>
+            <button class="btn btn-sm" id="btnCopyClass"></button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="class-bar" id="modeClassBar"></div>
+          <div class="class-summary" id="modeSummary"></div>
+          <div class="mode-legend" id="modeLegend"></div>
+          <div class="chapter-modes" id="chapterModes"></div>
+        </div>
+      </section>
+
+      <!-- Tab 3: 任务驱动 -->
+      <section class="panel" id="tabTask" style="display:none">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>任务驱动式进阶学习</div>
+          <div class="tm-head-actions">
+            <span class="muted tiny" id="taskHeadInfo"></span>
+            <button class="btn btn-sm btn-primary" id="btnAddTask"></button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="class-bar" id="taskClassBar"></div>
+          <div class="task-progress" id="taskProgress"></div>
+          <div class="task-groups" id="taskGroups"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 学生端预览 -->
+    <div class="student-panel panel" id="studentView" style="display:none">
+      <div class="panel-head">
+        <div class="panel-title"><span class="panel-titlebar"></span>学生端 · 课程学习视图</div>
+        <span class="muted tiny" id="stuHeadInfo"></span>
+      </div>
+      <div class="student-body" id="studentBody"></div>
+    </div>
+
+    <!-- 发布活动弹窗 -->
+    <div class="tm-mask" id="publishMask" style="display:none">
+      <div class="tm-dialog">
+        <div class="tm-dialog-head">
+          <strong id="publishDialogTitle"></strong>
+          <button data-close-publish id="publishDialogClose"></button>
+        </div>
+        <div class="tm-dialog-body">
+          <label class="plan-field">
+            <span>活动名称</span>
+            <input id="naTitle" placeholder="如：第3章课后作业">
+          </label>
+          <div class="tm-dialog-grid">
+            <label class="plan-field">
+              <span>活动类型</span>
+              <select id="naType"></select>
+            </label>
+            <label class="plan-field">
+              <span>所属环节</span>
+              <select id="naStage"></select>
+            </label>
+            <label class="plan-field">
+              <span>权重（0-100%）</span>
+              <input id="naWeight" type="number" min="0" max="100">
+            </label>
+          </div>
+        </div>
+        <div class="tm-dialog-foot">
+          <button class="btn" data-close-publish>取消</button>
+          <button class="btn btn-primary" id="btnPublishAct" disabled></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 添加任务点弹窗 -->
+    <div class="tm-mask" id="taskMask" style="display:none">
+      <div class="tm-dialog">
+        <div class="tm-dialog-head">
+          <strong id="taskDialogTitle"></strong>
+          <button data-close-task id="taskDialogClose"></button>
+        </div>
+        <div class="tm-dialog-body">
+          <label class="plan-field">
+            <span>任务名称</span>
+            <input id="ntTitle" placeholder="如：观看：图谱存储方案解析">
+          </label>
+          <div class="tm-dialog-grid two">
+            <label class="plan-field">
+              <span>所属章节</span>
+              <select id="ntChapter"></select>
+            </label>
+            <label class="plan-field">
+              <span>内容类型</span>
+              <select id="ntType"></select>
+            </label>
+          </div>
+          <p class="muted tiny" style="margin: 0">新增后默认为必做任务点，学生完成后待完成数量自动减一。</p>
+        </div>
+        <div class="tm-dialog-foot">
+          <button class="btn" data-close-task>取消</button>
+          <button class="btn btn-primary" id="btnAddTaskConfirm" disabled></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+(function () {
+  const $ = (s, r) => (r || document).querySelector(s)
+  const icon = UI.icon, esc = UI.esc
+
+  /* ===== 顶部课程条（CourseFunction.vue fn=teach） ===== */
+  const course = UI.findCourse(UI.param('id'))
+  $('#cfBar').innerHTML =
+    `<span class="cf-avatar" style="background:${esc(course.cover)}">${esc(course.name.slice(0, 1))}</span>` +
+    `<div class="cf-info"><strong>${esc(course.name)}</strong>` +
+    `<span>${esc(course.code)} · ${esc(course.className)} · ${course.students} 名学生</span></div>` +
+    `<span class="tag blue">教学管理</span>` +
+    `<a class="btn cf-back" href="course-workbench.html?id=${esc(course.id)}">${icon('arrow-left', 13)}返回管理信息</a>`
+
+  const uid = (p) => `${p}${Date.now()}${Math.floor(Math.random() * 1000)}`
+
+  /* ===== 辅助教学活动（TeachingManage.vue） ===== */
+  let tab = 'plan'
+  const stageMeta = [
+    { key: 'before', label: '① 课前' },
+    { key: 'during', label: '② 课中' },
+    { key: 'after', label: '③ 课后' },
+  ]
+  const activityTypes = ['作业', '考试', '讨论', '随堂测验', '投票', '抢答', '课堂活动']
+  let activities = [
+    { id: 'a1', title: '课前预习 · 视频观看', stage: 'before', type: '课堂活动', weight: 10, status: '已发布' },
+    { id: 'a2', title: '课前讨论 · 你眼中的知识图谱', stage: 'before', type: '讨论', weight: 5, status: '已发布' },
+    { id: 'a3', title: '课堂投票 · 哪种实体抽取方式更可靠', stage: 'during', type: '投票', weight: 5, status: '已发布' },
+    { id: 'a4', title: '随堂测验 · 5题', stage: 'during', type: '随堂测验', weight: 20, status: '已发布' },
+    { id: 'a5', title: '课后作业 · 第3章习题', stage: 'after', type: '作业', weight: 30, status: '已发布' },
+    { id: 'a6', title: '章节小测 · 自动批改', stage: 'after', type: '考试', weight: 25, status: '已发布' },
+  ]
+  let planStage = 'before'
+  const totalWeight = () => activities.reduce((s, a) => s + a.weight, 0)
+
+  function actIconName(type) {
+    if (type === '作业') return 'book-open'
+    if (type === '考试') return 'file-text'
+    if (type === '讨论') return 'message-square'
+    if (type === '投票') return 'clipboard-check'
+    if (type === '抢答') return 'zap'
+    if (type === '随堂测验') return 'list-checks'
+    return 'play'
+  }
+
+  /* ===== 备课教案 ===== */
+  const lessonPlans = {
+    before: {
+      goals: '预习知识图谱基本概念，带着问题进入课堂',
+      keyPoints: '实体、关系、属性的定义辨析',
+      content: '发布预习视频与讨论话题，收集学生疑问，课中针对性讲解。',
+    },
+    during: {
+      goals: '完成实体识别与关系抽取的课堂实操',
+      keyPoints: '关系抽取的规则与模型校验流程',
+      content: '结合教案 PPT 讲解核心流程，穿插投票与随堂测验检验掌握情况。',
+    },
+    after: {
+      goals: '巩固图谱构建流程，完成小型图谱作业',
+      keyPoints: '图谱质量评估指标：覆盖率与准确率',
+      content: '布置章节习题与小组作业，安排章节小测自动批改，下周点评。',
+    },
+  }
+  let planSaved = false
+
+  /* ===== 教案 PPT ===== */
+  const decks = SEED.materialData.decks.map((d) => ({ id: d.id, name: d.name, pages: d.pages }))
+  const videos = SEED.materialData.videos
+  const images = SEED.materialData.images
+  let activeDeckId = decks.length ? decks[0].id : ''
+  let activePageIdx = 2
+  const pageBindings = {
+    'd1-2': {
+      interactions: ['课堂提问：实体与属性如何区分？'],
+      resources: [{ name: '知识图谱构建流程.svg', kind: 'image' }],
+    },
+  }
+  const interactionOptions = ['课堂提问', '投票', '小组讨论', '随堂测验', '抢答']
+  let pickedInteraction = interactionOptions[0]
+  let interactionText = ''
+
+  const activeDeck = () => decks.find((d) => d.id === activeDeckId) || decks[0]
+  const pageCount = () => (activeDeck() ? activeDeck().pages.length : 0)
+  const activePage = () => (activeDeck() ? activeDeck().pages[activePageIdx] : undefined)
+  const bindKey = (deckId, idx) => `${deckId}-${idx}`
+  function currentBinding() {
+    const deck = activeDeck()
+    if (!deck) return { interactions: [], resources: [] }
+    const key = bindKey(deck.id, activePageIdx)
+    if (!pageBindings[key]) pageBindings[key] = { interactions: [], resources: [] }
+    return pageBindings[key]
+  }
+
+  function buildUploadedPages(name) {
+    const base = name.replace(/\.(pptx?|PPTX?)$/, '')
+    const topics = ['课程概述', '核心概念', '方法步骤', '案例分析', '常见问题', '课堂练习', '本节小结']
+    return topics.map((topic, i) => ({
+      title: `${base} · ${topic}`,
+      bullets: [
+        `第 ${i + 1} 页：围绕「${topic}」展开`,
+        '关键结论：结合课程大纲与学习目标组织内容',
+        '课堂建议：讲解后插入一道互动测验巩固理解',
+      ],
+    }))
+  }
+
+  /* ===== 章节学习控制 ===== */
+  const teachingClasses = [
+    { id: 'cl1', name: '22级数媒1班', students: 42, term: '2026 秋季' },
+    { id: 'cl2', name: '22级数媒2班', students: 38, term: '2026 秋季' },
+    { id: 'cl3', name: '数字媒体选修班', students: 26, term: '2026 秋季' },
+  ]
+  let activeClassId = 'cl1'
+  const activeClass = () => teachingClasses.find((c) => c.id === activeClassId) || teachingClasses[0]
+
+  const chapterTemplate = [
+    { id: 'c1', title: '第1章 课程导论', mode: 'open', openAt: '', prerequisite: '', reviewLimit: 3, content: { video: true, ppt: true, quiz: true, homework: true, discuss: true } },
+    { id: 'c2', title: '第2章 基础知识', mode: 'progressive', openAt: '', prerequisite: 'c1', reviewLimit: 3, content: { video: true, ppt: true, quiz: true, homework: true, discuss: false } },
+    { id: 'c3', title: '第3章 知识图谱构建', mode: 'progressive', openAt: '', prerequisite: 'c2', reviewLimit: 3, content: { video: true, ppt: true, quiz: true, homework: true, discuss: true } },
+    { id: 'c4', title: '第4章 AI 辅助教学', mode: 'scheduled', openAt: '2026-11-15T08:00', prerequisite: '', reviewLimit: 3, content: { video: true, ppt: true, quiz: false, homework: true, discuss: true } },
+    { id: 'c5', title: '第5章 考试与评价', mode: 'review', openAt: '', prerequisite: '', reviewLimit: 2, content: { video: true, ppt: true, quiz: true, homework: false, discuss: false } },
+    { id: 'c6', title: '补充材料（暂不开放）', mode: 'hidden', openAt: '', prerequisite: '', reviewLimit: 3, content: { video: true, ppt: false, quiz: false, homework: false, discuss: false } },
+  ]
+  const cloneChapters = () => chapterTemplate.map((c) => ({ ...c, content: { ...c.content } }))
+  const chapterStore = { cl1: cloneChapters(), cl2: cloneChapters(), cl3: cloneChapters() }
+  chapterStore.cl2[2].mode = 'open'
+  chapterStore.cl3[1].mode = 'hidden'
+  chapterStore.cl3[3].mode = 'open'
+  const chapters = () => chapterStore[activeClassId] || []
+
+  const modes = [
+    { key: 'open', label: '开放模式', desc: '学生随时可学' },
+    { key: 'scheduled', label: '定时开放', desc: '到设定时间自动解锁' },
+    { key: 'progressive', label: '逐步解锁', desc: '完成前置章节自动解锁' },
+    { key: 'hidden', label: '隐藏模式', desc: '对学生不可见' },
+    { key: 'review', label: '复习模式', desc: '仅已完成学生可回看' },
+  ]
+  const contentKeys = [
+    { key: 'video', label: '视频' },
+    { key: 'ppt', label: '课件' },
+    { key: 'quiz', label: '测验' },
+    { key: 'homework', label: '作业' },
+    { key: 'discuss', label: '讨论' },
+  ]
+  let expandedChapter = null
+
+  const modeLabel = (mode) => { const m = modes.find((x) => x.key === mode); return m ? m.label : '' }
+  function modeTagClass(mode) {
+    if (mode === 'open') return 'green'
+    if (mode === 'progressive') return 'violet'
+    if (mode === 'review') return 'amber'
+    return 'gray'
+  }
+  const enabledContentCount = (c) => contentKeys.filter((k) => c.content[k.key]).length
+  function prerequisiteOptions(c) {
+    const idx = chapters().findIndex((x) => x.id === c.id)
+    return chapters().slice(0, Math.max(0, idx))
+  }
+
+  /* ===== 任务驱动 ===== */
+  const taskTemplate = [
+    { id: 't1', type: '视频', title: '观看：知识图谱构建原理', chapterId: 'c1', required: true, done: true },
+    { id: 't2', type: '视频', title: '观看：实体与关系建模', chapterId: 'c1', required: true, done: true },
+    { id: 't3', type: '图书', title: '阅读：《语义网与本体》第3章', chapterId: 'c1', required: true, done: true },
+    { id: 't4', type: '测验', title: '章节测验 · 第1章 5题', chapterId: 'c1', required: true, done: false },
+    { id: 't5', type: '视频', title: '观看：向量检索基础', chapterId: 'c2', required: true, done: false },
+    { id: 't6', type: '作业', title: '构建一个小型课程图谱', chapterId: 'c2', required: true, done: false },
+    { id: 't7', type: '测验', title: '章节测验 · 第2章 8题', chapterId: 'c2', required: false, done: false },
+  ]
+  const taskStore = {
+    cl1: taskTemplate.map((t) => ({ ...t })),
+    cl2: taskTemplate.map((t) => ({ ...t })),
+    cl3: taskTemplate.map((t) => ({ ...t })),
+  }
+  const taskTypes = ['视频', '图书', '作业', '测验', '讨论']
+  const tasks = () => taskStore[activeClassId] || []
+  const requiredTasks = () => tasks().filter((t) => t.required)
+  const taskDoneCount = () => requiredTasks().filter((t) => t.done).length
+  const taskRemaining = () => requiredTasks().filter((t) => !t.done).length
+  const taskPercent = () => (requiredTasks().length ? Math.round((taskDoneCount() / requiredTasks().length) * 100) : 0)
+  const chapterTitle = (id) => { const c = chapters().find((x) => x.id === id); return c ? c.title : id }
+  const chapterTaskGroups = () =>
+    chapters().map((c) => ({ chapter: c, tasks: tasks().filter((t) => t.chapterId === c.id) })).filter((g) => g.tasks.length)
+  const groupRequiredCount = (list) => list.filter((t) => t.required).length
+  const groupDoneCount = (list) => list.filter((t) => t.required && t.done).length
+  function taskTypeClass(t) {
+    if (t.type === '视频') return 'video'
+    if (t.type === '图书') return 'book'
+    if (t.type === '作业') return 'homework'
+    if (t.type === '讨论') return 'discuss'
+    return 'quiz'
+  }
+  function taskIconName(t) {
+    if (t.type === '图书') return 'book-open'
+    if (t.type === '作业') return 'file-text'
+    if (t.type === '测验') return 'list-checks'
+    if (t.type === '讨论') return 'message-square'
+    return 'play'
+  }
+
+  /* ===== 学生端预览 ===== */
+  let showStudent = false
+
+  /* ================= 渲染 ================= */
+  function renderStudentBtn() {
+    $('#btnStudentView').innerHTML = `${icon('users', 15)}${showStudent ? '返回教师端' : '学生端预览'}`
+  }
+
+  function renderTabs() {
+    const tabs = [
+      { k: 'plan', label: '备课教案与课堂活动', ic: 'file-text' },
+      { k: 'mode', label: '章节学习控制', ic: 'settings' },
+      { k: 'task', label: '任务驱动编排', ic: 'list-checks' },
+    ]
+    $('#tmTabs').innerHTML = tabs
+      .map((t) => `<button class="${tab === t.k ? 'active' : ''}" data-tab="${t.k}">${icon(t.ic, 14)}${t.label}</button>`)
+      .join('')
+    $('#tabPlan').style.display = tab === 'plan' ? '' : 'none'
+    $('#tabMode').style.display = tab === 'mode' ? '' : 'none'
+    $('#tabTask').style.display = tab === 'task' ? '' : 'none'
+    if (tab === 'mode') renderModeTab()
+    if (tab === 'task') renderTaskTab()
+  }
+
+  /* ----- Tab1: 备课教案与课堂活动 ----- */
+  function renderStageBar() {
+    $('#stageBar').innerHTML = stageMeta
+      .map((s) => `<button class="${planStage === s.key ? 'active' : ''}" data-stage="${s.key}">${s.label}</button>`)
+      .join('')
+  }
+  function syncPlanFields() {
+    $('#planGoals').value = lessonPlans[planStage].goals
+    $('#planKeys').value = lessonPlans[planStage].keyPoints
+    $('#planContent').value = lessonPlans[planStage].content
+  }
+  function renderSaveBtn() {
+    $('#btnSavePlan').innerHTML = `${icon(planSaved ? 'circle-check' : 'save', 13)}${planSaved ? '已保存' : '保存教案'}`
+  }
+  function renderActivities() {
+    const stageLabel = stageMeta.find((s) => s.key === planStage).label.slice(2)
+    $('#actPanelTitle').textContent = `辅助教学活动 · ${stageLabel}环节`
+    $('#weightInfo').textContent = `权重合计 ${totalWeight()}%（作业 / 考试 / 测验计入成绩）`
+    const list = activities.filter((a) => a.stage === planStage)
+    $('#actList').innerHTML = list.length
+      ? list
+          .map(
+            (a) => `
+      <div class="tm-activity${a.status === '草稿' ? ' draft' : ''}">
+        <div class="tm-act-icon ${a.type}">${icon(actIconName(a.type), 16)}</div>
+        <div class="tm-act-main">
+          <strong>${esc(a.title)}</strong>
+          <div class="tm-act-meta">
+            <span class="tag gray">${a.type}</span>
+            <span class="tag ${a.status === '已发布' ? 'green' : 'violet'}">${a.status}</span>
+          </div>
+        </div>
+        <div class="tm-weight">${icon('chart-pie', 12)}<input type="number" min="0" max="100" value="${a.weight}" data-weight="${a.id}"><span>%</span></div>
+        <button class="tm-mini-btn" data-toggle-status="${a.id}">${a.status === '已发布' ? '转为草稿' : '发布'}</button>
+        <button class="tm-mini danger" title="删除" data-del-act="${a.id}">${icon('trash-2', 13)}</button>
+      </div>`,
+          )
+          .join('')
+      : '<div class="tm-empty">当前环节暂无活动，点击「发布活动」或「插入课堂活动」添加。</div>'
+  }
+
+  /* ----- 教案 PPT ----- */
+  function renderDecks() {
+    $('#pptDecks').innerHTML = decks
+      .map(
+        (d) => `
+      <button class="ppt-deck${activeDeck() && activeDeck().id === d.id ? ' active' : ''}" data-deck="${d.id}">
+        ${icon('file-text', 13)}<span>${esc(d.name)}</span><em>${d.pages.length} 页</em>
+      </button>`,
+      )
+      .join('')
+  }
+  function renderPages() {
+    const deck = activeDeck()
+    $('#pptPages').innerHTML = deck
+      ? deck.pages
+          .map(
+            (p, i) => `
+      <button class="ppt-page${i === activePageIdx ? ' active' : ''}${pageBindings[bindKey(deck.id, i)] ? ' bound' : ''}" title="${esc(p.title)}" data-page="${i}">
+        <span class="ppt-page-title">${esc(p.title)}</span>
+        <span class="ppt-page-no">第 ${i + 1} 页</span>
+      </button>`,
+          )
+          .join('')
+      : ''
+    $('#boundInfo').textContent = `已配置 ${Object.keys(pageBindings).length} 页`
+  }
+  function renderPptDetail() {
+    const deck = activeDeck()
+    const page = activePage()
+    if (!deck || !page) {
+      $('#pptDetail').innerHTML = ''
+      return
+    }
+    const binding = currentBinding()
+    $('#pptDetail').innerHTML = `
+      <div class="ppt-preview">
+        <div class="ppt-preview-head">
+          ${icon('file-text', 14)}
+          <span>${esc(deck.name)}</span>
+          <span class="muted tiny">第 ${activePageIdx + 1} / ${pageCount()} 页</span>
+        </div>
+        <div class="ppt-slide">
+          <div class="ppt-slide-title">${esc(page.title)}</div>
+          <div class="ppt-slide-bullets">${page.bullets.map((b) => `<div>· ${esc(b)}</div>`).join('')}</div>
+        </div>
+        <div class="ppt-pager">
+          <button data-pg="prev"${activePageIdx <= 0 ? ' disabled' : ''}>${icon('chevron-left', 13)}上一页</button>
+          <button data-pg="next"${activePageIdx >= pageCount() - 1 ? ' disabled' : ''}>下一页${icon('chevron-right', 13)}</button>
+        </div>
+      </div>
+      <div class="ppt-bind">
+        <div class="ppt-bind-block">
+          <div class="ppt-bind-title">${icon('zap', 13)}课堂互动（基于第 ${activePageIdx + 1} 页内容）</div>
+          <div class="ppt-add-row">
+            <select id="pickedInteraction">${interactionOptions.map((o) => `<option${o === pickedInteraction ? ' selected' : ''}>${o}</option>`).join('')}</select>
+            <input id="interactionText" placeholder="互动说明，如：围绕本页流程提问" value="${esc(interactionText)}">
+            <button class="btn btn-sm btn-primary" data-add-interaction>${icon('plus', 12)}添加</button>
+          </div>
+          <div class="ppt-bind-list">
+            ${
+              binding.interactions.length
+                ? binding.interactions
+                    .map(
+                      (it, i) => `
+            <div class="ppt-bind-item">${icon('zap', 12)}<span>${esc(it)}</span><button data-del-interaction="${i}">${icon('x', 12)}</button></div>`,
+                    )
+                    .join('')
+                : '<div class="ppt-bind-empty">尚未添加互动</div>'
+            }
+          </div>
+        </div>
+        <div class="ppt-bind-block">
+          <div class="ppt-bind-title">${icon('link-2', 13)}关联资源（随本页展示）</div>
+          <div class="ppt-add-row">
+            <button class="btn btn-sm" data-add-resource="video">${icon('film', 12)}添加视频资源</button>
+            <button class="btn btn-sm" data-add-resource="image">${icon('image', 12)}添加图片资源</button>
+          </div>
+          <div class="ppt-bind-list">
+            ${
+              binding.resources.length
+                ? binding.resources
+                    .map(
+                      (r, i) => `
+            <div class="ppt-bind-item">${icon(r.kind === 'video' ? 'film' : 'image', 12)}<span>${esc(r.name)}</span><button data-del-resource="${i}">${icon('x', 12)}</button></div>`,
+                    )
+                    .join('')
+                : '<div class="ppt-bind-empty">尚未关联资源</div>'
+            }
+          </div>
+        </div>
+      </div>`
+  }
+
+  /* ----- Tab2: 章节学习控制 ----- */
+  function classBarHtml() {
+    return (
+      `<span class="class-bar-label">${icon('users', 13)}教学班</span>` +
+      teachingClasses
+        .map(
+          (cl) =>
+            `<button class="class-chip${activeClassId === cl.id ? ' active' : ''}" data-class="${cl.id}">${cl.name}<em>${cl.students} 人</em></button>`,
+        )
+        .join('')
+    )
+  }
+  function renderModeLegend() {
+    $('#modeLegend').innerHTML = modes
+      .map(
+        (m) => `
+      <div class="mode-legend-item">
+        <span class="mode-dot ${m.key}"></span>
+        <span><strong>${m.label}</strong> · ${m.desc}</span>
+      </div>`,
+      )
+      .join('')
+  }
+  function renderModeTab() {
+    $('#modeClassBar').innerHTML = classBarHtml()
+    const list = chapters()
+    const stats = {
+      total: list.length,
+      open: list.filter((c) => c.mode !== 'hidden').length,
+      hidden: list.filter((c) => c.mode === 'hidden').length,
+      progressive: list.filter((c) => c.mode === 'progressive').length,
+      scheduled: list.filter((c) => c.mode === 'scheduled').length,
+      review: list.filter((c) => c.mode === 'review').length,
+    }
+    $('#modeSummary').innerHTML =
+      `<span>当前：<b>${activeClass().name}</b> · ${activeClass().term}</span>` +
+      `<div class="summary-tags">` +
+      `<span class="tag gray">共 ${stats.total} 章</span>` +
+      `<span class="tag green">可见 ${stats.open}</span>` +
+      `<span class="tag violet">逐步解锁 ${stats.progressive}</span>` +
+      `<span class="tag gray">定时开放 ${stats.scheduled}</span>` +
+      `<span class="tag amber">复习 ${stats.review}</span>` +
+      `<span class="tag gray">隐藏 ${stats.hidden}</span>` +
+      `</div>`
+    $('#chapterModes').innerHTML = list
+      .map((c, idx) => {
+        let infoExtra = ''
+        if (c.mode === 'scheduled' && c.openAt)
+          infoExtra += `<span class="muted tiny">${icon('clock-3', 11)}${c.openAt.replace('T', ' ')} 开放</span>`
+        if (c.mode === 'progressive' && c.prerequisite) {
+          const pre = list.find((x) => x.id === c.prerequisite)
+          infoExtra += `<span class="muted tiny">${icon('layers', 11)}前置：${pre ? pre.title : ''}</span>`
+        }
+        if (c.mode === 'review') infoExtra += `<span class="muted tiny">可回看 ${c.reviewLimit} 次</span>`
+        infoExtra += `<span class="muted tiny">内容 ${enabledContentCount(c)}/5</span>`
+
+        let detail = ''
+        if (expandedChapter === c.id) {
+          let param = ''
+          if (c.mode === 'scheduled') {
+            param = `<div class="detail-item"><label>${icon('clock-3', 12)}定时开放时间</label><input type="datetime-local" value="${esc(c.openAt)}" data-cid="${c.id}" data-cfield="openAt"></div>`
+          } else if (c.mode === 'progressive') {
+            param = `<div class="detail-item"><label>${icon('layers', 12)}前置章节</label><select data-cid="${c.id}" data-cfield="prerequisite"><option value="">无（随课程进度解锁）</option>${prerequisiteOptions(c)
+              .map((p) => `<option value="${p.id}"${c.prerequisite === p.id ? ' selected' : ''}>${p.title}</option>`)
+              .join('')}</select></div>`
+          } else if (c.mode === 'review') {
+            param = `<div class="detail-item"><label>${icon('clock-3', 12)}允许回看次数</label><input type="number" min="1" max="10" value="${c.reviewLimit}" data-cid="${c.id}" data-cfield="reviewLimit"></div>`
+          } else {
+            const m = modes.find((x) => x.key === c.mode)
+            param = `<div class="detail-item"><label>${icon('circle-check', 12)}模式说明</label><span class="muted tiny">${m ? m.desc : ''}</span></div>`
+          }
+          detail =
+            `<div class="chapter-detail">${param}` +
+            `<div class="detail-item grow"><label>${icon('layers', 12)}学习内容</label>` +
+            `<div class="content-chips">${contentKeys
+              .map((k) => `<button class="${c.content[k.key] ? 'on' : ''}" data-content="${c.id}:${k.key}">${k.label}</button>`)
+              .join('')}</div></div></div>`
+        }
+        return `
+      <div class="chapter-block${expandedChapter === c.id ? ' expanded' : ''}">
+        <div class="chapter-row">
+          <div class="chapter-info">
+            <span class="chapter-no">${idx + 1}</span>
+            <strong>${c.title}</strong>
+            <span class="tag ${modeTagClass(c.mode)}">${modeLabel(c.mode)}</span>
+            ${infoExtra}
+          </div>
+          <div class="chapter-mode-picker">
+            ${modes.map((m) => `<button class="mode-chip ${m.key}${c.mode === m.key ? ' active' : ''}" data-mode="${c.id}:${m.key}">${m.label}</button>`).join('')}
+            <button class="tm-mini-btn" data-expand="${c.id}">${expandedChapter === c.id ? '收起' : '详细设置'}</button>
+          </div>
+        </div>
+        ${detail}
+      </div>`
+      })
+      .join('')
+  }
+
+  /* ----- Tab3: 任务驱动 ----- */
+  function renderTaskTab() {
+    $('#taskClassBar').innerHTML = classBarHtml()
+    $('#taskHeadInfo').textContent = `任务点 ${requiredTasks().length} 个 · 学生已完成 ${taskDoneCount()} · 待完成 ${taskRemaining()}`
+    $('#taskProgress').innerHTML = `
+      <div class="task-stat-grid">
+        <div><span>任务点总数</span><strong>${requiredTasks().length}<small> 项</small></strong></div>
+        <div><span>学生已完成</span><strong class="green">${taskDoneCount()}<small> 项</small></strong></div>
+        <div><span>待完成</span><strong class="amber">${taskRemaining()}<small> 项</small></strong></div>
+        <div><span>完成进度</span><strong>${taskPercent()}<small>%</small></strong></div>
+      </div>
+      <div class="task-progress-bar"><div class="bar-fill" style="width:${taskPercent()}%"></div></div>
+      <p class="task-tip">勾选「设为任务点」后学生必须完成；学生每完成一个任务点，待完成数量自动减一。</p>`
+    $('#taskGroups').innerHTML = chapterTaskGroups()
+      .map(
+        (g) => `
+      <div class="task-group">
+        <div class="task-group-head">
+          <span class="task-group-title">${icon('layers', 13)}${g.chapter.title}</span>
+          <span class="tag ${modeTagClass(g.chapter.mode)}">${modeLabel(g.chapter.mode)}</span>
+          <span class="muted tiny">任务点 ${groupRequiredCount(g.tasks)} · 已完成 ${groupDoneCount(g.tasks)}</span>
+        </div>
+        ${g.tasks
+          .map(
+            (t) => `
+        <div class="task-row plain">
+          <div class="task-icon ${taskTypeClass(t)}">${icon(taskIconName(t), 14)}</div>
+          <div class="task-info">
+            <strong>${esc(t.title)}</strong>
+            <span>${t.type} · ${chapterTitle(t.chapterId)}</span>
+          </div>
+          <span class="task-student-state${t.done ? ' on' : ''}">${t.required ? (t.done ? '学生已完成' : '学生未完成') : '未设为任务点'}</span>
+          <button class="task-toggle${t.required ? ' on' : ''}" data-treq="${t.id}">
+            <span class="task-toggle-dot"></span>${t.required ? '已设任务点' : '设为任务点'}
+          </button>
+          <button class="tm-mini danger" title="删除任务" data-tdel="${t.id}">${icon('trash-2', 13)}</button>
+        </div>`,
+          )
+          .join('')}
+      </div>`,
+      )
+      .join('')
+  }
+
+  /* ----- 学生端预览 ----- */
+  function renderStudent() {
+    $('#stuHeadInfo').textContent = `${activeClass().name} · 每完成一个任务点，待完成数量自动减一`
+    $('#studentBody').innerHTML = `
+      <div class="student-kpi">
+        <div><span>全课程任务点</span><strong>${requiredTasks().length}<small> 项</small></strong></div>
+        <div><span>已完成</span><strong class="green">${taskDoneCount()}<small> 项</small></strong></div>
+        <div><span>待完成</span><strong class="amber">${taskRemaining()}<small> 项</small></strong></div>
+        <div><span>课程进度</span><strong>${taskPercent()}<small>%</small></strong></div>
+      </div>
+      <div class="stu-progress">
+        <div class="stu-progress-head">
+          <span>课程学习进度</span>
+          <span>${taskDoneCount()} / ${requiredTasks().length} 个任务点</span>
+        </div>
+        <div class="task-progress-bar"><div class="bar-fill" style="width:${taskPercent()}%"></div></div>
+      </div>
+      <div class="stu-groups">
+        ${chapterTaskGroups()
+          .map(
+            (g) => `
+        <div class="stu-group">
+          <div class="stu-group-head">
+            ${icon('layers', 14)}
+            <span class="stu-group-title">${g.chapter.title}</span>
+            <span class="tag ${modeTagClass(g.chapter.mode)}">${modeLabel(g.chapter.mode)}</span>
+            ${g.chapter.mode === 'scheduled' && g.chapter.openAt ? `<span class="muted tiny">${g.chapter.openAt.replace('T', ' ')} 解锁</span>` : ''}
+            <span class="stu-group-count">任务点 ${groupDoneCount(g.tasks)}/${groupRequiredCount(g.tasks)}</span>
+          </div>
+          ${g.tasks
+            .map((t) => {
+              const locked = !t.required || g.chapter.mode === 'hidden'
+              return `
+          <div class="stu-task${t.done ? ' done' : ''}${locked ? ' locked' : ''}" data-stu-task="${t.id}">
+            ${t.done ? `<span class="done">${icon('circle-check', 16)}</span>` : `<span class="muted-ic">${icon('circle', 16)}</span>`}
+            <span class="stu-task-title">${esc(t.title)}</span>
+            <span class="tag gray">${t.type}</span>
+            ${!t.required ? '<span class="muted tiny">选做</span>' : g.chapter.mode === 'hidden' ? '<span class="muted tiny">未开放</span>' : ''}
+          </div>`
+            })
+            .join('')}
+        </div>`,
+          )
+          .join('')}
+      </div>`
+  }
+
+  /* ================= 事件 ================= */
+  /* 顶部：学生端切换 */
+  $('#btnStudentView').addEventListener('click', () => {
+    showStudent = !showStudent
+    $('#teacherView').style.display = showStudent ? 'none' : ''
+    $('#studentView').style.display = showStudent ? '' : 'none'
+    if (showStudent) renderStudent()
+    renderStudentBtn()
+  })
+
+  /* 页签切换 */
+  $('#tmTabs').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-tab]')
+    if (!b) return
+    tab = b.dataset.tab
+    renderTabs()
+  })
+
+  /* 环节切换 */
+  $('#stageBar').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-stage]')
+    if (!b) return
+    planStage = b.dataset.stage
+    renderStageBar()
+    syncPlanFields()
+    renderActivities()
+  })
+
+  /* 教案输入（不整树重渲染，防丢焦点） */
+  $('#planGoals').addEventListener('input', (e) => (lessonPlans[planStage].goals = e.target.value))
+  $('#planKeys').addEventListener('input', (e) => (lessonPlans[planStage].keyPoints = e.target.value))
+  $('#planContent').addEventListener('input', (e) => (lessonPlans[planStage].content = e.target.value))
+
+  /* 保存教案 */
+  $('#btnSavePlan').addEventListener('click', () => {
+    planSaved = true
+    renderSaveBtn()
+    setTimeout(() => {
+      planSaved = false
+      renderSaveBtn()
+    }, 1800)
+  })
+
+  /* 插入课堂活动 */
+  $('#btnInsertAct').addEventListener('click', () => {
+    const names = {
+      before: '课前活动 · 预习打卡与提问收集',
+      during: '课堂活动 · 分组讨论与成果展示',
+      after: '课后活动 · 拓展阅读与心得分享',
+    }
+    activities.push({ id: uid('a'), title: names[planStage], stage: planStage, type: '课堂活动', weight: 5, status: '草稿' })
+    renderActivities()
+  })
+
+  /* 活动列表交互 */
+  $('#actList').addEventListener('click', (e) => {
+    const ts = e.target.closest('[data-toggle-status]')
+    if (ts) {
+      const a = activities.find((x) => x.id === ts.dataset.toggleStatus)
+      if (a) a.status = a.status === '已发布' ? '草稿' : '已发布'
+      renderActivities()
+      return
+    }
+    const del = e.target.closest('[data-del-act]')
+    if (del) {
+      activities = activities.filter((a) => a.id !== del.dataset.delAct)
+      renderActivities()
+    }
+  })
+  $('#actList').addEventListener('input', (e) => {
+    const inp = e.target.closest('[data-weight]')
+    if (!inp) return
+    const a = activities.find((x) => x.id === inp.dataset.weight)
+    if (a) {
+      a.weight = Number(inp.value) || 0
+      $('#weightInfo').textContent = `权重合计 ${totalWeight()}%（作业 / 考试 / 测验计入成绩）`
+    }
+  })
+
+  /* ----- 发布活动弹窗 ----- */
+  function openPublish() {
+    $('#naTitle').value = ''
+    $('#naType').value = '作业'
+    $('#naStage').value = planStage
+    $('#naWeight').value = 10
+    $('#btnPublishAct').disabled = true
+    $('#publishMask').style.display = ''
+  }
+  function closePublish() {
+    $('#publishMask').style.display = 'none'
+  }
+  $('#btnOpenPublish').addEventListener('click', openPublish)
+  $('#naTitle').addEventListener('input', () => {
+    $('#btnPublishAct').disabled = !$('#naTitle').value.trim()
+  })
+  $('#btnPublishAct').addEventListener('click', () => {
+    const title = $('#naTitle').value.trim()
+    if (!title) return
+    activities.push({
+      id: uid('a'),
+      title,
+      stage: $('#naStage').value,
+      type: $('#naType').value,
+      weight: Math.max(0, Math.min(100, Number($('#naWeight').value) || 0)),
+      status: '已发布',
+    })
+    closePublish()
+    renderActivities()
+  })
+
+  /* ----- 教案 PPT ----- */
+  $('#btnPickPpt').addEventListener('click', () => $('#pptInput').click())
+  $('#pptInput').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0]
+    if (!file) return
+    const deck = { id: uid('d'), name: file.name, pages: buildUploadedPages(file.name) }
+    decks.unshift(deck)
+    activeDeckId = deck.id
+    activePageIdx = 0
+    e.target.value = ''
+    renderDecks()
+    renderPages()
+    renderPptDetail()
+  })
+  $('#pptDecks').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-deck]')
+    if (!b) return
+    activeDeckId = b.dataset.deck
+    activePageIdx = 0
+    renderDecks()
+    renderPages()
+    renderPptDetail()
+  })
+  $('#pptPages').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-page]')
+    if (!b) return
+    activePageIdx = Number(b.dataset.page)
+    renderPages()
+    renderPptDetail()
+  })
+  function addInteraction() {
+    const text = interactionText.trim() || '围绕本页内容展开互动'
+    currentBinding().interactions.push(`${pickedInteraction}：${text}`)
+    interactionText = ''
+    renderPages()
+    renderPptDetail()
+  }
+  function addResource(kind) {
+    const list = kind === 'video' ? videos : images
+    const pool = list.filter((item) => !currentBinding().resources.some((r) => r.name === item.name))
+    const item = pool[0] || list[0]
+    if (!item) return
+    currentBinding().resources.push({ name: item.name, kind })
+    renderPages()
+    renderPptDetail()
+  }
+  $('#pptDetail').addEventListener('click', (e) => {
+    const pg = e.target.closest('[data-pg]')
+    if (pg && !pg.disabled) {
+      activePageIdx = pg.dataset.pg === 'prev' ? Math.max(0, activePageIdx - 1) : Math.min(pageCount() - 1, activePageIdx + 1)
+      renderPages()
+      renderPptDetail()
+      return
+    }
+    if (e.target.closest('[data-add-interaction]')) {
+      addInteraction()
+      return
+    }
+    const di = e.target.closest('[data-del-interaction]')
+    if (di) {
+      currentBinding().interactions.splice(Number(di.dataset.delInteraction), 1)
+      renderPages()
+      renderPptDetail()
+      return
+    }
+    const ar = e.target.closest('[data-add-resource]')
+    if (ar) {
+      addResource(ar.dataset.addResource)
+      return
+    }
+    const dr = e.target.closest('[data-del-resource]')
+    if (dr) {
+      currentBinding().resources.splice(Number(dr.dataset.delResource), 1)
+      renderPages()
+      renderPptDetail()
+    }
+  })
+  $('#pptDetail').addEventListener('input', (e) => {
+    if (e.target.id === 'interactionText') interactionText = e.target.value
+  })
+  $('#pptDetail').addEventListener('change', (e) => {
+    if (e.target.id === 'pickedInteraction') pickedInteraction = e.target.value
+  })
+  $('#pptDetail').addEventListener('keydown', (e) => {
+    if (e.target.id === 'interactionText' && e.key === 'Enter') addInteraction()
+  })
+
+  /* ----- 章节学习控制 ----- */
+  $('#btnCopyClass').addEventListener('click', () => {
+    teachingClasses.forEach((cl) => {
+      if (cl.id === activeClassId) return
+      chapterStore[cl.id] = chapters().map((c) => ({ ...c, content: { ...c.content } }))
+    })
+    $('#copiedTip').style.display = ''
+    setTimeout(() => {
+      $('#copiedTip').style.display = 'none'
+    }, 1600)
+  })
+  $('#modeClassBar').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-class]')
+    if (!b) return
+    activeClassId = b.dataset.class
+    renderModeTab()
+  })
+  $('#chapterModes').addEventListener('click', (e) => {
+    const mb = e.target.closest('[data-mode]')
+    if (mb) {
+      const [cid, mode] = mb.dataset.mode.split(':')
+      const c = chapters().find((x) => x.id === cid)
+      if (c) {
+        c.mode = mode
+        expandedChapter = cid
+        renderModeTab()
+      }
+      return
+    }
+    const ex = e.target.closest('[data-expand]')
+    if (ex) {
+      expandedChapter = expandedChapter === ex.dataset.expand ? null : ex.dataset.expand
+      renderModeTab()
+      return
+    }
+    const cc = e.target.closest('[data-content]')
+    if (cc) {
+      const [cid, key] = cc.dataset.content.split(':')
+      const c = chapters().find((x) => x.id === cid)
+      if (c) {
+        c.content[key] = !c.content[key]
+        renderModeTab()
+      }
+    }
+  })
+  $('#chapterModes').addEventListener('change', (e) => {
+    const t = e.target
+    if (!t.dataset || !t.dataset.cfield) return
+    const c = chapters().find((x) => x.id === t.dataset.cid)
+    if (!c) return
+    if (t.dataset.cfield === 'reviewLimit') c.reviewLimit = Number(t.value) || 1
+    else c[t.dataset.cfield] = t.value
+    renderModeTab()
+  })
+
+  /* ----- 任务驱动 ----- */
+  $('#taskClassBar').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-class]')
+    if (!b) return
+    activeClassId = b.dataset.class
+    renderTaskTab()
+  })
+  $('#taskGroups').addEventListener('click', (e) => {
+    const tr = e.target.closest('[data-treq]')
+    if (tr) {
+      const t = tasks().find((x) => x.id === tr.dataset.treq)
+      if (t) t.required = !t.required
+      renderTaskTab()
+      return
+    }
+    const td = e.target.closest('[data-tdel]')
+    if (td) {
+      taskStore[activeClassId] = tasks().filter((t) => t.id !== td.dataset.tdel)
+      renderTaskTab()
+    }
+  })
+
+  /* 添加任务点弹窗 */
+  function openAddTask() {
+    const list = chapters()
+    $('#ntChapter').innerHTML = list.map((c) => `<option value="${c.id}">${c.title}</option>`).join('')
+    $('#ntChapter').value = list.length ? list[0].id : 'c1'
+    $('#ntType').value = '视频'
+    $('#ntTitle').value = ''
+    $('#btnAddTaskConfirm').disabled = true
+    $('#taskMask').style.display = ''
+  }
+  function closeTaskDialog() {
+    $('#taskMask').style.display = 'none'
+  }
+  $('#btnAddTask').addEventListener('click', openAddTask)
+  $('#ntTitle').addEventListener('input', () => {
+    $('#btnAddTaskConfirm').disabled = !$('#ntTitle').value.trim()
+  })
+  $('#ntTitle').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !$('#btnAddTaskConfirm').disabled) $('#btnAddTaskConfirm').click()
+  })
+  $('#btnAddTaskConfirm').addEventListener('click', () => {
+    const title = $('#ntTitle').value.trim()
+    if (!title) return
+    const list = taskStore[activeClassId]
+    if (!list) return
+    list.push({ id: uid('t'), type: $('#ntType').value, title, chapterId: $('#ntChapter').value, required: true, done: false })
+    closeTaskDialog()
+    renderTaskTab()
+  })
+
+  /* 学生端任务点点击 */
+  $('#studentBody').addEventListener('click', (e) => {
+    const row = e.target.closest('[data-stu-task]')
+    if (!row) return
+    const t = tasks().find((x) => x.id === row.dataset.stuTask)
+    if (!t || !t.required) return
+    const chapter = chapters().find((c) => c.id === t.chapterId)
+    if (chapter && chapter.mode === 'hidden') return
+    t.done = !t.done
+    renderStudent()
+  })
+
+  /* 弹窗遮罩点击关闭 */
+  $('#publishMask').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget || e.target.closest('[data-close-publish]')) closePublish()
+  })
+  $('#taskMask').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget || e.target.closest('[data-close-task]')) closeTaskDialog()
+  })
+
+  /* ================= 初始化 ================= */
+  renderStudentBtn()
+  $('#btnInsertAct').innerHTML = `${icon('plus', 13)}插入课堂活动`
+  renderSaveBtn()
+  $('#btnOpenPublish').innerHTML = `${icon('plus', 13)}发布活动`
+  $('#btnPickPpt').innerHTML = `${icon('upload', 13)}上传教案 PPT`
+  $('#btnCopyClass').innerHTML = `${icon('copy', 13)}配置同步到其他班级`
+  $('#btnAddTask').innerHTML = `${icon('plus', 13)}添加任务点`
+  $('#publishDialogTitle').innerHTML = `${icon('pen-line', 14)}发布课堂活动`
+  $('#publishDialogClose').innerHTML = icon('x', 15)
+  $('#btnPublishAct').innerHTML = `${icon('circle-check', 14)}确认发布`
+  $('#taskDialogTitle').innerHTML = `${icon('list-checks', 14)}添加章节任务点`
+  $('#taskDialogClose').innerHTML = icon('x', 15)
+  $('#btnAddTaskConfirm').innerHTML = `${icon('circle-check', 14)}添加任务点`
+  $('#naType').innerHTML = activityTypes.map((t) => `<option>${t}</option>`).join('')
+  $('#naStage').innerHTML = stageMeta.map((s) => `<option value="${s.key}">${s.label.slice(2)}</option>`).join('')
+  $('#ntType').innerHTML = taskTypes.map((t) => `<option>${t}</option>`).join('')
+
+  renderTabs()
+  renderStageBar()
+  syncPlanFields()
+  renderActivities()
+  renderDecks()
+  renderPages()
+  renderPptDetail()
+  renderModeLegend()
+  renderModeTab()
+  renderTaskTab()
+})()
+</script>
+</body>
+</html>

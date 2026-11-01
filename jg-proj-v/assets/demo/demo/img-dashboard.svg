@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#081426"/>
+      <stop offset="1" stop-color="#102a4f"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg3)"/>
+  <text x="40" y="54" fill="#e8f0ff" font-size="24" font-weight="700" letter-spacing="2">学情数据看板</text>
+  <text x="40" y="78" fill="#7f9bc4" font-size="12">数据更新：2026-10-30 21:00 · 统计范围：22 级数媒 1 班</text>
+
+  <g>
+    <rect x="40" y="98" width="232" height="96" rx="12" fill="#132b4f" stroke="#2a4d80"/>
+    <text x="60" y="126" fill="#8fb4f7" font-size="12">平均学习完成度</text>
+    <text x="60" y="166" fill="#4fd1c5" font-size="34" font-weight="700">82.6%</text>
+    <text x="60" y="186" fill="#6c8ab4" font-size="11">较上周 +4.2%</text>
+
+    <rect x="284" y="98" width="232" height="96" rx="12" fill="#132b4f" stroke="#2a4d80"/>
+    <text x="304" y="126" fill="#8fb4f7" font-size="12">互动测验正确率</text>
+    <text x="304" y="166" fill="#8b7bff" font-size="34" font-weight="700">76.4%</text>
+    <text x="304" y="186" fill="#6c8ab4" font-size="11">已完成 1,236 人次</text>
+
+    <rect x="528" y="98" width="232" height="96" rx="12" fill="#132b4f" stroke="#2a4d80"/>
+    <text x="548" y="126" fill="#8fb4f7" font-size="12">学习预警人数</text>
+    <text x="548" y="166" fill="#f2a35e" font-size="34" font-weight="700">7 人</text>
+    <text x="548" y="186" fill="#6c8ab4" font-size="11">需介入辅导</text>
+  </g>
+
+  <rect x="40" y="212" width="440" height="204" rx="12" fill="#132b4f" stroke="#2a4d80"/>
+  <text x="60" y="240" fill="#cfe0ff" font-size="13" font-weight="600">近 7 天学习时长（小时）</text>
+  <g stroke="#2a4d80" stroke-width="1">
+    <line x1="66" y1="270" x2="66" y2="392"/>
+    <line x1="66" y1="392" x2="460" y2="392"/>
+    <line x1="66" y1="331" x2="460" y2="331" stroke-dasharray="4 4"/>
+    <line x1="66" y1="300" x2="460" y2="300" stroke-dasharray="4 4"/>
+  </g>
+  <g>
+    <rect x="84" y="342" width="34" height="50" rx="4" fill="#2f6bff"/>
+    <rect x="138" y="322" width="34" height="70" rx="4" fill="#2f6bff"/>
+    <rect x="192" y="300" width="34" height="92" rx="4" fill="#6d5bf6"/>
+    <rect x="246" y="336" width="34" height="56" rx="4" fill="#2f6bff"/>
+    <rect x="300" y="286" width="34" height="106" rx="4" fill="#1fb6c9"/>
+    <rect x="354" y="266" width="34" height="126" rx="4" fill="#1fb6c9"/>
+    <rect x="408" y="252" width="34" height="140" rx="4" fill="#4fd1c5"/>
+  </g>
+  <g fill="#7f9bc4" font-size="10" text-anchor="middle">
+    <text x="101" y="408">周一</text>
+    <text x="155" y="408">周二</text>
+    <text x="209" y="408">周三</text>
+    <text x="263" y="408">周四</text>
+    <text x="317" y="408">周五</text>
+    <text x="371" y="408">周六</text>
+    <text x="425" y="408">周日</text>
+  </g>
+
+  <rect x="496" y="212" width="264" height="204" rx="12" fill="#132b4f" stroke="#2a4d80"/>
+  <text x="516" y="240" fill="#cfe0ff" font-size="13" font-weight="600">章节掌握度</text>
+  <g font-size="11" fill="#9db6dd">
+    <text x="516" y="272">第 1 章</text>
+    <rect x="576" y="262" width="160" height="10" rx="5" fill="#1e3d69"/>
+    <rect x="576" y="262" width="142" height="10" rx="5" fill="#4fd1c5"/>
+    <text x="516" y="304">第 2 章</text>
+    <rect x="576" y="294" width="160" height="10" rx="5" fill="#1e3d69"/>
+    <rect x="576" y="294" width="126" height="10" rx="5" fill="#6d5bf6"/>
+    <text x="516" y="336">第 3 章</text>
+    <rect x="576" y="326" width="160" height="10" rx="5" fill="#1e3d69"/>
+    <rect x="576" y="326" width="98" height="10" rx="5" fill="#f2a35e"/>
+    <text x="516" y="368">第 4 章</text>
+    <rect x="576" y="358" width="160" height="10" rx="5" fill="#1e3d69"/>
+    <rect x="576" y="358" width="72" height="10" rx="5" fill="#2f6bff"/>
+  </g>
+  <text x="516" y="396" fill="#7f9bc4" font-size="10">第 3 章掌握度偏低，建议安排复习。</text>
+</svg>

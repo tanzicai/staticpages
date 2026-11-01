@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>应用中心 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+.app-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.app-stats > div {
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.66));
+  box-shadow: var(--shadow-sm);
+}
+
+.app-stats span {
+  display: block;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.app-stats strong {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--num);
+  font-size: 25px;
+  font-weight: 720;
+  letter-spacing: -0.02em;
+}
+
+.app-stats small {
+  display: block;
+  margin-top: 3px;
+  font-size: 9.5px;
+  color: var(--muted-2);
+}
+
+.apps-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 18px 0 14px;
+  flex-wrap: wrap;
+}
+
+.app-search {
+  min-width: 260px;
+}
+
+.app-section + .app-section {
+  margin-top: 14px;
+}
+
+.full-app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.full-app-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.55);
+  text-align: left;
+  transition: 0.2s ease;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.full-app-card:hover {
+  transform: translateY(-2px);
+  background: #fff;
+  border-color: rgba(47, 107, 255, 0.18);
+  box-shadow: 0 12px 26px rgba(23, 43, 82, 0.09);
+}
+
+.full-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  flex: none;
+}
+
+.full-info {
+  min-width: 0;
+}
+
+.full-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.full-name svg {
+  opacity: 0;
+  transition: 0.18s;
+}
+
+.full-app-card:hover .full-name svg {
+  opacity: 1;
+}
+
+.full-desc {
+  display: block;
+  margin-top: 4px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.full-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 9.5px;
+  color: var(--muted-2);
+}
+
+.third-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.third-card {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 13px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.4);
+  text-align: left;
+  transition: 0.18s;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.third-card:hover {
+  background: #fff;
+  border-color: rgba(47, 107, 255, 0.25);
+}
+
+.third-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  flex: none;
+}
+
+.third-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.third-main strong {
+  display: block;
+  font-size: 12.5px;
+}
+
+.third-main span {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.apps-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 16px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--line);
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.page .toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(12, 27, 52, 0.94);
+  color: #fff;
+  font-size: 11.5px;
+  box-shadow: var(--shadow-lg);
+  transform: translateX(-50%);
+  animation: rise 0.2s ease both;
+}
+
+.page .toast button {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .app-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  .apps-toolbar {
+    align-items: stretch;
+  }
+  .app-search {
+    width: 100%;
+  }
+}
+</style>
+</head>
+<body data-page="apps">
+<main class="content">
+  <div class="page">
+    <div class="page-head">
+      <div>
+        <div class="breadcrumb"><a href="portal.html">首页</a><span>/</span><span>应用中心</span></div>
+        <h1 class="page-title">应用中心</h1>
+        <p class="page-desc">平台内生应用、低代码引擎应用与第三方 URL 应用统一上架、统一授权、统一监控。进入应用共享同一套身份与权限。</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn" id="authBtn"></button>
+        <button class="btn btn-primary" id="publishBtn"></button>
+      </div>
+    </div>
+
+    <div class="app-stats" id="appStats"></div>
+
+    <div class="apps-toolbar">
+      <div class="segmented" id="catTabs"></div>
+      <div class="app-search search-box">
+        <span id="searchIcon"></span>
+        <input id="searchInput" placeholder="搜索应用名称或能力" />
+      </div>
+    </div>
+
+    <section class="panel app-section" id="mainSection">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title"><span class="panel-titlebar"></span><span id="mainTitle"></span></div>
+          <div class="panel-sub">以“应用”形态注册至应用中心，独立发布、独立回滚，共享基座能力</div>
+        </div>
+        <span class="tag blue" id="mainCount"></span>
+      </div>
+      <div class="panel-body">
+        <div class="full-app-grid" id="mainGrid"></div>
+      </div>
+    </section>
+
+    <section class="panel app-section" id="lowcodeSection">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title"><span class="panel-titlebar"></span>低代码应用</div>
+          <div class="panel-sub">由应用引擎生成，构建在统一权限、文件、搜索与消息之上</div>
+        </div>
+        <a href="module.html?p=base&amp;m=engine" class="link-more" id="engineLink"></a>
+      </div>
+      <div class="panel-body">
+        <div class="full-app-grid" id="lowcodeGrid"></div>
+      </div>
+    </section>
+
+    <section class="panel app-section" id="thirdSection">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title"><span class="panel-titlebar"></span>第三方 URL 应用</div>
+          <div class="panel-sub">声明应用标识、回调地址、权限范围与单点登录方式，经网关鉴权后访问</div>
+        </div>
+        <span class="tag outline">URL 接入规范</span>
+      </div>
+      <div class="panel-body">
+        <div class="third-grid" id="thirdGrid"></div>
+      </div>
+    </section>
+
+    <div class="apps-note">
+      <span class="tag green">接入原则</span>
+      <span>第三方应用不直连平台数据库，只允许通过网关访问开放 API；敏感数据应用强制二次鉴权；运行监控对 URL 应用同样生效。</span>
+    </div>
+
+    <div class="toast" id="pageToast" style="display: none">
+      <span id="pageToastText"></span>
+      <button id="pageToastClose"></button>
+    </div>
+  </div>
+</main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+(function () {
+  const { icon, platformIcon, moduleUrl, overviewUrl, esc } = UI
+  const $ = (s) => document.querySelector(s)
+
+  const categories = ['全部', '平台应用', '低代码应用', '第三方应用']
+  let active = '全部'
+  let query = ''
+
+  const lowcodeApps = [
+    { name: '协同审批', desc: '统一流程与表单，支持或签/会签/加签', route: '/base/engine', tag: '审批引擎', tone: '#2f6bff' },
+    { name: '智能表单', desc: '拖拽式表单设计与数据采集', route: '/base/engine', tag: '表单引擎', tone: '#6d5bf6' },
+    { name: '预约服务', desc: '会议室、实训室与设备预约', route: '/base/engine', tag: '预约引擎', tone: '#0f9d8f' },
+    { name: '数据查询', desc: '跨域数据查询与权限裁剪', route: '/base/engine', tag: '查询引擎', tone: '#e0762f' },
+    { name: '知识挑战', desc: '知识竞赛与闯关活动', route: '/base/engine', tag: '知识挑战', tone: '#d64550' },
+    { name: '图表看板', desc: '指标看板与可视化编排', route: '/base/engine', tag: '图表引擎', tone: '#22a6c9' },
+  ]
+
+  const platformApps = SEED.portal.portalApps
+    .filter((a) => a.group === '平台应用')
+    .map((a) => ({
+      ...a,
+      route: (SEED.platformMap[a.platformKey] || {}).route || '/portal',
+      tone: (SEED.platformMap[a.platformKey] || {}).accent || '#2f6bff',
+      icon: (SEED.platformMap[a.platformKey] || {}).icon || 'Layers',
+    }))
+
+  function routeTo(route) {
+    if (route === '/portal') return 'portal.html'
+    const m = /^\/([^/]+)\/(.+)$/.exec(route || '')
+    if (!m) return 'portal.html'
+    return m[2] === 'overview' ? overviewUrl(m[1]) : moduleUrl(m[1], m[2])
+  }
+
+  const matchQ = (a) => {
+    const q = query.trim().toLowerCase()
+    return !q || `${a.name}${a.desc}`.toLowerCase().includes(q)
+  }
+
+  function fullCard(app, meta) {
+    const iconHtml = app.icon ? platformIcon(app.icon, 20) : icon('layout-grid', 20)
+    return `
+      <button class="full-app-card" data-route="${esc(app.route || '')}">
+        <span class="full-icon" style="color: ${app.tone}; background: ${app.tone}12">${iconHtml}</span>
+        <span class="full-info">
+          <span class="full-name">${esc(app.name)}${icon('arrow-up-right', 13)}</span>
+          <span class="full-desc">${esc(app.desc)}</span>
+          <span class="full-meta"><span class="tag gray">${esc(app.tag)}</span><span>${meta}</span></span>
+        </span>
+      </button>`
+  }
+
+  function render() {
+    // stats
+    $('#appStats').innerHTML = `
+      <div><span>全部应用</span><strong>128</strong><small>7 个平台 + 引擎 + 第三方</small></div>
+      <div><span>平台应用</span><strong>${SEED.platforms.length}</strong><small>${SEED.totalModules} 个一级模块</small></div>
+      <div><span>低代码应用</span><strong>36</strong><small>由 10 个引擎生成</small></div>
+      <div><span>URL 应用</span><strong>12</strong><small>单点登录接入</small></div>`
+
+    // tabs
+    $('#catTabs').innerHTML = categories
+      .map((c) => `<button class="${c === active ? 'active' : ''}" data-cat="${c}">${c}</button>`)
+      .join('')
+    $('#catTabs').querySelectorAll('button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        active = btn.dataset.cat
+        render()
+      })
+    })
+
+    // main section
+    const mainSection = $('#mainSection')
+    if (active !== '第三方应用') {
+      mainSection.style.display = ''
+      const isLow = active === '低代码应用'
+      const list = (isLow ? lowcodeApps : platformApps).filter(matchQ)
+      $('#mainTitle').textContent = isLow ? '低代码应用' : '平台应用'
+      $('#mainCount').textContent = `${list.length} 个`
+      $('#mainGrid').innerHTML = list.map((a) => fullCard(a, '已授权')).join('')
+    } else {
+      mainSection.style.display = 'none'
+    }
+
+    // lowcode section
+    const lowSection = $('#lowcodeSection')
+    if (active === '全部') {
+      lowSection.style.display = ''
+      $('#lowcodeGrid').innerHTML = lowcodeApps.filter(matchQ).map((a) => fullCard(a, '低代码生成')).join('')
+    } else {
+      lowSection.style.display = 'none'
+    }
+
+    // third section
+    const thirdSection = $('#thirdSection')
+    if (active === '全部' || active === '第三方应用') {
+      thirdSection.style.display = ''
+      $('#thirdGrid').innerHTML = SEED.portal.urlApps.filter(matchQ).map((app) => `
+        <button class="third-card" data-name="${esc(app.name)}">
+          <span class="third-icon" style="background: linear-gradient(135deg, ${app.tone}, ${app.tone}aa)">${esc(app.name.slice(0, 1))}</span>
+          <span class="third-main">
+            <strong>${esc(app.name)}</strong>
+            <span>${esc(app.desc)}</span>
+          </span>
+          <span class="tag gray">${esc(app.tag)}</span>
+        </button>`).join('')
+    } else {
+      thirdSection.style.display = 'none'
+    }
+
+    // card events
+    document.querySelectorAll('.full-app-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        const route = card.dataset.route
+        if (route) location.href = routeTo(route)
+      })
+    })
+    document.querySelectorAll('.third-card').forEach((card) => {
+      card.addEventListener('click', () => showToast(card.dataset.name))
+    })
+  }
+
+  let toastTimer = null
+  function showToast(name) {
+    $('#pageToastText').textContent = `${name} 为第三方 URL 应用，演示环境暂未配置单点跳转`
+    $('#pageToast').style.display = 'flex'
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => { $('#pageToast').style.display = 'none' }, 3200)
+  }
+
+  $('#pageToastClose').innerHTML = icon('x', 13)
+  $('#pageToastClose').addEventListener('click', () => { $('#pageToast').style.display = 'none' })
+  $('#searchIcon').innerHTML = icon('search', 15)
+  $('#authBtn').innerHTML = `${icon('shield-check', 15)}授权申请`
+  $('#publishBtn').innerHTML = `${icon('plus', 15)}上架应用`
+  $('#engineLink').innerHTML = `应用引擎${icon('arrow-up-right', 12)}`
+
+  $('#searchInput').addEventListener('input', (e) => {
+    query = e.target.value
+    render()
+  })
+
+  render()
+})()
+</script>
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>功能地图 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+.map-hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 26px;
+  padding: 28px 32px;
+  border-radius: 22px;
+  color: #fff;
+  background:
+    radial-gradient(600px 300px at 84% 0%, rgba(31, 182, 201, 0.18), transparent 64%),
+    radial-gradient(500px 300px at 8% 110%, rgba(109, 91, 246, 0.25), transparent 64%),
+    linear-gradient(135deg, #081426, #10294f 58%, #0a1d3a);
+  box-shadow: 0 24px 56px rgba(10, 24, 48, 0.22);
+}
+
+.map-hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(120, 165, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 165, 255, 0.055) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: radial-gradient(circle at 44% 40%, #000, transparent 76%);
+}
+
+.map-hero-main {
+  position: relative;
+  z-index: 1;
+}
+
+.map-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  color: rgba(188, 210, 250, 0.5);
+}
+
+.map-hero h1 {
+  margin-top: 12px;
+  font-size: 32px;
+  font-weight: 740;
+  letter-spacing: -0.01em;
+}
+
+.map-hero-main > p {
+  margin-top: 9px;
+  max-width: 680px;
+  font-size: 12px;
+  line-height: 1.75;
+  color: rgba(190, 210, 244, 0.6);
+}
+
+.map-stats {
+  display: flex;
+  gap: 42px;
+  margin-top: 24px;
+}
+
+.map-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.map-stats strong {
+  font-family: var(--num);
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff, #9fc2ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.map-stats span {
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: rgba(184, 206, 244, 0.46);
+}
+
+.map-legend {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+}
+
+.legend-title {
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  color: rgba(208, 225, 252, 0.7);
+  margin-bottom: 10px;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 10.5px;
+  color: rgba(205, 222, 250, 0.7);
+}
+
+.legend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.legend-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 9px;
+  line-height: 1.5;
+  color: rgba(185, 207, 244, 0.45);
+}
+
+.map-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+
+.platform-filter {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  flex-wrap: wrap;
+}
+
+.platform-filter button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  transition: 0.16s;
+}
+
+.platform-filter button:hover {
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--ink);
+}
+
+.platform-filter button.active {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(19, 33, 60, 0.08);
+}
+
+.filter-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.map-search {
+  width: 300px;
+}
+
+.map-result {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.map-platforms {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.map-platform {
+  display: grid;
+  grid-template-columns: 214px minmax(0, 1fr);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 18px;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.68));
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.platform-side {
+  position: relative;
+  padding: 18px;
+  border-right: 1px solid var(--line);
+  background:
+    radial-gradient(200px 130px at 100% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%),
+    rgba(255, 255, 255, 0.4);
+}
+
+.platform-icon-lg {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+}
+
+.platform-code {
+  margin-top: 11px;
+  font-family: var(--num);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  color: var(--muted-2);
+}
+
+.platform-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  font-size: 15px;
+  font-weight: 680;
+}
+
+.platform-side p {
+  margin-top: 5px;
+  font-size: 9.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.platform-count {
+  margin-top: 10px;
+  font-size: 9.5px;
+  color: var(--muted-2);
+}
+
+.platform-enter {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 12px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.platform-modules {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(236px, 1fr));
+  gap: 8px;
+  padding: 14px;
+  align-content: start;
+}
+
+.module-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.5);
+  transition: 0.18s ease;
+}
+
+.module-card:hover {
+  background: #fff;
+  border-color: rgba(47, 107, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(23, 43, 82, 0.07);
+}
+
+.module-index {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  font-family: var(--num);
+  font-size: 9px;
+  font-weight: 700;
+  flex: none;
+}
+
+.module-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.module-name {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 620;
+  line-height: 1.35;
+}
+
+.module-sum {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+  line-height: 1.4;
+  color: var(--muted);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.module-count {
+  font-family: var(--num);
+  font-size: 10px;
+  color: var(--muted);
+  flex: none;
+  margin-top: 2px;
+}
+
+.module-count small {
+  font-size: 8px;
+  margin-left: 1px;
+  color: var(--muted-2);
+}
+
+.module-arrow {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  color: var(--muted-2);
+  opacity: 0;
+  transition: 0.18s;
+}
+
+.module-card:hover .module-arrow {
+  opacity: 1;
+  color: var(--blue);
+}
+
+.map-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 14px 18px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 12px;
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+@media (max-width: 1100px) {
+  .map-hero {
+    grid-template-columns: 1fr;
+  }
+  .map-legend {
+    display: none;
+  }
+  .map-platform {
+    grid-template-columns: 1fr;
+  }
+  .platform-side {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .map-stats {
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 700px) {
+  .map-search {
+    width: 100%;
+  }
+  .map-hero h1 {
+    font-size: 24px;
+  }
+}
+</style>
+</head>
+<body data-page="map">
+<main class="content"><div class="page">
+  <section class="map-hero">
+    <div class="map-hero-grid"></div>
+    <div class="map-hero-main">
+      <div class="map-eyebrow" id="mapEyebrow"></div>
+      <h1>全平台功能地图</h1>
+      <p>7 个平台 · 71 个一级模块 · 743 条功能名称占位。每个模块可进入功能清单，后续在此逐条完善功能参数、页面原型与接口定义。</p>
+      <div class="map-stats" id="mapStats"></div>
+    </div>
+    <div class="map-legend">
+      <div class="legend-title">功能分层</div>
+      <div class="legend-row"><span class="legend-dot" style="background: #2f6bff"></span>门户与接入层</div>
+      <div class="legend-row"><span class="legend-dot" style="background: #6d5bf6"></span>业务应用层</div>
+      <div class="legend-row"><span class="legend-dot" style="background: #0f9d8f"></span>公共能力层</div>
+      <div class="legend-row"><span class="legend-dot" style="background: #e0762f"></span>数据与智能层</div>
+      <div class="legend-note" id="legendNote"></div>
+    </div>
+  </section>
+
+  <div class="map-toolbar">
+    <div class="platform-filter" id="platformFilter"></div>
+    <div class="map-search search-box" id="mapSearchBox"></div>
+    <div class="map-result" id="mapResult"></div>
+  </div>
+
+  <div class="map-platforms" id="mapPlatforms"></div>
+
+  <div class="map-foot" id="mapFoot"></div>
+</div></main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+(function () {
+  const esc = UI.esc
+  const icon = UI.icon
+  const platforms = SEED.platforms
+  const totalModules = SEED.totalModules
+  const totalFeatures = SEED.totalFeatures
+  const totalCount = platforms.reduce((s, p) => s + p.modules.length, 0)
+
+  document.getElementById('mapEyebrow').innerHTML = `${icon('layers', 14)}ARCHITECTURE MAP · 架构设计映射`
+  document.getElementById('mapStats').innerHTML = `
+    <div><strong>7</strong><span>业务平台</span></div>
+    <div><strong>${totalModules}</strong><span>一级模块</span></div>
+    <div><strong>${totalFeatures}+</strong><span>功能条目</span></div>
+    <div><strong>100%</strong><span>名称占位覆盖率</span></div>`
+  document.getElementById('legendNote').innerHTML = `${icon('sparkles', 12)}参数完善将按功能参数总表逐模块推进`
+  document.getElementById('mapFoot').innerHTML = `
+    <span>说明：P0 6 + P1 2 + P2 22 + P3 10 + P4 16 + P5 5 + P6 10 = ${totalCount} 个一级模块；功能条目合计 743 条（其中图谱构建与管理、课程知识图谱展示两模块输入未细分条数）。</span>
+    <a href="${UI.moduleUrl('base', 'config')}" class="link-more">业务系统配置${icon('arrow-up-right', 12)}</a>`
+
+  let query = ''
+  let activePlatform = 'all'
+
+  const filterEl = document.getElementById('platformFilter')
+  filterEl.innerHTML = `
+    <button class="active" data-key="all">${icon('layout-grid', 13)}全部平台</button>
+    ${platforms.map((p) => `
+    <button data-key="${p.key}"><span class="filter-dot" style="background: ${p.accent}"></span>${esc(p.shortName)}</button>`).join('')}`
+  filterEl.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+    activePlatform = b.dataset.key
+    filterEl.querySelectorAll('button').forEach((x) => x.classList.toggle('active', x === b))
+    render()
+  }))
+
+  const searchBox = document.getElementById('mapSearchBox')
+  searchBox.innerHTML = `${icon('search', 15)}<input placeholder="搜索模块、功能或承载服务" />`
+  const input = searchBox.querySelector('input')
+  input.addEventListener('input', () => { query = input.value; render() })
+
+  const resultEl = document.getElementById('mapResult')
+  const listEl = document.getElementById('mapPlatforms')
+
+  function render() {
+    const q = query.trim().toLowerCase()
+    const filters = platforms
+      .filter((p) => activePlatform === 'all' || p.key === activePlatform)
+      .map((p) => ({
+        ...p,
+        filteredModules: p.modules.filter((m) => {
+          if (!q) return true
+          return `${m.name}${m.summary}${m.features.join('')}${m.services}`.toLowerCase().includes(q)
+        }),
+      }))
+      .filter((p) => p.filteredModules.length > 0)
+    const resultCount = filters.reduce((s, p) => s + p.filteredModules.length, 0)
+
+    resultEl.innerHTML = `${icon('filter', 13)}<span>${resultCount} 个模块</span>`
+
+    listEl.innerHTML = filters.map((p) => {
+      const url = UI.overviewUrl(p.key)
+      const count = p.modules.reduce((s, m) => s + (m.count ?? 0), 0)
+      return `
+      <section class="map-platform">
+        <div class="platform-side" style="--accent: ${p.accent}">
+          <a href="${url}" class="platform-icon-lg" style="background: ${p.accent}12; color: ${p.accent}">
+            ${UI.platformIcon(p.icon, 22)}
+          </a>
+          <div class="platform-code">${esc(p.code)}</div>
+          <a href="${url}" class="platform-name">${esc(p.shortName)}${icon('arrow-up-right', 12)}</a>
+          <p>${esc(p.tagline)}</p>
+          <div class="platform-count">${p.modules.length} 模块 · ${count} 功能</div>
+          <a href="${url}" class="platform-enter">进入平台${icon('arrow-up-right', 12)}</a>
+        </div>
+        <div class="platform-modules">
+          ${p.filteredModules.map((m, index) => `
+          <a href="${UI.moduleUrl(p.key, m.id)}" class="module-card">
+            <span class="module-index" style="color: ${p.accent}; background: ${p.accent}0d">${String(index + 1).padStart(2, '0')}</span>
+            <span class="module-info">
+              <span class="module-name">${esc(m.name)}</span>
+              <span class="module-sum">${esc(m.summary)}</span>
+            </span>
+            <span class="module-count">${m.count ?? '待细分'}${m.count ? '<small>条</small>' : ''}</span>
+            ${icon('arrow-up-right', 13).replace('<svg', '<svg class="module-arrow"')}
+          </a>`).join('')}
+        </div>
+      </section>`
+    }).join('') + (filters.length ? '' : '<div class="empty">没有匹配的模块，试试“课程”“监考”“智能体”</div>')
+  }
+  render()
+})()
+</script>
+</body>
+</html>

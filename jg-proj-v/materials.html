@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>素材管理 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+[hidden] { display: none !important; }
+.module-head { align-items: flex-start; }
+.module-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ml-page { display: flex; flex-direction: column; gap: 14px; }
+.ml-back { flex: none; align-self: flex-start; height: 34px; min-height: 34px; }
+.ml-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+.ml-main { padding: 14px; }
+.ml-tabs { display: flex; gap: 4px; padding: 4px; border-radius: 10px; background: rgba(19, 33, 60, 0.05); margin-bottom: 12px; }
+.ml-tab { flex: 1; height: 34px; border: 0; border-radius: 7px; background: transparent; font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; transition: 0.15s; }
+.ml-tab em { font-style: normal; font-size: 10px; min-width: 18px; height: 16px; padding: 0 4px; border-radius: 8px; background: rgba(19, 33, 60, 0.08); display: inline-grid; place-items: center; font-family: var(--num); }
+.ml-tab.active { background: #fff; color: var(--violet); font-weight: 650; box-shadow: 0 2px 8px rgba(19, 33, 60, 0.1); }
+.ml-tab.active em { background: rgba(109, 91, 246, 0.14); color: var(--violet); }
+.hidden-input { display: none; }
+.ml-drop { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 18px 14px; border: 1px dashed rgba(109, 91, 246, 0.42); border-radius: 12px; background: rgba(109, 91, 246, 0.045); color: var(--violet); cursor: pointer; transition: 0.15s; }
+.ml-drop:hover { background: rgba(109, 91, 246, 0.1); border-color: var(--violet); transform: translateY(-1px); }
+.ml-drop strong { font-size: 13px; font-weight: 650; }
+.ml-drop span { font-size: 10.5px; color: var(--muted); }
+.ml-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.ml-item { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.ml-icon { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; color: #fff; flex: none; }
+.ml-icon.video { background: #2f6bff; }
+.ml-icon.ppt { background: #6d5bf6; }
+.ml-icon.image { background: #0f9d8f; }
+.ml-icon.qa { background: #e0762f; }
+.ml-info { flex: 1; min-width: 0; }
+.ml-info strong { display: block; font-size: 12.5px; font-weight: 650; color: var(--ink-2); }
+.ml-info span { font-size: 10px; color: var(--muted); }
+.ml-actions { display: flex; gap: 3px; flex: none; }
+.ml-actions button, .ml-icon-btn { width: 27px; height: 27px; border: 0; border-radius: 6px; background: transparent; color: var(--muted-2); display: grid; place-items: center; cursor: pointer; transition: 0.12s; }
+.ml-actions button:hover, .ml-icon-btn:hover { background: rgba(109, 91, 246, 0.1); color: var(--violet); }
+.ml-actions .danger:hover { background: rgba(214, 69, 80, 0.1); color: var(--red); }
+.ml-editor { flex-basis: 100%; display: flex; flex-direction: column; gap: 8px; padding: 12px; margin-top: 4px; border-radius: 10px; background: rgba(19, 33, 60, 0.035); }
+.ml-editor.qa { gap: 10px; }
+.ml-page-item { display: grid; grid-template-columns: 58px 1fr; gap: 6px 8px; align-items: start; padding-bottom: 8px; border-bottom: 1px dashed var(--line); }
+.ml-page-item:last-child { border-bottom: 0; padding-bottom: 0; }
+.ml-page-no { grid-row: span 2; font-size: 10px; color: var(--violet); font-weight: 650; padding-top: 9px; font-family: var(--num); }
+.ml-input { width: 100%; height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-size: 11.5px; color: var(--ink-2); outline: none; }
+.ml-input:focus { border-color: rgba(109, 91, 246, 0.55); box-shadow: 0 0 0 2px rgba(109, 91, 246, 0.1); }
+.ml-textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-size: 11.5px; line-height: 1.7; color: var(--ink-2); resize: vertical; outline: none; font-family: inherit; }
+.ml-textarea:focus { border-color: rgba(109, 91, 246, 0.55); box-shadow: 0 0 0 2px rgba(109, 91, 246, 0.1); }
+.ml-field { display: flex; flex-direction: column; gap: 5px; }
+.ml-field > span { font-size: 10px; color: var(--muted); font-weight: 600; }
+.ml-option-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.ml-correct { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--muted-2); display: grid; place-items: center; cursor: pointer; flex: none; }
+.ml-correct.on { border-color: var(--green); background: rgba(15, 157, 143, 0.1); color: var(--green); }
+.ml-letter { width: 20px; height: 20px; border-radius: 5px; background: rgba(19, 33, 60, 0.06); display: grid; place-items: center; font-size: 10px; font-weight: 650; color: var(--muted); flex: none; }
+.ml-option-del { width: 24px; height: 24px; border: 0; border-radius: 5px; background: transparent; color: var(--muted-2); display: grid; place-items: center; cursor: pointer; flex: none; }
+.ml-option-del:hover { background: rgba(214, 69, 80, 0.1); color: var(--red); }
+.ml-add-option { align-self: flex-start; height: 26px; padding: 0 9px; border: 1px dashed rgba(109, 91, 246, 0.4); border-radius: 6px; background: transparent; color: var(--violet); font-size: 10px; display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
+.ml-add-option:hover { background: rgba(109, 91, 246, 0.08); }
+.ml-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; margin-top: 12px; }
+.ml-image-card { border: 1px solid var(--line); border-radius: 10px; background: #fff; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.ml-image-thumb { aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; background: #0b1830; cursor: zoom-in; }
+.ml-image-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ml-image-info strong { display: block; font-size: 11px; color: var(--ink-2); }
+.ml-image-info span { font-size: 9.5px; color: var(--muted); }
+.ml-image-card .ml-actions { align-self: flex-end; }
+.ml-qa-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 2px; }
+.ml-qa-toolbar .btn { height: 30px; min-height: 30px; }
+.muted { font-size: 10.5px; color: var(--muted); }
+.ml-side { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.ml-tip { display: flex; gap: 8px; font-size: 11px; line-height: 1.6; color: var(--muted); padding-bottom: 8px; border-bottom: 1px dashed var(--line); }
+.ml-tip svg { flex: none; margin-top: 3px; color: var(--violet); }
+.ml-note { margin-top: 4px; padding: 10px 12px; border-radius: 9px; background: rgba(109, 91, 246, 0.06); border: 1px solid rgba(109, 91, 246, 0.16); display: flex; flex-direction: column; gap: 5px; }
+.ml-note strong { font-size: 11px; color: var(--violet); }
+.ml-note span { font-size: 10.5px; line-height: 1.7; color: var(--muted); }
+.ml-preview-mask { position: fixed; inset: 0; z-index: 90; background: rgba(6, 14, 30, 0.62); backdrop-filter: blur(3px); display: grid; place-items: center; padding: 24px; }
+.ml-preview { width: min(860px, 100%); max-height: 88vh; overflow: auto; border-radius: 14px; background: #fff; box-shadow: 0 26px 70px rgba(0, 0, 0, 0.35); }
+.ml-preview-head { display: flex; align-items: center; gap: 7px; padding: 11px 16px; font-size: 12px; font-weight: 650; color: var(--violet); border-bottom: 1px solid var(--line); }
+.ml-preview-close { margin-left: auto; border: 0; background: transparent; color: var(--muted-2); cursor: pointer; }
+.ml-preview-body { padding: 16px; }
+.ml-preview-body.qa { display: flex; flex-direction: column; gap: 10px; }
+.ml-preview-body.qa h3 { font-size: 14px; color: #1a2b4a; }
+.ml-preview-video { width: 100%; border-radius: 10px; background: #050b16; }
+.ml-preview-image { width: 100%; border-radius: 10px; display: block; background: #0b1830; }
+.ml-slide { padding: 26px 30px; border-radius: 10px; background: linear-gradient(135deg, #f0f3ff, #fff); border: 1px solid var(--line); }
+.ml-slide-title { font-size: 20px; font-weight: 700; color: #1a2b4a; margin-bottom: 12px; }
+.ml-slide-bullets { font-size: 12.5px; line-height: 2; color: #334; }
+.ml-slide-foot { margin-top: 14px; font-size: 10px; color: var(--muted); font-family: var(--num); }
+.ml-pager { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+.ml-pager button { height: 30px; padding: 0 12px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-size: 11px; color: var(--ink-2); display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+.ml-pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+.ml-preview-options { display: flex; flex-direction: column; gap: 6px; }
+.ml-preview-option { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 12px; color: var(--ink-2); }
+.ml-preview-option.correct { border-color: rgba(15, 157, 143, 0.5); background: rgba(15, 157, 143, 0.07); color: var(--green); }
+.ml-preview-option em { margin-left: auto; font-style: normal; font-size: 10px; color: var(--green); }
+.ml-answer { font-size: 11.5px; color: var(--muted); line-height: 1.7; }
+@media (max-width: 1200px) { .ml-layout { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-platform="course" data-module="resources">
+<main class="content"><div class="page ml-page" id="mlPage"></div></main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const $ = UI.$, icon = UI.icon, esc = UI.esc;
+  const root = $('#mlPage');
+
+  /* ===== 素材 store（内存副本，替代 Pinia） ===== */
+  const store = JSON.parse(JSON.stringify(SEED.materialData));
+  // JSON 深拷贝后恢复内置 deck 的原始文件链接
+  if (SEED.materialData.decks[0] && store.decks[0]) store.decks[0].file = SEED.materialData.decks[0].file;
+
+  function uid(p) { return p + Date.now() + Math.floor(Math.random() * 1000); }
+  function buildUploadedPages(name) {
+    const base = name.replace(/\.(pptx?|PPTX?)$/, '');
+    const topics = ['课程概述', '核心概念', '方法步骤', '案例分析', '常见问题', '课堂练习', '本节小结'];
+    return topics.map((topic, i) => ({
+      title: `${base} · ${topic}`,
+      bullets: [
+        `第 ${i + 1} 页：围绕「${topic}」展开`,
+        '关键结论：结合课程大纲与学习目标组织内容',
+        '课堂建议：讲解后插入一道互动测验巩固理解',
+      ],
+    }));
+  }
+  const api = {
+    addVideo(file) {
+      const url = URL.createObjectURL(file);
+      store.videos.unshift({ id: uid('v'), name: file.name, url, meta: `视频 · ${(file.size / 1024 / 1024).toFixed(1)} MB` });
+    },
+    addDeck(file) {
+      const deck = { id: uid('d'), name: file.name, pages: buildUploadedPages(file.name) };
+      store.decks.unshift(deck);
+      return deck;
+    },
+    addImage(file) {
+      const url = URL.createObjectURL(file);
+      store.images.unshift({ id: uid('i'), name: file.name, url, meta: `图片 · ${Math.round(file.size / 1024)} KB` });
+    },
+    addQa() {
+      const pair = { id: uid('qa'), question: '新问答对', answer: '', type: 'single', options: [{ text: '选项 A', correct: true }, { text: '选项 B', correct: false }] };
+      store.qaPairs.push(pair);
+      return pair;
+    },
+    removeVideo(id) {
+      const item = store.videos.find(v => v.id === id);
+      if (item && item.url.startsWith('blob:')) URL.revokeObjectURL(item.url);
+      store.videos = store.videos.filter(v => v.id !== id);
+    },
+    removeDeck(id) { store.decks = store.decks.filter(d => d.id !== id); },
+    removeImage(id) {
+      const item = store.images.find(v => v.id === id);
+      if (item && item.url.startsWith('blob:')) URL.revokeObjectURL(item.url);
+      store.images = store.images.filter(v => v.id !== id);
+    },
+    removeQa(id) { store.qaPairs = store.qaPairs.filter(q => q.id !== id); },
+    setCorrectOption(pair, index) {
+      pair.options.forEach((opt, i) => {
+        if (pair.type === 'multi') { if (i === index) opt.correct = !opt.correct; }
+        else opt.correct = i === index;
+      });
+    },
+  };
+
+  /* ===== state ===== */
+  const S = {
+    tab: 'video',
+    expandedDeckId: 'd1',
+    expandedQaId: null,
+    pageText: {},
+    preview: null, // { kind, title, url?, deck?, qa? }
+    previewPage: 1,
+  };
+  const tabMeta = [
+    { key: 'video', label: '视频素材', icon: 'film' },
+    { key: 'ppt', label: 'PPT 课件', icon: 'file-text' },
+    { key: 'image', label: '图片素材', icon: 'image' },
+    { key: 'qa', label: '问答对', icon: 'message-square' },
+  ];
+  const acceptMap = { video: 'video/*', ppt: '.ppt,.pptx', image: 'image/*', qa: '.json,.csv,.xlsx,.xls' };
+  const counts = () => ({ video: store.videos.length, ppt: store.decks.length, image: store.images.length, qa: store.qaPairs.length });
+  function uploadHint() {
+    if (S.tab === 'video') return { title: '上传视频文件', desc: '支持 MP4 / WebM，上传后可在视频编辑器中设为播放视频' };
+    if (S.tab === 'ppt') return { title: '上传 PPT 课件', desc: '支持 .ppt / .pptx，上传后自动生成逐页不同的讲解内容' };
+    if (S.tab === 'image') return { title: '上传图片素材', desc: '支持 PNG / JPG / SVG / WebP，可插入视频任意时间点' };
+    return { title: '上传问答对文件', desc: '支持 .json / .csv / .xlsx，导入后逐条调整问题与答案' };
+  }
+  const letter = i => ('ABCDEF'[i] || String(i + 1));
+
+  root.innerHTML = `
+    <div class="page-head module-head">
+      <div>
+        <div class="breadcrumb">
+          <a href="portal.html">首页</a><span>/</span>
+          <a href="platform.html?p=course">智慧课程</a><span>/</span>
+          <span>课程建设 · 素材管理</span>
+        </div>
+        <div class="module-title-row">
+          <h1 class="page-title">素材管理</h1>
+          <span class="tag violet">视频 / PPT / 图片 / 问答对</span>
+          <span class="tag green">上传与编辑仅在此页面</span>
+        </div>
+        <p class="page-desc">统一管理课程素材：上传视频与 PPT、维护图片素材、编辑问答对的问题与正确答案；在视频互动编辑器中直接从素材库选择并插入时间点。</p>
+      </div>
+      <a class="btn btn-primary ml-back" href="course-build.html?id=c1&tab=video">${icon('eye', 14)}前往视频编辑器</a>
+    </div>
+    <div class="ml-layout">
+      <section class="panel ml-main">
+        <div class="ml-tabs" id="mlTabs"></div>
+        <input id="mlFile" class="hidden-input" type="file" multiple>
+        <button class="ml-drop" id="mlDrop"></button>
+        <div id="mlListWrap"></div>
+      </section>
+      <aside class="panel ml-side">
+        <div class="panel-head"><div class="panel-title"><span class="panel-titlebar"></span>素材规范</div></div>
+        <div class="ml-tip">${icon('film', 13)}视频：MP4 / WebM，建议 3 分钟内，作为互动课的播放主体。</div>
+        <div class="ml-tip">${icon('file-text', 13)}PPT：每页内容独立，插入视频后可按页翻阅，原始文件可下载。</div>
+        <div class="ml-tip">${icon('image', 13)}图片：SVG / PNG / JPG，用于图示讲解，可插入任意时间点。</div>
+        <div class="ml-tip">${icon('message-square', 13)}问答对：支持单选 / 多选 / 判断，答案只在本页面调整。</div>
+        <div class="ml-note">
+          <strong>流程说明</strong>
+          <span>先在「素材管理」上传与编辑素材，再进入视频编辑器，从素材库中选择 PPT、图片或问答对插入到当前时间点。</span>
+        </div>
+      </aside>
+    </div>
+    <div id="mlPreviewWrap"></div>`;
+
+  const fileInput = $('#mlFile', root);
+
+  function renderTabs() {
+    const c = counts();
+    $('#mlTabs', root).innerHTML = tabMeta.map(t => `
+      <button class="ml-tab${S.tab === t.key ? ' active' : ''}" data-ml="tab" data-key="${t.key}">
+        ${icon(t.icon, 14)}<span>${t.label}</span><em>${c[t.key]}</em>
+      </button>`).join('');
+    const h = uploadHint();
+    $('#mlDrop', root).innerHTML = `${icon('upload', 22)}<strong>${h.title}</strong><span>${h.desc}</span>`;
+    fileInput.accept = acceptMap[S.tab];
+  }
+
+  function deckEditorHTML(d) {
+    return `<div class="ml-editor">
+      ${d.pages.map((page, idx) => {
+        const key = `${d.id}-${idx}`;
+        const text = S.pageText[key] !== undefined ? S.pageText[key] : page.bullets.join('\n');
+        return `<div class="ml-page-item">
+          <span class="ml-page-no">第 ${idx + 1} 页</span>
+          <input class="ml-input" placeholder="页标题" value="${esc(page.title)}" data-ml-input="page-title" data-deck="${d.id}" data-idx="${idx}">
+          <textarea class="ml-textarea" rows="3" placeholder="每行一条要点" data-ml-input="page-bullets" data-deck="${d.id}" data-idx="${idx}">${esc(text)}</textarea>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  function renderList() {
+    const box = $('#mlListWrap', root);
+    if (S.tab === 'video') {
+      box.innerHTML = `<div class="ml-list">${store.videos.map(v => `
+        <div class="ml-item">
+          <span class="ml-icon video">${icon('film', 16)}</span>
+          <div class="ml-info"><strong>${esc(v.name)}</strong><span>${esc(v.meta)}</span></div>
+          <div class="ml-actions">
+            <button title="预览" data-ml="preview-video" data-id="${v.id}">${icon('eye', 13)}</button>
+            <button class="danger" title="删除" data-ml="del-video" data-id="${v.id}">${icon('trash-2', 13)}</button>
+          </div>
+        </div>`).join('')}</div>`;
+    } else if (S.tab === 'ppt') {
+      box.innerHTML = `<div class="ml-list">${store.decks.map(d => `
+        <div class="ml-item deck">
+          <span class="ml-icon ppt">${icon('file-text', 16)}</span>
+          <div class="ml-info"><strong>${esc(d.name)}</strong><span>${d.pages.length} 页 · 每页内容独立可编辑</span></div>
+          <div class="ml-actions">
+            ${d.file ? `<a class="ml-icon-btn" href="${esc(d.file)}" download="${esc(d.name)}" title="下载原始 PPT 附件">${icon('download', 13)}</a>` : ''}
+            <button title="预览" data-ml="preview-deck" data-id="${d.id}">${icon('eye', 13)}</button>
+            <button title="编辑页内容" data-ml="toggle-deck" data-id="${d.id}">${icon('pen-line', 13)}</button>
+            <button class="danger" title="删除" data-ml="del-deck" data-id="${d.id}">${icon('trash-2', 13)}</button>
+          </div>
+          ${S.expandedDeckId === d.id ? deckEditorHTML(d) : ''}
+        </div>`).join('')}</div>`;
+    } else if (S.tab === 'image') {
+      box.innerHTML = `<div class="ml-grid">${store.images.map(img => `
+        <div class="ml-image-card">
+          <div class="ml-image-thumb" data-ml="preview-image" data-id="${img.id}"><img src="${esc(img.url)}" alt="${esc(img.name)}"></div>
+          <div class="ml-image-info"><strong>${esc(img.name)}</strong><span>${esc(img.meta)}</span></div>
+          <div class="ml-actions">
+            <button title="预览" data-ml="preview-image" data-id="${img.id}">${icon('eye', 13)}</button>
+            <button class="danger" title="删除" data-ml="del-image" data-id="${img.id}">${icon('trash-2', 13)}</button>
+          </div>
+        </div>`).join('')}</div>`;
+    } else {
+      box.innerHTML = `<div class="ml-list">
+        <div class="ml-qa-toolbar">
+          <span class="muted">共 ${store.qaPairs.length} 条 · 可调整问题、选项与正确答案</span>
+          <button class="btn btn-sm btn-primary" data-ml="add-qa">${icon('plus', 13)}新增问答对</button>
+        </div>
+        ${store.qaPairs.map(q => `
+        <div class="ml-item qa">
+          <span class="ml-icon qa">${icon('message-square', 16)}</span>
+          <div class="ml-info">
+            <strong>${esc(q.question)}</strong>
+            <span>${q.type === 'single' ? '单选' : q.type === 'multi' ? '多选' : '判断'} · 正确答案：${esc(q.options.filter(o => o.correct).map(o => o.text).join('、')) || '未设置'}</span>
+          </div>
+          <div class="ml-actions">
+            <button title="预览问答" data-ml="preview-qa" data-id="${q.id}">${icon('eye', 13)}</button>
+            <button title="编辑问答" data-ml="toggle-qa" data-id="${q.id}">${icon('pen-line', 13)}</button>
+            <button class="danger" title="删除" data-ml="del-qa" data-id="${q.id}">${icon('trash-2', 13)}</button>
+          </div>
+          ${S.expandedQaId === q.id ? `
+          <div class="ml-editor qa">
+            <label class="ml-field"><span>问题</span>
+              <input class="ml-input" placeholder="输入问题" value="${esc(q.question)}" data-ml-input="qa-question" data-id="${q.id}">
+            </label>
+            <label class="ml-field"><span>题型</span>
+              <select class="ml-input" data-ml-input="qa-type" data-id="${q.id}">
+                <option value="single"${q.type === 'single' ? ' selected' : ''}>单选</option>
+                <option value="multi"${q.type === 'multi' ? ' selected' : ''}>多选</option>
+                <option value="judge"${q.type === 'judge' ? ' selected' : ''}>判断</option>
+              </select>
+            </label>
+            <div class="ml-field">
+              <span>选项（点击标记为正确答案）</span>
+              ${q.options.map((opt, oi) => `
+                <div class="ml-option-row">
+                  <button class="ml-correct${opt.correct ? ' on' : ''}" title="${opt.correct ? '当前正确答案' : '设为正确答案'}" data-ml="set-correct" data-id="${q.id}" data-idx="${oi}">${icon('check-circle-2', 14)}</button>
+                  <span class="ml-letter">${letter(oi)}</span>
+                  <input class="ml-input" placeholder="选项内容" value="${esc(opt.text)}" data-ml-input="qa-option" data-id="${q.id}" data-idx="${oi}">
+                  <button class="ml-option-del" title="删除选项" data-ml="del-option" data-id="${q.id}" data-idx="${oi}">${icon('x', 13)}</button>
+                </div>`).join('')}
+              <button class="ml-add-option" data-ml="add-option" data-id="${q.id}">${icon('plus', 12)}添加选项</button>
+            </div>
+            <label class="ml-field"><span>答案说明</span>
+              <textarea class="ml-textarea" rows="2" placeholder="答案解析 / 讲解要点" data-ml-input="qa-answer" data-id="${q.id}">${esc(q.answer)}</textarea>
+            </label>
+          </div>` : ''}
+        </div>`).join('')}
+      </div>`;
+    }
+  }
+
+  function renderAll() { renderTabs(); renderList(); }
+
+  /* ===== 预览 ===== */
+  function openPreview(kind, title, payload) {
+    S.previewPage = 1;
+    S.preview = Object.assign({ kind, title }, payload);
+    renderPreview();
+  }
+  function closePreview() {
+    S.preview = null;
+    $('#mlPreviewWrap', root).innerHTML = '';
+  }
+  function renderPreview() {
+    const p = S.preview;
+    if (!p) { $('#mlPreviewWrap', root).innerHTML = ''; return; }
+    const headIcon = p.kind === 'video' ? 'film' : p.kind === 'ppt' ? 'file-text' : p.kind === 'image' ? 'image' : 'message-square';
+    let body = '';
+    if (p.kind === 'video') {
+      body = `<div class="ml-preview-body"><video src="${esc(p.url)}" class="ml-preview-video" controls autoplay playsinline></video></div>`;
+    } else if (p.kind === 'image') {
+      body = `<div class="ml-preview-body"><img src="${esc(p.url)}" class="ml-preview-image" alt="${esc(p.title)}"></div>`;
+    } else if (p.kind === 'ppt' && p.deck) {
+      const deck = p.deck;
+      const idx = Math.min(Math.max(0, S.previewPage - 1), deck.pages.length - 1);
+      const page = deck.pages[idx];
+      body = `<div class="ml-preview-body">
+        <div class="ml-slide">
+          <div class="ml-slide-title">${esc(page ? page.title : '')}</div>
+          <div class="ml-slide-bullets">${(page ? page.bullets : []).map(b => `<div>· ${esc(b)}</div>`).join('')}</div>
+          <div class="ml-slide-foot">第 ${S.previewPage} / ${deck.pages.length} 页</div>
+        </div>
+        <div class="ml-pager">
+          <button data-ml="pv-prev" ${S.previewPage <= 1 ? 'disabled' : ''}>${icon('chevron-left', 14)}上一页</button>
+          <button data-ml="pv-next" ${S.previewPage >= deck.pages.length ? 'disabled' : ''}>下一页${icon('chevron-right', 14)}</button>
+        </div>
+      </div>`;
+    } else if (p.kind === 'qa' && p.qa) {
+      body = `<div class="ml-preview-body qa">
+        <h3>${esc(p.qa.question)}</h3>
+        <div class="ml-preview-options">
+          ${p.qa.options.map((opt, i) => `
+            <div class="ml-preview-option${opt.correct ? ' correct' : ''}">
+              <span class="ml-letter">${letter(i)}</span><span>${esc(opt.text)}</span>${opt.correct ? '<em>正确答案</em>' : ''}
+            </div>`).join('')}
+        </div>
+        <p class="ml-answer"><strong>答案说明：</strong>${esc(p.qa.answer || '暂无')}</p>
+      </div>`;
+    }
+    $('#mlPreviewWrap', root).innerHTML = `
+      <div class="ml-preview-mask" data-ml="pv-mask">
+        <div class="ml-preview">
+          <div class="ml-preview-head">${icon(headIcon, 15)}<span>${esc(p.title)}</span>
+            <button class="ml-preview-close" data-ml="pv-close">${icon('x', 16)}</button>
+          </div>
+          ${body}
+        </div>
+      </div>`;
+  }
+
+  /* ===== 事件 ===== */
+  $('#mlDrop', root).addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    const files = fileInput.files;
+    if (!files || !files.length) return;
+    Array.from(files).forEach((file) => {
+      if (S.tab === 'video') {
+        api.addVideo(file);
+      } else if (S.tab === 'ppt') {
+        const deck = api.addDeck(file);
+        S.expandedDeckId = deck.id;
+      } else if (S.tab === 'image') {
+        api.addImage(file);
+      } else {
+        const pair = {
+          id: uid('qa'),
+          question: `导入问答对：${file.name.replace(/\.(json|csv|xlsx|xls)$/i, '')} 的核心结论是什么？`,
+          answer: '结合课程大纲与章节目标完成要点归纳。',
+          type: 'single',
+          options: [
+            { text: '结合课程大纲与章节目标完成要点归纳', correct: true },
+            { text: '只记录课堂笔记不做归纳', correct: false },
+            { text: '与本课程无关的内容', correct: false },
+          ],
+        };
+        store.qaPairs.push(pair);
+        S.expandedQaId = pair.id;
+      }
+    });
+    fileInput.value = '';
+    renderAll();
+    UI.toast('已上传到素材库');
+  });
+
+  root.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-ml]');
+    if (!el || !root.contains(el)) return;
+    const act = el.dataset.ml, id = el.dataset.id;
+    const findDeck = () => store.decks.find(d => d.id === id);
+    const findQa = () => store.qaPairs.find(q => q.id === id);
+    switch (act) {
+      case 'tab': S.tab = el.dataset.key; renderAll(); break;
+      case 'preview-video': {
+        const v = store.videos.find(x => x.id === id);
+        if (v) openPreview('video', v.name, { url: v.url });
+        break;
+      }
+      case 'del-video': api.removeVideo(id); renderAll(); break;
+      case 'preview-deck': { const d = findDeck(); if (d) openPreview('ppt', d.name, { deck: d }); break; }
+      case 'toggle-deck': S.expandedDeckId = S.expandedDeckId === id ? null : id; renderList(); break;
+      case 'del-deck': api.removeDeck(id); if (S.expandedDeckId === id) S.expandedDeckId = null; renderAll(); break;
+      case 'preview-image': {
+        const img = store.images.find(x => x.id === id);
+        if (img) openPreview('image', img.name, { url: img.url });
+        break;
+      }
+      case 'del-image': api.removeImage(id); renderAll(); break;
+      case 'preview-qa': { const q = findQa(); if (q) openPreview('qa', q.question, { qa: q }); break; }
+      case 'toggle-qa': S.expandedQaId = S.expandedQaId === id ? null : id; renderList(); break;
+      case 'del-qa': api.removeQa(id); if (S.expandedQaId === id) S.expandedQaId = null; renderAll(); break;
+      case 'add-qa': { const p = api.addQa(); S.expandedQaId = p.id; renderAll(); break; }
+      case 'set-correct': { const q = findQa(); if (q) { api.setCorrectOption(q, +el.dataset.idx); renderList(); } break; }
+      case 'del-option': {
+        const q = findQa();
+        if (q && q.options.length > 2) { q.options.splice(+el.dataset.idx, 1); renderList(); }
+        break;
+      }
+      case 'add-option': {
+        const q = findQa();
+        if (q) { q.options.push({ text: `选项 ${String.fromCharCode(65 + q.options.length)}`, correct: false }); renderList(); }
+        break;
+      }
+      case 'pv-close': closePreview(); break;
+      case 'pv-mask': if (e.target === el) closePreview(); break;
+      case 'pv-prev': if (S.previewPage > 1) { S.previewPage -= 1; renderPreview(); } break;
+      case 'pv-next': {
+        if (S.preview && S.preview.deck && S.previewPage < S.preview.deck.pages.length) { S.previewPage += 1; renderPreview(); }
+        break;
+      }
+    }
+  });
+
+  /* v-model 等价：input/change 直接写回 store */
+  root.addEventListener('input', (e) => {
+    const el = e.target.closest('[data-ml-input]');
+    if (!el || !root.contains(el)) return;
+    const kind = el.dataset.mlInput;
+    if (kind === 'page-title') {
+      const d = store.decks.find(x => x.id === el.dataset.deck);
+      const page = d && d.pages[+el.dataset.idx];
+      if (page) page.title = el.value;
+    } else if (kind === 'page-bullets') {
+      const d = store.decks.find(x => x.id === el.dataset.deck);
+      const page = d && d.pages[+el.dataset.idx];
+      const key = `${el.dataset.deck}-${el.dataset.idx}`;
+      S.pageText[key] = el.value;
+      if (page) page.bullets = el.value.split('\n').map(l => l.trim()).filter(Boolean);
+    } else if (kind === 'qa-question') {
+      const q = store.qaPairs.find(x => x.id === el.dataset.id);
+      if (q) { q.question = el.value; refreshQaSummary(q); }
+    } else if (kind === 'qa-option') {
+      const q = store.qaPairs.find(x => x.id === el.dataset.id);
+      const opt = q && q.options[+el.dataset.idx];
+      if (opt) opt.text = el.value;
+    } else if (kind === 'qa-answer') {
+      const q = store.qaPairs.find(x => x.id === el.dataset.id);
+      if (q) { q.answer = el.value; }
+    }
+  });
+  root.addEventListener('change', (e) => {
+    const el = e.target.closest('[data-ml-input="qa-type"]');
+    if (!el || !root.contains(el)) return;
+    const q = store.qaPairs.find(x => x.id === el.dataset.id);
+    if (!q) return;
+    q.type = el.value;
+    if (q.type !== 'multi') {
+      const firstCorrect = q.options.findIndex(o => o.correct);
+      q.options.forEach((opt, i) => { opt.correct = i === Math.max(0, firstCorrect); });
+    }
+    renderList();
+  });
+  function refreshQaSummary(q) {
+    const item = root.querySelector(`.ml-item.qa [data-ml="toggle-qa"][data-id="${q.id}"]`);
+    const card = item && item.closest('.ml-item');
+    if (!card) return;
+    const strong = card.querySelector('.ml-info strong');
+    const span = card.querySelector('.ml-info span');
+    if (strong) strong.textContent = q.question;
+    if (span) span.textContent = `${q.type === 'single' ? '单选' : q.type === 'multi' ? '多选' : '判断'} · 正确答案：${q.options.filter(o => o.correct).map(o => o.text).join('、') || '未设置'}`;
+  }
+
+  renderAll();
+});
+</script>
+</body>
+</html>

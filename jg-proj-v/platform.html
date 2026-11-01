@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平台概览 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+.overview-hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.55fr);
+  gap: 24px;
+  padding: 28px 32px;
+  border-radius: 22px;
+  color: #fff;
+  background:
+    radial-gradient(520px 260px at 92% 6%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 66%),
+    radial-gradient(460px 280px at 6% 110%, rgba(109, 91, 246, 0.22), transparent 66%),
+    linear-gradient(135deg, #081426 0%, #10294f 58%, #0a1d3a 100%);
+  box-shadow: 0 24px 56px rgba(10, 24, 48, 0.22);
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(120, 165, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 165, 255, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(circle at 36% 40%, #000, transparent 78%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.hero-code {
+  padding: 4px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-family: var(--num);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: rgba(226, 238, 255, 0.8);
+}
+
+.hero-stage {
+  font-size: 9.5px;
+  color: rgba(190, 210, 244, 0.5);
+}
+
+.hero-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9.5px;
+  color: rgba(190, 210, 244, 0.55);
+}
+
+.live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #37d6a8;
+  box-shadow: 0 0 0 3px rgba(55, 214, 168, 0.14);
+}
+
+.hero-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 13px;
+}
+
+.hero-icon {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  flex: none;
+}
+
+.hero-title h1 {
+  font-size: 27px;
+  font-weight: 740;
+  letter-spacing: -0.01em;
+}
+
+.hero-tagline {
+  margin-top: 10px;
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  color: color-mix(in srgb, var(--accent) 65%, white);
+}
+
+.hero-desc {
+  margin-top: 8px;
+  max-width: 720px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: rgba(190, 210, 244, 0.6);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 17px;
+}
+
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(238, 245, 255, 0.88);
+  font-size: 10.5px;
+  font-weight: 600;
+  transition: 0.18s;
+}
+
+.hero-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.hero-btn.primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 82%, white), var(--accent));
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+.hero-metrics {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-content: center;
+}
+
+.hero-metric {
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+}
+
+.hero-metric > span {
+  display: block;
+  font-size: 9.5px;
+  color: rgba(186, 208, 246, 0.52);
+}
+
+.hero-metric strong {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--num);
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.hero-metric strong small {
+  font-size: 9px;
+  margin-left: 2px;
+  color: rgba(190, 212, 248, 0.55);
+  font-weight: 500;
+}
+
+.hero-metric em {
+  display: block;
+  margin-top: 3px;
+  font-size: 8.5px;
+  font-style: normal;
+  color: #61d7b5;
+}
+
+.overview-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.spot-card {
+  position: relative;
+  overflow: hidden;
+  padding: 15px 17px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.66));
+  box-shadow: var(--shadow-sm);
+}
+
+.spot-card::after {
+  content: '';
+  position: absolute;
+  right: -18px;
+  bottom: -28px;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--spot-glow), transparent 68%);
+}
+
+.spot-card.blue { --spot-glow: rgba(47, 107, 255, 0.18); }
+.spot-card.green { --spot-glow: rgba(15, 157, 143, 0.18); }
+.spot-card.amber { --spot-glow: rgba(224, 118, 47, 0.18); }
+.spot-card.violet { --spot-glow: rgba(109, 91, 246, 0.18); }
+.spot-card.red { --spot-glow: rgba(214, 69, 80, 0.18); }
+
+.spot-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.spot-head svg {
+  color: var(--muted-2);
+}
+
+.spot-value {
+  margin-top: 7px;
+  font-family: var(--num);
+  font-size: 22px;
+  font-weight: 720;
+  letter-spacing: -0.02em;
+}
+
+.spot-value small {
+  margin-left: 3px;
+  font-family: var(--font);
+  font-size: 9px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.spot-desc {
+  margin-top: 6px;
+  font-size: 9.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.65fr);
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.module-group + .module-group {
+  margin-top: 16px;
+}
+
+.module-group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.group-name {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.group-count {
+  font-size: 9.5px;
+  color: var(--muted-2);
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 8px;
+}
+
+.module-card {
+  display: block;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.5);
+  transition: 0.18s ease;
+}
+
+.module-card:hover {
+  background: #fff;
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(23, 43, 82, 0.07);
+}
+
+.module-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.module-top strong {
+  font-size: 11.5px;
+  font-weight: 620;
+  line-height: 1.4;
+}
+
+.module-count {
+  font-family: var(--num);
+  font-size: 10px;
+  color: var(--muted);
+  flex: none;
+  white-space: nowrap;
+}
+
+.module-count small {
+  font-size: 8px;
+  color: var(--muted-2);
+}
+
+.module-card p {
+  margin-top: 4px;
+  font-size: 9px;
+  line-height: 1.5;
+  color: var(--muted);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.module-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 7px;
+  color: var(--muted-2);
+}
+
+.module-card:hover .module-foot svg {
+  color: var(--accent);
+  transform: translateX(2px);
+}
+
+.module-foot svg {
+  transition: 0.18s;
+}
+
+.chart-foot {
+  display: flex;
+  gap: 14px;
+  margin-top: 4px;
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+.chart-foot span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.chart-foot i {
+  width: 7px;
+  height: 2px;
+  border-radius: 2px;
+}
+
+.stage-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.stage-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 0;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.stage-item .stage-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(19, 33, 60, 0.12);
+  flex: none;
+}
+
+.stage-item.done .stage-dot {
+  background: var(--green);
+}
+
+.stage-item.current .stage-name {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.stage-item.current .stage-dot {
+  box-shadow: 0 0 0 4px rgba(15, 157, 143, 0.12);
+}
+
+.stage-name {
+  flex: 1;
+}
+
+.stage-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 9.5px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.next-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--line);
+}
+
+.next-step:last-of-type {
+  border-bottom: 0;
+}
+
+.next-index {
+  font-family: var(--num);
+  font-size: 9px;
+  color: var(--muted-2);
+  margin-top: 2px;
+}
+
+.next-step strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 620;
+}
+
+.next-step span {
+  display: block;
+  margin-top: 2px;
+  font-size: 9.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.next-link {
+  margin-top: 8px;
+  font-size: 10.5px;
+}
+
+.overview-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 15px;
+  padding: 12px 16px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 11px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.overview-foot > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 1200px) {
+  .overview-hero {
+    grid-template-columns: 1fr;
+  }
+  .hero-metrics {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .overview-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .hero-title h1 {
+    font-size: 21px;
+  }
+  .hero-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+  .overview-kpis {
+    grid-template-columns: 1fr;
+  }
+  .module-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<main class="content"><div class="page" id="page"></div></main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script>
+  document.body.dataset.platform = new URLSearchParams(location.search).get('p') || 'base'
+</script>
+<script src="assets/js/common.js"></script>
+<script src="assets/vendor/echarts.min.js"></script>
+<script>
+(function () {
+  const p = SEED.platformMap[document.body.dataset.platform]
+  const page = document.getElementById('page')
+  if (!p) {
+    page.innerHTML = '<div class="empty">平台不存在，请从 <a href="map.html" style="color: var(--blue)">功能地图</a> 进入。</div>'
+    return
+  }
+  document.title = p.name + ' · 智慧教育一体化平台'
+  const esc = UI.esc
+  const icon = UI.icon
+
+  const groups = []
+  for (const m of p.modules) {
+    const name = m.group || '平台模块'
+    let g = groups.find((item) => item.name === name)
+    if (!g) { g = { name, items: [] }; groups.push(g) }
+    g.items.push(m)
+  }
+
+  const stageList = ['基础期', '核心期', '第三阶段', '成熟期']
+  const stage = p.stage
+  const stageIndex = stage.includes('基础') ? 0 : stage.includes('核心') ? 1 : stage.includes('第三') ? 2 : 3
+
+  const totalCount = p.modules.reduce((s, m) => s + (m.count ?? 0), 0)
+
+  page.innerHTML = `
+    <section class="overview-hero" style="--accent: ${p.accent}">
+      <div class="hero-grid"></div>
+      <div class="hero-content">
+        <div class="hero-top">
+          <span class="hero-code">${esc(p.code)} · 平台概览</span>
+          <span class="hero-stage">${esc(p.stage)}</span>
+          <span class="hero-note"><span class="live-dot"></span>运行中</span>
+        </div>
+        <div class="hero-title">
+          <span class="hero-icon">${UI.platformIcon(p.icon, 24)}</span>
+          <h1>${esc(p.name)}</h1>
+        </div>
+        <p class="hero-tagline">${esc(p.tagline)}</p>
+        <p class="hero-desc">${esc(p.description)}</p>
+        <div class="hero-actions">
+          <a href="${UI.moduleUrl(p.key, p.modules[0].id)}" class="hero-btn primary">${icon('workflow', 15)}进入首个模块</a>
+          <a href="screen.html" class="hero-btn">${icon('monitor-play', 15)}数据大屏</a>
+          <a href="portal.html" class="hero-btn">${icon('layers', 15)}首页</a>
+        </div>
+      </div>
+      <div class="hero-metrics">
+        ${p.metrics.map((m) => `
+        <div class="hero-metric">
+          <span>${esc(m.label)}</span>
+          <strong>${esc(m.value)}<small>${esc(m.unit)}</small></strong>
+          <em>${esc(m.trend)}</em>
+        </div>`).join('')}
+      </div>
+    </section>
+
+    <div class="overview-kpis">
+      ${p.spotlights.map((s) => `
+      <div class="spot-card ${esc(s.tone)}">
+        <div class="spot-head"><span>${esc(s.title)}</span>${icon('sparkles', 14)}</div>
+        <div class="spot-value">${esc(s.value)}<small>${esc(s.unit)}</small></div>
+        <div class="spot-desc">${esc(s.desc)}</div>
+      </div>`).join('')}
+    </div>
+
+    <div class="overview-grid">
+      <section class="panel module-panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title"><span class="panel-titlebar"></span>模块与功能布局</div>
+            <div class="panel-sub">${p.modules.length} 个一级模块 · ${totalCount} 条功能 · 点击进入模块功能清单</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          ${groups.map((g) => `
+          <div class="module-group">
+            <div class="module-group-head">
+              <span class="group-name">${esc(g.name)}</span>
+              <span class="group-count">${g.items.length} 个模块</span>
+            </div>
+            <div class="module-grid">
+              ${g.items.map((m) => `
+              <a href="${UI.moduleUrl(p.key, m.id)}" class="module-card" style="--accent: ${p.accent}">
+                <div class="module-top">
+                  <strong>${esc(m.name)}</strong>
+                  <span class="module-count">${m.count ?? '待细分'}${m.count ? '<small> 条</small>' : ''}</span>
+                </div>
+                <p>${esc(m.summary)}</p>
+                <div class="module-foot">
+                  <span class="tag gray">${esc(m.services.split(' + ')[0])}</span>
+                  ${icon('chevron-right', 13)}
+                </div>
+              </a>`).join('')}
+            </div>
+          </div>`).join('')}
+        </div>
+      </section>
+
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>平台使用趋势</div>
+            <span class="tiny muted">演示数据</span>
+          </div>
+          <div class="panel-body">
+            <div id="trendChart"></div>
+            <div class="chart-foot">
+              <span><i style="background: ${p.accent}"></i>模块访问</span>
+              <span><i style="background: #0f9d8f"></i>能力调用</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>建设阶段</div>
+          </div>
+          <div class="panel-body">
+            <div class="stage-list">
+              ${stageList.map((s, i) => `
+              <div class="stage-item${i <= stageIndex ? ' done' : ''}${i === stageIndex ? ' current' : ''}">
+                <span class="stage-dot"></span>
+                <span class="stage-name">${s}</span>
+                ${i === stageIndex ? '<span class="tag green">当前</span>' : ''}
+              </div>`).join('')}
+            </div>
+            <div class="divider"></div>
+            <div class="stage-note">
+              <span class="tag outline">架构形态</span>
+              <p>${stage.includes('基础') ? '模块化单体 + 少量独立服务，容器化与 CI/CD 就位。' : stage.includes('核心') ? '核心域微服务化，独立资源池与数据中台初具。' : stage.includes('第三') ? '全域微服务 + 独立 AI/媒体资源池 + OLAP 预聚合。' : '按限界上下文拆分，开放生态与架构治理常态化。'}</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>下一步</div>
+          </div>
+          <div class="panel-body">
+            <div class="next-step">
+              <span class="next-index">01</span>
+              <div><strong>补全功能参数</strong><span>按功能参数总表逐模块录入字段、流程与验收口径</span></div>
+            </div>
+            <div class="next-step">
+              <span class="next-index">02</span>
+              <div><strong>页面原型细化</strong><span>为高频模块补充列表、详情、配置与看板页面</span></div>
+            </div>
+            <div class="next-step">
+              <span class="next-index">03</span>
+              <div><strong>接口联调</strong><span>以 Mock 层替换为平台真实 API 与权限上下文</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>`
+
+  const seedNum = p.key.length + p.modules.length
+  const labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+  const base = p.modules.length * 120 + 600
+  const a = labels.map((_, i) => Math.round(base * (0.78 + ((i * 17 + seedNum * 13) % 30) / 100)))
+  const b = labels.map((_, i) => Math.round(base * 0.42 * (0.72 + ((i * 11 + seedNum * 5) % 36) / 100)))
+  UI.chart(document.getElementById('trendChart'), {
+    grid: { top: 18, right: 12, bottom: 24, left: 42 },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(10, 24, 46, 0.94)',
+      borderWidth: 0,
+      textStyle: { color: '#fff', fontSize: 11 },
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: labels,
+      axisLine: { lineStyle: { color: 'rgba(19,33,60,0.1)' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#8c98ab', fontSize: 10 },
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: 'rgba(19,33,60,0.06)', type: 'dashed' } },
+      axisLabel: { color: '#8c98ab', fontSize: 10 },
+    },
+    series: [
+      {
+        name: '模块访问',
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 5,
+        data: a,
+        lineStyle: { width: 2.2, color: p.accent },
+        itemStyle: { color: p.accent, borderColor: '#fff', borderWidth: 1 },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: `${p.accent}30` },
+              { offset: 1, color: `${p.accent}03` },
+            ],
+          },
+        },
+      },
+      {
+        name: '能力调用',
+        type: 'line',
+        smooth: true,
+        symbol: 'none',
+        data: b,
+        lineStyle: { width: 1.6, color: '#0f9d8f', type: 'dashed' },
+      },
+    ],
+  }, '200px')
+})()
+</script>
+</body>
+</html>

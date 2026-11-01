@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>首页 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+.hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.8fr);
+  gap: 30px;
+  padding: 28px 34px;
+  border-radius: 22px;
+  color: #fff;
+  background:
+    radial-gradient(600px 300px at 85% 10%, rgba(31, 182, 201, 0.18), transparent 62%),
+    radial-gradient(540px 320px at 8% 110%, rgba(109, 91, 246, 0.24), transparent 64%),
+    linear-gradient(135deg, #0a1932 0%, #102c56 56%, #0b1e3e 100%);
+  box-shadow: 0 24px 60px rgba(10, 24, 48, 0.24);
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(120, 165, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 165, 255, 0.05) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.8), transparent 80%);
+}
+
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero-orb.a {
+  width: 260px;
+  height: 260px;
+  right: -70px;
+  top: -110px;
+  border: 1px solid rgba(130, 178, 255, 0.16);
+  box-shadow: inset 0 0 60px rgba(72, 133, 255, 0.12);
+}
+
+.hero-orb.b {
+  width: 150px;
+  height: 150px;
+  right: 250px;
+  bottom: -90px;
+  background: radial-gradient(circle, rgba(31, 182, 201, 0.16), transparent 68%);
+}
+
+.hero-main {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 10.5px;
+  color: rgba(228, 238, 255, 0.84);
+}
+
+.role-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--role, #4d8dff);
+  box-shadow: 0 0 10px var(--role, #4d8dff);
+}
+
+.hero-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  color: rgba(185, 207, 244, 0.52);
+}
+
+.hero h1 {
+  margin-top: 16px;
+  font-size: 31px;
+  line-height: 1.2;
+  font-weight: 720;
+  letter-spacing: -0.01em;
+}
+
+.hero-main > p {
+  margin-top: 10px;
+  max-width: 660px;
+  font-size: 12px;
+  line-height: 1.75;
+  color: rgba(189, 209, 244, 0.6);
+}
+
+.hero-main > p strong {
+  color: rgba(239, 246, 255, 0.94);
+  font-weight: 650;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.hero-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(238, 245, 255, 0.9);
+  font-size: 11.5px;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.hero-action:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+}
+
+.hero-action:active {
+  transform: scale(0.97);
+}
+
+.hero-action.primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, #4d86ff, #2f6bff);
+  box-shadow: 0 12px 24px rgba(20, 64, 170, 0.34);
+}
+
+.hero-side {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+}
+
+.hero-side-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10.5px;
+  color: rgba(218, 232, 255, 0.76);
+}
+
+.hero-side-head .tiny {
+  margin-left: auto;
+  color: rgba(175, 200, 240, 0.4);
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #37d6a8;
+  box-shadow: 0 0 0 4px rgba(55, 214, 168, 0.12);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(55, 214, 168, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(55, 214, 168, 0.03);
+  }
+}
+
+.hero-side-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 10px;
+  margin-top: 16px;
+}
+
+.hero-side-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hero-side-grid strong {
+  font-family: var(--num);
+  font-size: 21px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff, #9fc2ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-side-grid strong span {
+  font-size: 10px;
+  color: rgba(190, 211, 247, 0.6);
+}
+
+.hero-side-grid div > span {
+  font-size: 9.5px;
+  color: rgba(178, 201, 242, 0.46);
+}
+
+.hero-side-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  font-size: 9.5px;
+  line-height: 1.5;
+  color: rgba(200, 218, 250, 0.62);
+}
+
+.hero-side-note svg:last-child {
+  margin-left: auto;
+  flex: none;
+}
+
+.portal-kpis {
+  margin-top: 16px;
+}
+
+.portal-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(340px, 0.8fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+  gap: 10px;
+}
+
+.app-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.64);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.app-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(47, 107, 255, 0.2);
+  background: #fff;
+  box-shadow: 0 14px 30px rgba(23, 43, 82, 0.1);
+}
+
+.app-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+}
+
+.app-name {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.app-desc {
+  margin-top: 4px;
+  min-height: 30px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.app-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 9px;
+  color: var(--muted-2);
+}
+
+.app-card-more {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-style: dashed;
+  background: transparent;
+}
+
+.more-plus {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
+  font-size: 18px;
+  color: var(--muted);
+}
+
+.course-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.course-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.5);
+  transition: 0.18s;
+}
+
+.course-row:hover {
+  border-color: var(--line);
+  background: #fff;
+}
+
+.course-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  flex: none;
+}
+
+.course-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.course-main strong {
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.course-code {
+  margin-left: 7px;
+  font-size: 10px;
+  color: var(--muted-2);
+}
+
+.course-meta {
+  display: flex;
+  gap: 14px;
+  margin: 5px 0 7px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.course-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.course-go {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--muted-2);
+  flex: none;
+}
+
+.course-go:hover {
+  color: var(--blue);
+  background: rgba(47, 107, 255, 0.07);
+}
+
+.chart-legend {
+  display: flex;
+  gap: 12px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.chart-legend i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.todo-body {
+  padding-top: 8px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  text-align: left;
+  transition: 0.16s;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.todo-item:hover {
+  background: rgba(47, 107, 255, 0.045);
+}
+
+.todo-check {
+  color: var(--muted-2);
+  padding-top: 2px;
+  flex: none;
+}
+
+.todo-check.done {
+  color: var(--green);
+}
+
+.todo-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-title {
+  display: block;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.todo-title.done {
+  color: var(--muted-2);
+  text-decoration: line-through;
+}
+
+.todo-meta {
+  display: flex;
+  gap: 10px;
+  margin-top: 3px;
+  font-size: 9.5px;
+  color: var(--muted-2);
+}
+
+.todo-due {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--amber);
+}
+
+.priority {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  margin-top: 7px;
+  flex: none;
+}
+
+.priority.high {
+  background: var(--red);
+  box-shadow: 0 0 0 3px rgba(214, 69, 80, 0.1);
+}
+
+.priority.medium {
+  background: var(--amber);
+}
+
+.priority.low {
+  background: var(--muted-2);
+}
+
+.todo-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 8px;
+  border-top: 1px dashed var(--line);
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.todo-more:hover {
+  color: var(--blue);
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 0 0 15px 0;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.time {
+  width: 38px;
+  font-family: var(--num);
+  font-size: 10.5px;
+  color: var(--muted);
+  padding-top: 1px;
+  flex: none;
+}
+
+.timeline-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tone) 12%, transparent);
+  flex: none;
+}
+
+.timeline-dot::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 11px;
+  width: 1px;
+  height: 24px;
+  background: var(--line);
+}
+
+.timeline-item:last-child .timeline-dot::after {
+  display: none;
+}
+
+.timeline-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.timeline-content strong {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.timeline-content span {
+  display: block;
+  margin-top: 2px;
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+.notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.notice-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.notice-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+
+.notice-item:hover .notice-title {
+  color: var(--blue);
+}
+
+.notice-date {
+  font-family: var(--num);
+  font-size: 9.5px;
+  color: var(--muted-2);
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.activity-dot {
+  width: 6px;
+  height: 6px;
+  margin-top: 5px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.activity-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-main strong {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.activity-main span {
+  display: block;
+  margin-top: 1px;
+  font-size: 9.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.activity-time {
+  font-family: var(--num);
+  font-size: 9px;
+  color: var(--muted-2);
+}
+
+.portal-footer-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 14px 20px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.4);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.portal-footer-strip > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.portal-footer-strip strong {
+  color: var(--ink);
+  font-family: var(--num);
+}
+
+.strip-icon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(47, 107, 255, 0.08);
+  color: var(--blue);
+}
+
+@media (max-width: 1280px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .hero-side {
+    display: none;
+  }
+  .portal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .hero {
+    padding: 22px;
+  }
+  .hero h1 {
+    font-size: 24px;
+  }
+  .app-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .course-meta {
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+}
+</style>
+</head>
+<body data-page="portal">
+<main class="content">
+  <div class="page">
+    <section class="hero">
+      <div class="hero-grid"></div>
+      <span class="hero-orb a"></span>
+      <span class="hero-orb b"></span>
+      <div class="hero-main" id="heroMain"></div>
+      <div class="hero-side">
+        <div class="hero-side-head">
+          <span class="pulse-dot"></span>
+          <span>平台运行态势</span>
+          <span class="tiny">实时</span>
+        </div>
+        <div class="hero-side-grid">
+          <div>
+            <strong>7</strong>
+            <span>平台在线</span>
+          </div>
+          <div>
+            <strong>99.9<span>%</span></strong>
+            <span>服务可用性</span>
+          </div>
+          <div>
+            <strong>246<span>万</span></strong>
+            <span>今日调用</span>
+          </div>
+          <div>
+            <strong>12<span>ms</span></strong>
+            <span>网关时延</span>
+          </div>
+        </div>
+        <div class="hero-side-note" id="heroSideNote"></div>
+      </div>
+    </section>
+
+    <div class="kpi-grid portal-kpis" id="kpiGrid"></div>
+
+    <div class="portal-grid">
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title"><span class="panel-titlebar"></span>我的应用</div>
+              <div class="panel-sub">7 个业务平台以应用形态接入，入口可见性由角色—应用授权矩阵控制</div>
+            </div>
+            <a href="apps.html" class="link-more" id="appsMoreLink"></a>
+          </div>
+          <div class="panel-body">
+            <div class="app-grid" id="appGrid"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title"><span class="panel-titlebar"></span>我的课程</div>
+              <div class="panel-sub">教学进度来自智慧课程平台，资源与图谱能力由公共能力服务供给</div>
+            </div>
+            <a href="platform.html?p=course" class="link-more" id="courseMoreLink"></a>
+          </div>
+          <div class="panel-body">
+            <div class="course-list" id="courseList"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title"><span class="panel-titlebar"></span>教学活跃趋势</div>
+              <div class="panel-sub">本周平台活跃与 AI 调用（数据来自分析链路，不直连业务库）</div>
+            </div>
+            <div class="chart-legend">
+              <span><i style="background: #2f6bff"></i>教学活跃</span>
+              <span><i style="background: #0f9d8f"></i>AI 调用</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="trendChart"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title"><span class="panel-titlebar"></span>我的待办</div>
+              <div class="panel-sub">统一待办中心 · 来自 5 个平台</div>
+            </div>
+            <div class="segmented" id="todoTabs">
+              <button class="active" data-filter="all">全部</button>
+              <button data-filter="open">待办</button>
+            </div>
+          </div>
+          <div class="panel-body todo-body" id="todoBody"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title"><span class="panel-titlebar"></span>今日日程</div>
+              <div class="panel-sub" id="scheduleSub"></div>
+            </div>
+            <span class="muted" id="scheduleIcon"></span>
+          </div>
+          <div class="panel-body">
+            <div class="timeline" id="scheduleList"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title"><span class="panel-titlebar"></span>通知与动态</div>
+              <div class="panel-sub">来自公告、平台与 AI 运营</div>
+            </div>
+            <a href="messages.html" class="link-more" id="noticeMoreLink"></a>
+          </div>
+          <div class="panel-body">
+            <div class="notice-list" id="noticeList"></div>
+            <div class="divider"></div>
+            <div class="activity-list" id="activityList"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/vendor/echarts.min.js"></script>
+<script>
+(function () {
+  const { icon, platformIcon, session, moduleUrl, overviewUrl, chart, esc } = UI
+  const P = SEED.portal
+  const platformMap = SEED.platformMap
+  const $ = (s) => document.querySelector(s)
+
+  const h = new Date().getHours()
+  const greeting = h < 6 ? '夜深了' : h < 11 ? '上午好' : h < 14 ? '午安' : h < 18 ? '下午好' : '晚上好'
+  const today = new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' })
+
+  const role = session.role
+  const roleKey = session.roleKey
+
+  const todoList = P.todos.map((t) => ({ ...t, done: false }))
+  let todoFilter = 'all'
+  const openCount = () => todoList.filter((t) => !t.done).length
+  const unreadCount = P.messages.filter((m) => m.unread).length
+
+  function routeTo(route) {
+    const m = /^\/([^/]+)\/(.+)$/.exec(route || '')
+    if (!m) return 'portal.html'
+    return m[2] === 'overview' ? overviewUrl(m[1]) : moduleUrl(m[1], m[2])
+  }
+
+  function renderHero() {
+    $('#heroMain').innerHTML = `
+      <div class="hero-top">
+        <span class="hero-role" style="--role: ${role.color}">
+          <span class="role-dot"></span>${esc(role.scope)}
+        </span>
+        <span class="hero-date">${icon('calendar-days', 13)}${today} · 2026 秋季学期第 9 周</span>
+      </div>
+      <h1>${greeting}，${esc(role.name)}</h1>
+      <p>
+        今日有 <strong>${openCount()}</strong> 项待办、<strong>${unreadCount}</strong> 条未读消息。
+        教学运行平稳，统一身份与公共能力服务均正常。
+      </p>
+      <div class="hero-actions">
+        <a href="${moduleUrl('course', 'course-build')}" class="hero-action primary">${icon('plus', 15)}新建课程</a>
+        <a href="${moduleUrl('base', 'engine')}" class="hero-action">${icon('workflow', 15)}发起审批</a>
+        <a href="${moduleUrl('course', 'ai-workbench')}" class="hero-action">${icon('sparkles', 15)}AI 备课</a>
+        <a href="screen.html" class="hero-action">${icon('monitor-play', 15)}进入大屏</a>
+      </div>`
+  }
+
+  function renderKpis() {
+    const pending = P.roleTodos[roleKey] ?? 6
+    let kpis
+    if (roleKey === 'student') {
+      kpis = [
+        { label: '待完成学习任务', value: String(pending), unit: '项', trend: '3 项今日截止' },
+        { label: '在学课程', value: '6', unit: '门', trend: '完成率 79.4%' },
+        { label: '本周学习时长', value: '18.6', unit: '小时', trend: '+2.4h' },
+        { label: '知识图谱掌握', value: '74', unit: '%', trend: '+6.2%' },
+      ]
+    } else if (roleKey === 'admin' || roleKey === 'exam') {
+      kpis = [
+        { label: '待处理事项', value: String(pending), unit: '项', trend: '2 项高优' },
+        { label: '在线用户', value: '9,864', unit: '人', trend: '+12.4%' },
+        { label: '运行告警', value: '7', unit: '条', trend: '已处置 5' },
+        { label: '服务可用性', value: '99.9', unit: '%', trend: '达标' },
+      ]
+    } else {
+      kpis = [
+        { label: '待处理事项', value: String(pending), unit: '项', trend: '2 项高优' },
+        { label: '在授课程', value: '3', unit: '门', trend: '学生 136 人' },
+        { label: '本周教学活跃', value: '8.2', unit: '千人次', trend: '+7.3%' },
+        { label: 'AI 调用', value: '1,240', unit: '次', trend: '满意度 94%' },
+      ]
+    }
+    const glows = ['rgba(47,107,255,.18)', 'rgba(109,91,246,.18)', 'rgba(15,157,143,.18)', 'rgba(224,118,47,.18)']
+    const bars = [18, 26, 22, 34, 28, 42, 36, 48]
+    $('#kpiGrid').innerHTML = kpis.map((kpi, index) => `
+      <div class="kpi" style="--kpi-glow: ${glows[index]}">
+        <div class="kpi-label">
+          <span>${esc(kpi.label)}</span>
+          ${icon('arrow-up-right', 13)}
+        </div>
+        <div class="kpi-value">${esc(kpi.value)}<span class="kpi-unit">${esc(kpi.unit)}</span></div>
+        <div class="kpi-foot"><span class="kpi-trend">${esc(kpi.trend)}</span></div>
+        <div class="mini-bars">
+          ${bars.map((v, i) => `<i style="height: ${v + index * 6}%; opacity: ${0.35 + i / 18}"></i>`).join('')}
+        </div>
+      </div>`).join('')
+  }
+
+  function renderApps() {
+    const mainApps = P.portalApps.filter((a) => ['course', 'major', 'exam', 'ai', 'industry', 'project', 'base'].includes(a.platformKey)).slice(0, 7)
+    $('#appGrid').innerHTML = mainApps.map((app) => {
+      const p = platformMap[app.platformKey]
+      return `
+      <a href="${routeTo(p.route)}" class="app-card">
+        <span class="app-icon" style="color: ${p.accent}; background: ${p.accent}12">
+          ${platformIcon(p.icon, 18)}
+        </span>
+        <span class="app-name">${esc(app.name)}</span>
+        <span class="app-desc">${esc(app.desc)}</span>
+        <span class="app-foot">
+          <span class="tag gray">${esc(app.tag)}</span>
+          ${icon('arrow-up-right', 13)}
+        </span>
+      </a>`
+    }).join('') + `
+      <a href="apps.html" class="app-card app-card-more">
+        <span class="more-plus">+</span>
+        <span class="app-name">更多应用</span>
+        <span class="app-desc">低代码应用、第三方 URL 应用与全部授权入口</span>
+      </a>`
+  }
+
+  function renderCourses() {
+    $('#courseList').innerHTML = P.courses.map((course) => `
+      <div class="course-row">
+        <div class="course-avatar" style="background: linear-gradient(135deg, ${course.tone}, ${course.tone}bb)">
+          ${esc(course.name.slice(0, 2))}
+        </div>
+        <div class="course-main">
+          <div class="between">
+            <div>
+              <strong>${esc(course.name)}</strong>
+              <span class="course-code">${esc(course.code)} · ${esc(course.term)}</span>
+            </div>
+            <span class="tag${course.status === '进行中' ? ' green' : ''}">${esc(course.status)}</span>
+          </div>
+          <div class="course-meta">
+            <span>${icon('users', 12)}${course.students} 人</span>
+            <span>${icon('book-open', 12)}${course.tasks} 个任务点</span>
+            <span>${icon('clock-3', 12)}进度 ${course.progress}%</span>
+          </div>
+          <div class="progress" style="--c: ${course.tone}"><i style="width: ${course.progress}%; background: linear-gradient(90deg, ${course.tone}, ${course.tone}99)"></i></div>
+        </div>
+        <a href="${moduleUrl('course', 'course-build')}" class="course-go">${icon('chevron-right', 15)}</a>
+      </div>`).join('')
+  }
+
+  function renderTodos() {
+    const visible = todoFilter === 'open' ? todoList.filter((t) => !t.done) : todoList
+    $('#todoBody').innerHTML = visible.map((todo) => {
+      const idx = todoList.indexOf(todo)
+      return `
+      <button class="todo-item" data-idx="${idx}">
+        <span class="todo-check${todo.done ? ' done' : ''}">
+          ${icon(todo.done ? 'check-circle-2' : 'circle', 15)}
+        </span>
+        <span class="todo-main">
+          <span class="todo-title${todo.done ? ' done' : ''}">${esc(todo.title)}</span>
+          <span class="todo-meta">
+            <span>${esc(todo.source)}</span>
+            <span class="todo-due">${icon('clock-3', 11)}${esc(todo.due)}</span>
+          </span>
+        </span>
+        <span class="priority ${esc(todo.priority)}"></span>
+      </button>`
+    }).join('') + `
+      <a href="messages.html" class="todo-more">查看全部待办与消息${icon('arrow-right', 12)}</a>`
+    $('#todoBody').querySelectorAll('.todo-item').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const t = todoList[+btn.dataset.idx]
+        t.done = !t.done
+        renderTodos()
+        renderHero()
+      })
+    })
+  }
+
+  function renderSchedule() {
+    const toneMap = { blue: '#2f6bff', violet: '#6d5bf6', amber: '#e0762f' }
+    $('#scheduleSub').textContent = today
+    $('#scheduleIcon').innerHTML = icon('calendar-days', 16)
+    $('#scheduleList').innerHTML = P.schedule.map((item) => `
+      <div class="timeline-item" style="--tone: ${toneMap[item.tone] || '#0f9d8f'}">
+        <span class="time">${esc(item.time)}</span>
+        <span class="timeline-dot"></span>
+        <div class="timeline-content">
+          <strong>${esc(item.title)}</strong>
+          <span>${esc(item.place)}</span>
+        </div>
+        <span class="tag gray">${esc(item.tag)}</span>
+      </div>`).join('')
+  }
+
+  function renderNotices() {
+    $('#noticeList').innerHTML = P.notices.slice(0, 3).map((notice) => `
+      <a href="#" class="notice-item">
+        <span class="tag gray">${esc(notice.tag)}</span>
+        <span class="notice-title">${esc(notice.title)}</span>
+        <span class="notice-date">${esc(notice.date)}</span>
+      </a>`).join('')
+    $('#activityList').innerHTML = P.activities.slice(0, 3).map((item) => `
+      <div class="activity-item">
+        <span class="activity-dot" style="background: ${item.tone}"></span>
+        <span class="activity-main">
+          <strong>${esc(item.title)}</strong>
+          <span>${esc(item.desc)}</span>
+        </span>
+        <span class="activity-time">${esc(item.time)}</span>
+      </div>`).join('')
+  }
+
+  $('#heroSideNote').innerHTML = `${icon('sparkles', 13)}<span>AI 建议：3 个班级存在学习滞后，已生成督学方案</span>${icon('chevron-right', 13)}`
+  $('#appsMoreLink').innerHTML = `全部应用${icon('arrow-right', 12)}`
+  $('#courseMoreLink').innerHTML = `课程工作台${icon('arrow-right', 12)}`
+  $('#noticeMoreLink').innerHTML = `更多${icon('arrow-right', 12)}`
+
+  $('#todoTabs').querySelectorAll('button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      todoFilter = btn.dataset.filter
+      $('#todoTabs').querySelectorAll('button').forEach((b) => b.classList.toggle('active', b === btn))
+      renderTodos()
+    })
+  })
+
+  renderHero()
+  renderKpis()
+  renderApps()
+  renderCourses()
+  renderTodos()
+  renderSchedule()
+  renderNotices()
+
+  chart($('#trendChart'), {
+    grid: { top: 18, right: 12, bottom: 24, left: 40 },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(10, 24, 46, 0.94)',
+      borderWidth: 0,
+      textStyle: { color: '#fff', fontSize: 11 },
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: P.weekTrend.labels,
+      axisLine: { lineStyle: { color: 'rgba(19,33,60,0.10)' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#8c98ab', fontSize: 10 },
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: 'rgba(19,33,60,0.06)', type: 'dashed' } },
+      axisLabel: { color: '#8c98ab', fontSize: 10 },
+    },
+    series: [
+      {
+        name: '教学活跃',
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 5,
+        data: P.weekTrend.active,
+        lineStyle: { width: 2.2, color: '#2f6bff' },
+        itemStyle: { color: '#2f6bff', borderColor: '#fff', borderWidth: 1 },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(47,107,255,0.22)' },
+              { offset: 1, color: 'rgba(47,107,255,0.01)' },
+            ],
+          },
+        },
+      },
+      {
+        name: 'AI 调用',
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 5,
+        data: P.weekTrend.ai,
+        lineStyle: { width: 2, color: '#0f9d8f' },
+        itemStyle: { color: '#0f9d8f', borderColor: '#fff', borderWidth: 1 },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(15,157,143,0.14)' },
+              { offset: 1, color: 'rgba(15,157,143,0.01)' },
+            ],
+          },
+        },
+      },
+    ],
+  }, '218px')
+})()
+</script>
+</body>
+</html>

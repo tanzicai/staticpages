@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 知识库建设平台 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+/* ===== KnowledgeBase.vue scoped（选择器加 .kb-root 前缀） ===== */
+.kb-root .kb-sub-tabs {
+  display: flex; gap: 4px; margin-bottom: 12px;
+  padding: 5px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  overflow-x: auto;
+}
+.kb-root .kb-sub-tabs button {
+  height: 32px; padding: 0 12px; border-radius: 7px;
+  border: 1px solid transparent; background: transparent;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10.5px; color: var(--muted); cursor: pointer; white-space: nowrap;
+  transition: 0.12s;
+}
+.kb-root .kb-sub-tabs button:hover { color: var(--ink-2); }
+.kb-root .kb-sub-tabs button.active { background: var(--violet); color: #fff; }
+
+/* layout tab */
+.kb-root .kb-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) 300px; gap: 12px; }
+.kb-root .kb-page-panel .panel-body { padding: 12px; }
+.kb-root .kb-page {
+  position: relative; width: 100%; height: 480px;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: #fff; overflow: hidden;
+}
+.kb-root .kb-page-content {
+  position: absolute; left: 20px; top: 10px; right: 20px; bottom: 10px;
+  pointer-events: none;
+  font-size: 10px; line-height: 1.8; color: #222;
+}
+.kb-root .kb-page-header { font-size: 9px; text-align: center; color: #999; padding-bottom: 6px; border-bottom: 1px solid #eee; margin-bottom: 8px; }
+.kb-root .kb-page-title { font-size: 14px; font-weight: 700; color: #1a2b4a; margin: 12px 0 8px; }
+.kb-root .kb-page-body p { margin-bottom: 6px; }
+.kb-root .kb-figure { display: inline-block; width: 100px; height: 70px; background: linear-gradient(135deg, rgba(47,107,255,0.2), rgba(109,91,246,0.15)); border-radius: 6px; }
+.kb-root .kb-page-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 9px; }
+.kb-root .kb-page-table th, .kb-root .kb-page-table td { border: 1px solid #ccc; padding: 3px 6px; }
+.kb-root .kb-page-note { position: absolute; bottom: 40px; font-size: 8px; color: #666; font-style: italic; }
+.kb-root .kb-page-footer { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-size: 9px; color: #999; }
+
+.kb-root .kb-region {
+  position: absolute; border: 1.5px solid; border-radius: 4px;
+  cursor: pointer; transition: 0.15s; pointer-events: auto;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.9) inset;
+}
+.kb-root .kb-region.active { box-shadow: 0 0 0 3px rgba(255,255,255,0.9) inset, 0 0 0 3px rgba(0,0,0,0.1); z-index: 5; }
+.kb-root .kb-region-label {
+  position: absolute; top: -16px; left: -1px;
+  padding: 1px 6px; border-radius: 3px 3px 0 0;
+  font-size: 8.5px; font-weight: 600; color: #fff;
+}
+
+.kb-root .kb-regions-panel .panel-body { padding: 10px; }
+.kb-root .kb-region-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 8px; border-radius: 7px; cursor: pointer; font-size: 10.5px;
+}
+.kb-root .kb-region-row.active { background: rgba(109,91,246,0.07); }
+.kb-root .region-type { padding: 2px 7px; border-radius: 4px; color: #fff; font-size: 9px; font-weight: 600; }
+.kb-root .region-pos { font-family: var(--num); color: var(--muted); margin-left: auto; }
+.kb-root .kb-region-legend { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); display: flex; flex-wrap: wrap; gap: 6px; }
+.kb-root .lg { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; color: var(--muted); }
+.kb-root .lg .dot { width: 8px; height: 8px; border-radius: 2px; }
+
+/* OCR */
+.kb-root .kb-ocr-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.kb-root .ocr-col { display: flex; flex-direction: column; gap: 14px; }
+.kb-root .ocr-section-title { font-size: 11px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.kb-root .ocr-checks { display: flex; gap: 6px; flex-wrap: wrap; }
+.kb-root .ocr-check { padding: 5px 10px; border-radius: 6px; background: rgba(109,91,246,0.07); font-size: 10px; color: var(--violet); display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+.kb-root .ocr-check input { accent-color: var(--violet); }
+.kb-root .ocr-merge-btns { display: flex; gap: 5px; }
+.kb-root .ocr-merge-btn {
+  flex: 1; height: 32px; border: 1px solid var(--line); border-radius: 7px;
+  background: #fff; font-size: 10.5px; cursor: pointer; color: var(--muted); transition: 0.12s;
+}
+.kb-root .ocr-merge-btn.active { background: var(--violet); border-color: transparent; color: #fff; }
+.kb-root .ocr-flow { padding: 12px; border-radius: 10px; background: rgba(109,91,246,0.04); border: 1px dashed rgba(109,91,246,0.2); }
+.kb-root .flow-box { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.kb-root .flow-step { padding: 6px 12px; border-radius: 6px; background: #fff; border: 1px solid var(--line); font-size: 10px; }
+.kb-root .flow-step.highlight { background: var(--violet); border-color: transparent; color: #fff; }
+.kb-root .flow-arrow { color: var(--muted); font-weight: 600; }
+.kb-root .flow-note { margin-top: 8px; font-size: 10px; color: var(--muted); }
+
+.kb-root .ocr-tasks-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.kb-root .ocr-task-list { display: flex; flex-direction: column; gap: 5px; }
+.kb-root .ocr-task {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-radius: 7px; background: #fff; border: 1px solid var(--line); font-size: 10.5px;
+}
+.kb-root .ocr-task .violet { color: var(--violet); }
+.kb-root .ocr-task strong { display: block; font-size: 10.5px; font-weight: 620; }
+.kb-root .ocr-task span { font-size: 9px; color: var(--muted); }
+.kb-root .ocr-status { font-size: 9px; padding: 2px 7px; border-radius: 4px; margin-left: auto; }
+.kb-root .ocr-status.已完成 { background: rgba(15,157,143,0.12); color: var(--green); }
+.kb-root .ocr-status.处理中 { background: rgba(224,118,47,0.12); color: var(--amber); }
+.kb-root .ocr-result { margin-top: 10px; }
+.kb-root .ocr-preview { padding: 10px; border-radius: 8px; background: #fff; border: 1px solid var(--line); font-size: 10.5px; }
+.kb-root .ocr-preview-row { padding: 4px 0; border-bottom: 1px dashed var(--line); }
+.kb-root .ocr-preview-row:last-child { border-bottom: 0; }
+.kb-root .ocr-label { font-weight: 600; color: var(--violet); margin-right: 4px; }
+
+/* detect */
+.kb-root .detect-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.kb-root .detect-card { padding: 12px; border-radius: 10px; background: #fff; border: 1px solid var(--line); }
+.kb-root .detect-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.kb-root .detect-label { font-size: 11.5px; font-weight: 600; color: var(--ink-2); }
+.kb-root .detect-body { font-size: 10.5px; color: var(--muted); }
+.kb-root .sim-bars { display: flex; flex-direction: column; gap: 4px; }
+.kb-root .sim-bar { position: relative; height: 18px; border-radius: 5px; background: var(--line); }
+.kb-root .sim-bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; }
+.kb-root .sim-bar span { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font-size: 9px; color: var(--ink-2); font-weight: 600; }
+.kb-root .typo-list { display: flex; flex-direction: column; gap: 4px; }
+.kb-root .typo-item { font-size: 10px; padding: 5px 6px; border-radius: 5px; background: rgba(224,118,47,0.05); }
+.kb-root .typo-item .orig { text-decoration: line-through; color: var(--red); }
+.kb-root .typo-item .arrow { color: var(--muted); margin: 0 4px; }
+.kb-root .typo-item .fixed { color: var(--green); font-weight: 600; }
+.kb-root .typo-item .pos { color: var(--muted); margin-left: 6px; }
+.kb-root .sentence-issue { padding: 6px 8px; border-radius: 5px; background: rgba(224,118,47,0.07); color: var(--amber); font-size: 10px; }
+.kb-root .sensitive-word { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 6px; background: rgba(214,69,80,0.08); color: var(--red); font-size: 10.5px; }
+.kb-root .contradict-note { padding: 6px 10px; border-radius: 5px; background: rgba(15,157,143,0.08); color: var(--green); font-size: 10px; }
+
+/* scope */
+.kb-root .scope-body { padding: 6px 0; }
+.kb-root .scope-header, .kb-root .scope-row {
+  display: grid; grid-template-columns: 180px 100px 100px 1fr; gap: 8px; align-items: center;
+}
+.kb-root .scope-header { font-size: 11px; font-weight: 600; color: var(--muted); padding: 6px 10px; border-bottom: 1px dashed var(--line); }
+.kb-root .scope-row { padding: 7px 10px; font-size: 11px; border-bottom: 1px solid rgba(19,33,60,0.04); }
+.kb-root .scope-label { color: var(--ink-2); font-weight: 500; }
+.kb-root .scope-col { text-align: center; font-size: 10px; }
+.kb-root .scope-checkbox input { accent-color: var(--violet); }
+.kb-root .scope-tag { font-size: 9px; padding: 2px 8px; border-radius: 4px; }
+.kb-root .scope-tag.violet { background: rgba(109,91,246,0.12); color: var(--violet); }
+.kb-root .scope-tag.blue { background: rgba(47,107,255,0.12); color: var(--blue); }
+.kb-root .scope-tag.green { background: rgba(15,157,143,0.12); color: var(--green); }
+.kb-root .scope-tag.gray { background: rgba(140,152,171,0.15); color: var(--muted); }
+
+/* switch */
+.kb-root .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+.kb-root .switch input { opacity: 0; width: 0; height: 0; }
+.kb-root .switch span { position: absolute; inset: 0; background: var(--line); border-radius: 10px; cursor: pointer; transition: 0.15s; }
+.kb-root .switch span::after { content: ''; position: absolute; width: 14px; height: 14px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: 0.15s; }
+.kb-root .switch.on span { background: var(--green); }
+.kb-root .switch.on span::after { left: 18px; }
+
+/* slice */
+.kb-root .slice-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.kb-root .block-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px dashed var(--line); font-size: 11px; }
+.kb-root .block-row:last-child { border-bottom: 0; }
+.kb-root .block-row .amber { color: var(--amber); }
+.kb-root .block-row .violet { color: var(--violet); }
+.kb-root .block-text { flex: 1; }
+.kb-root .block-text strong { display: block; font-size: 11.5px; color: var(--ink-2); }
+.kb-root .block-text span { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
+.kb-root .slice-range { padding: 14px 12px; }
+.kb-root .range-bar { position: relative; height: 22px; border-radius: 10px; background: linear-gradient(90deg, #e0762f, #0f9d8f, #6d5bf6, #2f6bff, #0f9d8f); }
+.kb-root .range-fill { position: absolute; top: 0; bottom: 0; background: rgba(255,255,255,0.3); border-radius: 10px; }
+.kb-root .range-tick { position: absolute; top: -4px; width: 2px; height: 30px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
+.kb-root .range-labels { display: flex; gap: 4px; justify-content: space-between; margin-top: 10px; font-size: 9px; color: var(--muted); }
+.kb-root .slice-tip { margin-top: 12px; padding: 10px; border-radius: 8px; background: rgba(109,91,246,0.06); color: var(--violet); font-size: 11px; display: flex; align-items: center; gap: 6px; }
+.kb-root .slice-tip b { font-family: var(--num); font-weight: 700; margin: 0 2px; }
+
+/* 框选标注工具栏 */
+.kb-root .kb-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.kb-root .kb-draw-types { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+.kb-root .type-chip {
+  height: 24px; padding: 0 9px; border-radius: 6px;
+  border: 1px solid var(--line); background: #fff;
+  font-size: 9.5px; color: var(--muted); cursor: pointer; transition: 0.12s;
+}
+.kb-root .type-chip.active { color: #fff; border-color: transparent; font-weight: 600; }
+.kb-root .kb-page.drawing { cursor: crosshair; }
+.kb-root .kb-page.drawing .kb-region { pointer-events: none; }
+.kb-root .row-del {
+  width: 18px; height: 18px; border-radius: 4px; border: 0; flex: none;
+  background: transparent; color: var(--muted); cursor: pointer;
+  font-size: 12px; line-height: 1; display: grid; place-items: center;
+}
+.kb-root .row-del:hover { background: rgba(214, 69, 80, 0.1); color: var(--red); }
+
+/* OCR 交互 */
+.kb-root .ocr-run { margin-top: 8px; width: 100%; justify-content: center; }
+.kb-root .ocr-preview-row { display: flex; align-items: flex-start; gap: 6px; }
+.kb-root .ocr-text { flex: 1; min-width: 0; }
+.kb-root .ocr-img-holder {
+  flex: 1; min-width: 0; padding: 8px; border-radius: 5px;
+  background: rgba(19, 33, 60, 0.05); color: var(--muted); font-size: 10px;
+  text-align: center; border: 1px dashed var(--line);
+}
+.kb-root .row-toggle {
+  flex: none; height: 20px; padding: 0 7px; border-radius: 4px;
+  border: 1px solid rgba(109, 91, 246, 0.35); background: rgba(109, 91, 246, 0.06);
+  color: var(--violet); font-size: 8.5px; cursor: pointer; white-space: nowrap;
+}
+.kb-root .row-toggle:hover { background: rgba(109, 91, 246, 0.14); }
+.kb-root .detect-off { padding: 6px 10px; border-radius: 5px; background: rgba(19, 33, 60, 0.04); color: var(--muted); font-size: 10px; }
+
+/* 敏感词 / 隐私预览 */
+.kb-root .word-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.kb-root .word-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 4px 3px 8px; border-radius: 6px;
+  border: 1px solid var(--line); background: #fff; font-size: 10px; color: var(--ink-2);
+}
+.kb-root .word-chip.masked { border-color: rgba(214, 69, 80, 0.3); background: rgba(214, 69, 80, 0.05); }
+.kb-root .mini-toggle {
+  height: 16px; padding: 0 6px; border-radius: 3px; border: 0;
+  background: rgba(19, 33, 60, 0.07); color: var(--muted);
+  font-size: 8.5px; cursor: pointer;
+}
+.kb-root .mini-toggle.on { background: var(--red); color: #fff; }
+.kb-root .preview-box { margin-top: 10px; padding: 9px 11px; border-radius: 8px; background: rgba(109, 91, 246, 0.04); border: 1px dashed rgba(109, 91, 246, 0.2); }
+.kb-root .preview-title { font-size: 9px; color: var(--muted-2); margin-bottom: 4px; }
+.kb-root .preview-text { margin: 0; font-size: 10.5px; color: var(--ink-2); line-height: 1.7; }
+
+/* 切片设置 */
+.kb-root .slice-setting { padding: 10px 12px 0; }
+.kb-root .setting-label { display: block; font-size: 10px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.kb-root .range-inputs { display: flex; align-items: center; gap: 7px; }
+.kb-root .range-inputs input {
+  width: 64px; height: 28px; padding: 0 8px; border-radius: 6px;
+  border: 1px solid var(--line); font-size: 11px; color: var(--ink-2); outline: none;
+}
+.kb-root .range-inputs input:focus { border-color: rgba(109, 91, 246, 0.45); }
+.kb-root .range-inputs > span { font-size: 10px; color: var(--muted); }
+.kb-root .slice-checks { display: flex; flex-wrap: wrap; gap: 6px; }
+.kb-root .slice-check {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 9px; border-radius: 6px;
+  border: 1px solid var(--line); background: #fff;
+  font-size: 10px; color: var(--ink-2); cursor: pointer;
+}
+.kb-root .slice-check:has(input:checked) { border-color: rgba(109, 91, 246, 0.4); background: rgba(109, 91, 246, 0.06); color: var(--violet); }
+.kb-root .slice-check input { accent-color: var(--violet); }
+.kb-root .slice-tip { margin: 12px; }
+
+.kb-root .detect-head { cursor: pointer; user-select: none; }
+</style>
+</head>
+<body data-platform="ai" data-module="knowledge">
+<main class="content"><div class="page kb-root">
+  <div class="page-head module-head">
+    <div>
+      <div class="breadcrumb">
+        <a href="portal.html">首页</a><span>/</span>
+        <a href="platform.html?p=ai">AI 能力中心</a><span>/</span>
+        <span>AI 知识库建设平台</span>
+      </div>
+      <div class="module-title-row">
+        <h1 class="page-title">知识库 · 内容管理 &amp; 数据标注 &amp; 治理</h1>
+        <span class="tag blue">版面分析 / 框选标注</span>
+        <span class="tag violet">OCR / 多图合并识别</span>
+        <span class="tag green">内容检测（相似/错字/敏感/矛盾）</span>
+        <span class="tag amber">检测范围 &amp; 切片范围 &amp; 敏感词屏蔽</span>
+      </div>
+      <p class="page-desc">支持版面自动识别 + 页面框选标注（正文/页眉/图像/表格/注释等）；OCR 含流程图识别、多张图片合并识别（上/下合并、左/右合并）；内容检测含相似度、错别字、语句不通、敏感词、文档间矛盾；可配置参与检测与切片的元素类型、敏感词屏蔽、隐私号屏蔽与切片范围。</p>
+    </div>
+  </div>
+
+  <div class="kb-sub-tabs" id="kbSubTabs"></div>
+
+  <!-- 1. 版面分析 -->
+  <div id="tabLayout">
+    <div class="kb-layout">
+      <section class="panel kb-page-panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>PDF 页面 · 自动版面分析（程序识别 + 手工框选标注）</div>
+          <span class="muted tiny" id="kbPageMeta"></span>
+        </div>
+        <div class="panel-body">
+          <div class="kb-toolbar" id="kbToolbar"></div>
+          <div class="kb-page" id="kbPage">
+            <div class="kb-page-content">
+              <div class="kb-page-header">第 3 章 知识图谱构建与管理 · 课程建设系列</div>
+              <div class="kb-page-title">3.1 核心概念</div>
+              <div class="kb-page-body">
+                <p>知识图谱（Knowledge Graph）是 2012 年由 Google 提出的一种语义化的知识网络表示方法...</p>
+                <p><img class="kb-figure" alt="">图 3-1 能力架构示意图</p>
+                <p>知识图谱的基本构成包括：实体（Entity）、关系（Relation）、属性（Attribute）...</p>
+                <p>&nbsp;</p>
+              </div>
+              <table class="kb-page-table">
+                <thead><tr><th>模块</th><th>技术方案</th><th>服务</th></tr></thead>
+                <tbody><tr><td>实体识别</td><td>BERT-BiLSTM-CRF</td><td>NLP 服务</td></tr></tbody>
+              </table>
+              <div class="kb-page-note">注：本文档为内部使用版本。</div>
+              <div class="kb-page-footer">- 3 -</div>
+            </div>
+            <div id="kbRegionLayer"></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel kb-regions-panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>已标注区域</div>
+          <button class="btn btn-sm" id="btnAutoRec"></button>
+        </div>
+        <div class="panel-body">
+          <div id="kbRegionList"></div>
+          <div class="kb-region-legend" id="kbLegend"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- 2. OCR -->
+  <div id="tabOcr" style="display:none">
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="panel-titlebar"></span>OCR 识别 · 支持流程图识别 · 支持图片合并识别（上下 / 左右）</div>
+      </div>
+      <div class="panel-body kb-ocr-grid">
+        <div class="ocr-col">
+          <div class="ocr-section">
+            <div class="ocr-section-title">① 选择 OCR 区域（版面标注中的图像 / 表格）</div>
+            <div class="ocr-checks" id="ocrChecks"></div>
+          </div>
+          <div class="ocr-section">
+            <div class="ocr-section-title">② 图片合并方式（多张图片识别）</div>
+            <div class="ocr-merge-btns" id="ocrMergeBtns"></div>
+            <button class="btn btn-primary ocr-run" id="btnRunOcr"></button>
+          </div>
+          <div class="ocr-section">
+            <div class="ocr-section-title">③ 流程图识别</div>
+            <div class="ocr-flow">
+              <div class="flow-box">
+                <div class="flow-step">开始</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">版面分析</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step highlight">流程图识别</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">OCR 文字</div>
+              </div>
+              <div class="flow-note">检测到流程图 → 自动进入图结构识别 → 文字 + 结构一起抽取</div>
+            </div>
+          </div>
+        </div>
+        <div class="ocr-col">
+          <div class="ocr-tasks-head">
+            <div class="ocr-section-title">识别任务列表</div>
+            <span class="muted tiny" id="ocrTaskCount"></span>
+          </div>
+          <div class="ocr-task-list" id="ocrTaskList"></div>
+          <div class="ocr-result">
+            <div class="ocr-section-title">OCR 结果预览</div>
+            <div class="ocr-preview" id="ocrPreview"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 3. 内容检测 -->
+  <div id="tabDetect" style="display:none">
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="panel-titlebar"></span>内容检测（相似度 / 错别字 / 语句不通 / 敏感词 / 文档间矛盾）</div>
+        <button class="btn btn-primary" id="btnRunDetect"></button>
+      </div>
+      <div class="panel-body">
+        <div class="detect-grid" id="detectGrid"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 4. 检测范围 -->
+  <div id="tabScope" style="display:none">
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="panel-titlebar"></span>设置文件检测范围（哪些元素类型参与检测 / 哪些参与切片）</div>
+      </div>
+      <div class="panel-body scope-body" id="scopeBody"></div>
+    </section>
+  </div>
+
+  <!-- 5. 切片 & 敏感词屏蔽 -->
+  <div id="tabSlice" style="display:none">
+    <div class="slice-layout">
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>敏感词与隐私屏蔽设置</div>
+          <label class="switch" id="swSensitive"><input type="checkbox" checked><span></span></label>
+        </div>
+        <div class="panel-body">
+          <div class="block-row">
+            <span class="amber" id="icIdCard"></span>
+            <div class="block-text">
+              <strong>身份证号屏蔽</strong><span>自动识别文件中的身份证号并替换为 ****</span>
+            </div>
+            <label class="switch on" data-privacy="idCard"><input type="checkbox" checked><span></span></label>
+          </div>
+          <div class="block-row">
+            <span class="amber" id="icPhone"></span>
+            <div class="block-text">
+              <strong>手机号屏蔽</strong><span>自动识别文件中的手机号并替换</span>
+            </div>
+            <label class="switch on" data-privacy="phone"><input type="checkbox" checked><span></span></label>
+          </div>
+          <div class="block-row">
+            <span class="amber" id="icSid"></span>
+            <div class="block-text">
+              <strong>学工号屏蔽</strong><span>自动识别文件中的学号 / 工号</span>
+            </div>
+            <label class="switch on" data-privacy="studentId"><input type="checkbox" checked><span></span></label>
+          </div>
+          <div class="block-row words-row">
+            <span class="violet" id="icWords"></span>
+            <div class="block-text">
+              <strong>敏感词屏蔽（逐词设置是否屏蔽）</strong>
+              <div class="word-chips" id="wordChips"></div>
+            </div>
+          </div>
+          <div class="preview-box">
+            <div class="preview-title">敏感词预览</div>
+            <p class="preview-text" id="sensitivePreview"></p>
+          </div>
+          <div class="preview-box">
+            <div class="preview-title">隐私信息预览</div>
+            <p class="preview-text" id="privacyPreview"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>切片范围设置</div>
+          <span class="muted tiny">可设置文件分片范围 · 每片约 500 tokens</span>
+        </div>
+        <div class="panel-body">
+          <div class="slice-setting">
+            <span class="setting-label">文件分片范围（页码）</span>
+            <div class="range-inputs">
+              <input id="sliceStart" type="number" min="1" value="1">
+              <span>至</span>
+              <input id="sliceEnd" type="number" max="24" value="24">
+              <span class="muted tiny" id="slicePageNote"></span>
+            </div>
+          </div>
+          <div class="slice-setting">
+            <span class="setting-label">参与切片的元素类型</span>
+            <div class="slice-checks" id="sliceChecks"></div>
+          </div>
+          <div class="slice-tip" id="sliceTip"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div></main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+(function () {
+  const $ = (s, r) => (r || document).querySelector(s)
+  const esc = (s) => UI.esc(String(s))
+  const icon = (n, s) => UI.icon(n, s)
+
+  /* ===== 1. 版面分析 + 框选标注 ===== */
+  let regions = [
+    { id: 'r1', type: '页眉', x: 140, y: 14, w: 220, h: 22 },
+    { id: 'r2', type: '正文', x: 30, y: 55, w: 340, h: 140 },
+    { id: 'r3', type: '图像', x: 260, y: 75, w: 100, h: 80 },
+    { id: 'r4', type: '表格', x: 40, y: 210, w: 320, h: 80 },
+    { id: 'r5', type: '注释', x: 280, y: 300, w: 80, h: 30 },
+    { id: 'r6', type: '页脚', x: 30, y: 335, w: 340, h: 22 },
+  ]
+  const regionTypes = ['正文', '页眉', '图像', '表格', '注释', '页脚', '公式']
+  const pageColors = { 正文: '#2f6bff', 页眉: '#e0762f', 图像: '#0f9d8f', 表格: '#6d5bf6', 注释: '#d64550', 页脚: '#8c98ab', 公式: '#22a6c9' }
+  let selectedRegionId = null
+  let drawMode = false
+  let drawType = '正文'
+  let autoBusy = false
+
+  function removeRegion(id) {
+    regions = regions.filter((r) => r.id !== id)
+    if (selectedRegionId === id) selectedRegionId = null
+    renderRegions()
+    renderRegionList()
+  }
+
+  function renderRegions() {
+    $('#kbRegionLayer').innerHTML = regions.map((r) => `
+      <div class="kb-region ${selectedRegionId === r.id ? 'active' : ''}" data-rid="${r.id}"
+        style="left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px;border-color:${pageColors[r.type]}">
+        <span class="kb-region-label" style="background:${pageColors[r.type]}">${r.type}</span>
+      </div>`).join('')
+    $('#kbPageMeta').textContent = `第 3 / 24 页 · 已识别 ${regions.length} 个区域`
+    $('#kbPage').classList.toggle('drawing', drawMode)
+  }
+
+  function renderRegionList() {
+    $('#kbRegionList').innerHTML = regions.map((r) => `
+      <div class="kb-region-row ${selectedRegionId === r.id ? 'active' : ''}" data-rid="${r.id}">
+        <span class="region-type" style="background:${pageColors[r.type]}">${r.type}</span>
+        <span class="region-pos">(${Math.round(r.x)}, ${Math.round(r.y)}) ${Math.round(r.w)}×${Math.round(r.h)}</span>
+        <button class="row-del" title="删除区域" data-del-region="${r.id}">×</button>
+      </div>`).join('')
+  }
+
+  function renderToolbar() {
+    let h = `<button class="btn btn-sm ${drawMode ? 'btn-primary' : ''}" data-act="toggle-draw">${drawMode ? '退出框选' : '框选标注'}</button>`
+    if (drawMode) {
+      h += `<div class="kb-draw-types">${regionTypes.map((t) => `
+        <button class="type-chip ${drawType === t ? 'active' : ''}" data-draw-type="${t}"
+          style="${drawType === t ? `background:${pageColors[t]}` : ''}">${t}</button>`).join('')}</div>
+        <span class="muted tiny">在页面上按住拖动即可框选</span>`
+    }
+    $('#kbToolbar').innerHTML = h
+  }
+
+  function selectRegion(id) {
+    selectedRegionId = id
+    renderRegions()
+    renderRegionList()
+  }
+
+  /* 管理员在页面上按住拖动框选标注 */
+  $('#kbPage').addEventListener('mousedown', (e) => {
+    if (!drawMode) return
+    const el = e.currentTarget
+    const rect = el.getBoundingClientRect()
+    const sx = e.clientX - rect.left
+    const sy = e.clientY - rect.top
+    const region = { id: `r${Date.now()}`, type: drawType, x: sx, y: sy, w: 0, h: 0 }
+    regions.push(region)
+    selectedRegionId = region.id
+    renderRegions()
+    renderRegionList()
+    const box = document.querySelector(`#kbRegionLayer [data-rid="${region.id}"]`)
+    const move = (ev) => {
+      const nx = Math.max(0, Math.min(rect.width, ev.clientX - rect.left))
+      const ny = Math.max(0, Math.min(rect.height, ev.clientY - rect.top))
+      region.x = Math.min(sx, nx)
+      region.y = Math.min(sy, ny)
+      region.w = Math.abs(nx - sx)
+      region.h = Math.abs(ny - sy)
+      if (box) {
+        box.style.left = region.x + 'px'
+        box.style.top = region.y + 'px'
+        box.style.width = region.w + 'px'
+        box.style.height = region.h + 'px'
+      }
+    }
+    const up = () => {
+      document.removeEventListener('mousemove', move)
+      document.removeEventListener('mouseup', up)
+      if (region.w < 10 || region.h < 10) {
+        removeRegion(region.id)
+      } else {
+        UI.toast(`已框选标注「${region.type}」区域`)
+        renderRegions()
+        renderRegionList()
+      }
+    }
+    document.addEventListener('mousemove', move)
+    document.addEventListener('mouseup', up)
+  })
+
+  $('#kbRegionLayer').addEventListener('click', (e) => {
+    const box = e.target.closest('[data-rid]')
+    if (box) selectRegion(box.dataset.rid)
+  })
+  $('#kbRegionList').addEventListener('click', (e) => {
+    const del = e.target.closest('[data-del-region]')
+    if (del) { removeRegion(del.dataset.delRegion); return }
+    const row = e.target.closest('[data-rid]')
+    if (row) selectRegion(row.dataset.rid)
+  })
+
+  /* 程序自动识别版面结构 */
+  function renderAutoBtn() {
+    const btn = $('#btnAutoRec')
+    btn.disabled = autoBusy
+    btn.innerHTML = `${icon('upload', 12)}${autoBusy ? '识别中…' : '自动识别'}`
+  }
+  $('#btnAutoRec').addEventListener('click', () => {
+    autoBusy = true
+    renderAutoBtn()
+    window.setTimeout(() => {
+      if (!regions.some((r) => r.type === '公式')) {
+        regions.push({ id: `r${Date.now()}`, type: '公式', x: 60, y: 250, w: 180, h: 40 })
+      }
+      autoBusy = false
+      renderAutoBtn()
+      renderRegions()
+      renderRegionList()
+      UI.toast('程序自动识别完成：新增「公式」区域并标注')
+    }, 900)
+  })
+
+  /* ===== 2. OCR 识别 ===== */
+  const ocrSourceOptions = [
+    { label: '图像', checked: true },
+    { label: '表格', checked: true },
+    { label: '流程图', checked: true },
+  ]
+  let mergeMode = '左右合并'
+  const ocrTasks = [
+    { name: '封面图.jpg', status: '已完成', type: '单图' },
+    { name: '图 3-1 架构图.jpg', status: '处理中', type: '单图' },
+    { name: '多图合并（目录页）', status: '已完成', type: '上下合并' },
+    { name: '多图合并（正文页）', status: '已完成', type: '左右合并' },
+  ]
+  const ocrPreview = [
+    { label: '正文文本', text: '知识图谱是通过实体、关系、属性构成的语义网络，基本构成包括实体（Entity）、关系（Relation）与属性（Attribute）……', useImage: false },
+    { label: '表格', text: '模块：实体识别 | 技术方案：BERT-BiLSTM-CRF | 服务：NLP', useImage: false },
+    { label: '图注', text: '图 3-1 课程知识图谱能力架构示意图', useImage: false },
+  ]
+
+  function renderOcrChecks() {
+    $('#ocrChecks').innerHTML = ocrSourceOptions.map((o, i) => `
+      <label class="ocr-check"><input type="checkbox" data-ocr-src="${i}" ${o.checked ? 'checked' : ''}>${o.label}</label>`).join('')
+  }
+  function renderMergeBtns() {
+    $('#ocrMergeBtns').innerHTML = ['上下合并', '左右合并', '单张识别'].map((m) => `
+      <button class="ocr-merge-btn ${mergeMode === m ? 'active' : ''}" data-merge="${m}">${m}</button>`).join('')
+  }
+  function renderOcrTasks() {
+    $('#ocrTaskCount').textContent = `共 ${ocrTasks.length} 个任务`
+    $('#ocrTaskList').innerHTML = ocrTasks.map((t) => `
+      <div class="ocr-task">
+        <span class="violet">${icon('scan', 16)}</span>
+        <div>
+          <strong>${esc(t.name)}</strong>
+          <span>${esc(t.type)}</span>
+        </div>
+        <span class="ocr-status ${t.status}">${t.status}</span>
+      </div>`).join('')
+  }
+  function renderOcrPreview() {
+    $('#ocrPreview').innerHTML = ocrPreview.map((row, i) => `
+      <div class="ocr-preview-row">
+        <span class="ocr-label">${esc(row.label)}</span>
+        ${!row.useImage
+          ? `<span class="ocr-text">${esc(row.text)}</span>`
+          : '<span class="ocr-img-holder">[ 原始图片 · 未进行 OCR ]</span>'}
+        <button class="row-toggle" data-toggle-preview="${i}">${row.useImage ? '使用 OCR 文字' : '替换为原始图片'}</button>
+      </div>`).join('')
+  }
+
+  function runOcr() {
+    const picked = ocrSourceOptions.filter((o) => o.checked)
+    if (!picked.length) {
+      UI.toast('请先勾选需要 OCR 识别的图像 / 表格区域')
+      return
+    }
+    const merged = picked.length > 1 && mergeMode !== '单张识别'
+    ocrTasks.unshift({
+      name: merged ? `多图合并（${picked.map((p) => p.label).join('、')}）` : `${picked[0].label}识别`,
+      status: '处理中',
+      type: merged ? mergeMode : '单张识别',
+    })
+    renderOcrTasks()
+    UI.toast('OCR 识别任务已提交')
+    window.setTimeout(() => {
+      const task = ocrTasks[0]
+      if (task) task.status = '已完成'
+      if (merged) {
+        ocrPreview.unshift({
+          label: '合并结果',
+          text: `已按「${mergeMode}」合并 ${picked.length} 张图片，完成文字与流程结构识别`,
+          useImage: false,
+        })
+        renderOcrPreview()
+      }
+      renderOcrTasks()
+      UI.toast('OCR 识别完成')
+    }, 1200)
+  }
+
+  /* ===== 3. 内容检测 ===== */
+  const detectDefaults = {
+    文档相似度检测: '与已有 3 份文档相似度 < 15%',
+    错别字校对: '发现 2 处疑似错别字',
+    语句不通校对: '发现 1 处语句不通（第 3 章）',
+    敏感词检测: '发现 1 条敏感词',
+    文档间矛盾检测: '未发现明显矛盾',
+  }
+  const detectionItems = [
+    { label: '文档相似度检测', enabled: true, result: detectDefaults['文档相似度检测'] },
+    { label: '错别字校对', enabled: true, result: detectDefaults['错别字校对'] },
+    { label: '语句不通校对', enabled: true, result: detectDefaults['语句不通校对'] },
+    { label: '敏感词检测', enabled: true, result: detectDefaults['敏感词检测'] },
+    { label: '文档间矛盾检测', enabled: false, result: '未开启' },
+  ]
+  let detecting = false
+
+  function toggleDetect(d) {
+    d.enabled = !d.enabled
+    d.result = d.enabled ? detectDefaults[d.label] : '未开启'
+    renderDetect()
+  }
+
+  function detectBodyHtml(d) {
+    if (!d.enabled) return '<div class="detect-off">未开启</div>'
+    if (d.label === '文档相似度检测') {
+      return `<div class="sim-bars">
+        <div class="sim-bar"><i style="width:12%;background:#0f9d8f"></i><span>文档 1 · 12%</span></div>
+        <div class="sim-bar"><i style="width:8%;background:#0f9d8f"></i><span>文档 2 · 8%</span></div>
+        <div class="sim-bar"><i style="width:15%;background:#0f9d8f"></i><span>文档 3 · 15%</span></div>
+      </div>`
+    }
+    if (d.label === '错别字校对') {
+      return `<div class="typo-list">
+        <div class="typo-item"><span class="orig">的</span><span class="arrow">→</span><span class="fixed">得</span><span class="pos">第 3 段 · 第 2 句</span></div>
+        <div class="typo-item"><span class="orig">座</span><span class="arrow">→</span><span class="fixed">做</span><span class="pos">第 7 段 · 末句</span></div>
+      </div>`
+    }
+    if (d.label === '语句不通校对') {
+      return '<div class="sentence-issue">发现 1 处语句不通 → 已建议调整语序</div>'
+    }
+    if (d.label === '敏感词检测') {
+      return `<div class="sensitive-word">${icon('shield-check', 12)}<span>${esc(d.result)}</span></div>`
+    }
+    return '<div class="contradict-note">文档间矛盾暂未检出明显冲突</div>'
+  }
+
+  function renderDetect() {
+    $('#detectGrid').innerHTML = detectionItems.map((d) => `
+      <div class="detect-card ${d.enabled ? 'done' : ''}">
+        <div class="detect-head" data-detect="${d.label}">
+          <span class="detect-label">${d.label}</span>
+          <label class="switch ${d.enabled ? 'on' : ''}"><input type="checkbox" data-detect-switch="${d.label}" ${d.enabled ? 'checked' : ''}><span></span></label>
+        </div>
+        <div class="detect-body">${detectBodyHtml(d)}</div>
+      </div>`).join('')
+  }
+
+  function renderDetectBtn() {
+    const btn = $('#btnRunDetect')
+    btn.disabled = detecting
+    btn.innerHTML = `${icon('sparkles', 13)}${detecting ? '检测中…' : '开始检测'}`
+  }
+
+  function runDetect() {
+    const on = detectionItems.filter((d) => d.enabled)
+    if (!on.length) {
+      UI.toast('请至少开启一项检测')
+      return
+    }
+    detecting = true
+    renderDetectBtn()
+    window.setTimeout(() => {
+      detecting = false
+      on.forEach((d) => { d.result = detectDefaults[d.label] })
+      renderDetectBtn()
+      renderDetect()
+      UI.toast(`检测完成：已执行 ${on.length} 项检测`)
+    }, 1400)
+  }
+
+  /* ===== 4. 检测范围（元素类型）===== */
+  const elementTypes = [
+    { label: '标题', detect: true, slice: true },
+    { label: '正文', detect: true, slice: true },
+    { label: '图像', detect: false, slice: true },
+    { label: '图像标题', detect: false, slice: true },
+    { label: '图像描述', detect: false, slice: true },
+    { label: '表格', detect: true, slice: true },
+    { label: '表格标题', detect: true, slice: true },
+    { label: '表格描述', detect: true, slice: false },
+    { label: '行间公式', detect: false, slice: true },
+    { label: '注释', detect: false, slice: false },
+    { label: '页脚', detect: false, slice: false },
+    { label: '页眉', detect: false, slice: false },
+    { label: '脚注', detect: false, slice: false },
+  ]
+  function scopeLabel(e) {
+    return e.detect && e.slice ? '检测+切片' : e.detect ? '检测' : e.slice ? '仅切片' : '不参与'
+  }
+  function scopeClass(e) {
+    const s = scopeLabel(e)
+    return s === '检测+切片' ? 'violet' : s === '检测' ? 'blue' : s === '仅切片' ? 'green' : 'gray'
+  }
+  function renderScope() {
+    $('#scopeBody').innerHTML = `
+      <div class="scope-header">
+        <span>元素类型</span>
+        <span class="scope-col">参与检测</span>
+        <span class="scope-col">参与切片</span>
+      </div>
+      ${elementTypes.map((e, i) => `
+      <div class="scope-row">
+        <span class="scope-label">${e.label}</span>
+        <span class="scope-checkbox"><input type="checkbox" data-scope="detect" data-i="${i}" ${e.detect ? 'checked' : ''}></span>
+        <span class="scope-checkbox"><input type="checkbox" data-scope="slice" data-i="${i}" ${e.slice ? 'checked' : ''}></span>
+        <span class="scope-tag ${scopeClass(e)}">${scopeLabel(e)}</span>
+      </div>`).join('')}`
+  }
+
+  /* ===== 5. 敏感词屏蔽（逐词设置）===== */
+  let sensitiveMaskEnabled = true
+  const sensitiveWords = [
+    { word: '内部资料', masked: true },
+    { word: '机密', masked: true },
+    { word: '绝密', masked: false },
+  ]
+  function sensitivePreviewText() {
+    const base = '本文档包含内部资料，属机密等级，另有绝密附录。'
+    if (!sensitiveMaskEnabled) return base
+    let text = base
+    sensitiveWords.filter((w) => w.masked).forEach((w) => {
+      text = text.split(w.word).join('█'.repeat(w.word.length))
+    })
+    return text
+  }
+
+  /* ===== 6. 隐私屏蔽 + 切片设置 ===== */
+  const privacyMask = { idCard: true, phone: true, studentId: true }
+  function privacyPreviewText() {
+    const id = privacyMask.idCard ? '******************' : '500102199803076543'
+    const phone = privacyMask.phone ? '138****5678' : '13812345678'
+    const sid = privacyMask.studentId ? '2022****' : '20220134'
+    return `张三 ${id}｜${phone}｜学号 ${sid}`
+  }
+
+  const sliceRange = { start: 1, end: 24 }
+  const sliceElements = [
+    { label: '标题', checked: true },
+    { label: '正文', checked: true },
+    { label: '图像', checked: true },
+    { label: '图像标题', checked: false },
+    { label: '图像描述', checked: false },
+    { label: '表格', checked: true },
+    { label: '表格标题', checked: true },
+    { label: '表格描述', checked: false },
+    { label: '行间公式', checked: false },
+    { label: '注释', checked: false },
+    { label: '页脚', checked: false },
+    { label: '页眉', checked: false },
+    { label: '脚注', checked: false },
+  ]
+  function sliceStats() {
+    const pages = Math.max(0, sliceRange.end - sliceRange.start + 1)
+    const tokens = pages * (120 + sliceElements.filter((e) => e.checked).length * 60)
+    const avg = 520
+    return { count: Math.max(1, Math.round(tokens / avg)), avg, tokens, pages }
+  }
+
+  function renderWordChips() {
+    $('#wordChips').innerHTML = sensitiveWords.map((w) => `
+      <span class="word-chip ${w.masked ? 'masked' : ''}">
+        ${w.word}
+        <button class="mini-toggle ${w.masked ? 'on' : ''}" data-word="${w.word}">${w.masked ? '屏蔽' : '显示'}</button>
+      </span>`).join('')
+  }
+  function renderPreviews() {
+    $('#sensitivePreview').textContent = sensitivePreviewText()
+    $('#privacyPreview').textContent = privacyPreviewText()
+  }
+  function renderSliceChecks() {
+    $('#sliceChecks').innerHTML = sliceElements.map((s, i) => `
+      <label class="slice-check"><input type="checkbox" data-slice-el="${i}" ${s.checked ? 'checked' : ''}>${s.label}</label>`).join('')
+  }
+  function renderSliceTip() {
+    const st = sliceStats()
+    $('#slicePageNote').textContent = `共 24 页 · 选中 ${st.pages} 页`
+    $('#sliceTip').innerHTML = `${icon('scissors', 13)}<span>最终切片：<b>${st.count}</b> 片 · 平均 <b>${st.avg}</b> tokens/片 · 总 tokens <b>${st.tokens.toLocaleString()}</b></span>`
+  }
+
+  /* ===== 子标签 ===== */
+  const subTabs = [
+    { key: 'layout', label: '版面分析 & 框选标注', icon: 'scan' },
+    { key: 'ocr', label: 'OCR 识别', icon: 'scan' },
+    { key: 'detect', label: '内容检测', icon: 'eye' },
+    { key: 'scope', label: '检测范围设置', icon: 'shield-check' },
+    { key: 'slice', label: '切片范围 & 敏感词屏蔽', icon: 'scissors' },
+  ]
+  const tabPanels = { layout: 'tabLayout', ocr: 'tabOcr', detect: 'tabDetect', scope: 'tabScope', slice: 'tabSlice' }
+  let activeSubTab = 'layout'
+  function renderSubTabs() {
+    $('#kbSubTabs').innerHTML = subTabs.map((t) => `
+      <button class="${activeSubTab === t.key ? 'active' : ''}" data-subtab="${t.key}">${icon(t.icon, 13)}${t.label}</button>`).join('')
+    Object.keys(tabPanels).forEach((k) => {
+      document.getElementById(tabPanels[k]).style.display = k === activeSubTab ? '' : 'none'
+    })
+  }
+
+  /* ===== 事件 ===== */
+  $('#kbSubTabs').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-subtab]')
+    if (b) { activeSubTab = b.dataset.subtab; renderSubTabs() }
+  })
+
+  $('#kbToolbar').addEventListener('click', (e) => {
+    const act = e.target.closest('[data-act]')
+    if (act && act.dataset.act === 'toggle-draw') {
+      drawMode = !drawMode
+      renderToolbar()
+      renderRegions()
+      return
+    }
+    const dt = e.target.closest('[data-draw-type]')
+    if (dt) { drawType = dt.dataset.drawType; renderToolbar() }
+  })
+
+  $('#ocrChecks').addEventListener('change', (e) => {
+    const i = e.target.dataset.ocrSrc
+    if (i !== undefined) ocrSourceOptions[Number(i)].checked = e.target.checked
+  })
+  $('#ocrMergeBtns').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-merge]')
+    if (b) { mergeMode = b.dataset.merge; renderMergeBtns() }
+  })
+  $('#btnRunOcr').innerHTML = `${icon('scan', 13)}开始 OCR 识别`
+  $('#btnRunOcr').addEventListener('click', runOcr)
+  $('#ocrPreview').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-toggle-preview]')
+    if (b) {
+      const row = ocrPreview[Number(b.dataset.togglePreview)]
+      if (row) { row.useImage = !row.useImage; renderOcrPreview() }
+    }
+  })
+
+  $('#detectGrid').addEventListener('click', (e) => {
+    if (e.target.closest('.switch')) return
+    const head = e.target.closest('[data-detect]')
+    if (head) {
+      const d = detectionItems.find((x) => x.label === head.dataset.detect)
+      if (d) toggleDetect(d)
+    }
+  })
+  $('#detectGrid').addEventListener('change', (e) => {
+    const sw = e.target.closest('[data-detect-switch]')
+    if (sw) {
+      const d = detectionItems.find((x) => x.label === sw.dataset.detectSwitch)
+      if (d) toggleDetect(d)
+    }
+  })
+  $('#btnRunDetect').addEventListener('click', runDetect)
+
+  $('#scopeBody').addEventListener('change', (e) => {
+    const t = e.target
+    if (t.dataset.scope) {
+      const item = elementTypes[Number(t.dataset.i)]
+      if (item) { item[t.dataset.scope] = t.checked; renderScope() }
+    }
+  })
+
+  /* 敏感词 & 隐私开关 */
+  $('#swSensitive').addEventListener('change', (e) => {
+    sensitiveMaskEnabled = e.target.checked
+    $('#swSensitive').classList.toggle('on', sensitiveMaskEnabled)
+    renderPreviews()
+  })
+  document.querySelectorAll('[data-privacy]').forEach((label) => {
+    label.addEventListener('change', (e) => {
+      const k = label.dataset.privacy
+      privacyMask[k] = e.target.checked
+      label.classList.toggle('on', e.target.checked)
+      renderPreviews()
+    })
+  })
+  $('#wordChips').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-word]')
+    if (b) {
+      const w = sensitiveWords.find((x) => x.word === b.dataset.word)
+      if (w) { w.masked = !w.masked; renderWordChips(); renderPreviews() }
+    }
+  })
+  $('#sliceStart').addEventListener('input', (e) => { sliceRange.start = Number(e.target.value) || 0; renderSliceTip() })
+  $('#sliceEnd').addEventListener('input', (e) => { sliceRange.end = Number(e.target.value) || 0; renderSliceTip() })
+  $('#sliceChecks').addEventListener('change', (e) => {
+    const i = e.target.dataset.sliceEl
+    if (i !== undefined) { sliceElements[Number(i)].checked = e.target.checked; renderSliceTip() }
+  })
+
+  /* 静态图标位 */
+  $('#icIdCard').innerHTML = icon('shield-check', 16)
+  $('#icPhone').innerHTML = icon('shield-check', 16)
+  $('#icSid').innerHTML = icon('shield-check', 16)
+  $('#icWords').innerHTML = icon('list', 16)
+
+  /* 图例 */
+  $('#kbLegend').innerHTML = Object.keys(pageColors).map((c) => `
+    <span class="lg"><span class="dot" style="background:${pageColors[c]}"></span>${c}</span>`).join('')
+
+  /* 初始渲染 */
+  renderSubTabs()
+  renderToolbar()
+  renderRegions()
+  renderRegionList()
+  renderAutoBtn()
+  renderOcrChecks()
+  renderMergeBtns()
+  renderOcrTasks()
+  renderOcrPreview()
+  renderDetectBtn()
+  renderDetect()
+  renderScope()
+  renderWordChips()
+  renderPreviews()
+  renderSliceChecks()
+  renderSliceTip()
+})()
+</script>
+</body>
+</html>

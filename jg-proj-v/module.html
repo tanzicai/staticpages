@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模块详情 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+.module-head {
+  align-items: flex-start;
+}
+
+.module-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.module-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px 16px;
+  border: 1px solid rgba(224, 118, 47, 0.18);
+  border-radius: 12px;
+  background: rgba(224, 118, 47, 0.06);
+}
+
+.banner-icon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(224, 118, 47, 0.12);
+  color: var(--amber);
+  flex: none;
+}
+
+.module-banner strong {
+  display: block;
+  font-size: 11.5px;
+  color: #8f4c10;
+}
+
+.module-banner p {
+  margin-top: 3px;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: #a9703e;
+}
+
+.module-banner .link-more {
+  margin-left: auto;
+  flex: none;
+  padding-top: 4px;
+}
+
+.module-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 11px;
+  margin-top: 14px;
+}
+
+.mstat {
+  padding: 15px 17px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 14px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.66));
+  box-shadow: var(--shadow-sm);
+}
+
+.mstat > span {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.mstat strong {
+  display: block;
+  margin-top: 7px;
+  font-family: var(--num);
+  font-size: 22px;
+  font-weight: 720;
+  letter-spacing: -0.02em;
+}
+
+.mstat strong small {
+  font-size: 9px;
+  color: var(--muted);
+  font-family: var(--font);
+  font-weight: 500;
+}
+
+.mstat em {
+  display: block;
+  margin-top: 4px;
+  font-size: 9px;
+  font-style: normal;
+  line-height: 1.45;
+  color: var(--muted-2);
+}
+
+.module-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.62fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.module-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.module-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 13px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  transition: 0.16s;
+}
+
+.module-tabs button:hover {
+  color: var(--ink);
+}
+
+.module-tabs button.active {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+}
+
+.features-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.features-toolbar .search-box {
+  min-width: 210px;
+}
+
+.kind-legend {
+  display: flex;
+  gap: 3px;
+}
+
+.feature-table {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.feature-table tbody tr {
+  cursor: pointer;
+}
+
+.remain-row td {
+  background: rgba(224, 118, 47, 0.035);
+}
+
+.remain-text {
+  margin-left: 9px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.feature-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 9.5px;
+  color: var(--muted-2);
+}
+
+.business-body {
+  padding-top: 14px;
+}
+
+.business-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wireframe {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+}
+
+.wf-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(19, 33, 60, 0.03);
+}
+
+.wf-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.wf-bar-label {
+  margin-left: 8px;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.wf-search {
+  width: 90px;
+  height: 8px;
+  margin-left: auto;
+  border-radius: 99px;
+  background: rgba(19, 33, 60, 0.07);
+}
+
+.wf-user {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: rgba(19, 33, 60, 0.1);
+}
+
+.wf-body {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr) 168px;
+  min-height: 220px;
+}
+
+.wf-side,
+.wf-detail {
+  padding: 12px;
+}
+
+.wf-side {
+  border-right: 1px dashed var(--line-strong);
+}
+
+.wf-detail {
+  border-left: 1px dashed var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wf-block-title {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 9px;
+  font-weight: 650;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+.wf-side i {
+  display: block;
+  height: 7px;
+  margin-bottom: 8px;
+  border-radius: 99px;
+  background: rgba(19, 33, 60, 0.07);
+}
+
+.wf-list {
+  padding: 12px;
+}
+
+.wf-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+.wf-btn {
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: rgba(47, 107, 255, 0.1);
+  color: var(--blue);
+}
+
+.wf-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  margin-bottom: 6px;
+}
+
+.wf-row span {
+  display: block;
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(19, 33, 60, 0.07);
+}
+
+.wf-pager {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.wf-pager span {
+  width: 14px;
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(19, 33, 60, 0.08);
+}
+
+.wf-detail-line {
+  display: block;
+  height: 7px;
+  border-radius: 99px;
+  background: rgba(19, 33, 60, 0.07);
+}
+
+.wf-detail-box {
+  margin-top: 6px;
+  padding: 18px 10px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 7px;
+  text-align: center;
+  font-size: 8.5px;
+  color: var(--muted-2);
+}
+
+.business-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.business-chart {
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+}
+
+.business-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.business-facts div {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.business-facts span {
+  display: block;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.business-facts strong {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--num);
+  font-size: 17px;
+}
+
+.business-facts strong small {
+  font-size: 8px;
+  color: var(--muted);
+}
+
+.business-note {
+  margin-top: 9px;
+  font-size: 9px;
+  color: var(--muted-2);
+}
+
+.dep-flow {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.dep-node {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.dep-node.source {
+  border-color: rgba(47, 107, 255, 0.18);
+  background: rgba(47, 107, 255, 0.04);
+}
+
+.dep-label {
+  display: block;
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  color: var(--muted-2);
+}
+
+.dep-node strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 620;
+}
+
+.dep-node small {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.dep-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+  width: 26px;
+}
+
+.dep-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.dep-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 9.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.archive-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 9px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 10.5px;
+}
+
+.archive-row > span:first-child {
+  color: var(--muted);
+  flex: none;
+}
+
+.archive-row strong {
+  font-weight: 600;
+  text-align: right;
+  font-size: 10.5px;
+}
+
+.archive-row strong small {
+  color: var(--muted);
+  font-size: 8.5px;
+}
+
+.archive-link {
+  color: var(--blue);
+  font-size: 10.5px;
+  text-align: right;
+}
+
+.archive-service {
+  line-height: 1.5;
+}
+
+.archive-summary {
+  font-size: 10.5px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.archive-back {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px 0;
+  border-bottom: 1px dashed var(--line);
+}
+
+.check-item:last-child {
+  border-bottom: 0;
+}
+
+.check-index {
+  font-family: var(--num);
+  font-size: 9px;
+  color: var(--muted-2);
+  margin-top: 1px;
+}
+
+.check-item > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.check-item strong {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 620;
+}
+
+.check-item span {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.related-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 10.5px;
+}
+
+.related-item:last-child {
+  border-bottom: 0;
+}
+
+.related-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.related-count {
+  font-size: 9px;
+  color: var(--muted-2);
+}
+
+.related-item:hover {
+  color: var(--blue);
+}
+
+.feature-drawer {
+  position: fixed;
+  right: 24px;
+  top: 88px;
+  z-index: 75;
+  width: 300px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  background: rgba(252, 253, 255, 0.97);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(18px);
+  animation: rise 0.2s ease both;
+}
+
+.drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+
+.drawer-head button {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 7px;
+  background: rgba(19, 33, 60, 0.05);
+  display: grid;
+  place-items: center;
+}
+
+.feature-drawer h3 {
+  font-size: 15px;
+  font-weight: 680;
+}
+
+.feature-drawer > p {
+  margin: 7px 0 13px;
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.drawer-section {
+  padding: 8px 0;
+  border-top: 1px dashed var(--line);
+  font-size: 10px;
+}
+
+.drawer-section span {
+  display: block;
+  color: var(--muted);
+}
+
+.drawer-section strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(12, 27, 52, 0.94);
+  color: #fff;
+  font-size: 11.5px;
+  box-shadow: var(--shadow-lg);
+  transform: translateX(-50%);
+}
+
+.toast button {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  display: grid;
+  place-items: center;
+}
+
+@media (max-width: 1200px) {
+  .module-layout {
+    grid-template-columns: 1fr;
+  }
+  .module-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  .wf-body {
+    grid-template-columns: 100px minmax(0, 1fr);
+  }
+  .wf-detail {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .module-stats {
+    grid-template-columns: 1fr;
+  }
+  .module-banner {
+    flex-wrap: wrap;
+  }
+  .module-banner .link-more {
+    margin-left: 0;
+  }
+  .dep-flow {
+    flex-direction: column;
+  }
+  .dep-arrow {
+    width: auto;
+    height: 24px;
+    transform: rotate(90deg);
+  }
+  .business-grid {
+    grid-template-columns: 1fr;
+  }
+  .feature-drawer {
+    left: 16px;
+    right: 16px;
+    width: auto;
+    top: auto;
+    bottom: 16px;
+  }
+}
+</style>
+</head>
+<body>
+<main class="content"><div class="page" id="page"></div></main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script>
+  const __q = new URLSearchParams(location.search)
+  document.body.dataset.platform = __q.get('p') || 'base'
+  document.body.dataset.module = __q.get('m') || ''
+</script>
+<script src="assets/js/common.js"></script>
+<script src="assets/vendor/echarts.min.js"></script>
+<script>
+(function () {
+  const esc = UI.esc
+  const icon = UI.icon
+  const platform = SEED.platformMap[document.body.dataset.platform]
+  const mod = platform && platform.modules.find((m) => m.id === document.body.dataset.module)
+  const page = document.getElementById('page')
+
+  if (!platform || !mod) {
+    page.innerHTML = '<div class="empty">模块不存在，请从 <a href="map.html" style="color: var(--blue)">功能地图</a> 进入。</div>'
+    return
+  }
+  document.title = mod.name + ' · 智慧教育一体化平台'
+
+  const kinds = ['页面', '流程', '配置', '数据']
+  const forms = ['列表页', '详情页', '表单页', '看板页']
+
+  function kindOf(name) {
+    if (/发布|申报|审批|流程|审核|编排|分派|督办|提醒/.test(name)) return '流程'
+    if (/统计|分析|报表|监控|画像|预警|评测|度量/.test(name)) return '数据'
+    if (/配置|设置|管理|维护|权限|模板|分类|标签|角色|策略/.test(name)) return '配置'
+    return '页面'
+  }
+
+  const services = mod.services.split(' + ')
+  const allRows = mod.features.map((name, i) => ({
+    index: i + 1,
+    name,
+    kind: kindOf(name),
+    form: forms[i % forms.length],
+    service: services[i % services.length] ?? mod.services,
+  }))
+  const remaining = mod.count ? Math.max(mod.count - mod.features.length, 0) : 0
+  const serviceCount = services.length
+
+  const DEP_MAP = {
+    base: ['统一身份 IAM', '统一权限', '统一消息', '统一文件', '统一审计'],
+    industry: ['统一身份', '统一流程与表单', '消息中心', '数据中台'],
+    course: ['知识图谱引擎', '题库与测评引擎', '资源与音视频', 'AI 能力中心', '统一文件'],
+    major: ['主数据服务', '流程引擎', '电子签章', '知识图谱引擎', '数据中台'],
+    exam: ['人脸识别', '音视频直播', '题库与测评', '对象存储', '统一身份'],
+    ai: ['模型网关', '向量库', 'MCP 网关', '统一文件', '内容安全'],
+    project: ['流程引擎', '表单引擎', '统一文件', '数据中台', '消息中心'],
+  }
+  const dependencies = DEP_MAP[platform.key] ?? ['统一身份', '统一权限', '消息中心']
+
+  const sameGroup = mod.group
+  const related = platform.modules
+    .filter((m) => m.id !== mod.id && (sameGroup ? m.group === sameGroup : true))
+    .slice(0, 4)
+
+  const tagClass = platform.code === 'P0' || platform.code === 'P5' ? 'green' : 'blue'
+  const modIndex = platform.modules.findIndex((m) => m.id === mod.id) + 1
+  const overviewUrl = UI.overviewUrl(platform.key)
+
+  page.innerHTML = `
+    <div class="page-head module-head">
+      <div>
+        <div class="breadcrumb">
+          <a href="portal.html">首页</a><span>/</span>
+          <a href="${overviewUrl}">${esc(platform.shortName)}</a><span>/</span>
+          <span>${esc(mod.name)}</span>
+        </div>
+        <div class="module-title-row">
+          <h1 class="page-title">${esc(mod.name)}</h1>
+          <span class="tag ${tagClass}">${esc(platform.code)} · ${esc(platform.shortName)}</span>
+        </div>
+        <p class="page-desc">${esc(mod.summary)}</p>
+      </div>
+    </div>
+
+    <div class="module-stats">
+      <div class="mstat">
+        <span>功能条目</span>
+        <strong>${mod.count ?? '待细分'}${mod.count ? '<small> 条</small>' : ''}</strong>
+        <em>${mod.count ? '来自功能参数总表' : '输入未细分，待业务方确认'}</em>
+      </div>
+      <div class="mstat">
+        <span>已注册功能</span>
+        <strong>${mod.features.length}<small> 项</small></strong>
+        <em>功能名称与入口已注册</em>
+      </div>
+      <div class="mstat">
+        <span>承载服务</span>
+        <strong>${serviceCount}<small> 个</small></strong>
+        <em>${esc(mod.services)}</em>
+      </div>
+    </div>
+
+    <div class="module-layout">
+      <div class="stack">
+        <section class="panel">
+          <div class="module-tabs">
+            <button class="active" data-tab="features">${icon('file-text', 14)}功能清单</button>
+            <button data-tab="business">${icon('layout-grid', 14)}业务视图</button>
+          </div>
+
+          <div class="panel-body" id="tabFeatures">
+            <div class="features-toolbar">
+              <div class="search-box">
+                ${icon('search', 14)}
+                <input id="keyword" placeholder="在模块内搜索功能名称" />
+              </div>
+              <div class="kind-legend">
+                ${kinds.map((k) => `<span class="tag gray">${k}</span>`).join('')}
+              </div>
+              <span class="tiny muted">共 ${mod.features.length} 项</span>
+            </div>
+
+            <div class="table-wrap feature-table">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 42px">#</th>
+                    <th>功能名称</th>
+                    <th style="width: 72px">类型</th>
+                    <th>承载服务</th>
+                    <th style="width: 44px"></th>
+                  </tr>
+                </thead>
+                <tbody id="featureRows"></tbody>
+              </table>
+            </div>
+
+            <div class="empty" id="featureEmpty" hidden>没有匹配的功能名称</div>
+
+            <div class="feature-foot">
+              <span>功能类型按名称语义自动标注，最终以详细设计为准。</span>
+            </div>
+          </div>
+
+          <div class="panel-body business-body" id="tabBusiness" hidden>
+            <div class="business-top">
+              <div>
+                <div class="panel-title" style="font-size: 13px"><span class="panel-titlebar"></span>页面结构示意</div>
+                <div class="panel-sub">业务视图用于承接后续页面原型，不替代详细设计</div>
+              </div>
+              <span class="tag outline">演示数据</span>
+            </div>
+
+            <div class="wireframe">
+              <div class="wf-bar">
+                <span class="wf-dot" style="background: #ff7b6b"></span>
+                <span class="wf-dot" style="background: #ffce6b"></span>
+                <span class="wf-dot" style="background: #37d6a8"></span>
+                <span class="wf-bar-label">${esc(mod.name)} · 工作区</span>
+                <span class="wf-search"></span>
+                <span class="wf-user"></span>
+              </div>
+              <div class="wf-body">
+                <div class="wf-side">
+                  <span class="wf-block-title">筛选与导航</span>
+                  ${[1, 2, 3, 4, 5].map((n) => `<i style="width: ${55 + (n % 3) * 12}%"></i>`).join('')}
+                </div>
+                <div class="wf-list">
+                  <div class="wf-list-head"><span>列表 / 表格区域</span><span class="wf-btn">+ 新建</span></div>
+                  ${[1, 2, 3, 4].map((n) => `
+                  <div class="wf-row">
+                    <span style="width: ${26 + n * 5}%"></span>
+                    <span style="width: ${16 + n * 3}%"></span>
+                    <span style="width: ${10 + n}%"></span>
+                  </div>`).join('')}
+                  <div class="wf-pager"><span></span><span></span><span></span></div>
+                </div>
+                <div class="wf-detail">
+                  <span class="wf-block-title">详情 / 配置抽屉</span>
+                  <span class="wf-detail-line" style="width: 80%"></span>
+                  <span class="wf-detail-line" style="width: 62%"></span>
+                  <span class="wf-detail-line" style="width: 90%"></span>
+                  <span class="wf-detail-line" style="width: 48%"></span>
+                  <span class="wf-detail-box">字段与流程参数区</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="business-grid">
+              <div class="business-chart">
+                <div class="between">
+                  <span class="wf-block-title">近期处理量（演示）</span>
+                  <span class="tiny muted">周一至周日</span>
+                </div>
+                <div id="businessChart"></div>
+              </div>
+              <div class="business-facts">
+                <div><span>本月处理</span><strong>${800 + (mod.count ?? 20) * 12}</strong></div>
+                <div><span>平均时长</span><strong>2.4<small>h</small></strong></div>
+                <div><span>完成率</span><strong>86<small>%</small></strong></div>
+                <div><span>关联服务</span><strong>${serviceCount}</strong></div>
+              </div>
+            </div>
+            <div class="business-note">以上数值为演示用 Mock，接入真实业务后由数据中台统一口径计算。</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>模块依赖关系</div>
+            <span class="tag outline">架构约束</span>
+          </div>
+          <div class="panel-body">
+            <div class="dep-flow">
+              <div class="dep-node source">
+                <span class="dep-label">当前模块</span>
+                <strong>${esc(mod.name)}</strong>
+                <small>${esc(platform.code)} · ${esc(platform.shortName)}</small>
+              </div>
+              <div class="dep-arrow">${icon('link-2', 16)}<span class="dep-arrow-line"></span></div>
+              <div class="dep-node target">
+                <span class="dep-label">承载与依赖</span>
+                <strong>${esc(mod.services)}</strong>
+                <small>读取：${dependencies.slice(0, 3).join(' / ')}</small>
+              </div>
+            </div>
+            <div class="dep-tags">
+              ${dependencies.map((d) => `<span class="tag gray">${icon('shield-check', 10)}${esc(d)}</span>`).join('')}
+            </div>
+            <div class="dep-note">
+              ${icon('sparkles', 13)}
+              <span>公共服务调用经由能力网关与统一权限上下文，模块不直连其他平台数据库。</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>模块档案</div>
+          </div>
+          <div class="panel-body">
+            <div class="archive-row"><span>所属平台</span><a href="${overviewUrl}" class="archive-link">${esc(platform.name)}</a></div>
+            <div class="archive-row"><span>模块序号</span><strong>${modIndex} / ${platform.modules.length}</strong></div>
+            <div class="archive-row"><span>功能条目</span><strong>${mod.count ?? '输入未细分'}${mod.count ? '<small> 条</small>' : ''}</strong></div>
+            <div class="archive-row"><span>建设阶段</span><span class="tag green">${esc(platform.stage)}</span></div>
+            <div class="archive-row"><span>承载服务</span><strong class="archive-service">${esc(mod.services)}</strong></div>
+            <div class="archive-row"><span>模块分组</span><span>${esc(mod.group ?? '平台模块')}</span></div>
+            <div class="divider"></div>
+            <p class="archive-summary">${esc(mod.summary)}</p>
+            <a href="${overviewUrl}" class="btn btn-sm archive-back">${icon('arrow-left', 13)}返回平台概览</a>
+          </div>
+        </section>
+
+        ${related.length ? `
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>相关模块</div>
+          </div>
+          <div class="panel-body">
+            ${related.map((m) => `
+            <a href="${UI.moduleUrl(platform.key, m.id)}" class="related-item">
+              <span class="related-name">${esc(m.name)}</span>
+              <span class="related-count">${m.count ?? '—'} 条</span>
+              ${icon('arrow-up-right', 12)}
+            </a>`).join('')}
+          </div>
+        </section>` : ''}
+      </div>
+    </div>
+
+    <div class="feature-drawer" id="featureDrawer" hidden>
+      <div class="drawer-head">
+        <span class="tag blue">功能详情</span>
+        <button id="drawerClose">${icon('x', 15)}</button>
+      </div>
+      <h3 id="drawerTitle"></h3>
+      <p>该功能属于「${esc(mod.name)}」模块，承载于 ${esc(mod.services)}。</p>
+      <div class="drawer-section">
+        <span>所属模块</span><strong>${esc(mod.name)}</strong>
+      </div>
+      <div class="drawer-section">
+        <span>承载服务</span><strong>${esc(mod.services)}</strong>
+      </div>
+    </div>`
+
+  /* tabs */
+  const tabBtns = Array.from(page.querySelectorAll('.module-tabs button'))
+  const tabFeatures = page.querySelector('#tabFeatures')
+  const tabBusiness = page.querySelector('#tabBusiness')
+  let businessChartInited = false
+  tabBtns.forEach((b) => b.addEventListener('click', () => {
+    tabBtns.forEach((x) => x.classList.toggle('active', x === b))
+    const isFeatures = b.dataset.tab === 'features'
+    tabFeatures.hidden = !isFeatures
+    tabBusiness.hidden = isFeatures
+    if (!isFeatures && !businessChartInited) {
+      businessChartInited = true
+      initBusinessChart()
+    }
+  }))
+
+  /* feature rows + search */
+  const rowsEl = page.querySelector('#featureRows')
+  const emptyEl = page.querySelector('#featureEmpty')
+  const keywordEl = page.querySelector('#keyword')
+  const drawer = page.querySelector('#featureDrawer')
+  const drawerTitle = page.querySelector('#drawerTitle')
+
+  function kindTagClass(kind) {
+    return kind === '流程' ? 'violet' : kind === '数据' ? 'green' : kind === '配置' ? 'amber' : 'blue'
+  }
+
+  function renderRows() {
+    const q = keywordEl.value.trim()
+    const rows = allRows.filter((r) => !q || `${r.name}${r.kind}${r.service}`.includes(q))
+    rowsEl.innerHTML = rows.map((row) => `
+      <tr data-feature="${esc(row.name)}">
+        <td class="num muted">${String(row.index).padStart(2, '0')}</td>
+        <td class="strong">${esc(row.name)}</td>
+        <td><span class="tag ${kindTagClass(row.kind)}">${row.kind}</span></td>
+        <td class="muted">${esc(row.service)}</td>
+        <td>${icon('arrow-up-right', 13).replace('<svg', '<svg class="muted"')}</td>
+      </tr>`).join('') + (remaining > 0 ? `
+      <tr class="remain-row">
+        <td colspan="5">
+          <span class="tag outline">其余 ${remaining} 条功能</span>
+          <span class="remain-text">名称与页面入口将在功能参数表导入后批量生成，当前仅展示代表性功能。</span>
+        </td>
+      </tr>` : '')
+    emptyEl.hidden = rows.length > 0
+    rowsEl.querySelectorAll('tr[data-feature]').forEach((tr) => {
+      tr.addEventListener('click', () => {
+        drawerTitle.textContent = tr.dataset.feature
+        drawer.hidden = false
+      })
+    })
+  }
+  keywordEl.addEventListener('input', renderRows)
+  renderRows()
+  page.querySelector('#drawerClose').addEventListener('click', () => { drawer.hidden = true })
+
+  /* business chart */
+  function initBusinessChart() {
+    const hash = [...mod.name].reduce((s, c) => s + c.charCodeAt(0), 0)
+    const labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+    const base = ((mod.count ?? 20) % 40) + 30
+    const data = labels.map((_, i) => Math.round(base * (0.55 + ((i * 13 + hash) % 50) / 100)))
+    const accent = platform.accent ?? '#2f6bff'
+    UI.chart(page.querySelector('#businessChart'), {
+      grid: { top: 12, right: 10, bottom: 22, left: 34 },
+      tooltip: { trigger: 'axis', backgroundColor: 'rgba(10,24,46,.94)', borderWidth: 0, textStyle: { color: '#fff', fontSize: 10 } },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { color: '#8c98ab', fontSize: 9 },
+      },
+      yAxis: {
+        type: 'value',
+        splitLine: { lineStyle: { color: 'rgba(19,33,60,.06)', type: 'dashed' } },
+        axisLabel: { color: '#8c98ab', fontSize: 9 },
+      },
+      series: [
+        {
+          type: 'bar',
+          data,
+          barWidth: 12,
+          itemStyle: {
+            borderRadius: [4, 4, 2, 2],
+            color: {
+              type: 'linear',
+              x: 0, y: 0, x2: 0, y2: 1,
+              colorStops: [
+                { offset: 0, color: accent },
+                { offset: 1, color: `${accent}33` },
+              ],
+            },
+          },
+        },
+      ],
+    }, '150px')
+  }
+})()
+</script>
+</body>
+</html>

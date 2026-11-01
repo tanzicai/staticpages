@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课程管理信息 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+.module-head { align-items: flex-start; }
+.module-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.cw-course {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.cw-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  flex: none;
+}
+.cw-course-info { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 220px; }
+.cw-course-info strong { font-size: 14px; color: var(--ink); font-weight: 650; }
+.cw-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.cw-meta span { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; color: var(--muted); }
+.cw-meta svg { color: var(--violet); flex: none; }
+.cw-progress { min-width: 180px; flex: none; }
+.cw-progress > span { font-size: 10.5px; color: var(--muted); }
+.cw-progress strong { font-family: var(--num); color: var(--ink-2); }
+.cw-progress-bar {
+  margin-top: 5px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(19, 33, 60, 0.07);
+  overflow: hidden;
+}
+.cw-progress-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #2f6bff, #6d5bf6);
+}
+
+.cw-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.cw-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 18px 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+}
+.cw-entry:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+  border-color: rgba(109, 91, 246, 0.32);
+}
+.cw-entry-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(135deg, #2f6bff, #6d5bf6);
+  flex: none;
+}
+.cw-entry.violet .cw-entry-icon { background: linear-gradient(135deg, #6d5bf6, #9a8bff); }
+.cw-entry.green .cw-entry-icon { background: linear-gradient(135deg, #0f9d8f, #1fb6c9); }
+.cw-entry-title { font-size: 15px; font-weight: 700; color: var(--ink); }
+.cw-entry-desc { font-size: 11px; color: var(--muted); line-height: 1.6; }
+.cw-chips { display: flex; flex-direction: column; gap: 5px; margin-top: 2px; }
+.cw-chip {
+  font-size: 10px;
+  color: var(--ink-2);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(19, 33, 60, 0.04);
+}
+.cw-entry-go {
+  margin-top: auto;
+  padding-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--violet);
+}
+
+@media (max-width: 1100px) {
+  .cw-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body data-platform="course" data-module="course-build">
+<main class="content">
+  <div class="page cw-page">
+    <div class="page-head module-head">
+      <div>
+        <div class="breadcrumb">
+          <a href="portal.html">首页</a><span>/</span>
+          <a href="platform.html?p=course">智慧课程</a><span>/</span>
+          <a href="course-manage.html">课程管理</a><span>/</span>
+          <span>课程管理信息</span>
+        </div>
+        <div class="module-title-row">
+          <h1 class="page-title">课程管理信息</h1>
+          <span class="tag blue" id="tagName"></span>
+          <span class="tag green" id="tagCode"></span>
+        </div>
+        <p class="page-desc">本课程的统一管理入口，包含课程建设、教学管理与学习过程监控与管理三个功能，点击进入后进入对应功能页面。</p>
+      </div>
+      <div class="page-actions" id="cwActions"></div>
+    </div>
+
+    <div class="panel cw-course" id="cwCourse"></div>
+    <div class="cw-grid" id="cwGrid"></div>
+  </div>
+</main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+(function () {
+  var course = UI.findCourse(UI.param('id'));
+
+  var entries = [
+    {
+      key: 'build', label: '课程建设', icon: 'film', tone: 'blue',
+      desc: '维护视频互动、投屏授课与知识图谱等课程建设参数',
+      url: 'course-build.html?id=' + course.id + '&tab=video',
+      chips: ['视频任意时间点插入 PPT / 图片 / 互动测验', '手机一键投屏与激光笔、聚光灯讲解', '知识图谱可视化与关联资源'],
+    },
+    {
+      key: 'teach', label: '教学管理', icon: 'clipboard-list', tone: 'violet',
+      desc: '辅助教学活动、备课教案与章节学习控制',
+      url: 'course-teach.html?id=' + course.id,
+      chips: ['发布作业 / 考试 / 讨论并设置权重', '课前 / 课中 / 课后备课与课堂活动', '章节学习模式与可见内容配置'],
+    },
+    {
+      key: 'learning', label: '学习过程监控与管理', icon: 'activity', tone: 'green',
+      desc: '学习动态监测、任务点完成与教学预警干预',
+      url: 'course-learning.html?id=' + course.id,
+      chips: ['12 个维度学情监测', '章节任务点与签到统计', '教学预警与学习干预'],
+    },
+  ];
+
+  document.getElementById('tagName').textContent = course.name;
+  document.getElementById('tagCode').textContent = course.code;
+
+  document.getElementById('cwActions').innerHTML =
+    '<a class="btn" href="course-manage.html">' + UI.icon('arrow-left', 13) + '返回课程管理</a>';
+
+  document.getElementById('cwCourse').innerHTML =
+    '<span class="cw-avatar" style="background:' + course.cover + '">' + UI.esc(course.name.slice(0, 1)) + '</span>' +
+    '<div class="cw-course-info">' +
+      '<strong>' + UI.esc(course.name) + '</strong>' +
+      '<div class="cw-meta">' +
+        '<span>' + UI.icon('graduation-cap', 12) + UI.esc(course.className) + '</span>' +
+        '<span>' + UI.icon('users', 12) + course.students + ' 名学生</span>' +
+        '<span>' + UI.icon('calendar-days', 12) + UI.esc(course.term) + '</span>' +
+        '<span>' + UI.icon('clock-3', 12) + course.credits + ' 学分 · ' + course.hours + ' 学时</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="cw-progress">' +
+      '<span>教学进度 <strong>' + course.progress + '%</strong></span>' +
+      '<div class="cw-progress-bar"><i style="width:' + course.progress + '%"></i></div>' +
+    '</div>';
+
+  document.getElementById('cwGrid').innerHTML = entries.map(function (e) {
+    return '<a class="panel cw-entry ' + e.tone + '" href="' + e.url + '">' +
+      '<span class="cw-entry-icon">' + UI.icon(e.icon, 20) + '</span>' +
+      '<div class="cw-entry-title">' + e.label + '</div>' +
+      '<div class="cw-entry-desc">' + e.desc + '</div>' +
+      '<div class="cw-chips">' + e.chips.map(function (c) { return '<span class="cw-chip">' + c + '</span>' }).join('') + '</div>' +
+      '<span class="cw-entry-go">进入功能' + UI.icon('chevron-right', 14) + '</span>' +
+    '</a>';
+  }).join('');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智能体生成平台 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+/* ===== AgentStudio.vue scoped ===== */
+.as-page .agent-ops, .as-page .member-ops { display: flex; flex-direction: column; gap: 3px; flex: none; }
+.as-page .agent-ops button, .as-page .member-ops button {
+  width: 22px; height: 22px; border: 1px solid var(--line); border-radius: 6px;
+  background: #fff; color: var(--muted); display: grid; place-items: center; cursor: pointer;
+}
+.as-page .agent-ops button:hover, .as-page .member-ops button:hover { color: var(--violet); border-color: rgba(109, 91, 246, 0.4); }
+.as-page .as-modal-mask {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(15, 23, 42, 0.42);
+  display: grid; place-items: center;
+}
+.as-page .as-modal { width: 360px; padding: 16px 18px; }
+.as-page .as-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.as-page .as-modal-head strong { font-size: 14px; color: var(--ink); }
+.as-page .as-modal-head button { border: 0; background: none; color: var(--muted); cursor: pointer; display: grid; place-items: center; }
+.as-page .as-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.as-page .as-field > span { font-size: 11px; color: var(--muted); }
+.as-page .as-field input, .as-page .as-field textarea {
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+  font-size: 12px; color: var(--ink); outline: none; resize: vertical; font-family: inherit;
+}
+.as-page .as-field input:focus, .as-page .as-field textarea:focus { border-color: var(--violet); }
+.as-page .as-colors { display: flex; gap: 8px; }
+.as-page .as-color {
+  width: 24px; height: 24px; border-radius: 7px; border: 2px solid transparent; cursor: pointer;
+}
+.as-page .as-color.on { border-color: var(--ink); box-shadow: 0 0 0 2px #fff inset; }
+.as-page .as-modal-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+.as-page .as-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 12px; margin-bottom: 12px; }
+.as-page .mode-switch { display: flex; gap: 0; margin-bottom: 10px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+.as-page .mode-switch button {
+  flex: 1; height: 38px; border: 0; background: #fff;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: 11px; color: var(--muted); cursor: pointer; transition: 0.15s;
+}
+.as-page .mode-switch button.active { background: var(--violet); color: #fff; font-weight: 600; }
+
+.as-page .mini-panel { margin-bottom: 10px; }
+.as-page .mini-panel .panel-body { padding: 10px; }
+.as-page .agent-item {
+  display: flex; gap: 8px; padding: 8px 10px; border-radius: 8px;
+  border: 1px solid var(--line); background: #fff; cursor: pointer; transition: 0.12s;
+  margin-bottom: 5px;
+}
+.as-page .agent-item:last-child { margin-bottom: 0; }
+.as-page .agent-item:hover { border-color: rgba(109,91,246,0.3); }
+.as-page .agent-item.active { border-color: var(--violet); background: rgba(109,91,246,0.05); }
+.as-page .agent-color { width: 8px; border-radius: 3px; }
+.as-page .agent-item strong { display: block; font-size: 11.5px; font-weight: 620; }
+.as-page .agent-item span { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+.as-page .core-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.as-page .core-tabs button {
+  height: 32px; border: 1px solid var(--line); border-radius: 7px; background: #fff;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  font-size: 10.5px; color: var(--muted); cursor: pointer; transition: 0.12s;
+}
+.as-page .core-tabs button:hover { color: var(--ink-2); }
+.as-page .core-tabs button.active { background: var(--violet); border-color: transparent; color: #fff; }
+
+/* multi agent */
+.as-page .multi-panel .panel-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.as-page .unified-field { display: flex; flex-direction: column; gap: 3px; }
+.as-page .unified-field > span { font-size: 9px; color: var(--muted); }
+.as-page .unified-field input {
+  width: 100%; height: 28px; padding: 0 8px; border-radius: 6px;
+  border: 1px solid var(--line); font-size: 10.5px; color: var(--ink-2); outline: 0;
+}
+.as-page .unified-field input:focus { border-color: rgba(109, 91, 246, 0.5); }
+.as-page .unified-label { font-size: 9px; color: var(--muted-2); letter-spacing: 0.4px; }
+
+.as-page .strategy-list { display: flex; flex-direction: column; gap: 4px; }
+.as-page .strategy-chip {
+  padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; background: #fff;
+  text-align: left; cursor: pointer; transition: 0.12s; display: flex; flex-direction: column; gap: 1px;
+}
+.as-page .strategy-chip strong { font-size: 10.5px; color: var(--ink-2); font-weight: 620; }
+.as-page .strategy-chip span { font-size: 9px; color: var(--muted); }
+.as-page .strategy-chip:hover { border-color: rgba(109, 91, 246, 0.3); }
+.as-page .strategy-chip.active { border-color: var(--violet); background: rgba(109, 91, 246, 0.06); }
+.as-page .strategy-chip.active strong { color: var(--violet); }
+
+.as-page .member-list { display: flex; flex-direction: column; gap: 4px; }
+.as-page .member-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 7px; border: 1px solid var(--line); border-radius: 7px; background: #fff;
+}
+.as-page .member-item.off { opacity: 0.55; }
+.as-page .member-check {
+  width: 18px; height: 18px; border-radius: 4px; border: 1px solid rgba(19, 33, 60, 0.2);
+  background: #fff; display: grid; place-items: center; cursor: pointer; color: #fff; flex: none;
+}
+.as-page .member-check.on { background: var(--violet); border-color: transparent; }
+.as-page .member-color { width: 4px; height: 18px; border-radius: 2px; flex: none; }
+.as-page .member-info { flex: 1; min-width: 0; }
+.as-page .member-info strong { display: block; font-size: 10.5px; font-weight: 620; color: var(--ink-2); }
+.as-page .member-info span { display: block; font-size: 9px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.as-page .primary-btn {
+  height: 20px; padding: 0 6px; border-radius: 4px; flex: none;
+  border: 1px solid var(--line); background: #fff;
+  font-size: 8.5px; color: var(--muted); cursor: pointer;
+}
+.as-page .primary-btn.on { background: rgba(15, 157, 143, 0.1); border-color: rgba(15, 157, 143, 0.35); color: var(--green); font-weight: 600; }
+.as-page .member-order { display: flex; flex-direction: column; gap: 1px; }
+.as-page .member-order button {
+  width: 16px; height: 13px; border: 0; background: transparent;
+  color: var(--muted); cursor: pointer; display: grid; place-items: center;
+}
+.as-page .member-order button:disabled { opacity: 0.3; cursor: default; }
+
+.as-page .mini-flow { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; padding: 8px; border-radius: 8px; background: rgba(109, 91, 246, 0.04); }
+.as-page .flow-node { padding: 4px 7px; border-radius: 5px; font-size: 9px; font-weight: 600; }
+.as-page .flow-node.user { background: rgba(47, 107, 255, 0.12); color: var(--blue); }
+.as-page .flow-node.entry { background: var(--violet); color: #fff; }
+.as-page .flow-node.out { background: rgba(15, 157, 143, 0.12); color: var(--green); }
+.as-page .flow-arrow { color: var(--muted-2); font-size: 10px; }
+.as-page .flow-agents { display: inline-flex; gap: 2px; }
+.as-page .flow-agents i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.as-page .flow-note { margin: 0; font-size: 9px; color: var(--muted); line-height: 1.6; }
+
+.as-page .entry-summary { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+.as-page .entry-desc { margin: 0 0 8px; font-size: 10px; color: var(--muted); }
+.as-page .route-result { margin-top: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+.as-page .route-head { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
+.as-page .route-agent { padding: 3px 8px; border-radius: 5px; color: #fff; font-size: 10px; font-weight: 600; }
+.as-page .route-steps { display: flex; flex-direction: column; gap: 4px; }
+.as-page .route-step { display: flex; gap: 6px; font-size: 10px; color: var(--ink-2); line-height: 1.5; }
+.as-page .step-index {
+  width: 15px; height: 15px; border-radius: 50%; flex: none;
+  display: grid; place-items: center;
+  background: rgba(109, 91, 246, 0.1); color: var(--violet); font-size: 8px; font-weight: 600;
+}
+.as-page .route-answer {
+  margin-top: 8px; padding: 8px 10px; border-radius: 7px;
+  background: rgba(15, 157, 143, 0.06); font-size: 10.5px; line-height: 1.6; color: var(--ink-2);
+}
+.as-page .route-empty {
+  padding: 18px; text-align: center; border-radius: 8px;
+  border: 1px dashed rgba(109, 91, 246, 0.22); background: rgba(109, 91, 246, 0.03);
+  font-size: 10px; color: var(--muted); line-height: 1.6;
+}
+
+/* main */
+.as-page .core-title-bar { font-size: 12px; font-weight: 650; color: var(--ink-2); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.as-page .debug-panel { padding: 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
+.as-page .debug-input { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.as-page .debug-input textarea {
+  height: 60px; padding: 10px; border-radius: 8px; border: 1px solid var(--line);
+  font-size: 11.5px; resize: none; outline: 0; font-family: inherit;
+}
+.as-page .debug-input .btn { align-self: flex-end; }
+.as-page .debug-runs { display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; }
+.as-page .run-item {
+  display: flex; gap: 8px; padding: 6px 10px; border-radius: 6px;
+  background: #fff; border: 1px solid var(--line); font-size: 10.5px;
+}
+.as-page .run-item .time { font-family: var(--num); color: var(--muted); }
+.as-page .run-item .query { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.as-page .run-item .result.good { color: var(--green); }
+.as-page .run-item .result.amber { color: var(--amber); }
+.as-page .run-item .tokens, .as-page .run-item .latency { color: var(--muted); font-family: var(--num); }
+
+.as-page .table-list { display: flex; flex-direction: column; gap: 6px; }
+.as-page .resource-row {
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  font-size: 11px;
+}
+.as-page .resource-row strong { flex: 1; font-size: 11.5px; font-weight: 620; }
+.as-page .resource-row .num { font-family: var(--num); color: var(--muted); }
+.as-page .resource-row .status.good { color: var(--green); font-size: 10px; }
+.as-page .quota { position: relative; width: 60px; height: 5px; border-radius: 3px; background: var(--line); font-size: 9px; color: var(--muted); margin-left: auto; }
+.as-page .quota i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(90deg, #0f9d8f, #2f6bff); }
+.as-page .quota::after { content: attr(data); position: absolute; left: 0; top: -14px; font-size: 9px; }
+
+.as-page .settings-grid { display: flex; flex-direction: column; gap: 6px; }
+.as-page .setting-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  font-size: 11px;
+}
+.as-page .toggle { width: 36px; height: 20px; border-radius: 10px; background: var(--line); position: relative; cursor: pointer; }
+.as-page .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; left: 2px; top: 2px; background: #fff; transition: 0.15s; }
+.as-page .toggle.on { background: var(--green); }
+.as-page .toggle.on::after { left: 18px; }
+.as-page .num-input { width: 60px; height: 26px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px; font-family: var(--num); font-size: 11px; }
+
+.as-page .channels-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.as-page .channel-card {
+  display: flex; flex-direction: column; gap: 4px; padding: 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: #fff; text-align: center;
+  font-size: 10.5px;
+}
+.as-page .channel-card svg { color: var(--violet); margin-bottom: 4px; }
+.as-page .channel-card strong { font-size: 11.5px; font-weight: 620; }
+.as-page .channel-card .status.good { color: var(--green); font-size: 10px; }
+
+.as-page .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.as-page .stats-grid div {
+  padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; text-align: center;
+}
+.as-page .stats-grid span { display: block; font-size: 10px; color: var(--muted); }
+.as-page .stats-grid strong { font-family: var(--num); font-size: 22px; color: var(--ink-2); display: block; margin-top: 2px; }
+.as-page .stats-grid strong small { font-size: 12px; color: var(--muted); font-weight: 500; }
+.as-page .stats-grid em { font-style: normal; font-size: 9.5px; color: var(--green); display: block; }
+
+.as-page .logs-list { display: flex; flex-direction: column; gap: 4px; }
+.as-page .log-item {
+  display: grid; grid-template-columns: 150px 80px 140px 1fr; gap: 10px;
+  padding: 7px 12px; border: 1px solid var(--line); border-radius: 7px;
+  font-size: 10.5px; background: #fff;
+}
+.as-page .log-item .time { font-family: var(--num); color: var(--muted); }
+.as-page .log-item .user { color: var(--violet); font-weight: 600; }
+.as-page .log-item .action { color: var(--amber); }
+.as-page .log-item .target { color: var(--ink-2); }
+
+/* QA */
+.as-page .qa-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 12px; }
+.as-page .qa-panel { margin-top: 12px; }
+.as-page .qa-list { display: flex; flex-direction: column; gap: 5px; }
+.as-page .qa-item {
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  cursor: pointer; transition: 0.12s;
+}
+.as-page .qa-item:hover { border-color: rgba(109,91,246,0.3); }
+.as-page .qa-item.active { border-color: var(--violet); background: rgba(109,91,246,0.04); }
+.as-page .qa-item strong { display: block; font-size: 11px; font-weight: 620; }
+.as-page .qa-item span { display: block; font-size: 10px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.as-page .qa-editor-label { font-size: 10px; font-weight: 600; color: var(--muted); margin-bottom: 4px; display: block; }
+.as-page .qa-input { width: 100%; height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 7px; font-size: 11.5px; outline: 0; }
+.as-page .rich-toolbar {
+  display: flex; align-items: center; gap: 3px; flex-wrap: wrap;
+  padding: 6px; border: 1px solid var(--line); border-bottom: 0; border-radius: 7px 7px 0 0;
+  background: var(--surface);
+}
+.as-page .rich-btn {
+  width: 28px; height: 26px; border: 0; border-radius: 5px; background: transparent;
+  font-size: 10px; cursor: pointer; color: var(--muted); transition: 0.1s;
+}
+.as-page .rich-btn:hover { background: rgba(47,107,255,0.08); color: var(--violet); }
+.as-page .rich-divider { width: 1px; height: 18px; background: var(--line); margin: 0 4px; }
+.as-page .rich-btn:last-child { width: auto; padding: 0 8px; display: inline-flex; align-items: center; gap: 4px; color: var(--blue); font-size: 10px; font-weight: 600; }
+.as-page .rich-editor {
+  min-height: 140px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 0 0 7px 7px;
+  background: #fff; font-size: 11.5px; line-height: 1.8; outline: 0;
+  color: var(--ink-2);
+}
+.as-page .rich-editor strong { color: var(--violet); }
+.as-page .rich-editor em { color: var(--amber); }
+.as-page .rich-editor .highlight { background: rgba(255, 206, 107, 0.3); padding: 0 3px; border-radius: 3px; }
+.as-page .qa-att-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.as-page .qa-att { padding: 8px 12px; border-radius: 7px; background: rgba(47,107,255,0.06); border: 1px dashed rgba(47,107,255,0.25); font-size: 11px; color: var(--blue); }
+.as-page .qa-att.upload { background: transparent; border-style: dashed; color: var(--muted); cursor: pointer; }
+.as-page .qa-att.upload:hover { border-color: var(--blue); color: var(--blue); }
+
+.as-page .bar-spacer { flex: 1; }
+.as-page .icon-btn {
+  width: 22px; height: 22px; border-radius: 5px; border: 1px solid var(--line);
+  background: #fff; color: var(--muted); display: grid; place-items: center; cursor: pointer;
+}
+.as-page .icon-btn:hover { color: var(--red); border-color: rgba(214, 69, 80, 0.4); }
+.as-page .status.off { color: var(--muted); background: rgba(19, 33, 60, 0.05); }
+.as-page .period-switch { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.as-page .period-switch button {
+  height: 24px; padding: 0 10px; border: 0; background: #fff;
+  font-size: 10px; color: var(--muted); cursor: pointer;
+}
+.as-page .period-switch button.active { background: var(--violet); color: #fff; }
+.as-page .log-search {
+  height: 26px; width: 190px; padding: 0 8px; border-radius: 6px;
+  border: 1px solid var(--line); font-size: 10px; outline: none;
+}
+.as-page .log-search:focus { border-color: rgba(109, 91, 246, 0.45); }
+.as-page .log-empty { padding: 14px; text-align: center; font-size: 10px; color: var(--muted); }
+.as-page .toggle { padding: 0; border: 0; cursor: pointer; }
+
+.as-page .acp-mask {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(10, 24, 46, 0.36); backdrop-filter: blur(2px);
+  display: grid; place-items: center; padding: 20px;
+}
+.as-page .acp-dialog { width: min(420px, 92vw); border-radius: 12px; background: #fff; box-shadow: 0 24px 60px rgba(10, 24, 46, 0.24); overflow: hidden; }
+.as-page .acp-dialog-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid var(--line);
+  font-size: 12px; font-weight: 650; color: var(--ink-2);
+}
+.as-page .acp-dialog-head button { border: 0; background: transparent; cursor: pointer; color: var(--muted); font-size: 15px; }
+.as-page .acp-dialog-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 9px; }
+.as-page .acp-field { display: flex; flex-direction: column; gap: 4px; }
+.as-page .acp-field > span { font-size: 10px; color: var(--muted); }
+.as-page .acp-field input, .as-page .acp-field select {
+  height: 30px; padding: 0 9px; border-radius: 7px;
+  border: 1px solid var(--line); font-size: 11px; color: var(--ink-2); outline: none;
+}
+.as-page .acp-field input:focus, .as-page .acp-field select:focus { border-color: rgba(109, 91, 246, 0.5); }
+.as-page .acp-dialog-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); }
+</style>
+</head>
+<body data-platform="ai" data-module="agents">
+<main class="content"><div class="page as-page">
+  <div class="page-head module-head">
+    <div>
+      <div class="breadcrumb">
+        <a href="portal.html">首页</a><span>/</span>
+        <a href="platform.html?p=ai">AI 能力中心</a><span>/</span>
+        <span>AI 智能体生成平台</span>
+      </div>
+      <div class="module-title-row">
+        <h1 class="page-title">智能体生成平台</h1>
+        <span class="tag violet">单 Agent / 多 Agents 模式</span>
+        <span class="tag blue">基础调试/资源/大模型/设置/渠道/统计/导出/日志</span>
+        <span class="tag green">问答对 · 富文本 · 附件</span>
+      </div>
+      <p class="page-desc">建设智能体时可选单 Agent 或多 Agents 模式；智能体包含基础调试、资源管理、大模型、基础设置、接入渠道、数据统计、导出中心、操作日志等核心功能；添加问答对支持录入问题、答案（富文本）及附件。</p>
+    </div>
+  </div>
+
+  <div class="as-layout">
+    <!-- Left: agents + mode -->
+    <aside class="as-left">
+      <div class="mode-switch" id="modeSwitch"></div>
+      <section id="agentPanel"></section>
+      <section class="panel mini-panel">
+        <div class="panel-head"><div class="panel-title"><span class="panel-titlebar"></span>核心功能</div></div>
+        <div class="panel-body core-tabs" id="coreTabs"></div>
+      </section>
+    </aside>
+
+    <!-- Right: main area -->
+    <section class="as-main" id="asMain"></section>
+  </div>
+
+  <!-- 新建 / 编辑智能体 -->
+  <div class="as-modal-mask" id="editorModal" style="display:none">
+    <div class="as-modal panel">
+      <div class="as-modal-head">
+        <strong id="editorTitle">新建智能体</strong>
+        <button data-editor-close></button>
+      </div>
+      <label class="as-field">
+        <span>名称</span>
+        <input id="formName" placeholder="如：课程智能备课" maxlength="20" />
+      </label>
+      <label class="as-field">
+        <span>描述</span>
+        <textarea id="formDesc" rows="2" placeholder="简要说明该智能体的能力" maxlength="60"></textarea>
+      </label>
+      <div class="as-field">
+        <span>标识色</span>
+        <div class="as-colors" id="formColors"></div>
+      </div>
+      <div class="as-modal-foot">
+        <button class="btn" data-editor-close>取消</button>
+        <button class="btn btn-primary" id="saveAgentBtn">创建</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加资源弹窗 -->
+  <div class="acp-mask" id="resDialog" style="display:none">
+    <div class="acp-dialog">
+      <div class="acp-dialog-head">
+        <strong>添加智能体资源</strong>
+        <button data-res-close>×</button>
+      </div>
+      <div class="acp-dialog-body">
+        <label class="acp-field"><span>资源名称</span><input id="newResName" placeholder="如：课程题库资源" /></label>
+        <label class="acp-field">
+          <span>资源类型</span>
+          <select id="newResType">
+            <option value="向量库">向量库</option>
+            <option value="文件" selected>文件</option>
+            <option value="结构化">结构化</option>
+          </select>
+        </label>
+        <label class="acp-field"><span>资源数量</span><input id="newResCount" type="number" min="1" value="10" /></label>
+      </div>
+      <div class="acp-dialog-foot">
+        <button class="btn btn-sm" data-res-close>取消</button>
+        <button class="btn btn-sm primary" id="addResBtn">确定添加</button>
+      </div>
+    </div>
+  </div>
+</div></main>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+(function () {
+  const $ = UI.$, $$ = UI.$$, icon = UI.icon, esc = UI.esc
+  const toast = UI.toast
+
+  /* ===== 数据：SEED.agentList 内存副本 ===== */
+  const agents = SEED.agentList.map((a) => ({ ...a }))
+  const palette = ['#6d5bf6', '#0f9d8f', '#2f6bff', '#e0762f', '#d64550', '#9a8bff']
+
+  const state = {
+    agentMode: 'single',
+    selectedAgentId: 'a1',
+    unified: {
+      name: '课程超级智能体',
+      desc: '面向师生的统一入口，按意图自动分发至子智能体并汇总结果',
+      strategy: 'intent',
+    },
+    unifiedQuery: '帮我分析本周学情，并生成一份针对薄弱知识点的练习',
+    unifiedResult: null,
+    coreTab: 'debug',
+    editingId: null,
+    form: { name: '', desc: '', color: palette[0] },
+  }
+  const selectedAgent = () => agents.find((a) => a.id === state.selectedAgentId) || agents[0]
+  const enabledAgents = () => agents.filter((a) => a.enabled)
+  const unifiedName = () => state.unified.name.trim() || '统一入口智能体'
+
+  const strategies = [
+    { key: 'intent', label: '意图路由', note: '按用户意图自动选择子智能体' },
+    { key: 'pipeline', label: '顺序编排', note: '按顺序依次调用多个子智能体' },
+    { key: 'parallel', label: '并行汇总', note: '并行调用后合并统一答案' },
+  ]
+  const coreTabs = [
+    { key: 'debug', label: '基础调试', icon: 'activity' },
+    { key: 'resource', label: '资源管理', icon: 'file-text' },
+    { key: 'model', label: '大模型', icon: 'sparkles' },
+    { key: 'setting', label: '基础设置', icon: 'settings' },
+    { key: 'channel', label: '接入渠道', icon: 'network' },
+    { key: 'stat', label: '数据统计', icon: 'database' },
+    { key: 'export', label: '导出中心', icon: 'file' },
+    { key: 'log', label: '操作日志', icon: 'list-checks' },
+  ]
+
+  /* ===== AgentCorePanel 状态（进入该视图时重建，模拟组件重挂载） ===== */
+  let acp = null
+  function resetAcp() {
+    acp = {
+      debugQuery: '生成《知识图谱》章节教案',
+      debugRuns: [
+        { time: '10:28', query: '生成《知识图谱》教案', result: '成功', tokens: 1240, latency: '1.2s' },
+        { time: '10:24', query: '出 10 道选择题', result: '成功', tokens: 860, latency: '0.8s' },
+        { time: '10:20', query: '分析班级学情', result: '部分成功', tokens: 520, latency: '1.8s' },
+      ],
+      resources: [
+        { name: '知识库 · 教学文档', type: '向量库', count: 38, size: '1.2GB' },
+        { name: '课程资源库', type: '文件', count: 264, size: '3.8GB' },
+        { name: '题库 · 公开题库', type: '结构化', count: 12400, size: '120MB' },
+      ],
+      models: [
+        { name: 'GPT-4o Mini', provider: 'OpenAI', type: '对话', enabled: true, quota: 86 },
+        { name: 'DeepSeek-V3', provider: '深度求索', type: '对话/代码', enabled: true, quota: 92 },
+        { name: 'Qwen-VL', provider: '阿里云', type: '多模态', enabled: true, quota: 74 },
+      ],
+      currentModel: 'DeepSeek-V3',
+      channels: [
+        { name: '首页嵌入', type: 'SDK / iframe', connected: true },
+        { name: '企业微信机器人', type: 'Webhook', connected: true },
+        { name: '课程内部问答', type: 'API', connected: false },
+      ],
+      settings: { identity: true, multiTerminal: true, trace: true, safety: true, memory: 20, temperature: 0.7 },
+      statsPeriod: 'today',
+      logs: [
+        { time: '2026-10-30 10:28', user: '王老师', action: '更新问答对', target: '什么是知识图谱' },
+        { time: '2026-10-30 10:15', user: '王老师', action: '发布智能体', target: '课程智能备课 v1.2' },
+        { time: '2026-10-30 09:40', user: '管理员', action: '模型路由配置', target: '新增 Qwen-VL' },
+      ],
+      logFilter: '',
+      qaPairs: [
+        { id: 'q1', question: '什么是知识图谱？', answer: '知识图谱是通过 <strong>实体</strong>、<em>关系</em>、属性三类要素，构建的可计算的知识网络。...' },
+        { id: 'q2', question: '如何在视频中插入互动测验？', answer: '进入课程建设 → 视频编辑，在时间轴任意位置点击「插入测验」，选择单选题 / 多选题 / 对错题。' },
+        { id: 'q3', question: '投屏功能需要第三方软件吗？', answer: '不需要。平台内置投屏能力，手机端 <span class="highlight">一键投屏</span> 到教室大屏。', attachment: '投屏操作手册.pdf' },
+      ],
+      editingQA: null,
+    }
+  }
+  resetAcp()
+
+  const statsByPeriod = {
+    today: [
+      { label: '今日调用', value: '1,240', delta: '+12.4%' },
+      { label: '活跃用户', value: '186', delta: '+8' },
+      { label: '平均满意度', value: '4.6', delta: '+0.1' },
+      { label: '首字延迟 P95', value: '1.4s', delta: '-0.2s' },
+    ],
+    week: [
+      { label: '本周调用', value: '8,640', delta: '+9.1%' },
+      { label: '活跃用户', value: '412', delta: '+26' },
+      { label: '平均满意度', value: '4.5', delta: '+0.1' },
+      { label: '首字延迟 P95', value: '1.5s', delta: '-0.1s' },
+    ],
+    month: [
+      { label: '本月调用', value: '36,720', delta: '+14.6%' },
+      { label: '活跃用户', value: '1,286', delta: '+104' },
+      { label: '平均满意度', value: '4.6', delta: '+0.2' },
+      { label: '首字延迟 P95', value: '1.6s', delta: '-0.3s' },
+    ],
+  }
+  const richCommands = [
+    { label: '加粗', icon: 'B' }, { label: '斜体', icon: 'I' }, { label: '插入图片', icon: '🖼️' },
+    { label: '外链', icon: '🔗' }, { label: '附件', icon: '📎' }, { label: '表格', icon: '📋' },
+    { label: '引用', icon: '❝' }, { label: '高亮块', icon: '💡' }, { label: '代码块', icon: '&lt;/&gt;' },
+    { label: '链接', icon: '🔗' }, { label: '字体', icon: 'Aa' }, { label: '序列', icon: '1.' },
+    { label: '对齐', icon: '⬌' },
+  ]
+
+  function nowTime() {
+    const d = new Date()
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  }
+  function nowStamp() {
+    const d = new Date()
+    const p = (n) => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+  }
+  function addLog(action, target) {
+    acp.logs.unshift({ time: nowStamp(), user: '王老师', action, target })
+  }
+  const currentQA = () => acp.editingQA || acp.qaPairs[0]
+  const inUnifiedDebug = () => state.agentMode === 'multi' && state.coreTab === 'debug'
+
+  /* ===== 左栏渲染 ===== */
+  function renderModeSwitch() {
+    $('#modeSwitch').innerHTML = `
+      <button data-mode="single" class="${state.agentMode === 'single' ? 'active' : ''}">${icon('bot', 14)}单 Agent 模式</button>
+      <button data-mode="multi" class="${state.agentMode === 'multi' ? 'active' : ''}">${icon('boxes', 14)}多 Agents 模式</button>`
+  }
+
+  function renderAgentPanel() {
+    const el = $('#agentPanel')
+    if (state.agentMode === 'single') {
+      el.innerHTML = `
+        <div class="panel mini-panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>智能体列表</div>
+            <button class="btn btn-sm" data-new-agent>${icon('plus', 12)}新建</button>
+          </div>
+          <div class="panel-body">
+            ${agents.map((a) => `
+              <div class="agent-item ${a.id === state.selectedAgentId ? 'active' : ''}" data-select-agent="${a.id}">
+                <div class="agent-color" style="background:${a.color}"></div>
+                <div>
+                  <strong>${esc(a.name)}</strong>
+                  <span>${esc(a.desc)}</span>
+                </div>
+                <div class="agent-ops">
+                  <button title="编辑" data-edit-agent="${a.id}">${icon('pen-line', 12)}</button>
+                  <button title="平台设置" data-maintain-agent="${a.id}">${icon('settings', 12)}</button>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>`
+    } else {
+      el.innerHTML = `
+        <div class="panel mini-panel multi-panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>多 Agents 组装</div>
+            <button class="btn btn-sm" data-new-agent>${icon('plus', 12)}新建成员</button>
+          </div>
+          <div class="panel-body">
+            <label class="unified-field">
+              <span>统一入口名称</span>
+              <input id="unifiedNameInput" placeholder="如：课程超级智能体" value="${esc(state.unified.name)}" />
+            </label>
+            <label class="unified-field">
+              <span>入口说明</span>
+              <input id="unifiedDescInput" value="${esc(state.unified.desc)}" />
+            </label>
+
+            <div class="unified-label">调度策略</div>
+            <div class="strategy-list">
+              ${strategies.map((s) => `
+                <button class="strategy-chip ${state.unified.strategy === s.key ? 'active' : ''}" data-strategy="${s.key}">
+                  <strong>${s.label}</strong>
+                  <span>${s.note}</span>
+                </button>`).join('')}
+            </div>
+
+            <div class="unified-label">纳入成员 · ${enabledAgents().length}/${agents.length}</div>
+            <div class="member-list">
+              ${agents.map((a, i) => `
+                <div class="member-item ${a.enabled ? '' : 'off'}">
+                  <button class="member-check ${a.enabled ? 'on' : ''}" data-toggle-member="${a.id}">${a.enabled ? icon('check', 12) : ''}</button>
+                  <div class="member-color" style="background:${a.color}"></div>
+                  <div class="member-info">
+                    <strong>${esc(a.name)}</strong>
+                    <span>${esc(a.desc)}</span>
+                  </div>
+                  <button class="primary-btn ${a.primary ? 'on' : ''}" data-set-primary="${a.id}">${a.primary ? '主控' : '设主控'}</button>
+                  <div class="member-ops">
+                    <button title="编辑" data-edit-agent="${a.id}">${icon('pen-line', 11)}</button>
+                    <button title="平台设置" data-maintain-agent="${a.id}">${icon('settings', 11)}</button>
+                  </div>
+                  <div class="member-order">
+                    <button ${i === 0 ? 'disabled' : ''} data-move-agent="${i}|-1">${icon('chevron-up', 11)}</button>
+                    <button ${i === agents.length - 1 ? 'disabled' : ''} data-move-agent="${i}|1">${icon('chevron-down', 11)}</button>
+                  </div>
+                </div>`).join('')}
+            </div>
+
+            <div class="mini-flow">
+              <span class="flow-node user">用户</span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-node entry">${esc(unifiedName())}</span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-agents">
+                ${enabledAgents().map((a) => `<i style="background:${a.color}" title="${esc(a.name)}"></i>`).join('')}
+              </span>
+              <span class="flow-arrow">→</span>
+              <span class="flow-node out">统一输出</span>
+            </div>
+            <p class="flow-note">多个智能体组装为一个统一入口，用户只与「${esc(unifiedName())}」交互，无需分别调用子智能体。</p>
+          </div>
+        </div>`
+      $('#unifiedNameInput').addEventListener('input', (e) => {
+        state.unified.name = e.target.value
+        refreshUnifiedTexts()
+      })
+      $('#unifiedDescInput').addEventListener('input', (e) => {
+        state.unified.desc = e.target.value
+        refreshUnifiedTexts()
+      })
+    }
+  }
+
+  /* 名称/说明变化时只更新引用处，避免输入框重渲染失焦 */
+  function refreshUnifiedTexts() {
+    const name = unifiedName()
+    const entry = $('.as-page .flow-node.entry')
+    if (entry) entry.textContent = name
+    const note = $('.as-page .flow-note')
+    if (note) note.textContent = `多个智能体组装为一个统一入口，用户只与「${name}」交互，无需分别调用子智能体。`
+    if (inUnifiedDebug()) {
+      const bar = $('#asMain .core-title-bar')
+      if (bar) bar.innerHTML = `${icon('share-2', 15)}统一入口调试 · ${esc(name)}`
+      const desc = $('#asMain .entry-desc')
+      if (desc) desc.textContent = state.unified.desc
+    }
+  }
+
+  function renderCoreTabs() {
+    $('#coreTabs').innerHTML = coreTabs.map((t) =>
+      `<button data-core-tab="${t.key}" class="${state.coreTab === t.key ? 'active' : ''}">${icon(t.icon, 13)}${t.label}</button>`).join('')
+  }
+
+  /* ===== 主区渲染 ===== */
+  function renderMain() {
+    const el = $('#asMain')
+    if (inUnifiedDebug()) {
+      const r = state.unifiedResult
+      el.innerHTML = `
+        <div class="core-title-bar">${icon('share-2', 15)}统一入口调试 · ${esc(unifiedName())}</div>
+        <div class="debug-panel">
+          <div class="entry-summary">
+            <span class="tag violet">多 Agents</span>
+            <span class="tag gray">${strategies.find((s) => s.key === state.unified.strategy).label}</span>
+            <span class="muted tiny">成员 ${enabledAgents().length} 个 · 主控 ${esc((agents.find((a) => a.primary) || {}).name || '')}</span>
+          </div>
+          <p class="entry-desc">${esc(state.unified.desc)}</p>
+          <div class="debug-input">
+            <textarea id="unifiedQueryInput" rows="2" placeholder="向统一入口提问…">${esc(state.unifiedQuery)}</textarea>
+            <button class="btn btn-primary" data-act="run-unified">${icon('zap', 13)}执行</button>
+          </div>
+          ${r ? `
+            <div class="route-result">
+              <div class="route-head">
+                <span class="route-agent" style="background:${r.color}">${esc(r.agent)}</span>
+                <span class="muted tiny">命中子智能体 · 置信度 ${r.confidence}</span>
+              </div>
+              <div class="route-steps">
+                ${r.steps.map((s, i) => `
+                  <div class="route-step">
+                    <span class="step-index">${i + 1}</span>
+                    <span>${esc(s)}</span>
+                  </div>`).join('')}
+              </div>
+              <div class="route-answer">${esc(r.answer)}</div>
+            </div>` : `
+            <div class="route-empty">输入问题并执行，查看统一入口如何完成意图识别、分发子智能体并汇总输出。</div>`}
+        </div>`
+    } else {
+      renderAcp()
+    }
+  }
+
+  /* ===== AgentCorePanel 渲染 ===== */
+  function renderAcp() {
+    const agentName = selectedAgent().name
+    const t = state.coreTab
+    let core = ''
+    if (t === 'debug') {
+      core = `
+        <div class="core-title-bar">${icon('activity', 15)}基础调试 · ${esc(agentName)}</div>
+        <div class="debug-panel">
+          <div class="debug-input">
+            <textarea id="debugQuery" rows="3" placeholder="输入测试 Query...">${esc(acp.debugQuery)}</textarea>
+            <button class="btn btn-primary" data-act="run-debug">${icon('zap', 13)}执行</button>
+          </div>
+          <div class="debug-runs">
+            ${acp.debugRuns.map((r) => `
+              <div class="run-item">
+                <span class="time">${r.time}</span>
+                <span class="query">${esc(r.query)}</span>
+                <span class="result ${r.result === '成功' ? 'good' : 'amber'}">${r.result}</span>
+                <span class="tokens">${r.tokens} tokens</span>
+                <span class="latency">${r.latency}</span>
+              </div>`).join('')}
+          </div>
+        </div>`
+    } else if (t === 'resource') {
+      core = `
+        <div class="core-title-bar">
+          ${icon('file-text', 15)}资源管理
+          <span class="bar-spacer"></span>
+          <button class="btn btn-sm btn-primary" data-act="open-res">${icon('plus', 12)}添加资源</button>
+        </div>
+        <div class="table-list">
+          ${acp.resources.map((r) => `
+            <div class="resource-row">
+              ${icon('file-text', 14)}
+              <strong>${esc(r.name)}</strong>
+              <span class="tag">${r.type}</span>
+              <span class="num">${r.count} 条</span>
+              <span class="num muted">${r.size}</span>
+              <button class="icon-btn" title="移除" data-remove-res="${esc(r.name)}">${icon('trash-2', 12)}</button>
+            </div>`).join('')}
+        </div>`
+    } else if (t === 'model') {
+      core = `
+        <div class="core-title-bar">
+          ${icon('sparkles', 15)}大模型配置
+          <span class="bar-spacer"></span>
+          <span class="muted tiny">当前默认：${esc(acp.currentModel || '未设置')}</span>
+        </div>
+        <div class="table-list">
+          ${acp.models.map((m) => `
+            <div class="resource-row">
+              ${icon('sparkles', 14)}
+              <strong>${m.name}</strong>
+              <span class="tag gray">${m.provider}</span>
+              <span class="tag violet">${m.type}</span>
+              <span class="status ${m.enabled ? 'good' : 'off'}">${m.enabled ? '在线' : '已停用'}</span>
+              ${acp.currentModel === m.name ? '<span class="tag green">默认</span>' : ''}
+              <div class="quota"><i style="width:${m.quota}%"></i>${m.quota}%</div>
+              <button class="btn btn-sm" ${!m.enabled || acp.currentModel === m.name ? 'disabled' : ''} data-set-model="${m.name}">设为默认</button>
+              <button class="btn btn-sm" data-toggle-model="${m.name}">${m.enabled ? '停用' : '启用'}</button>
+            </div>`).join('')}
+        </div>`
+    } else if (t === 'setting') {
+      const s = acp.settings
+      const row = (label, key) => `
+        <div class="setting-row">
+          <span>${label}</span>
+          <button class="toggle ${s[key] ? 'on' : ''}" data-toggle-setting="${key}" aria-label="${label}"></button>
+        </div>`
+      core = `
+        <div class="core-title-bar">${icon('settings', 15)}基础设置</div>
+        <div class="settings-grid">
+          ${row('身份识别', 'identity')}
+          ${row('多终端入口', 'multiTerminal')}
+          ${row('AI 溯源开关', 'trace')}
+          ${row('内容安全审核', 'safety')}
+          <div class="setting-row"><span>会话记忆长度</span><input class="num-input" type="number" min="1" max="50" value="${s.memory}" data-setting-num="memory" /></div>
+          <div class="setting-row"><span>温度系数</span><input class="num-input" type="number" min="0" max="1" step="0.1" value="${s.temperature}" data-setting-num="temperature" /></div>
+        </div>`
+    } else if (t === 'channel') {
+      core = `
+        <div class="core-title-bar">${icon('network', 15)}接入渠道</div>
+        <div class="channels-grid">
+          ${acp.channels.map((c) => `
+            <div class="channel-card">
+              ${icon('network', 18)}
+              <strong>${c.name}</strong>
+              <span>${c.type}</span>
+              <span class="status ${c.connected ? 'good' : 'off'}">${c.connected ? '已接入' : '未接入'}</span>
+              <button class="btn btn-sm" data-toggle-channel="${c.name}">${c.connected ? '断开' : '接入'}</button>
+            </div>`).join('')}
+        </div>`
+    } else if (t === 'stat') {
+      const cards = statsByPeriod[acp.statsPeriod]
+      core = `
+        <div class="core-title-bar">
+          ${icon('database', 15)}数据统计
+          <span class="bar-spacer"></span>
+          <div class="period-switch">
+            <button data-period="today" class="${acp.statsPeriod === 'today' ? 'active' : ''}">今日</button>
+            <button data-period="week" class="${acp.statsPeriod === 'week' ? 'active' : ''}">本周</button>
+            <button data-period="month" class="${acp.statsPeriod === 'month' ? 'active' : ''}">本月</button>
+          </div>
+        </div>
+        <div class="stats-grid">
+          ${cards.map((s) => `<div><span>${s.label}</span><strong>${s.value}</strong><em>${s.delta}</em></div>`).join('')}
+        </div>`
+    } else if (t === 'export') {
+      core = `
+        <div class="core-title-bar">${icon('file', 15)}导出中心</div>
+        <div class="table-list">
+          <div class="resource-row">${icon('file', 14)}<strong>智能体配置 JSON</strong><span class="tag blue">JSON</span><button class="btn btn-sm" data-export="config">导出</button></div>
+          <div class="resource-row">${icon('database', 14)}<strong>问答对数据</strong><span class="tag green">CSV</span><button class="btn btn-sm" data-export="qa">导出</button></div>
+          <div class="resource-row">${icon('list-checks', 14)}<strong>操作日志</strong><span class="tag violet">CSV</span><button class="btn btn-sm" data-export="logs">导出</button></div>
+        </div>`
+    } else if (t === 'log') {
+      const kw = acp.logFilter.trim()
+      const list = acp.logs.filter((l) => !kw || `${l.user}${l.action}${l.target}`.includes(kw))
+      core = `
+        <div class="core-title-bar">
+          ${icon('list-checks', 15)}操作日志
+          <span class="bar-spacer"></span>
+          <input class="log-search" id="logSearch" placeholder="搜索操作人 / 操作 / 对象" value="${esc(acp.logFilter)}" />
+        </div>
+        <div class="logs-list">
+          ${list.map((l) => `
+            <div class="log-item">
+              <span class="time">${l.time}</span>
+              <span class="user">${l.user}</span>
+              <span class="action">${esc(l.action)}</span>
+              <span class="target">${esc(l.target)}</span>
+            </div>`).join('')}
+          ${list.length ? '' : '<div class="log-empty">未匹配到日志</div>'}
+        </div>`
+    }
+    $('#asMain').innerHTML = `<div id="acpRoot">${core}</div>
+      <section class="panel qa-panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>问答对管理 · 录入问题 / 答案（富文本） / 附件</div>
+          <button class="btn btn-sm primary" id="newQaBtn">${icon('plus', 12)}新增问答对</button>
+        </div>
+        <div class="panel-body qa-layout">
+          <div class="qa-list" id="qaList"></div>
+          <div class="qa-editor">
+            <div class="qa-editor-label">问题</div>
+            <input class="qa-input" id="qaQuestion" />
+            <div class="qa-editor-label">答案（富文本编辑器）</div>
+            <div class="rich-toolbar" id="richToolbar"></div>
+            <div class="rich-editor" id="qaAnswer" contenteditable="true"></div>
+            <div class="qa-att-row">
+              <span class="qa-editor-label">附件</span>
+              <div id="qaAttachment"></div>
+            </div>
+          </div>
+        </div>
+      </section>`
+    afterAcpRender()
+  }
+
+  function afterAcpRender() {
+    const ls = $('#logSearch')
+    if (ls) {
+      ls.addEventListener('input', () => {
+        acp.logFilter = ls.value
+        const pos = ls.selectionStart
+        renderAcp()
+        const again = $('#logSearch')
+        again.focus()
+        again.setSelectionRange(pos, pos)
+      })
+    }
+    $('#richToolbar').innerHTML =
+      richCommands.map((c) => `<button class="rich-btn" title="${c.label}" type="button">${c.icon}</button>`).join('') +
+      `<div class="rich-divider"></div><button class="rich-btn" type="button">${icon('check', 13)}预览</button>`
+    renderQaList()
+    renderQaEditor()
+  }
+
+  function renderQaList() {
+    const el = $('#qaList')
+    if (!el) return
+    el.innerHTML = acp.qaPairs.map((q) => `
+      <div class="qa-item ${currentQA() && currentQA().id === q.id ? 'active' : ''}" data-qa="${q.id}">
+        <strong>${esc(q.question)}</strong>
+        <span class="muted">${q.answer.slice(0, 30)}…</span>
+      </div>`).join('')
+  }
+  function renderQaEditor() {
+    const qa = currentQA()
+    if (!qa || !$('#qaQuestion')) return
+    $('#qaQuestion').value = qa.question
+    $('#qaAnswer').innerHTML = qa.answer
+    $('#qaAttachment').innerHTML = qa.attachment
+      ? `<div class="qa-att">📎 ${esc(qa.attachment)}</div>`
+      : `<div class="qa-att upload">📎 上传附件 · 支持 PDF / 图片 / 文档</div>`
+  }
+
+  /* ===== 统一入口调试 ===== */
+  function runUnified() {
+    const q = state.unifiedQuery.trim()
+    if (!q) return
+    const picked =
+      agents.find((a) => a.enabled && a.id === 'a2' && /学情|预警|成绩|学习/.test(q)) ||
+      agents.find((a) => a.enabled && a.id === 'a3' && /题|测验|练习|考试/.test(q)) ||
+      enabledAgents().find((a) => a.id !== 'a1' && /出题|题目|练习/.test(q)) ||
+      enabledAgents()[0]
+    state.unifiedResult = {
+      agent: picked.name,
+      color: picked.color,
+      confidence: 0.93,
+      steps: [
+        '统一入口接收提问，完成身份识别与会话上下文加载',
+        `意图识别：${/学情|预警|成绩|学习/.test(q) ? '学情分析' : /题|测验|练习/.test(q) ? '题目生成' : '课程建设'}（置信度 0.93）`,
+        `${state.unified.strategy === 'intent' ? '按意图路由' : state.unified.strategy === 'pipeline' ? '按顺序编排' : '并行分发'}至「${picked.name}」`,
+        '汇总子智能体结果，由统一入口输出',
+      ],
+      answer: `已由「${picked.name}」完成处理：基于近 7 天学习数据定位 2 个薄弱知识点，并生成 6 道针对性练习（5 选择 + 1 判断），可直接加入章节测验。`,
+    }
+  }
+
+  /* ===== 新建 / 编辑智能体 ===== */
+  const editorModal = $('#editorModal')
+  function openEditor(id) {
+    if (id) {
+      const a = agents.find((x) => x.id === id)
+      if (!a) return
+      state.editingId = id
+      state.form = { name: a.name, desc: a.desc, color: a.color }
+    } else {
+      state.editingId = null
+      state.form = { name: '', desc: '', color: palette[agents.length % palette.length] }
+    }
+    $('#editorTitle').textContent = state.editingId ? '编辑智能体' : '新建智能体'
+    $('#saveAgentBtn').textContent = state.editingId ? '保存' : '创建'
+    $('#formName').value = state.form.name
+    $('#formDesc').value = state.form.desc
+    renderColors()
+    editorModal.style.display = 'grid'
+  }
+  function closeEditor() { editorModal.style.display = 'none' }
+  function renderColors() {
+    $('#formColors').innerHTML = palette.map((c) =>
+      `<button class="as-color ${state.form.color === c ? 'on' : ''}" style="background:${c}" data-color="${c}"></button>`).join('')
+  }
+  $('#formColors').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-color]')
+    if (!b) return
+    state.form.color = b.dataset.color
+    renderColors()
+  })
+  editorModal.addEventListener('click', (e) => {
+    if (e.target === editorModal || e.target.closest('[data-editor-close]')) closeEditor()
+  })
+  $('[data-editor-close]', editorModal).innerHTML = icon('x', 14)
+  $('#formName').addEventListener('input', (e) => { state.form.name = e.target.value })
+  $('#formDesc').addEventListener('input', (e) => { state.form.desc = e.target.value })
+  $('#saveAgentBtn').addEventListener('click', () => {
+    if (!state.form.name.trim()) {
+      toast('请填写智能体名称')
+      return
+    }
+    if (state.editingId) {
+      const a = agents.find((x) => x.id === state.editingId)
+      if (a) Object.assign(a, { name: state.form.name.trim(), desc: state.form.desc.trim(), color: state.form.color })
+      toast(`「${state.form.name.trim()}」已更新`)
+    } else {
+      const id = `a${Date.now()}`
+      agents.push({
+        id,
+        name: state.form.name.trim(),
+        desc: state.form.desc.trim() || '暂无描述',
+        color: state.form.color,
+        enabled: true,
+        primary: false,
+      })
+      state.selectedAgentId = id
+      toast(`「${state.form.name.trim()}」已创建，点击「平台设置」进入维护`)
+    }
+    closeEditor()
+    renderAgentPanel()
+    renderMain()
+  })
+
+  function maintainAgent(id) {
+    location.href = `ai-agent-maintain.html?id=${encodeURIComponent(id)}`
+  }
+
+  /* ===== 左栏事件 ===== */
+  $('#modeSwitch').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-mode]')
+    if (!b) return
+    state.agentMode = b.dataset.mode
+    resetAcp()
+    renderModeSwitch()
+    renderAgentPanel()
+    renderMain()
+  })
+  $('#agentPanel').addEventListener('click', (e) => {
+    const t = e.target
+    const edit = t.closest('[data-edit-agent]')
+    if (edit) { e.stopPropagation(); openEditor(edit.dataset.editAgent); return }
+    const maintain = t.closest('[data-maintain-agent]')
+    if (maintain) { e.stopPropagation(); maintainAgent(maintain.dataset.maintainAgent); return }
+    const create = t.closest('[data-new-agent]')
+    if (create) { openEditor(null); return }
+    const sel = t.closest('[data-select-agent]')
+    if (sel) {
+      state.selectedAgentId = sel.dataset.selectAgent
+      renderAgentPanel()
+      renderMain()
+      return
+    }
+    const strat = t.closest('[data-strategy]')
+    if (strat) {
+      state.unified.strategy = strat.dataset.strategy
+      renderAgentPanel()
+      renderMain()
+      return
+    }
+    const tm = t.closest('[data-toggle-member]')
+    if (tm) {
+      const a = agents.find((x) => x.id === tm.dataset.toggleMember)
+      if (!a) return
+      if (a.enabled && enabledAgents().length <= 1) return
+      a.enabled = !a.enabled
+      if (!a.enabled && a.primary) {
+        const next = enabledAgents()[0]
+        if (next) next.primary = true
+      }
+      renderAgentPanel()
+      renderMain()
+      return
+    }
+    const sp = t.closest('[data-set-primary]')
+    if (sp) {
+      const target = agents.find((a) => a.id === sp.dataset.setPrimary)
+      if (!target || !target.enabled) return
+      agents.forEach((a) => (a.primary = a.id === target.id))
+      renderAgentPanel()
+      renderMain()
+      return
+    }
+    const mv = t.closest('[data-move-agent]')
+    if (mv) {
+      const [i, dir] = mv.dataset.moveAgent.split('|').map(Number)
+      const targetIdx = i + dir
+      if (targetIdx < 0 || targetIdx >= agents.length) return
+      ;[agents[i], agents[targetIdx]] = [agents[targetIdx], agents[i]]
+      renderAgentPanel()
+      renderMain()
+    }
+  })
+  $('#coreTabs').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-core-tab]')
+    if (!b) return
+    state.coreTab = b.dataset.coreTab
+    renderCoreTabs()
+    renderMain()
+  })
+
+  /* ===== 主区事件 ===== */
+  $('#asMain').addEventListener('click', (e) => {
+    const t = e.target
+    const act = t.closest('[data-act]')
+    if (act && act.dataset.act === 'run-unified') {
+      state.unifiedQuery = $('#unifiedQueryInput').value
+      runUnified()
+      renderMain()
+      return
+    }
+    if (act && act.dataset.act === 'run-debug') {
+      const q = ($('#debugQuery').value || '').trim()
+      acp.debugQuery = $('#debugQuery').value
+      if (!q) return
+      acp.debugRuns.unshift({
+        time: nowTime(), query: q, result: '成功',
+        tokens: 600 + Math.round(Math.random() * 900),
+        latency: `${(0.6 + Math.random() * 1.2).toFixed(1)}s`,
+      })
+      addLog('执行基础调试', q)
+      toast('调试执行完成，结果已写入记录')
+      renderAcp()
+      return
+    }
+    if (act && act.dataset.act === 'open-res') { openResDialog(); return }
+
+    const rm = t.closest('[data-remove-res]')
+    if (rm) {
+      const name = rm.dataset.removeRes
+      acp.resources = acp.resources.filter((r) => r.name !== name)
+      addLog('移除智能体资源', name)
+      toast('资源已移除')
+      renderAcp()
+      return
+    }
+    const sm = t.closest('[data-set-model]')
+    if (sm) {
+      acp.currentModel = sm.dataset.setModel
+      addLog('设置默认大模型', acp.currentModel)
+      toast(`已切换默认模型：${acp.currentModel}`)
+      renderAcp()
+      return
+    }
+    const tm = t.closest('[data-toggle-model]')
+    if (tm) {
+      const m = acp.models.find((x) => x.name === tm.dataset.toggleModel)
+      if (!m) return
+      m.enabled = !m.enabled
+      if (!m.enabled && acp.currentModel === m.name) {
+        const next = acp.models.find((x) => x.enabled)
+        acp.currentModel = next ? next.name : ''
+      }
+      addLog(m.enabled ? '启用大模型' : '停用大模型', m.name)
+      renderAcp()
+      return
+    }
+    const ts = t.closest('[data-toggle-setting]')
+    if (ts) {
+      const key = ts.dataset.toggleSetting
+      acp.settings[key] = !acp.settings[key]
+      const labels = { identity: '身份识别', multiTerminal: '多终端入口', trace: 'AI 溯源', safety: '内容安全审核' }
+      addLog('基础设置', `${labels[key]} ${acp.settings[key] ? '开启' : '关闭'}`)
+      ts.classList.toggle('on', acp.settings[key])
+      return
+    }
+    const tc = t.closest('[data-toggle-channel]')
+    if (tc) {
+      const c = acp.channels.find((x) => x.name === tc.dataset.toggleChannel)
+      if (!c) return
+      c.connected = !c.connected
+      addLog(c.connected ? '接入渠道' : '断开渠道', c.name)
+      toast(c.connected ? `${c.name} 已接入` : `${c.name} 已断开`)
+      renderAcp()
+      return
+    }
+    const p = t.closest('[data-period]')
+    if (p) {
+      acp.statsPeriod = p.dataset.period
+      renderAcp()
+      return
+    }
+    const ex = t.closest('[data-export]')
+    if (ex) {
+      if (ex.dataset.export === 'config') exportConfig()
+      else if (ex.dataset.export === 'qa') exportQA()
+      else exportLogs()
+      return
+    }
+    const qaItem = t.closest('[data-qa]')
+    if (qaItem) {
+      acp.editingQA = acp.qaPairs.find((q) => q.id === qaItem.dataset.qa)
+      renderQaList()
+      renderQaEditor()
+      return
+    }
+    if (t.closest('#newQaBtn')) {
+      acp.editingQA = { id: 'new', question: '', answer: '' }
+      renderQaList()
+      renderQaEditor()
+      $('#qaQuestion').focus()
+    }
+  })
+  $('#asMain').addEventListener('input', (e) => {
+    if (e.target.id === 'unifiedQueryInput') { state.unifiedQuery = e.target.value; return }
+    if (e.target.id === 'debugQuery') { acp.debugQuery = e.target.value; return }
+    if (e.target.id === 'qaQuestion') {
+      const qa = currentQA()
+      qa.question = e.target.value
+      const item = $(`#qaList [data-qa="${qa.id}"] strong`)
+      if (item) item.textContent = qa.question
+      return
+    }
+    if (e.target.id === 'qaAnswer') {
+      const qa = currentQA()
+      qa.answer = e.target.innerHTML
+      const item = $(`#qaList [data-qa="${qa.id}"] span`)
+      if (item) item.innerHTML = qa.answer.slice(0, 30) + '…'
+    }
+  })
+  $('#asMain').addEventListener('change', (e) => {
+    const n = e.target.closest('[data-setting-num]')
+    if (n) acp.settings[n.dataset.settingNum] = Number(n.value)
+  })
+
+  /* ===== 添加资源弹窗 ===== */
+  const resDialog = $('#resDialog')
+  function openResDialog() {
+    $('#newResName').value = ''
+    $('#newResType').value = '文件'
+    $('#newResCount').value = 10
+    $('#addResBtn').disabled = true
+    resDialog.style.display = 'grid'
+  }
+  function closeResDialog() { resDialog.style.display = 'none' }
+  resDialog.addEventListener('click', (e) => {
+    if (e.target === resDialog || e.target.closest('[data-res-close]')) closeResDialog()
+  })
+  $('#newResName').addEventListener('input', (e) => {
+    $('#addResBtn').disabled = !e.target.value.trim()
+  })
+  $('#addResBtn').addEventListener('click', () => {
+    const name = $('#newResName').value.trim()
+    if (!name) return
+    acp.resources.push({ name, type: $('#newResType').value, count: Number($('#newResCount').value) || 1, size: '—' })
+    closeResDialog()
+    addLog('新增智能体资源', name)
+    toast('资源已添加')
+    renderAcp()
+  })
+
+  /* ===== 导出 ===== */
+  function downloadFile(filename, content, mime) {
+    const blob = new Blob([content], { type: mime })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+  function exportConfig() {
+    downloadFile(
+      '智能体配置.json',
+      JSON.stringify({ agent: selectedAgent().name, settings: acp.settings, models: acp.models }, null, 2),
+      'application/json;charset=utf-8',
+    )
+    addLog('导出智能体配置', 'JSON')
+    toast('智能体配置已导出')
+  }
+  function exportQA() {
+    const rows = [['问题', '答案', '附件'], ...acp.qaPairs.map((q) => [q.question, q.answer.replace(/<[^>]+>/g, ''), q.attachment || ''])]
+    const csv = '﻿' + rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    downloadFile('智能体问答对.csv', csv, 'text/csv;charset=utf-8')
+    addLog('导出问答对数据', 'CSV')
+    toast('问答对数据已导出')
+  }
+  function exportLogs() {
+    const rows = [['时间', '操作人', '操作', '对象'], ...acp.logs.map((l) => [l.time, l.user, l.action, l.target])]
+    const csv = '﻿' + rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    downloadFile('智能体操作日志.csv', csv, 'text/csv;charset=utf-8')
+    toast('操作日志已导出')
+  }
+
+  renderModeSwitch()
+  renderAgentPanel()
+  renderCoreTabs()
+  renderMain()
+})()
+</script>
+</body>
+</html>

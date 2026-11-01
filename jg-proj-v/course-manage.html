@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课程管理 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+.module-head { align-items: flex-start; }
+.module-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.cm-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.cm-stat {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.cm-stat-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(135deg, #2f6bff, #6d5bf6);
+  flex: none;
+}
+.cm-stat-icon.green { background: linear-gradient(135deg, #0f9d8f, #1fb6c9); }
+.cm-stat-icon.violet { background: linear-gradient(135deg, #6d5bf6, #9a8bff); }
+.cm-stat-icon.amber { background: linear-gradient(135deg, #e0762f, #f2a35e); }
+.cm-stat > div { display: flex; flex-direction: column; gap: 1px; }
+.cm-stat span { font-size: 10.5px; color: var(--muted); }
+.cm-stat strong { font-size: 19px; font-family: var(--num); color: var(--ink); line-height: 1.2; }
+.cm-stat em { font-style: normal; font-size: 10px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+
+.cm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 14px;
+}
+.cm-card {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.cm-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.cm-cover {
+  position: relative;
+  padding: 16px 18px 18px;
+  color: #fff;
+  min-height: 116px;
+  display: flex;
+  flex-direction: column;
+}
+.cm-cover::after {
+  content: '';
+  position: absolute;
+  right: -28px;
+  bottom: -46px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+}
+.cm-cover-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cm-category {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(4px);
+}
+.cm-status {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--blue);
+  font-weight: 650;
+}
+.cm-status.done { color: var(--green); }
+.cm-status.pending { color: var(--amber); }
+.cm-cover-title {
+  margin-top: auto;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  position: relative;
+  z-index: 1;
+}
+.cm-cover-code { margin-top: 3px; font-size: 10.5px; color: rgba(255, 255, 255, 0.72); font-family: var(--num); }
+.cm-card-body { padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 12px; }
+.cm-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px 10px;
+}
+.cm-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  color: var(--muted);
+  min-width: 0;
+}
+.cm-meta svg { flex: none; color: var(--violet); }
+.cm-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.cm-progress-head strong { font-family: var(--num); color: var(--ink-2); font-size: 12px; }
+.cm-progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(19, 33, 60, 0.07);
+  overflow: hidden;
+}
+.cm-progress-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #2f6bff, #6d5bf6);
+}
+.cm-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+.cm-actions .btn {
+  flex: 1;
+  height: 34px;
+  justify-content: center;
+}
+
+@media (max-width: 1100px) {
+  .cm-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+</style>
+</head>
+<body data-platform="course" data-module="course-build">
+<main class="content">
+  <div class="page cm-page">
+    <div class="page-head module-head">
+      <div>
+        <div class="breadcrumb">
+          <a href="portal.html">首页</a><span>/</span>
+          <a href="platform.html?p=course">智慧课程</a><span>/</span>
+          <span>课程建设 · 课程管理</span>
+        </div>
+        <div class="module-title-row">
+          <h1 class="page-title">课程管理</h1>
+          <span class="tag blue">教师授课课程</span>
+          <span class="tag violet">课程信息编辑</span>
+          <span class="tag green">课程维护</span>
+        </div>
+        <p class="page-desc">查看本人承担的教学课程信息，点击「编辑」进入课程信息页面调整基本信息与教学目标；点击「维护」进入课程建设平台，统一维护视频互动、教学活动、投屏授课与知识图谱等课程参数。</p>
+      </div>
+    </div>
+
+    <div class="cm-stats" id="cmStats"></div>
+    <div class="cm-grid" id="cmGrid"></div>
+  </div>
+</main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+(function () {
+  var list = SEED.courseList;
+  var totalStudents = list.reduce(function (s, c) { return s + c.students }, 0);
+  var activeCount = list.filter(function (c) { return c.status === '进行中' }).length;
+  var avgProgress = list.length ? Math.round(list.reduce(function (s, c) { return s + c.progress }, 0) / list.length) : 0;
+
+  document.getElementById('cmStats').innerHTML =
+    '<div class="cm-stat"><span class="cm-stat-icon">' + UI.icon('book-open', 16) + '</span>' +
+    '<div><span>授课课程</span><strong>' + list.length + ' <em>门</em></strong></div></div>' +
+    '<div class="cm-stat"><span class="cm-stat-icon green">' + UI.icon('layers', 16) + '</span>' +
+    '<div><span>进行中</span><strong>' + activeCount + ' <em>门</em></strong></div></div>' +
+    '<div class="cm-stat"><span class="cm-stat-icon violet">' + UI.icon('users', 16) + '</span>' +
+    '<div><span>覆盖学生</span><strong>' + totalStudents + ' <em>人</em></strong></div></div>' +
+    '<div class="cm-stat"><span class="cm-stat-icon amber">' + UI.icon('clock-3', 16) + '</span>' +
+    '<div><span>平均进度</span><strong>' + avgProgress + '<em>%</em></strong></div></div>';
+
+  document.getElementById('cmGrid').innerHTML = list.map(function (c) {
+    var statusCls = c.status === '已结课' ? ' done' : (c.status === '待发布' ? ' pending' : '');
+    return '<article class="panel cm-card">' +
+      '<div class="cm-cover" style="background:' + c.cover + '">' +
+        '<div class="cm-cover-top">' +
+          '<span class="cm-category">' + UI.esc(c.category) + '</span>' +
+          '<span class="cm-status' + statusCls + '">' + UI.esc(c.status) + '</span>' +
+        '</div>' +
+        '<div class="cm-cover-title">' + UI.esc(c.name) + '</div>' +
+        '<div class="cm-cover-code">' + UI.esc(c.code) + ' · ' + UI.esc(c.type) + '</div>' +
+      '</div>' +
+      '<div class="cm-card-body">' +
+        '<div class="cm-meta">' +
+          '<span>' + UI.icon('calendar-days', 12) + UI.esc(c.term) + '</span>' +
+          '<span>' + UI.icon('graduation-cap', 12) + UI.esc(c.className) + '</span>' +
+          '<span>' + UI.icon('users', 12) + c.students + ' 名学生</span>' +
+          '<span>' + UI.icon('clock-3', 12) + c.credits + ' 学分 · ' + c.hours + ' 学时</span>' +
+        '</div>' +
+        '<div class="cm-progress">' +
+          '<div class="cm-progress-head"><span>教学进度</span><strong>' + c.progress + '%</strong></div>' +
+          '<div class="cm-progress-bar"><i style="width:' + c.progress + '%"></i></div>' +
+        '</div>' +
+        '<div class="cm-actions">' +
+          '<a class="btn" href="course-info.html?id=' + c.id + '">' + UI.icon('pen-line', 14) + '编辑</a>' +
+          '<a class="btn btn-primary" href="course-workbench.html?id=' + c.id + '">' + UI.icon('settings-2', 14) + '维护</a>' +
+        '</div>' +
+      '</div>' +
+    '</article>';
+  }).join('');
+})();
+</script>
+</body>
+</html>

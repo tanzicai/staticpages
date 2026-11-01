@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人空间 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+.space-hero {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 28px;
+  border-radius: 20px;
+  color: #fff;
+  background:
+    radial-gradient(500px 220px at 88% 0%, rgba(31, 182, 201, 0.2), transparent 66%),
+    radial-gradient(400px 240px at 6% 110%, rgba(109, 91, 246, 0.24), transparent 64%),
+    linear-gradient(135deg, #0b1b35, #14305c 58%, #0c2143);
+  box-shadow: 0 22px 50px rgba(10, 24, 48, 0.2);
+}
+
+.space-avatar {
+  width: 78px;
+  height: 78px;
+  display: grid;
+  place-items: center;
+  border-radius: 24px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  flex: none;
+}
+
+.space-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.space-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.space-name h2 {
+  font-size: 26px;
+  font-weight: 720;
+  letter-spacing: -0.01em;
+}
+
+.space-info > p {
+  margin-top: 7px;
+  font-size: 11px;
+  color: rgba(190, 210, 244, 0.56);
+}
+
+.space-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 13px;
+  font-size: 10.5px;
+  color: rgba(208, 224, 250, 0.7);
+}
+
+.space-badges span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.space-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 28px;
+  padding-left: 28px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  flex: none;
+}
+
+.space-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.space-stats strong {
+  font-family: var(--num);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.space-stats span {
+  font-size: 9.5px;
+  color: rgba(185, 208, 244, 0.5);
+}
+
+.space-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.75fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.res-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.res-card {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  transition: 0.18s;
+}
+
+.res-card:hover {
+  background: #fff;
+  border-color: var(--line);
+}
+
+.res-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  flex: none;
+}
+
+.res-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.res-main strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 620;
+}
+
+.res-main span {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.res-time {
+  font-family: var(--num);
+  font-size: 10px;
+  color: var(--muted-2);
+}
+
+.res-dl {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.res-dl:hover {
+  color: var(--blue);
+  border-color: rgba(47, 107, 255, 0.24);
+}
+
+.record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.record-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.record-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.record-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.record-main strong {
+  display: block;
+  font-size: 12px;
+}
+
+.record-main span {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.fav-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.fav-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--blue);
+}
+
+.fav-card strong {
+  font-size: 11.5px;
+  color: var(--ink);
+}
+
+.fav-card span {
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+.cert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.cert-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.cert-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(224, 118, 47, 0.1);
+  color: var(--amber);
+  flex: none;
+}
+
+.cert-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.cert-main strong {
+  display: block;
+  font-size: 11.5px;
+}
+
+.cert-main span {
+  display: block;
+  margin-top: 2px;
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+.note-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.note-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.note-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(47, 107, 255, 0.08);
+  color: var(--blue);
+  flex: none;
+}
+
+.note-row > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.note-row strong {
+  display: block;
+  font-size: 11.5px;
+}
+
+.note-row span {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.note-time {
+  font-size: 9px;
+  color: var(--muted-2);
+  flex: none;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding-bottom: 14px;
+}
+
+.time {
+  width: 38px;
+  font-family: var(--num);
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.timeline-dot {
+  width: 7px;
+  height: 7px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex: none;
+}
+
+.timeline-dot.violet {
+  background: var(--violet);
+}
+
+.timeline-dot.amber {
+  background: var(--amber);
+}
+
+.timeline-dot.green {
+  background: var(--green);
+}
+
+.timeline-content strong {
+  display: block;
+  font-size: 11.5px;
+}
+
+.timeline-content span {
+  display: block;
+  margin-top: 2px;
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+.insight-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.insight-row strong {
+  margin-left: auto;
+  font-family: var(--num);
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.insight-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 12px;
+  font-size: 9.5px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+@media (max-width: 1100px) {
+  .space-grid {
+    grid-template-columns: 1fr;
+  }
+  .space-hero {
+    flex-wrap: wrap;
+  }
+  .space-stats {
+    width: 100%;
+    border-left: 0;
+    padding-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 16px;
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .fav-grid {
+    grid-template-columns: 1fr;
+  }
+  .space-name h2 {
+    font-size: 21px;
+  }
+}
+</style>
+</head>
+<body data-page="space">
+<main class="content"><div class="page" id="page"></div></main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+(function () {
+  const esc = UI.esc
+  const icon = UI.icon
+  const role = UI.session.role
+  const courses = SEED.portal.courses
+  const schedule = SEED.portal.schedule
+
+  const tabs = ['资源', '学习记录', '收藏', '证书']
+
+  const resources = [
+    { name: '数字影像叙事 · 课程图谱', type: '知识图谱', time: '10-28', size: '2.4 MB', tone: '#6d5bf6' },
+    { name: '第 4 章 镜头语言与空间叙事（微课）', type: '视频', time: '10-26', size: '86 MB', tone: '#2f6bff' },
+    { name: '设计基础 · 期末测评试卷', type: '试卷', time: '10-24', size: '1.2 MB', tone: '#d64550' },
+    { name: '交互设计方法 · 教学大纲 v3', type: '文档', time: '10-20', size: '340 KB', tone: '#0f9d8f' },
+  ]
+
+  const certificates = [
+    { name: '2026 年校级教学能力比赛 · 一等奖', org: '重庆文化艺术职业学院', date: '2026-09' },
+    { name: '知识图谱建设专项培训 · 结业', org: 'AI 能力中心', date: '2026-06' },
+    { name: '在线课程建设与运营 · 认证', org: '重庆市教育委员会', date: '2025-12' },
+  ]
+
+  const notes = [
+    { title: '第 5 章课堂活动设计', desc: '情境导入 → 分组镜头拆解 → 图谱测验，待补充评分细则', time: '今天 09:30' },
+    { title: '培养方案评审意见', desc: '建议强化岗位能力项与毕业要求指标点的映射关系', time: '昨天 16:12' },
+  ]
+
+  const favs = [
+    { icon: 'book-marked', name: '知识图谱：叙事结构', src: '智慧课程平台 · 10-25' },
+    { icon: 'file-text', name: '2026 秋季教学计划', src: '教务系统 · 10-18' },
+    { icon: 'library', name: '岗位能力模型：数字媒体', src: '专业建设平台 · 10-12' },
+    { icon: 'pen-line', name: 'AI 备课提示词模板', src: 'AI 能力中心 · 10-08' },
+  ]
+
+  const page = document.getElementById('page')
+  page.innerHTML = `
+    <div class="page-head">
+      <div>
+        <div class="breadcrumb"><a href="portal.html">首页</a><span>/</span><span>个人空间</span></div>
+        <h1 class="page-title">个人空间</h1>
+        <p class="page-desc">跨平台的个人数据聚合点：资源、学习与教学记录、收藏、日程与证书。不是某个平台的子页面，而是“人”维度的统一域。</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn">${icon('settings-2', 15)}空间设置</button>
+        <a href="space.html" class="btn btn-primary">${icon('user-round', 15)}完善个人资料</a>
+      </div>
+    </div>
+
+    <section class="space-hero">
+      <div class="space-avatar" style="background: ${role.color}">${esc(role.avatarText)}</div>
+      <div class="space-info">
+        <div class="space-name">
+          <h2>${esc(role.name)}</h2>
+          <span class="tag green">统一身份已认证</span>
+          <span class="tag gray">${esc(role.scope)}</span>
+        </div>
+        <p>${esc(role.org)} · 账号 chenyuan@cqca.edu.cn · 已绑定 OIDC / 短信二次验证</p>
+        <div class="space-badges">
+          <span>${icon('book-marked', 13)}3 门在授课程</span>
+          <span>${icon('heart', 13)}23 项收藏</span>
+          <span>${icon('award', 13)}6 项证书</span>
+          <span>${icon('clock-3', 13)}近 30 天活跃 26 天</span>
+        </div>
+      </div>
+      <div class="space-stats">
+        <div><strong>128</strong><span>空间资源</span></div>
+        <div><strong>46</strong><span>学习记录</span></div>
+        <div><strong>23</strong><span>收藏</span></div>
+        <div><strong>6</strong><span>证书</span></div>
+      </div>
+    </section>
+
+    <div class="space-grid">
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>我的空间内容</div>
+            <div class="segmented" id="spaceTabs">
+              ${tabs.map((t, i) => `<button${i === 0 ? ' class="active"' : ''} data-tab="${t}">${t}</button>`).join('')}
+            </div>
+          </div>
+          <div class="panel-body" id="tabBody"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>最近笔记</div>
+            <button class="btn btn-sm">新建笔记</button>
+          </div>
+          <div class="panel-body">
+            <div class="note-list">
+              ${notes.map((n) => `
+              <div class="note-row">
+                <span class="note-icon">${icon('pen-line', 15)}</span>
+                <div><strong>${esc(n.title)}</strong><span>${esc(n.desc)}</span></div>
+                <span class="note-time">${esc(n.time)}</span>
+              </div>`).join('')}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>今日日程</div>
+            ${icon('calendar-days', 16).replace('<svg', '<svg class="muted"')}
+          </div>
+          <div class="panel-body">
+            <div class="timeline">
+              ${schedule.map((item) => `
+              <div class="timeline-item">
+                <span class="time">${esc(item.time)}</span>
+                <span class="timeline-dot ${esc(item.tone)}"></span>
+                <div class="timeline-content"><strong>${esc(item.title)}</strong><span>${esc(item.place)}</span></div>
+              </div>`).join('')}
+            </div>
+          </div>
+        </section>
+
+        <section class="panel space-insight">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>空间洞察</div>
+          </div>
+          <div class="panel-body">
+            <div class="insight-row"><span>本月资源访问</span><strong>246</strong><span class="tag green">+18%</span></div>
+            <div class="insight-row"><span>AI 辅助备课</span><strong>32</strong><span class="tag blue">次</span></div>
+            <div class="insight-row"><span>知识图谱贡献</span><strong>84</strong><span class="tag violet">节点</span></div>
+            <div class="insight-note">
+              <span class="tag outline">数据口径</span>
+              <span>个人空间数据跨平台聚合，分析指标由数据中台统一计算，结果回写只读库。</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>`
+
+  const tabBody = page.querySelector('#tabBody')
+  function renderTab(tab) {
+    if (tab === '资源') {
+      tabBody.innerHTML = `<div class="res-grid">${resources.map((r) => `
+        <div class="res-card">
+          <span class="res-icon" style="color: ${r.tone}; background: ${r.tone}12">${icon('folder-open', 18)}</span>
+          <div class="res-main">
+            <strong>${esc(r.name)}</strong>
+            <span>${esc(r.type)} · ${esc(r.size)}</span>
+          </div>
+          <span class="res-time">${esc(r.time)}</span>
+          <button class="res-dl">${icon('download', 14)}</button>
+        </div>`).join('')}</div>`
+    } else if (tab === '学习记录') {
+      tabBody.innerHTML = `<div class="record-list">${courses.map((c) => `
+        <div class="record-row">
+          <span class="record-dot" style="background: ${c.tone}"></span>
+          <div class="record-main">
+            <strong>${esc(c.name)}</strong>
+            <span>${esc(c.term)} · 学习进度 ${c.progress}% · 最近访问 2 小时前</span>
+          </div>
+          <div class="progress" style="width: 120px"><i style="width: ${c.progress}%"></i></div>
+        </div>`).join('')}</div>`
+    } else if (tab === '收藏') {
+      tabBody.innerHTML = `<div class="fav-grid">${favs.map((f) => `
+        <div class="fav-card">${icon(f.icon, 18)}<strong>${esc(f.name)}</strong><span>${esc(f.src)}</span></div>`).join('')}</div>`
+    } else {
+      tabBody.innerHTML = `<div class="cert-list">${certificates.map((c) => `
+        <div class="cert-row">
+          <span class="cert-icon">${icon('award', 18)}</span>
+          <div class="cert-main"><strong>${esc(c.name)}</strong><span>${esc(c.org)} · ${esc(c.date)}</span></div>
+          <span class="tag green">已归档</span>
+          ${icon('arrow-up-right', 14).replace('<svg', '<svg class="muted"')}
+        </div>`).join('')}</div>`
+    }
+  }
+  const tabBtns = Array.from(page.querySelectorAll('#spaceTabs button'))
+  tabBtns.forEach((b) => b.addEventListener('click', () => {
+    tabBtns.forEach((x) => x.classList.toggle('active', x === b))
+    renderTab(b.dataset.tab)
+  }))
+  renderTab('资源')
+})()
+</script>
+</body>
+</html>

@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课程建设 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+/* ===== CourseMaintain 外壳 ===== */
+[hidden] { display: none !important; }
+.module-head { align-items: flex-start; }
+.module-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cmt-switch { display: flex; align-items: center; gap: 14px; padding: 10px 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.cmt-course { display: flex; align-items: center; gap: 9px; flex: none; }
+.cmt-avatar { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; color: #fff; font-size: 14px; font-weight: 700; flex: none; }
+.cmt-course-info { display: flex; flex-direction: column; gap: 1px; }
+.cmt-course-info strong { font-size: 12.5px; color: var(--ink-2); font-weight: 650; }
+.cmt-course-info span { font-size: 10px; color: var(--muted); }
+.cmt-tabbar { display: flex; gap: 4px; flex: 1; min-width: 320px; }
+.cmt-tab { flex: 1; display: flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid transparent; border-radius: 9px; background: rgba(19, 33, 60, 0.04); color: var(--muted); cursor: pointer; transition: 0.15s; text-align: left; }
+.cmt-tab:hover { background: rgba(109, 91, 246, 0.08); color: var(--violet); }
+.cmt-tab.active { background: rgba(109, 91, 246, 0.1); border-color: rgba(109, 91, 246, 0.32); color: var(--violet); box-shadow: 0 2px 8px rgba(109, 91, 246, 0.08); }
+.cmt-tab > svg { flex: none; }
+.cmt-tab-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.cmt-tab-text strong { font-size: 11.5px; font-weight: 650; color: inherit; white-space: nowrap; }
+.cmt-tab-text em { font-style: normal; font-size: 9px; color: var(--muted); font-family: var(--num); white-space: nowrap; }
+.cmt-tab.active .cmt-tab-text em { color: rgba(109, 91, 246, 0.75); }
+.cmt-back { flex: none; height: 30px; min-height: 30px; }
+.cmt-param-bar { display: flex; align-items: center; gap: 10px; padding: 8px 14px; margin-bottom: 12px; border-radius: 10px; background: rgba(109, 91, 246, 0.05); border: 1px solid rgba(109, 91, 246, 0.14); flex-wrap: wrap; }
+.cmt-param-title { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 650; color: var(--violet); flex: none; }
+.cmt-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.cmt-chip { font-size: 9.5px; padding: 3px 8px; border-radius: 6px; background: #fff; border: 1px solid var(--line); color: var(--muted); }
+.cmt-content .breadcrumb { display: none; }
+.cmt-content .page-head { margin-bottom: 14px; }
+@media (max-width: 1100px) { .cmt-tabbar { min-width: 100%; } .cmt-back { margin-left: auto; } }
+
+/* ===== VideoEditor ===== */
+.ve-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) 380px; gap: 14px; align-items: start; }
+.ve-manage { margin-left: auto; height: 28px; padding: 0 10px; border-radius: 7px; border: 1px solid rgba(109, 91, 246, 0.35); background: rgba(109, 91, 246, 0.08); color: var(--violet); font-size: 10.5px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; transition: 0.15s; }
+.ve-manage:hover { background: rgba(109, 91, 246, 0.16); }
+.ve-video-area { display: flex; flex-direction: column; gap: 10px; }
+.ve-video { position: relative; overflow: hidden; aspect-ratio: 16 / 9; border-radius: 16px; background: #0b1830; box-shadow: 0 12px 36px rgba(10, 24, 48, 0.22); }
+.ve-video-el { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #050b16; cursor: pointer; }
+.ve-video-bg { position: absolute; inset: 0; background: radial-gradient(420px 200px at 20% 15%, rgba(109, 91, 246, 0.28), transparent 60%), radial-gradient(500px 260px at 85% 90%, rgba(47, 107, 255, 0.22), transparent 62%), linear-gradient(135deg, #0a1628 0%, #122a54 50%, #0a1f40 100%); }
+.ve-video-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #fff; pointer-events: none; }
+.ve-video-title { font-size: 18px; font-weight: 700; letter-spacing: 0.04em; }
+.ve-video-sub { font-size: 11px; color: rgba(200, 220, 250, 0.55); font-family: var(--num); }
+.ve-video-center::before { content: ''; width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.14); backdrop-filter: blur(6px); margin-bottom: 8px; }
+.ve-play-hint { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; background: rgba(4, 10, 22, 0.28); }
+.ph-circle { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, 0.18); color: #fff; backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); transition: transform 0.15s; }
+.ve-play-hint:hover .ph-circle { transform: scale(1.08); }
+.ph-text { font-size: 11px; color: rgba(255, 255, 255, 0.75); }
+.ve-source-badge { position: absolute; left: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 6px; background: rgba(8, 20, 38, 0.7); color: rgba(220, 235, 255, 0.8); font-size: 9.5px; backdrop-filter: blur(6px); pointer-events: none; z-index: 3; }
+.ve-overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(6, 14, 30, 0.5); backdrop-filter: blur(2px); z-index: 4; }
+.ve-overlay.floating { display: block; background: transparent; backdrop-filter: none; pointer-events: none; }
+.ve-float { position: absolute; left: 50%; top: 50%; width: 70%; max-width: 540px; pointer-events: auto; will-change: transform; }
+.ve-float .ve-slide, .ve-float .ve-image { width: 100%; max-width: none; }
+.ve-float.full { left: 8px; top: 8px; right: 8px; bottom: 8px; width: auto; max-width: none; transform: none !important; }
+.ve-float.full .ve-slide { display: flex; flex-direction: column; height: 100%; border-radius: 12px; overflow: hidden; }
+.ve-float.full .slide-body { flex: 1; overflow-y: auto; }
+.ve-video.swapped .ve-video-el { inset: auto 10px 10px auto; width: 32%; height: auto; aspect-ratio: 16 / 9; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.35); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4); object-fit: cover; z-index: 6; }
+.drag-hint { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; padding: 2px 6px; border-radius: 5px; background: rgba(109, 91, 246, 0.1); color: var(--violet); font-size: 9px; font-weight: 500; }
+.ve-slide, .ve-image, .ve-quiz { width: 70%; max-width: 540px; border-radius: 14px; background: #fff; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35); animation: ve-pop 0.22s ease both; }
+@keyframes ve-pop { from { transform: scale(0.94); opacity: 0; } to { transform: none; opacity: 1; } }
+.slide-header, .quiz-head { display: flex; align-items: center; gap: 6px; padding: 10px 14px; font-size: 11px; font-weight: 600; color: var(--violet); border-bottom: 1px solid var(--line); }
+.slide-header { cursor: move; user-select: none; }
+.slide-header svg, .quiz-head svg { color: var(--violet); }
+.ve-close { margin-left: auto; border: 0; background: transparent; color: var(--muted-2); cursor: pointer; }
+.slide-body { padding: 22px 24px; background: linear-gradient(135deg, #f0f3ff, #fff); }
+.slide-empty { font-size: 12px; color: var(--muted); line-height: 1.8; }
+.slide-actions button:disabled { opacity: 0.42; cursor: not-allowed; }
+.slide-title { font-size: 18px; font-weight: 700; color: #1a2b4a; margin-bottom: 12px; }
+.slide-bullets { font-size: 12px; line-height: 2; color: #334; }
+.slide-actions { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--line); background: #fafbff; }
+.slide-actions button { display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 10px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-size: 10.5px; color: var(--ink-2); cursor: pointer; }
+.swap-btn { color: var(--violet) !important; border-color: rgba(109, 91, 246, 0.35) !important; background: rgba(109, 91, 246, 0.06) !important; }
+.swap-btn:hover { background: rgba(109, 91, 246, 0.14) !important; }
+.toggle-btn { margin-left: auto !important; background: var(--violet) !important; border-color: transparent !important; color: #fff !important; }
+.quiz-head { color: var(--blue); }
+.quiz-head svg { color: var(--blue); }
+.ve-quiz h3 { padding: 16px 18px 10px; font-size: 14px; line-height: 1.55; color: #1a2b4a; font-weight: 650; }
+.quiz-options { padding: 2px 14px 6px; display: flex; flex-direction: column; gap: 6px; }
+.quiz-option { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 9px; background: #fff; font-size: 12px; color: var(--ink-2); text-align: left; cursor: pointer; transition: 0.15s; }
+.quiz-option:hover { border-color: rgba(109, 91, 246, 0.45); background: rgba(109, 91, 246, 0.04); }
+.quiz-option.selected { border-color: var(--violet); background: rgba(109, 91, 246, 0.08); color: var(--violet); }
+.quiz-option:disabled { cursor: default; }
+.quiz-option.correct { border-color: rgba(15, 157, 143, 0.6); background: rgba(15, 157, 143, 0.08); color: var(--green); }
+.quiz-option.wrong { border-color: rgba(214, 69, 80, 0.55); background: rgba(214, 69, 80, 0.07); color: var(--red); }
+.quiz-option.correct .quiz-letter { border-color: var(--green); background: var(--green); color: #fff; }
+.quiz-option.wrong .quiz-letter { border-color: var(--red); background: var(--red); color: #fff; }
+.opt-mark { margin-left: auto; flex: none; }
+.opt-mark.ok { color: var(--green); }
+.opt-mark.bad { color: var(--red); }
+.quiz-result { flex: 1; min-width: 0; display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; color: var(--red); }
+.quiz-result.ok { color: var(--green); }
+.quiz-result svg { flex: none; }
+.toggle-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.quiz-letter { width: 22px; height: 22px; border-radius: 6px; border: 1px solid var(--line); display: grid; place-items: center; font-size: 10px; font-weight: 650; color: var(--muted); flex: none; }
+.quiz-option.selected .quiz-letter { border-color: var(--violet); background: var(--violet); color: #fff; }
+.quiz-foot { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--line); }
+.image-body { padding: 14px 16px; }
+.image-box { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px; border: 1px dashed rgba(109, 91, 246, 0.35); border-radius: 10px; background: rgba(109, 91, 246, 0.03); }
+.image-box.real { align-items: stretch; padding: 10px; }
+.ve-image-real { width: 100%; max-height: 280px; object-fit: contain; border-radius: 8px; background: #0b1830; display: block; }
+.image-empty { padding: 26px 12px; text-align: center; font-size: 11px; color: var(--muted); }
+.image-label { font-size: 11px; color: var(--muted); text-align: center; }
+.ve-controls { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.play-btn { width: 36px; height: 36px; border: 0; border-radius: 50%; background: linear-gradient(135deg, #6d5bf6, #2f6bff); color: #fff; cursor: pointer; display: grid; place-items: center; box-shadow: 0 6px 16px rgba(109, 91, 246, 0.3); }
+.time { font-family: var(--num); font-size: 12px; font-weight: 600; color: var(--ink-2); min-width: 42px; }
+.control-actions { display: flex; gap: 6px; margin-left: auto; }
+.ctrl-btn { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 11px; color: var(--ink-2); cursor: pointer; transition: 0.15s; }
+.ctrl-btn:hover { border-color: rgba(109, 91, 246, 0.4); background: rgba(109, 91, 246, 0.04); }
+.ctrl-btn.primary { background: var(--violet); border-color: transparent; color: #fff; }
+.ve-timeline { padding: 10px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.timeline-bar { position: relative; height: 34px; border-radius: 8px; background: #122a4a; cursor: pointer; }
+.timeline-progress { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(109, 91, 246, 0.25); border-radius: 8px; }
+.timeline-thumb { position: absolute; top: 50%; width: 3px; height: 34px; transform: translate(-1.5px, -50%); background: var(--violet); border-radius: 2px; box-shadow: 0 0 10px rgba(109, 91, 246, 0.7); pointer-events: none; }
+.timeline-marker { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; cursor: grab; z-index: 2; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25); transition: transform 0.12s; }
+.timeline-marker:hover { transform: translate(-50%, -50%) scale(1.2); }
+.timeline-marker:active { cursor: grabbing; }
+.timeline-marker.ppt { background: #6d5bf6; color: #fff; }
+.timeline-marker.image { background: #0f9d8f; color: #fff; }
+.timeline-marker.quiz { background: #e0762f; color: #fff; }
+.m-icon { display: grid; place-items: center; }
+.marker-tip { position: absolute; bottom: calc(100% + 5px); transform: translateX(-50%); padding: 2px 6px; border-radius: 4px; background: rgba(8, 20, 38, 0.92); color: #fff; font-size: 9px; font-family: var(--num); white-space: nowrap; pointer-events: none; z-index: 3; }
+.timeline-ruler { display: flex; justify-content: space-between; margin-top: 6px; font-size: 9px; color: var(--muted-2); font-family: var(--num); }
+.ve-side { display: flex; flex-direction: column; gap: 10px; }
+.ve-panel { display: flex; flex-direction: column; padding: 12px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); }
+.ve-panel .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.ve-manage-link { flex: none; height: 24px; padding: 0 8px; border-radius: 6px; border: 1px solid rgba(109, 91, 246, 0.3); background: rgba(109, 91, 246, 0.06); color: var(--violet); font-size: 9.5px; display: inline-flex; align-items: center; gap: 3px; text-decoration: none; transition: 0.12s; }
+.ve-manage-link:hover { background: rgba(109, 91, 246, 0.14); }
+.upload-tabs { display: flex; gap: 3px; margin-bottom: 8px; padding: 3px; border-radius: 8px; background: rgba(19, 33, 60, 0.04); }
+.upload-tabs button { flex: 1; height: 28px; border: 0; border-radius: 6px; background: transparent; font-size: 10px; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; gap: 3px; cursor: pointer; transition: 0.12s; }
+.upload-tabs button em { font-style: normal; font-size: 9px; min-width: 14px; height: 14px; padding: 0 3px; border-radius: 7px; background: rgba(19, 33, 60, 0.07); display: inline-grid; place-items: center; font-family: var(--num); }
+.upload-tabs button.active { background: #fff; color: var(--violet); font-weight: 600; box-shadow: 0 2px 6px rgba(19, 33, 60, 0.08); }
+.upload-tabs button.active em { background: rgba(109, 91, 246, 0.16); }
+.attach-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; max-height: 230px; overflow-y: auto; }
+.attach-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 10px; border: 1px dashed var(--line); border-radius: 8px; background: rgba(19, 33, 60, 0.025); color: var(--muted); font-size: 10.5px; text-align: center; }
+.attach-empty svg { color: var(--muted-2); }
+.attach-empty-btn { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 5px; background: var(--violet); color: #fff; font-size: 10px; text-decoration: none; }
+.attach-empty-btn:hover { background: #5a47d6; }
+.ve-toast { position: fixed; left: 50%; top: 24px; transform: translateX(-50%); z-index: 80; padding: 9px 16px; border-radius: 8px; background: rgba(10, 24, 46, 0.92); color: #fff; font-size: 11px; box-shadow: 0 8px 24px rgba(10, 24, 46, 0.3); }
+.attach-item { display: flex; align-items: center; gap: 8px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.attach-icon { width: 26px; height: 26px; border-radius: 6px; display: grid; place-items: center; color: #fff; flex: none; }
+.attach-icon.video { background: #2f6bff; }
+.attach-icon.ppt { background: #6d5bf6; }
+.attach-icon.qa { background: #0f9d8f; }
+.attach-thumb { width: 38px; height: 27px; border-radius: 5px; overflow: hidden; background: #0b1830; flex: none; }
+.attach-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.attach-info { flex: 1; min-width: 0; }
+.attach-info strong { display: block; font-size: 10.5px; font-weight: 620; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.attach-info span { font-size: 9px; color: var(--muted); }
+.attach-actions { display: flex; gap: 2px; flex: none; }
+.attach-actions button { width: 22px; height: 22px; border: 0; border-radius: 5px; background: transparent; color: var(--muted-2); display: grid; place-items: center; cursor: pointer; transition: 0.12s; }
+.attach-actions button:hover { background: rgba(109, 91, 246, 0.1); color: var(--violet); }
+.ve-markers-list { display: flex; flex-direction: column; gap: 6px; max-height: 210px; overflow-y: auto; }
+.marker-item { display: flex; align-items: center; gap: 10px; padding: 8px 9px; border: 1px solid var(--line); border-radius: 9px; background: #fff; cursor: pointer; transition: 0.15s; }
+.marker-item:hover { border-color: rgba(109, 91, 246, 0.35); transform: translateY(-1px); }
+.marker-item.active { border-color: var(--violet); background: rgba(109, 91, 246, 0.06); }
+.marker-type { width: 26px; height: 26px; border-radius: 6px; display: grid; place-items: center; color: #fff; flex: none; }
+.marker-type.ppt { background: #6d5bf6; }
+.marker-type.image { background: #0f9d8f; }
+.marker-type.quiz { background: #e0762f; }
+.marker-info { flex: 1; min-width: 0; }
+.marker-info strong { display: block; font-size: 11px; font-weight: 620; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.marker-info span { font-size: 9.5px; color: var(--muted); }
+.marker-del { border: 0; background: transparent; color: var(--muted-2); cursor: pointer; }
+.marker-del:hover { color: var(--red); }
+.tip-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; font-size: 11px; color: var(--muted); border-bottom: 1px dashed var(--line); }
+.tip-row:last-child { border-bottom: 0; }
+@media (max-width: 1200px) { .ve-layout { grid-template-columns: 1fr; } }
+
+/* ===== ScreenCast ===== */
+.sc-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 14px; align-items: start; }
+.sc-phone { display: flex; justify-content: center; }
+.phone-frame { width: 280px; height: 560px; border-radius: 38px; background: #1a1a2a; padding: 10px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); position: relative; }
+.phone-notch { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 100px; height: 18px; border-radius: 10px; background: #111; z-index: 10; }
+.phone-screen { height: 100%; border-radius: 30px; background: linear-gradient(160deg, #0c1a36, #15294f); padding: 32px 14px 14px; color: #e8efff; overflow-y: auto; font-size: 11px; }
+.phone-status { display: flex; justify-content: space-between; align-items: center; font-size: 9px; color: rgba(200,220,255,0.6); }
+.pulse { color: #37d6a8; }
+.pulse::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #37d6a8; margin-right: 4px; box-shadow: 0 0 0 3px rgba(55,214,168,0.18); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 3px rgba(55,214,168,0.18)} 50%{box-shadow:0 0 0 7px rgba(55,214,168,0.05)} }
+.phone-title { font-size: 12px; font-weight: 650; margin-top: 14px; color: #fff; }
+.phone-sources { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+.phone-source { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border: 1px solid rgba(255,255,255,0.12); border-radius: 9px; background: rgba(255,255,255,0.04); color: rgba(228,238,255,0.8); font-size: 10px; cursor: pointer; transition: 0.15s; }
+.phone-source.active { background: var(--violet); border-color: transparent; color: #fff; }
+.phone-section-title { font-size: 10px; color: rgba(200,220,255,0.5); margin: 14px 0 6px; letter-spacing: 0.08em; }
+.phone-search { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: rgba(228,238,255,0.7); }
+.phone-search input { background: transparent; border: 0; outline: 0; color: inherit; font-size: 10.5px; flex: 1; }
+.phone-online { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+.phone-online-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border: 0; border-radius: 8px; font-size: 10px; color: #fff; cursor: pointer; }
+.phone-online-btn.blue { background: #2f6bff; }
+.phone-online-btn.violet { background: #6d5bf6; }
+.phone-online-btn.amber { background: #e0762f; }
+.phone-slide-ctrl { margin-top: 14px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); }
+.ctrl-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.ctrl-row.tools { gap: 6px; }
+.ctrl-row.hint { font-size: 9px; color: rgba(200,220,255,0.4); justify-content: center; }
+.slide-label { font-size: 10px; color: rgba(228,238,255,0.6); margin: 0 auto; font-family: var(--num); }
+.sc-ctrl-btn { display: inline-flex; align-items: center; gap: 3px; height: 28px; padding: 0 8px; border: 1px solid rgba(255,255,255,0.15); border-radius: 7px; background: rgba(255,255,255,0.08); color: rgba(228,238,255,0.9); font-size: 10px; cursor: pointer; }
+.tool-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 4px; height: 32px; padding: 0 8px; border: 1px solid rgba(255,255,255,0.15); border-radius: 7px; background: rgba(255,255,255,0.06); color: rgba(228,238,255,0.9); font-size: 10px; cursor: pointer; }
+.tool-btn.active { background: var(--violet); border-color: transparent; color: #fff; }
+.sc-screen-wrap { display: flex; flex-direction: column; gap: 10px; }
+.sc-screen { position: relative; overflow: hidden; aspect-ratio: 16 / 9; border-radius: 18px; background: linear-gradient(135deg, #0a1628, #0a2140); box-shadow: 0 16px 40px rgba(10,24,48,0.22); border: 4px solid #1a1a2a; }
+.screen-header { position: absolute; top: 12px; left: 18px; right: 18px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: rgba(200,220,255,0.55); z-index: 5; }
+.signal { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 10px; }
+.signal .dot { width: 6px; height: 6px; border-radius: 50%; background: #37d6a8; box-shadow: 0 0 0 3px rgba(55,214,168,0.15); }
+.slide-area { position: absolute; inset: 50px 24px 60px 24px; border-radius: 14px; background: linear-gradient(135deg, #f4f6ff, #fff); padding: 22px 26px; }
+.slide-number { font-size: 10px; color: var(--muted); margin-bottom: 14px; font-family: var(--num); }
+.big-title { font-size: 24px; font-weight: 700; color: #1a2b4a; margin-bottom: 14px; }
+.big-title .accent { color: var(--violet); }
+.sc-slide-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.slide-col { display: flex; flex-direction: column; gap: 8px; }
+.slide-block { padding: 10px 12px; border-radius: 8px; background: linear-gradient(135deg, rgba(109,91,246,0.12), rgba(47,107,255,0.06)); border: 1px solid rgba(109,91,246,0.15); }
+.slide-block.highlight { background: rgba(224,118,47,0.15); border-color: rgba(224,118,47,0.4); }
+.slide-block.alt { background: linear-gradient(135deg, rgba(15,157,143,0.12), rgba(47,107,255,0.05)); border-color: rgba(15,157,143,0.18); }
+.block-title { font-size: 12.5px; font-weight: 650; color: #1a2b4a; }
+.block-desc { font-size: 10.5px; color: var(--muted); margin-top: 4px; }
+.screen-laser { position: absolute; width: 30px; height: 30px; transform: translate(-50%, -50%); pointer-events: none; z-index: 10; }
+.laser-core { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 6px; height: 6px; border-radius: 50%; background: #ff4242; box-shadow: 0 0 12px #ff4242, 0 0 24px rgba(255,66,66,0.6); }
+.laser-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,66,66,0.6); animation: laser-pulse 1.2s infinite; }
+@keyframes laser-pulse { 0% { transform: scale(0.8); opacity: 1 } 100% { transform: scale(1.4); opacity: 0 } }
+.screen-spotlight { position: absolute; transform: translate(-50%, -50%); width: 420px; height: 260px; border-radius: 50%; background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.72) 90%); pointer-events: none; z-index: 10; }
+.screen-nav { position: absolute; bottom: 14px; left: 18px; right: 18px; display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 11px; color: rgba(200,220,255,0.5); }
+.screen-nav button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: rgba(228,238,255,0.85); display: grid; place-items: center; cursor: pointer; }
+.sc-notes { display: flex; gap: 12px; flex-wrap: wrap; }
+.note { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; background: rgba(47,107,255,0.06); border: 1px solid rgba(47,107,255,0.15); font-size: 10.5px; color: var(--muted); }
+
+/* ===== GraphNetwork ===== */
+.gn-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) 380px; gap: 12px; }
+.gn-graph-body { display: grid; place-items: center; padding: 10px; border-radius: 10px; background: radial-gradient(circle at 50% 45%, rgba(109,91,246,0.09), rgba(47,107,255,0.02) 65%); overflow: hidden; }
+.gn-graph-body svg { width: 100%; height: auto; }
+.edge-group line { stroke: rgba(109,91,246,0.2); stroke-width: 1.2; transition: 0.15s; }
+.edge-group line.active { stroke: rgba(109,91,246,0.85); stroke-width: 2; }
+.node-group { transition: opacity 0.2s; }
+.node-group.dim { opacity: 0.3; }
+.node-group.focus circle { filter: drop-shadow(0 0 6px rgba(109,91,246,0.5)); }
+.panel-tools { display: flex; align-items: center; gap: 6px; }
+.gn-tool-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--line); background: #fff; display: grid; place-items: center; cursor: pointer; color: var(--muted); }
+.gn-tool-btn:hover { color: var(--violet); }
+.zoom-label { font-family: var(--num); font-size: 10px; color: var(--muted); min-width: 32px; text-align: center; }
+.gn-graph-foot { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 8px 14px; border-top: 1px solid var(--line); font-size: 10.5px; color: var(--muted); }
+.gn-legend { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+.gn-legend.core { background: #6d5bf6; }
+.gn-legend.concept { background: #2f6bff; }
+.gn-legend.resource { background: #0f9d8f; }
+.ml-auto { margin-left: auto; }
+.gn-node-flag { display: inline-flex; align-items: center; font-size: 10.5px; color: var(--ink-2); font-weight: 600; }
+.empty-hint { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 60px 20px; text-align: center; color: var(--muted); font-size: 11px; }
+.empty-hint .violet { color: var(--violet); }
+.gn-resource-panel .panel-body { display: flex; flex-direction: column; gap: 10px; }
+.gn-summary { display: flex; gap: 12px; flex-wrap: wrap; padding: 7px 10px; border-radius: 8px; background: rgba(109, 91, 246, 0.05); font-size: 10px; color: var(--muted); }
+.gn-summary span { display: inline-flex; align-items: center; gap: 4px; }
+.gn-summary svg { color: var(--violet); }
+.gn-section-label { font-size: 9.5px; color: var(--muted-2); letter-spacing: 0.4px; }
+.gn-neighbors { display: flex; flex-direction: column; gap: 5px; }
+.gn-neighbor-list { display: flex; flex-wrap: wrap; gap: 5px; }
+.gn-neighbor { height: 24px; padding: 0 9px; border-radius: 12px; border: 1px solid rgba(109, 91, 246, 0.25); background: rgba(109, 91, 246, 0.07); color: var(--violet); font-size: 10px; cursor: pointer; transition: 0.12s; }
+.gn-neighbor:hover { background: var(--violet); color: #fff; border-color: transparent; }
+.gn-neighbor.resource { border-color: rgba(15, 157, 143, 0.3); background: rgba(15, 157, 143, 0.08); color: var(--green); }
+.gn-neighbor.resource:hover { background: var(--green); color: #fff; }
+.gn-neighbor.core { border-color: rgba(109, 91, 246, 0.4); font-weight: 600; }
+.gn-filters { display: flex; flex-wrap: wrap; gap: 5px; }
+.gn-filters button { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 9px; border-radius: 6px; border: 1px solid var(--line); background: #fff; font-size: 10px; color: var(--muted); cursor: pointer; transition: 0.12s; }
+.gn-filters button em { font-style: normal; font-family: var(--num); font-size: 9px; padding: 1px 5px; border-radius: 4px; background: rgba(24, 42, 80, 0.06); color: var(--muted-2); }
+.gn-filters button:hover { border-color: rgba(109, 91, 246, 0.4); color: var(--violet); }
+.gn-filters button.active { background: var(--violet); border-color: transparent; color: #fff; }
+.gn-filters button.active em { background: rgba(255, 255, 255, 0.2); color: #fff; }
+.resource-list { display: flex; flex-direction: column; gap: 7px; flex: 1; max-height: 420px; overflow-y: auto; }
+.resource-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 10px; background: #fff; transition: 0.15s; }
+.resource-item:hover { border-color: rgba(109,91,246,0.35); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(28, 44, 80, 0.06); }
+.resource-icon { width: 32px; height: 32px; border-radius: 8px; color: #fff; display: grid; place-items: center; flex: none; }
+.resource-info { min-width: 0; }
+.resource-info strong { display: block; font-size: 11.5px; font-weight: 620; color: var(--ink-2); line-height: 1.45; }
+.resource-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+.resource-meta .muted { font-size: 9.5px; }
+.resource-desc { margin: 5px 0 0; font-size: 9.5px; line-height: 1.6; color: var(--muted); }
+.gn-empty { padding: 16px; text-align: center; font-size: 10px; color: var(--muted); }
+.gn-resource-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+@media (max-width: 1100px) { .gn-layout { grid-template-columns: 1fr; } .sc-layout { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-platform="course" data-module="course-build">
+<main class="content"><div class="page cmt-page" id="cmtPage"></div></main>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const $ = UI.$, $$ = UI.$$, icon = UI.icon, esc = UI.esc;
+  const course = UI.findCourse(UI.param('id', 'c1'));
+  const workbenchUrl = 'course-workbench.html?id=' + course.id;
+
+  /* ================= 外壳（CourseMaintain） ================= */
+  const TABS = [
+    { key: 'video', label: '视频互动', params: '参数 2 · 3', desc: '任意时间点插入图片与 PPT、插入互动测验', icon: 'film',
+      chips: ['视频任意时间点插入图片 / PPT', '插入 PPT 可拖动位置并与视频窗口切换', '视频任意时间点插入互动测验（单选 / 多选 / 判断）'] },
+    { key: 'cast', label: '投屏授课', params: '参数 7', desc: '手机一键投屏、激光笔、聚光灯与翻页', icon: 'monitor-play',
+      chips: ['手机端一键投屏到教室大屏', '激光笔与聚光灯聚焦讲解', '手机端翻页控制与在线资源投屏'] },
+    { key: 'graph', label: '知识图谱', params: '参数 9', desc: '网状图谱可视化与关联资源查看', icon: 'network',
+      chips: ['网状结构可视化呈现知识点关系', '点击节点查看词条 / 期刊 / 图书 / 论著', '关联资源与课程内容联动'] },
+  ];
+  const validKeys = TABS.map(t => t.key);
+  const initTab = validKeys.includes(UI.param('tab', '')) ? UI.param('tab') : 'video';
+  let curTab = initTab;
+
+  $('#cmtPage').innerHTML = `
+    <div class="page-head module-head">
+      <div>
+        <div class="breadcrumb">
+          <a href="portal.html">首页</a><span>/</span>
+          <a href="platform.html?p=course">智慧课程</a><span>/</span>
+          <a href="course-manage.html">课程管理</a><span>/</span>
+          <a href="${workbenchUrl}">课程管理信息</a><span>/</span>
+          <span>课程建设</span>
+        </div>
+        <div class="module-title-row">
+          <h1 class="page-title">课程建设</h1>
+          <span class="tag blue">${esc(course.name)}</span>
+          <span class="tag green">${esc(course.code)}</span>
+        </div>
+        <p class="page-desc">课程建设功能：配置视频任意时间点互动、手机投屏授课与知识图谱等课程建设参数。</p>
+      </div>
+    </div>
+
+    <div class="panel cmt-switch">
+      <div class="cmt-course">
+        <span class="cmt-avatar" style="background:${esc(course.cover)}">${esc(course.name.slice(0, 1))}</span>
+        <div class="cmt-course-info">
+          <strong>${esc(course.name)}</strong>
+          <span>${esc(course.code)} · ${esc(course.className)} · ${course.students} 名学生 · 进度 ${course.progress}%</span>
+        </div>
+      </div>
+      <div class="cmt-tabbar">
+        ${TABS.map(t => `
+          <button class="cmt-tab${t.key === curTab ? ' active' : ''}" data-tab="${t.key}">
+            ${icon(t.icon, 14)}
+            <span class="cmt-tab-text"><strong>${t.label}</strong><em>${t.params}</em></span>
+          </button>`).join('')}
+      </div>
+      <a class="btn cmt-back" href="${workbenchUrl}">${icon('arrow-left', 13)}返回管理信息</a>
+    </div>
+
+    <div class="cmt-param-bar" id="cmtParamBar"></div>
+
+    <section class="cmt-content">
+      <div id="tab-video"${curTab === 'video' ? '' : ' hidden'}></div>
+      <div id="tab-cast"${curTab === 'cast' ? '' : ' hidden'}></div>
+      <div id="tab-graph"${curTab === 'graph' ? '' : ' hidden'}></div>
+    </section>`;
+
+  function renderParamBar() {
+    const t = TABS.find(x => x.key === curTab);
+    $('#cmtParamBar').innerHTML = `
+      <span class="cmt-param-title">${icon('settings-2', 13)}${t.label} · ${t.desc}</span>
+      <div class="cmt-chips">${t.chips.map(c => `<span class="cmt-chip">${c}</span>`).join('')}</div>`;
+  }
+  renderParamBar();
+
+  $$('.cmt-tab').forEach(btn => btn.addEventListener('click', () => {
+    const key = btn.dataset.tab;
+    if (key === curTab) return;
+    if (key !== 'video') VideoMod.pause();
+    curTab = key;
+    $$('.cmt-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === key));
+    ['video', 'cast', 'graph'].forEach(k => { $('#tab-' + k).hidden = k !== key; });
+    renderParamBar();
+    const q = new URLSearchParams(location.search);
+    q.set('tab', key);
+    history.replaceState(null, '', location.pathname + '?' + q.toString());
+  }));
+
+  /* ================= 素材（内存副本，替代 Pinia） ================= */
+  const MAT = JSON.parse(JSON.stringify(SEED.materialData));
+  function uid(p) { return p + Date.now() + Math.floor(Math.random() * 1000); }
+
+  /* ================= 视频互动（VideoEditor） ================= */
+  const VideoMod = (function () {
+    const root = $('#tab-video');
+    root.innerHTML = `
+    <div class="page ve-page">
+      <div class="page-head module-head">
+        <div>
+          <div class="breadcrumb"><a href="portal.html">首页</a><span>/</span><a href="platform.html?p=course">智慧课程</a><span>/</span><span>课程建设 · 视频互动编辑</span></div>
+          <div class="module-title-row">
+            <h1 class="page-title">视频互动编辑器</h1>
+            <span class="tag violet">任意时间点插入图片 / PPT</span>
+            <span class="tag blue">任意时间点插入互动测验</span>
+            <span class="tag green">素材库统一管理</span>
+            <a class="ve-manage" href="materials.html">${icon('settings-2', 13)}素材管理</a>
+          </div>
+          <p class="page-desc">从右侧素材库选择 PPT、图片或问答对插入到视频任意时间点；时间轴标记可自由拖动；插入的 PPT / 图片可任意拖动位置，PPT 还能与视频窗口互换显示。素材上传与问答答案调整统一在「素材管理」页面完成。</p>
+        </div>
+      </div>
+      <div class="ve-layout">
+        <div class="ve-video-area">
+          <div class="ve-video" id="veVideo">
+            <video id="veVideoEl" class="ve-video-el" src="assets/demo/sample-lesson.webm" playsinline loop preload="metadata"></video>
+            <div class="ve-video-bg" id="veVideoBg" hidden></div>
+            <div class="ve-video-center" id="veVideoCenter" hidden>
+              <div class="ve-video-title">智慧课程平台 · 教学演示视频</div>
+              <div class="ve-video-sub" id="veVideoSub"></div>
+            </div>
+            <div class="ve-play-hint" id="vePlayHint" data-act="play-toggle">
+              <span class="ph-circle">${icon('play', 22)}</span>
+              <span class="ph-text">点击播放视频</span>
+            </div>
+            <div class="ve-source-badge" id="veSourceBadge"></div>
+            <div class="ve-overlay" id="veOverlay" hidden></div>
+          </div>
+          <div class="ve-controls">
+            <button class="play-btn" id="vePlayBtn" data-act="play-toggle">${icon('play', 18)}</button>
+            <span class="time" id="veTimeCur">00:00</span>
+            <div class="control-actions">
+              <button class="ctrl-btn" data-act="insert-req" data-type="ppt">${icon('file-text', 13)}插入 PPT</button>
+              <button class="ctrl-btn" data-act="insert-req" data-type="image">${icon('image', 13)}插入图片</button>
+              <button class="ctrl-btn primary" data-act="insert-req" data-type="quiz">${icon('plus', 13)}插入互动测验</button>
+            </div>
+            <span class="time muted">/ <span id="veTimeDur">03:00</span></span>
+          </div>
+          <div class="ve-timeline">
+            <div class="timeline-bar" id="veTimelineBar">
+              <div class="timeline-progress" id="veProgress"></div>
+              <div class="timeline-thumb" id="veThumb"></div>
+              <div id="veMarkers" style="position:absolute;inset:0"></div>
+              <div class="marker-tip" id="veDragTip" hidden></div>
+            </div>
+            <div class="timeline-ruler" id="veRuler"></div>
+          </div>
+        </div>
+        <div class="ve-side">
+          <section class="ve-panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title"><span class="panel-titlebar"></span>素材库</div>
+                <div class="panel-sub">上传与答案调整请前往「素材管理」</div>
+              </div>
+              <a class="ve-manage-link" href="materials.html">${icon('settings-2', 12)}素材管理</a>
+            </div>
+            <div class="upload-tabs" id="veMatTabs"></div>
+            <div class="attach-list" id="veMatList"></div>
+          </section>
+          <section class="ve-panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title"><span class="panel-titlebar"></span>已插入时间点</div>
+                <div class="panel-sub" id="veMarkerCount"></div>
+              </div>
+            </div>
+            <div class="ve-markers-list" id="veMarkersList"></div>
+          </section>
+          <section class="ve-panel">
+            <div class="panel-head"><div class="panel-title"><span class="panel-titlebar"></span>操作说明</div></div>
+            <div class="tip-row">${icon('grip-vertical', 13)}时间轴 marker 可按住拖动调整出现时间</div>
+            <div class="tip-row">${icon('grip-vertical', 13)}PPT / 图片浮层按住标题栏可任意拖动位置</div>
+            <div class="tip-row">${icon('refresh-cw', 13)}PPT 可与视频窗口切换（PPT 大窗、视频小窗）</div>
+            <div class="tip-row">${icon('library', 13)}从右侧素材库选择 PPT / 图片 / 问答插入当前时间点</div>
+            <div class="tip-row">${icon('settings-2', 13)}素材上传、PPT 分页内容与问答答案在「素材管理」页调整</div>
+            <div class="tip-row">${icon('list-checks', 13)}测验先点击选项作答，再提交查看对错结果</div>
+          </section>
+        </div>
+      </div>
+      <div class="ve-toast" id="veToast" hidden></div>
+    </div>`;
+
+    /* ----- state ----- */
+    const SOURCES = ['assets/demo/sample-lesson.webm', 'assets/demo/sample-lesson.mp4'];
+    const S = {
+      sourceIndex: 0, videoUrl: SOURCES[0],
+      sourceName: '示例视频 · 教学演示片段（内置文件，可播放/暂停/拖动）',
+      failed: false, builtin: true, duration: 180, t: 0, playing: false,
+      markers: [
+        { id: 'm1', time: 15, type: 'ppt', title: 'PPT：第3章 知识图谱构建', deckId: 'd1', page: 3 },
+        { id: 'm2', time: 45, type: 'quiz', title: '单选题：什么是知识图谱', quiz: quizFromPair(MAT.qaPairs[0]) },
+        { id: 'm3', time: 85, type: 'image', title: '系统能力架构图.svg', imageUrl: 'assets/demo/img-arch.svg' },
+        { id: 'm4', time: 120, type: 'ppt', title: 'PPT：第3章 知识图谱构建', deckId: 'd1', page: 8 },
+        { id: 'm5', time: 155, type: 'quiz', title: '多选题：互动测验题型', quiz: quizFromPair(MAT.qaPairs[1]) },
+        { id: 'm6', time: 170, type: 'quiz', title: '判断题：投屏教学', quiz: quizFromPair(MAT.qaPairs[2]) },
+      ],
+      selected: null, pausedForMarker: false,
+      offset: { x: 0, y: 0 }, swapped: false,
+      quizAnswer: {}, quizSubmitted: {},
+      materialTab: 'ppt', dragTip: null,
+      triggered: new Set(),
+    };
+    function quizFromPair(pair) {
+      return { question: pair.question, questionType: pair.type, options: pair.options.map(o => ({ text: o.text, correct: o.correct })) };
+    }
+    let simTimer = null;
+    const videoEl = $('#veVideoEl', root);
+
+    function fmt(t) {
+      const m = Math.floor(t / 60), s = Math.floor(t % 60);
+      return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+    function pct() { return S.duration > 0 ? (S.t / S.duration) * 100 : 0; }
+
+    /* ----- 播放模拟 ----- */
+    function startSim() {
+      stopSim();
+      simTimer = setInterval(() => {
+        if (!S.playing) return;
+        S.t = Math.min(S.duration, S.t + 0.25);
+        checkMarker();
+        if (S.t >= S.duration) { pauseAll(); S.t = 0; }
+        paintTime();
+      }, 250);
+    }
+    function stopSim() { if (simTimer) clearInterval(simTimer); simTimer = null; }
+    function startPlay() {
+      if (S.playing) return;
+      S.playing = true;
+      if (S.builtin) { startSim(); videoEl.play().catch(() => {}); paintPlay(); return; }
+      if (!S.failed) {
+        const p = videoEl.play();
+        if (p && p.catch) p.catch(() => { S.failed = true; startSim(); });
+      } else startSim();
+      paintPlay();
+    }
+    function pauseAll() {
+      S.playing = false; stopSim(); videoEl.pause(); paintPlay();
+    }
+    function togglePlay() { S.playing ? pauseAll() : startPlay(); }
+    function checkMarker() {
+      if (S.selected) return;
+      const hit = S.markers.find(m => !S.triggered.has(m.id) && Math.abs(m.time - S.t) < 0.4);
+      if (hit) {
+        S.triggered.add(hit.id);
+        pauseAll();
+        S.pausedForMarker = true;
+        selectMarker(hit);
+      }
+    }
+    function seekTo(t) {
+      S.t = Math.max(0, Math.min(S.duration, isFinite(t) ? t : 0));
+      if (!S.failed) { try { videoEl.currentTime = S.t; } catch (e) {} }
+      S.triggered.clear();
+      paintTime();
+    }
+    videoEl.addEventListener('loadedmetadata', () => {
+      if (!videoEl || !isFinite(videoEl.duration) || videoEl.duration <= 0) return;
+      if (S.builtin) return;
+      const d = Math.round(videoEl.duration), prev = S.duration;
+      S.failed = false;
+      if (d !== prev && prev > 0) {
+        const ratio = d / prev;
+        S.markers.forEach(m => { m.time = Math.max(0, Math.min(d, Math.round(m.time * ratio))); });
+        S.t = Math.max(0, Math.min(d, Math.round(S.t * ratio)));
+        renderMarkers(); renderMarkersList();
+      }
+      S.duration = d;
+      paintTime(); renderRuler();
+    });
+    videoEl.addEventListener('timeupdate', () => {
+      if (S.builtin || S.failed || !S.playing) return;
+      S.t = videoEl.currentTime;
+      checkMarker(); paintTime();
+    });
+    videoEl.addEventListener('ended', () => pauseAll());
+    videoEl.addEventListener('error', () => {
+      if (S.builtin && S.sourceIndex < SOURCES.length - 1) {
+        S.sourceIndex += 1;
+        S.videoUrl = SOURCES[S.sourceIndex];
+        S.sourceName = '示例视频 · 教学演示片段（备用格式）';
+        videoEl.src = S.videoUrl; videoEl.load();
+        if (S.playing) videoEl.play().catch(() => {});
+        paintBadge();
+        return;
+      }
+      S.failed = true;
+      if (S.playing) startSim();
+      paintVideoState();
+    });
+    videoEl.addEventListener('click', togglePlay);
+
+    /* ----- 浮层 ----- */
+    function selectMarker(m) {
+      S.selected = m;
+      S.offset = { x: 0, y: 0 };
+      S.swapped = false;
+      if (m) delete S.quizSubmitted[m.id];
+      renderOverlay(); renderMarkersList(); paintVideoState();
+    }
+    function closeMarker(resume) {
+      S.selected = null;
+      const resumePlay = S.pausedForMarker && resume !== false;
+      S.pausedForMarker = false;
+      renderOverlay(); renderMarkersList(); paintVideoState();
+      if (resumePlay) startPlay();
+    }
+    function activeDeck() { const id = S.selected && S.selected.deckId; return id ? MAT.decks.find(d => d.id === id) : undefined; }
+    function deckPageCount() { const d = activeDeck(); return d ? d.pages.length : 1; }
+    function activePageNo() {
+      const raw = (S.selected && S.selected.page) || 1;
+      return Math.min(Math.max(1, raw), deckPageCount());
+    }
+    function activeDeckPage() {
+      const d = activeDeck();
+      if (!d || !d.pages.length) return undefined;
+      return d.pages[Math.min(Math.max(0, activePageNo() - 1), d.pages.length - 1)];
+    }
+    function renderOverlay() {
+      const ov = $('#veOverlay', root);
+      const m = S.selected;
+      if (!m) { ov.hidden = true; ov.innerHTML = ''; return; }
+      ov.hidden = false;
+      ov.classList.toggle('floating', m.type !== 'quiz');
+      if (m.type === 'ppt') {
+        const page = activeDeckPage();
+        ov.innerHTML = `
+        <div class="ve-float${S.swapped ? ' full' : ''}" id="veFloat">
+          <div class="ve-slide">
+            <div class="slide-header" data-drag="1">
+              ${icon('file-text', 16)}
+              <span>${esc(m.title)} · 第 ${activePageNo()} / ${deckPageCount()} 页</span>
+              <span class="drag-hint">${icon('grip-vertical', 11)}可拖动</span>
+              <button class="ve-close" data-act="close-marker">${icon('chevron-right', 16)}</button>
+            </div>
+            <div class="slide-body">
+              <div class="slide-title">${page ? esc(page.title) : '未选择 PPT 素材'}</div>
+              ${page ? `<div class="slide-bullets">${page.bullets.map(b => `<div>· ${esc(b)}</div>`).join('')}</div>`
+                     : '<div class="slide-empty">请前往「素材管理」上传 PPT，或在右侧素材库中选择课件。</div>'}
+            </div>
+            <div class="slide-actions">
+              <button data-act="deck-prev" ${activePageNo() <= 1 ? 'disabled' : ''}>${icon('chevron-left', 13)}上一页</button>
+              <button data-act="deck-next" ${activePageNo() >= deckPageCount() ? 'disabled' : ''}>下一页${icon('chevron-right', 13)}</button>
+              <button class="swap-btn" data-act="swap">${icon('refresh-cw', 12)}${S.swapped ? '恢复悬浮' : '与视频窗口切换'}</button>
+              ${S.swapped ? '' : `<button class="swap-btn" data-act="reset-pos">${icon('rotate-cw', 12)}复位</button>`}
+              <button class="toggle-btn" data-act="close-marker">继续播放</button>
+            </div>
+          </div>
+        </div>`;
+        if (!S.swapped) applyOffset();
+      } else if (m.type === 'image') {
+        ov.innerHTML = `
+        <div class="ve-float" id="veFloat">
+          <div class="ve-image">
+            <div class="slide-header" data-drag="1">
+              ${icon('image', 16)}
+              <span>${esc(m.title)}</span>
+              <span class="drag-hint">${icon('grip-vertical', 11)}可拖动</span>
+              <button class="ve-close" data-act="close-marker">${icon('chevron-right', 16)}</button>
+            </div>
+            <div class="image-body">
+              <div class="image-box real">
+                ${m.imageUrl ? `<img class="ve-image-real" src="${esc(m.imageUrl)}" alt="${esc(m.title)}">` : '<div class="image-empty">请前往「素材管理」上传图片素材</div>'}
+                <div class="image-label">${esc(m.title)}（插入到视频时间点）</div>
+              </div>
+            </div>
+            <div class="slide-actions">
+              <button class="swap-btn" data-act="reset-pos">${icon('rotate-cw', 12)}复位</button>
+              <button class="toggle-btn" data-act="close-marker">继续播放</button>
+            </div>
+          </div>
+        </div>`;
+        applyOffset();
+      } else if (m.type === 'quiz' && m.quiz) {
+        const q = m.quiz, submitted = !!S.quizSubmitted[m.id], ans = S.quizAnswer[m.id] || [];
+        const correctIdx = q.options.map((o, i) => (o.correct ? i : -1)).filter(i => i >= 0);
+        const isCorrect = ans => ans.length === correctIdx.length && ans.every(i => correctIdx.includes(i));
+        ov.innerHTML = `
+        <div class="ve-quiz">
+          <div class="quiz-head">
+            ${icon('list-checks', 16)}
+            <span>${q.questionType === 'single' ? '单选题' : q.questionType === 'multi' ? '多选题' : '判断题'}</span>
+            <button class="ve-close" data-act="close-marker">${icon('chevron-right', 16)}</button>
+          </div>
+          <h3>${esc(q.question)}</h3>
+          <div class="quiz-options">
+            ${q.options.map((opt, idx) => {
+              let cls = '';
+              if (!submitted) cls = ans.includes(idx) ? 'selected' : '';
+              else if (q.options[idx].correct) cls = 'correct';
+              else if (ans.includes(idx)) cls = 'wrong';
+              const mark = submitted && q.options[idx].correct ? icon('check-circle-2', 13).replace('<svg', '<svg class="opt-mark ok"')
+                : submitted && ans.includes(idx) ? icon('circle-x', 13).replace('<svg', '<svg class="opt-mark bad"') : '';
+              return `<button class="quiz-option ${cls}" data-act="quiz-opt" data-idx="${idx}" ${submitted ? 'disabled' : ''}>
+                <span class="quiz-letter">${'ABCDE'[idx]}</span><span>${esc(opt.text)}</span>${mark}
+              </button>`;
+            }).join('')}
+          </div>
+          <div class="quiz-foot">
+            ${!submitted
+              ? `<span class="muted" style="font-size:10.5px">${ans.length ? '已选择答案，点击提交查看结果' : '点击选项作答，可单选 / 多选'}</span>
+                 <button class="toggle-btn" data-act="quiz-submit" ${ans.length ? '' : 'disabled'}>提交答案</button>`
+              : `<span class="quiz-result${isCorrect(ans) ? ' ok' : ''}">${icon(isCorrect(ans) ? 'check-circle-2' : 'circle-x', 14)}${isCorrect(ans) ? '回答正确' : '回答错误'} · 正确答案：${esc(q.options.filter(o => o.correct).map(o => o.text).join('、'))}</span>
+                 <button class="toggle-btn" data-act="close-marker">继续播放</button>`}
+          </div>
+        </div>`;
+      }
+    }
+    function applyOffset() {
+      const f = $('#veFloat', root);
+      if (f && !S.swapped) f.style.transform = `translate(calc(-50% + ${S.offset.x}px), calc(-50% + ${S.offset.y}px))`;
+    }
+
+    /* 浮层拖动 */
+    let ovDrag = null;
+    root.addEventListener('mousedown', (e) => {
+      const handle = e.target.closest('[data-drag]');
+      if (!handle || !root.contains(handle)) return;
+      if (S.swapped || e.target.closest('button')) return;
+      const float = handle.closest('.ve-float');
+      const host = float && float.closest('.ve-video');
+      if (!float || !host) return;
+      e.preventDefault();
+      const fr = float.getBoundingClientRect(), hr = host.getBoundingClientRect();
+      ovDrag = {
+        startX: e.clientX, startY: e.clientY, baseX: S.offset.x, baseY: S.offset.y,
+        minX: S.offset.x + hr.left + 6 - fr.left, maxX: S.offset.x + hr.right - 6 - fr.right,
+        minY: S.offset.y + hr.top + 6 - fr.top, maxY: S.offset.y + hr.bottom - 6 - fr.bottom,
+      };
+      document.addEventListener('mousemove', onOvMove);
+      document.addEventListener('mouseup', onOvEnd);
+    });
+    function onOvMove(e) {
+      if (!ovDrag) return;
+      const dx = ovDrag.baseX + e.clientX - ovDrag.startX;
+      const dy = ovDrag.baseY + e.clientY - ovDrag.startY;
+      S.offset = {
+        x: Math.min(Math.max(ovDrag.minX, ovDrag.maxX), Math.max(Math.min(ovDrag.minX, ovDrag.maxX), dx)),
+        y: Math.min(Math.max(ovDrag.minY, ovDrag.maxY), Math.max(Math.min(ovDrag.minY, ovDrag.maxY), dy)),
+      };
+      applyOffset();
+    }
+    function onOvEnd() { ovDrag = null; document.removeEventListener('mousemove', onOvMove); document.removeEventListener('mouseup', onOvEnd); }
+
+    /* ----- 时间轴 ----- */
+    function renderMarkers() {
+      $('#veMarkers', root).innerHTML = S.markers.map(m => `
+        <div class="timeline-marker ${m.type}" data-mid="${m.id}" style="left:${(m.time / S.duration) * 100}%" title="${fmt(m.time)} · 按住可拖动调整时间">
+          <span class="m-icon">${icon(m.type === 'ppt' ? 'file-text' : m.type === 'image' ? 'image' : 'list-checks', 10)}</span>
+        </div>`).join('');
+    }
+    function renderRuler() {
+      $('#veRuler', root).innerHTML = Array.from({ length: 7 }, (_, i) => `<span>${fmt((i * S.duration) / 6)}</span>`).join('');
+    }
+    function paintTime() {
+      const p = pct();
+      $('#veProgress', root).style.width = p + '%';
+      $('#veThumb', root).style.left = p + '%';
+      $('#veTimeCur', root).textContent = fmt(S.t);
+      $('#veTimeDur', root).textContent = fmt(S.duration);
+    }
+    function paintPlay() {
+      $('#vePlayBtn', root).innerHTML = icon(S.playing ? 'pause' : 'play', 18);
+      paintVideoState();
+    }
+    function paintVideoState() {
+      const m = S.selected;
+      $('#veVideo', root).classList.toggle('swapped', S.swapped && !!m && m.type === 'ppt');
+      $('#vePlayHint', root).style.display = (!S.playing && !m) ? '' : 'none';
+      $('#veVideoBg', root).hidden = !S.failed;
+      $('#veVideoCenter', root).hidden = !S.failed;
+      $('#veVideoSub', root).textContent = `模拟视频播放 · 时长 ${fmt(S.duration)} · 上传视频后可直接预览`;
+      videoEl.style.display = S.failed ? 'none' : '';
+    }
+    function paintBadge() { $('#veSourceBadge', root).innerHTML = icon('film', 12) + esc(S.sourceName); }
+
+    const tlBar = $('#veTimelineBar', root);
+    tlBar.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      if (e.target.closest('.timeline-marker')) return;
+      const rect = tlBar.getBoundingClientRect();
+      seekTo(((e.clientX - rect.left) / rect.width) * S.duration);
+    });
+    /* marker 拖动 */
+    let mkDrag = null;
+    $('#veMarkers', root).addEventListener('mousedown', (e) => {
+      const el = e.target.closest('.timeline-marker');
+      if (!el || e.button !== 0) return;
+      e.preventDefault(); e.stopPropagation();
+      const m = S.markers.find(x => x.id === el.dataset.mid);
+      if (!m) return;
+      const rect = tlBar.getBoundingClientRect();
+      mkDrag = { id: m.id, offset: ((e.clientX - rect.left) / rect.width) * S.duration - m.time, startX: e.clientX, moved: false };
+      document.addEventListener('mousemove', onMkDrag);
+      document.addEventListener('mouseup', onMkEnd);
+    });
+    function onMkDrag(e) {
+      if (!mkDrag) return;
+      if (!mkDrag.moved && Math.abs(e.clientX - mkDrag.startX) > 3) mkDrag.moved = true;
+      if (!mkDrag.moved) return;
+      const rect = tlBar.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const t = Math.max(0, Math.min(S.duration, ratio * S.duration - mkDrag.offset));
+      const m = S.markers.find(x => x.id === mkDrag.id);
+      if (m) {
+        m.time = Math.round(t);
+        const el = $(`.timeline-marker[data-mid="${m.id}"]`, root);
+        if (el) el.style.left = (m.time / S.duration) * 100 + '%';
+      }
+      S.dragTip = Math.round(t);
+      const tip = $('#veDragTip', root);
+      tip.hidden = false;
+      tip.style.left = (S.dragTip / S.duration) * 100 + '%';
+      tip.textContent = fmt(S.dragTip);
+    }
+    function onMkEnd() {
+      if (mkDrag && !mkDrag.moved) {
+        const m = S.markers.find(x => x.id === mkDrag.id);
+        if (m) jumpToMarker(m);
+      } else if (mkDrag) {
+        renderMarkersList();
+      }
+      mkDrag = null; S.dragTip = null;
+      $('#veDragTip', root).hidden = true;
+      document.removeEventListener('mousemove', onMkDrag);
+      document.removeEventListener('mouseup', onMkEnd);
+    }
+
+    /* ----- 已插入列表 ----- */
+    function renderMarkersList() {
+      $('#veMarkerCount', root).textContent = `${S.markers.length} 个 · 时间轴上可拖动调整`;
+      $('#veMarkersList', root).innerHTML = S.markers.map(m => `
+        <div class="marker-item${S.selected && S.selected.id === m.id ? ' active' : ''}" data-act="marker-jump" data-mid="${m.id}">
+          <span class="marker-type ${m.type}">${icon(m.type === 'ppt' ? 'file-text' : m.type === 'image' ? 'image' : 'list-checks', 12)}</span>
+          <div class="marker-info"><strong>${esc(m.title)}</strong><span>${fmt(m.time)} · ${m.type === 'ppt' ? 'PPT' : m.type === 'image' ? '图片' : '互动测验'}</span></div>
+          <button class="marker-del" data-act="marker-del" data-mid="${m.id}">${icon('trash-2', 13)}</button>
+        </div>`).join('');
+    }
+    function jumpToMarker(m) { pauseAll(); seekTo(m.time); selectMarker(m); }
+    function deleteMarker(id) {
+      S.markers = S.markers.filter(m => m.id !== id);
+      if (S.selected && S.selected.id === id) { S.selected = null; S.pausedForMarker = false; renderOverlay(); paintVideoState(); }
+      renderMarkers(); renderMarkersList();
+    }
+
+    /* ----- 素材库 ----- */
+    const MAT_TABS = [
+      { key: 'video', label: '视频', icon: 'film' },
+      { key: 'ppt', label: 'PPT', icon: 'file-text' },
+      { key: 'image', label: '图片', icon: 'image' },
+      { key: 'qa', label: '问答', icon: 'message-square' },
+    ];
+    const counts = () => ({ video: MAT.videos.length, ppt: MAT.decks.length, image: MAT.images.length, qa: MAT.qaPairs.length });
+    function renderMatTabs() {
+      const c = counts();
+      $('#veMatTabs', root).innerHTML = MAT_TABS.map(t => `
+        <button class="${S.materialTab === t.key ? 'active' : ''}" data-act="mat-tab" data-key="${t.key}">${icon(t.icon, 12)}${t.label}<em>${c[t.key]}</em></button>`).join('');
+    }
+    function emptyBlock(ic, text, btn) {
+      return `<div class="attach-empty">${icon(ic, 22)}<span>${text}</span><a class="attach-empty-btn" href="materials.html">${btn}</a></div>`;
+    }
+    function renderMatList() {
+      const box = $('#veMatList', root);
+      if (S.materialTab === 'video') {
+        box.innerHTML = MAT.videos.length === 0 ? emptyBlock('film', '暂无视频素材', '前往素材管理上传')
+          : MAT.videos.map(v => `
+            <div class="attach-item">
+              <span class="attach-icon video">${icon('film', 14)}</span>
+              <div class="attach-info"><strong>${esc(v.name)}</strong><span>${esc(v.meta)}</span></div>
+              <div class="attach-actions">
+                <button title="预览并设为当前视频" data-act="use-video" data-id="${v.id}">${icon('eye', 12)}</button>
+                <button title="设为当前视频" data-act="use-video" data-id="${v.id}">${icon('play', 12)}</button>
+              </div>
+            </div>`).join('');
+      } else if (S.materialTab === 'ppt') {
+        box.innerHTML = MAT.decks.length === 0 ? emptyBlock('file-text', '暂无 PPT 素材', '前往素材管理上传')
+          : MAT.decks.map(d => `
+            <div class="attach-item">
+              <span class="attach-icon ppt">${icon('file-text', 14)}</span>
+              <div class="attach-info"><strong>${esc(d.name)}</strong><span>${d.pages.length} 页 · 每页内容独立</span></div>
+              <div class="attach-actions">
+                <button title="预览课件" data-act="preview-deck" data-id="${d.id}">${icon('eye', 12)}</button>
+                <button title="插入到当前时间点" data-act="insert-deck" data-id="${d.id}">${icon('plus', 12)}</button>
+              </div>
+            </div>`).join('');
+      } else if (S.materialTab === 'image') {
+        box.innerHTML = MAT.images.length === 0 ? emptyBlock('image', '暂无图片素材', '前往素材管理上传')
+          : MAT.images.map(img => `
+            <div class="attach-item">
+              <span class="attach-thumb"><img src="${esc(img.url)}" alt="${esc(img.name)}"></span>
+              <div class="attach-info"><strong>${esc(img.name)}</strong><span>${esc(img.meta)}</span></div>
+              <div class="attach-actions">
+                <button title="预览" data-act="preview-image" data-id="${img.id}">${icon('eye', 12)}</button>
+                <button title="插入到当前时间点" data-act="insert-image" data-id="${img.id}">${icon('plus', 12)}</button>
+              </div>
+            </div>`).join('');
+      } else {
+        box.innerHTML = MAT.qaPairs.length === 0 ? emptyBlock('message-square', '暂无问答对', '前往素材管理创建')
+          : MAT.qaPairs.map(q => `
+            <div class="attach-item">
+              <span class="attach-icon qa">${icon('message-square', 14)}</span>
+              <div class="attach-info"><strong>${esc(q.question)}</strong><span>${q.type === 'single' ? '单选' : q.type === 'multi' ? '多选' : '判断'} · ${q.options.length} 个选项</span></div>
+              <div class="attach-actions">
+                <button title="预览问答" data-act="preview-qa" data-id="${q.id}">${icon('eye', 12)}</button>
+                <button title="插入到当前时间点" data-act="insert-qa" data-id="${q.id}">${icon('plus', 12)}</button>
+              </div>
+            </div>`).join('');
+      }
+    }
+
+    /* toast */
+    let toastTimer = null;
+    function veToast(msg) {
+      const el = $('#veToast', root);
+      el.textContent = msg; el.hidden = false;
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.hidden = true; }, 2600);
+    }
+
+    /* ----- 插入请求 ----- */
+    function requestInsert(type) {
+      pauseAll();
+      if (type === 'ppt') {
+        S.materialTab = 'ppt';
+        if (!MAT.decks.length) { veToast('素材库暂无 PPT，请先前往「素材管理」上传课件'); renderMatTabs(); renderMatList(); return; }
+        veToast('请在右侧素材库选择要插入的 PPT');
+      } else if (type === 'image') {
+        S.materialTab = 'image';
+        if (!MAT.images.length) { veToast('素材库暂无图片，请先前往「素材管理」上传图片'); renderMatTabs(); renderMatList(); return; }
+        veToast('请在右侧素材库选择要插入的图片');
+      } else {
+        S.materialTab = 'qa';
+        if (!MAT.qaPairs.length) { veToast('素材库暂无问答对，请先前往「素材管理」创建互动问答'); renderMatTabs(); renderMatList(); return; }
+        veToast('请在右侧素材库选择要插入的互动问答');
+      }
+      renderMatTabs(); renderMatList();
+    }
+
+    /* ----- 事件委托 ----- */
+    root.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-act]');
+      if (!el || !root.contains(el)) return;
+      const act = el.dataset.act, id = el.dataset.id;
+      switch (act) {
+        case 'play-toggle': togglePlay(); break;
+        case 'insert-req': requestInsert(el.dataset.type); break;
+        case 'deck-prev': if (S.selected) { S.selected.page = Math.max(1, activePageNo() - 1); renderOverlay(); } break;
+        case 'deck-next': if (S.selected) { S.selected.page = Math.min(deckPageCount(), activePageNo() + 1); renderOverlay(); } break;
+        case 'swap': S.swapped = !S.swapped; renderOverlay(); paintVideoState(); break;
+        case 'reset-pos': S.offset = { x: 0, y: 0 }; applyOffset(); break;
+        case 'close-marker': closeMarker(true); break;
+        case 'quiz-opt': {
+          const m = S.selected;
+          if (!m || S.quizSubmitted[m.id]) break;
+          const idx = +el.dataset.idx, cur = S.quizAnswer[m.id] || [];
+          if (m.quiz.questionType !== 'multi') S.quizAnswer[m.id] = [idx];
+          else { const next = [...cur]; const i = next.indexOf(idx); i >= 0 ? next.splice(i, 1) : next.push(idx); S.quizAnswer[m.id] = next; }
+          S.quizSubmitted[m.id] = false;
+          renderOverlay();
+          break;
+        }
+        case 'quiz-submit': {
+          const m = S.selected;
+          if (!m || !(S.quizAnswer[m.id] || []).length) break;
+          S.quizSubmitted[m.id] = true;
+          renderOverlay();
+          break;
+        }
+        case 'mat-tab': S.materialTab = el.dataset.key; renderMatTabs(); renderMatList(); break;
+        case 'use-video': {
+          const v = MAT.videos.find(x => x.id === id);
+          if (!v) break;
+          pauseAll();
+          S.builtin = false; S.videoUrl = v.url; S.sourceName = `${v.name}（素材库视频）`; S.failed = false;
+          S.t = 0; S.triggered.clear();
+          videoEl.src = v.url; videoEl.load();
+          paintBadge(); paintVideoState(); paintTime();
+          startPlay();
+          break;
+        }
+        case 'preview-deck': {
+          const d = MAT.decks.find(x => x.id === id); if (!d) break;
+          pauseAll();
+          selectMarker({ id: 'preview-ppt', time: S.t, type: 'ppt', title: `预览：${d.name}`, deckId: d.id, page: 1 });
+          break;
+        }
+        case 'insert-deck': {
+          const d = MAT.decks.find(x => x.id === id); if (!d) break;
+          pauseAll();
+          const marker = { id: uid('mk'), time: S.t, type: 'ppt', title: `PPT：${d.name}`, deckId: d.id, page: 1 };
+          S.markers.push(marker); renderMarkers(); selectMarker(marker);
+          break;
+        }
+        case 'preview-image': {
+          const img = MAT.images.find(x => x.id === id); if (!img) break;
+          pauseAll();
+          selectMarker({ id: 'preview-image', time: S.t, type: 'image', title: img.name, imageUrl: img.url });
+          break;
+        }
+        case 'insert-image': {
+          const img = MAT.images.find(x => x.id === id); if (!img) break;
+          pauseAll();
+          const marker = { id: uid('mk'), time: S.t, type: 'image', title: img.name, imageUrl: img.url };
+          S.markers.push(marker); renderMarkers(); selectMarker(marker);
+          break;
+        }
+        case 'preview-qa': {
+          const q = MAT.qaPairs.find(x => x.id === id); if (!q) break;
+          pauseAll();
+          selectMarker({ id: 'preview-qa', time: S.t, type: 'quiz', title: q.question, quiz: quizFromPair(q) });
+          break;
+        }
+        case 'insert-qa': {
+          const q = MAT.qaPairs.find(x => x.id === id); if (!q) break;
+          pauseAll();
+          const marker = { id: uid('mk'), time: S.t, type: 'quiz', title: q.question.length > 16 ? q.question.slice(0, 16) + '…' : q.question, quiz: quizFromPair(q) };
+          S.markers.push(marker); renderMarkers(); selectMarker(marker);
+          break;
+        }
+        case 'marker-jump': {
+          if (e.target.closest('[data-act="marker-del"]')) break;
+          const m = S.markers.find(x => x.id === el.dataset.mid);
+          if (m) jumpToMarker(m);
+          break;
+        }
+        case 'marker-del': e.stopPropagation(); deleteMarker(el.dataset.mid); break;
+      }
+    });
+
+    renderMarkers(); renderRuler(); renderMarkersList(); renderMatTabs(); renderMatList();
+    paintTime(); paintPlay(); paintBadge(); paintVideoState();
+
+    return { pause: pauseAll };
+  })();
+
+  /* ================= 投屏授课（ScreenCast） ================= */
+  (function () {
+    const root = $('#tab-cast');
+    const sources = [
+      { key: 'ppt', label: 'PPT 课件', icon: 'file-text' },
+      { key: 'chapter', label: '课程章节', icon: 'layout-grid' },
+      { key: 'note', label: '笔记', icon: 'type' },
+      { key: 'image', label: '图片', icon: 'image' },
+      { key: 'doc', label: '文档', icon: 'library' },
+      { key: 'activity', label: '课堂活动', icon: 'list-checks' },
+    ];
+    const online = [
+      { key: 'journal', label: '学术期刊', icon: 'file-text', tone: 'blue' },
+      { key: 'video', label: '学术视频', icon: 'video', tone: 'violet' },
+      { key: 'topic', label: '专题资料', icon: 'grid-3x3', tone: 'amber' },
+    ];
+    const accentMap = { ppt: '核心能力架构', chapter: '第 3 章 知识图谱', note: '课堂笔记要点', image: '能力架构示意图', doc: '教学大纲文档', activity: '分组讨论活动' };
+    const C = { source: 'ppt', slide: 3, total: 12, laserOn: true, spotlightOn: false, laserPos: { x: 52, y: 42 } };
+
+    root.innerHTML = `
+    <div class="page sc-page">
+      <div class="page-head module-head">
+        <div>
+          <div class="breadcrumb"><a href="portal.html">首页</a><span>/</span><a href="platform.html?p=course">智慧课程</a><span>/</span><span>投屏授课</span></div>
+          <div class="module-title-row">
+            <h1 class="page-title">课堂投屏</h1>
+            <span class="tag green">自有的 PPT/章节/笔记/图片/文档/活动</span>
+            <span class="tag blue">在线资源（期刊/学术视频/专题）</span>
+            <span class="tag violet">激光笔 · 聚光灯 · 翻页</span>
+          </div>
+          <p class="page-desc">不借助任何第三方投屏软件，手机端一键投屏到教室大屏。投屏 PPT/专题时，手机端可翻页、激光笔、聚光灯聚焦。</p>
+        </div>
+      </div>
+      <div class="sc-layout">
+        <div class="sc-phone">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="phone-status"><span>教师 · 手机端</span><span class="pulse">投屏中</span></div>
+              <div class="phone-title">投屏内容</div>
+              <div class="phone-sources" id="scSources"></div>
+              <div class="phone-section-title">在线搜索</div>
+              <div class="phone-search">${icon('search', 12)}<input placeholder="搜索期刊、学术视频、专题…"></div>
+              <div class="phone-online">
+                ${online.map(o => `<button class="phone-online-btn ${o.tone}">${icon(o.icon, 13)}<span>${o.label}</span></button>`).join('')}
+              </div>
+              <div class="phone-slide-ctrl" id="scPhoneCtrl">
+                <div class="ctrl-row">
+                  <button class="sc-ctrl-btn" data-sc="prev">${icon('chevron-left', 16)}上一页</button>
+                  <span class="slide-label" id="scSlideLabel"></span>
+                  <button class="sc-ctrl-btn" data-sc="next">下一页${icon('chevron-right', 16)}</button>
+                </div>
+                <div class="ctrl-row tools">
+                  <button class="tool-btn" data-sc="laser" id="scLaserBtn">${icon('navigation', 15)}激光笔</button>
+                  <button class="tool-btn" data-sc="spotlight" id="scSpotBtn">${icon('target', 15)}聚光灯</button>
+                </div>
+                <div class="ctrl-row hint">移动手机 → 激光笔跟随光标</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sc-screen-wrap">
+          <div class="sc-screen" id="scScreen">
+            <div class="screen-header">${icon('layers', 15)}<span>智慧教室 A203 · 教学大屏</span><span class="signal">手机端 <span class="dot"></span>已连接</span></div>
+            <div class="slide-area">
+              <div class="slide-number" id="scSlideNum"></div>
+              <div class="slide-content">
+                <div class="big-title">智慧课程平台 · <span class="accent" id="scAccent"></span></div>
+                <div class="sc-slide-body">
+                  <div class="slide-col">
+                    ${[0, 1, 2].map(i => `<div class="slide-block" data-hl="${i === 1 ? '1' : ''}"><div class="block-title">① 课程建设与互动</div><div class="block-desc">视频 · PPT · 测验 · 资源 · 时间轴互动</div></div>`).join('')}
+                    ${[0, 1].map(() => `<div class="slide-block"><div class="block-title">② AI 工作台</div><div class="block-desc">智能备课 · 出题 · 答疑 · 学情分析</div></div>`).join('')}
+                  </div>
+                  <div class="slide-col">
+                    ${[0, 1].map(() => `<div class="slide-block alt"><div class="block-title">③ 知识图谱</div><div class="block-desc">网状图谱 · 关联资源 · 学习路径</div></div>`).join('')}
+                    ${[0, 1, 2].map(() => `<div class="slide-block alt"><div class="block-title">④ 任务与评价</div><div class="block-desc">任务点 · 章节测验 · 作业考试</div></div>`).join('')}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="screen-laser" id="scLaser" hidden><div class="laser-core"></div><div class="laser-ring"></div></div>
+            <div class="screen-spotlight" id="scSpot" hidden><div class="spot-hole"></div></div>
+            <div class="screen-nav">
+              <button data-sc="prev">${icon('chevron-left', 16)}</button>
+              <span>← 翻页可由手机端控制 →</span>
+              <button data-sc="next">${icon('chevron-right', 16)}</button>
+            </div>
+          </div>
+          <div class="sc-notes">
+            <div class="note">${icon('sparkles', 13)}不借助任何第三方投屏软件，手机端一键投屏</div>
+            <div class="note">${icon('arrow-right', 13)}移动手机光标 → 教室大屏激光笔实时跟随</div>
+            <div class="note">${icon('search', 13)}支持在线搜索期刊、学术视频、专题资料</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+    function paint() {
+      $('#scSources', root).innerHTML = sources.map(s => `
+        <button class="phone-source${C.source === s.key ? ' active' : ''}" data-sc="source" data-key="${s.key}">${icon(s.icon, 14)}<span>${s.label}</span></button>`).join('');
+      $('#scSlideLabel', root).textContent = `${C.slide} / ${C.total}`;
+      $('#scSlideNum', root).textContent = `第 ${C.slide} / ${C.total} 页`;
+      $('#scAccent', root).textContent = accentMap[C.source];
+      $('#scPhoneCtrl', root).style.display = C.source === 'ppt' ? '' : 'none';
+      $('#scLaserBtn', root).classList.toggle('active', C.laserOn);
+      $('#scSpotBtn', root).classList.toggle('active', C.spotlightOn);
+      $('#scScreen', root).classList.toggle('has-spotlight', C.spotlightOn);
+      const laser = $('#scLaser', root), spot = $('#scSpot', root);
+      laser.hidden = !(C.laserOn && C.source === 'ppt');
+      spot.hidden = !C.spotlightOn;
+      laser.style.left = C.laserPos.x + '%'; laser.style.top = C.laserPos.y + '%';
+      spot.style.left = C.laserPos.x + '%'; spot.style.top = C.laserPos.y + '%';
+      $$('[data-hl="1"]', root).forEach(b => b.classList.toggle('highlight', C.laserOn));
+    }
+    root.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-sc]');
+      if (!el || !root.contains(el)) return;
+      const act = el.dataset.sc;
+      if (act === 'source') C.source = el.dataset.key;
+      else if (act === 'prev') C.slide = Math.max(1, C.slide - 1);
+      else if (act === 'next') C.slide = Math.min(C.total, C.slide + 1);
+      else if (act === 'laser') C.laserOn = !C.laserOn;
+      else if (act === 'spotlight') C.spotlightOn = !C.spotlightOn;
+      paint();
+    });
+    $('#scScreen', root).addEventListener('mousemove', (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      C.laserPos = { x: ((e.clientX - rect.left) / rect.width) * 100, y: ((e.clientY - rect.top) / rect.height) * 100 };
+      const laser = $('#scLaser', root), spot = $('#scSpot', root);
+      laser.style.left = C.laserPos.x + '%'; laser.style.top = C.laserPos.y + '%';
+      spot.style.left = C.laserPos.x + '%'; spot.style.top = C.laserPos.y + '%';
+    });
+    paint();
+  })();
+
+  /* ================= 知识图谱（GraphNetwork） ================= */
+  (function () {
+    const root = $('#tab-graph');
+    const nodes = [
+      { id: 'n1', label: '知识图谱', x: 300, y: 210, type: 'core' },
+      { id: 'n2', label: '实体识别', x: 180, y: 210, type: 'concept' },
+      { id: 'n3', label: '关系抽取', x: 420, y: 210, type: 'concept' },
+      { id: 'n4', label: '本体建模', x: 240, y: 314, type: 'concept' },
+      { id: 'n5', label: '知识融合', x: 360, y: 314, type: 'concept' },
+      { id: 'n6', label: '语义检索', x: 240, y: 106, type: 'concept' },
+      { id: 'n7', label: '向量检索', x: 360, y: 106, type: 'concept' },
+      { id: 'n8', label: '文本挖掘', x: 485, y: 270, type: 'resource' },
+      { id: 'n9', label: '图嵌入', x: 415, y: 368, type: 'resource' },
+      { id: 'n10', label: 'GNN', x: 300, y: 405, type: 'resource' },
+      { id: 'n11', label: 'Neo4j', x: 185, y: 368, type: 'resource' },
+      { id: 'n12', label: 'RDF/OWL', x: 115, y: 270, type: 'resource' },
+      { id: 'n13', label: 'TransE', x: 115, y: 150, type: 'resource' },
+      { id: 'n14', label: 'BERT', x: 185, y: 52, type: 'resource' },
+      { id: 'n15', label: '注意力机制', x: 300, y: 15, type: 'resource' },
+      { id: 'n16', label: '向量库', x: 415, y: 52, type: 'resource' },
+      { id: 'n17', label: '知识推理', x: 485, y: 150, type: 'resource' },
+    ];
+    const edges = [
+      ['n1','n2'],['n1','n3'],['n1','n4'],['n1','n5'],['n1','n6'],['n1','n7'],
+      ['n2','n14'],['n2','n15'],['n3','n8'],['n4','n12'],['n4','n11'],['n5','n13'],['n5','n17'],
+      ['n6','n17'],['n7','n16'],['n7','n10'],['n7','n9'],['n2','n4'],['n3','n5'],['n6','n7'],['n5','n6'],['n3','n7'],
+    ].map(([from, to]) => ({ from, to }));
+    const nodeByType = {
+      core: { r: 26, fill: '#6d5bf6', stroke: '#fff' },
+      concept: { r: 18, fill: '#2f6bff', stroke: 'rgba(255,255,255,0.6)' },
+      resource: { r: 13, fill: '#0f9d8f', stroke: 'rgba(255,255,255,0.5)' },
+    };
+    const nodeById = id => nodes.find(n => n.id === id);
+    const toneByType = { '知识词条': '#2f6bff', '学术期刊': '#e0762f', '图书': '#0f9d8f', '学术论著': '#6d5bf6' };
+    const iconByType = { '知识词条': 'file-text', '图书': 'library', '学术论著': 'graduation-cap', '学术期刊': 'book-open' };
+    const curated = {
+      n1: [
+        { title: '知识图谱（Knowledge Graph）', type: '知识词条', source: 'Wikipedia', year: '2024', desc: '概念定义、发展脉络与典型应用场景' },
+        { title: 'A Survey on Knowledge Graphs', type: '学术期刊', source: 'IEEE TKDE', year: '2021', desc: '系统梳理图谱表示学习与推理研究进展' },
+        { title: 'Knowledge Graph Embedding: A Survey', type: '学术期刊', source: 'ACM CSUR', year: '2022', desc: '嵌入模型的分类、训练目标与评测方法' },
+        { title: '《知识图谱：方法、实践与应用》', type: '图书', source: '机械工业出版社 · 馆藏', year: '2020', desc: '从本体设计到行业落地的完整实践指南' },
+        { title: '大规模知识图谱的构建与应用', type: '学术论著', source: '中科院自动化所', year: '2023', desc: '面向开放领域的图谱构建与质量评估' },
+      ],
+      n2: [
+        { title: '命名实体识别（NER）', type: '知识词条', source: '学科知识库', year: '2024', desc: '实体边界识别与类型判定的基础概念' },
+        { title: '中文命名实体识别研究综述', type: '学术期刊', source: '中文信息学报', year: '2023', desc: '序列标注、词典增强与预训练模型对比' },
+        { title: 'BERT for Named Entity Recognition', type: '学术论著', source: 'ACL', year: '2019', desc: '预训练语言模型在 NER 任务上的迁移效果' },
+        { title: '《自然语言处理综论》', type: '图书', source: '校图书馆馆藏', year: '2018', desc: '实体识别相关章节与经典算法推导' },
+      ],
+      n3: [
+        { title: '关系抽取（Relation Extraction）', type: '知识词条', source: '学科知识库', year: '2024', desc: '从文本中判定实体间语义关系的任务定义' },
+        { title: 'Relation Extraction: A Survey', type: '学术期刊', source: 'Computational Linguistics', year: '2022', desc: '监督、远程监督与少样本关系抽取方法' },
+        { title: '基于远程监督的关系抽取研究', type: '学术论著', source: '万方学位论文库', year: '2023', desc: '噪声鲁棒性与实体对表示学习实验' },
+        { title: '《信息抽取技术与应用》', type: '图书', source: '校图书馆馆藏', year: '2021', desc: '关系抽取在领域图谱构建中的工程实践' },
+      ],
+      n4: [
+        { title: '本体（Ontology）', type: '知识词条', source: 'Wikipedia', year: '2024', desc: '概念化规范说明与本体描述语言' },
+        { title: 'Ontology Learning and Population', type: '学术期刊', source: 'IEEE Intelligent Systems', year: '2022', desc: '概念层次与本体公理的自动学习方法' },
+        { title: '《本体工程：方法与实践》', type: '图书', source: '电子工业出版社 · 馆藏', year: '2019', desc: '本体建模流程、复用与一致性检查' },
+        { title: '面向教育领域的本体构建研究', type: '学术论著', source: 'CNKI 学位论文', year: '2023', desc: '课程知识本体的设计与实现案例' },
+      ],
+      n5: [
+        { title: '知识融合（Knowledge Fusion）', type: '知识词条', source: '学科知识库', year: '2024', desc: '多源异构知识的对齐、消歧与合并' },
+        { title: 'Entity Alignment: A Survey', type: '学术期刊', source: 'IJCAI', year: '2023', desc: '基于结构与属性相似度的实体对齐方法' },
+        { title: '多源知识融合中的实体消歧研究', type: '学术论著', source: '万方学位论文库', year: '2024', desc: '上下文与图结构联合消歧模型' },
+        { title: '《数据融合与知识集成》', type: '图书', source: '校图书馆馆藏', year: '2020', desc: '冲突消解策略与融合质量评估指标' },
+      ],
+      n6: [
+        { title: '语义检索（Semantic Search）', type: '知识词条', source: '学科知识库', year: '2024', desc: '基于语义理解而非字面匹配的检索方式' },
+        { title: 'Semantic Search over Knowledge Graphs', type: '学术期刊', source: 'SIGIR', year: '2022', desc: '图谱增强的查询改写与排序模型' },
+        { title: '《信息检索导论》', type: '图书', source: '校图书馆馆藏', year: '2018', desc: '检索模型、索引结构与评价指标' },
+        { title: '基于图嵌入的课程资源语义检索', type: '学术论著', source: 'CNKI 学位论文', year: '2024', desc: '面向教育资源的语义相似度计算' },
+      ],
+      n7: [
+        { title: '向量检索（Vector Search）', type: '知识词条', source: '学科知识库', year: '2024', desc: '高维向量空间中的近邻检索技术' },
+        { title: 'Approximate Nearest Neighbor Search: A Survey', type: '学术期刊', source: 'ACM Computing Surveys', year: '2023', desc: 'HNSW、IVF 等索引结构的性能对比' },
+        { title: '《向量检索与嵌入实践》', type: '图书', source: '校图书馆馆藏', year: '2023', desc: '向量库选型、索引调优与混合检索' },
+        { title: '面向大规模图谱的向量索引优化', type: '学术论著', source: '万方学位论文库', year: '2024', desc: '量化压缩与增量更新策略' },
+      ],
+      n14: [
+        { title: 'BERT：双向编码器表示', type: '知识词条', source: '学科知识库', year: '2024', desc: '预训练语言模型的架构与微调范式' },
+        { title: 'Pre-training of Deep Bidirectional Transformers', type: '学术论著', source: 'NAACL', year: '2019', desc: 'MLM 与 NSP 预训练目标的原始论文' },
+        { title: '《预训练语言模型》', type: '图书', source: '校图书馆馆藏', year: '2022', desc: '从 Transformer 到领域微调的完整路径' },
+        { title: '领域语料持续预训练方法研究', type: '学术期刊', source: '软件学报', year: '2023', desc: '小样本领域适配与灾难性遗忘缓解' },
+      ],
+      n11: [
+        { title: 'Neo4j 图数据库', type: '知识词条', source: '官方文档', year: '2024', desc: '属性图模型与 Cypher 查询语言' },
+        { title: '《图数据库实战》', type: '图书', source: '校图书馆馆藏', year: '2021', desc: '图谱存储建模、索引与查询优化' },
+        { title: 'Graph Database Benchmarking', type: '学术期刊', source: 'VLDB', year: '2022', desc: '主流图数据库在复杂查询下的性能评测' },
+        { title: '基于 Neo4j 的课程图谱存储设计', type: '学术论著', source: 'CNKI 学位论文', year: '2024', desc: '教育图谱模式设计与批量导入实践' },
+      ],
+    };
+    function fallbackResources(label) {
+      return [
+        { title: `${label} · 知识词条`, type: '知识词条', source: '学科知识库', year: '2024', desc: '概念定义、发展脉络与典型应用' },
+        { title: `${label} 相关研究综述`, type: '学术期刊', source: 'CNKI 学术期刊', year: '2023', desc: '近五年代表性期刊论文与研究方法' },
+        { title: `《${label}实践指南》`, type: '图书', source: '校图书馆馆藏', year: '2022', desc: '系统讲解原理、案例与实操步骤' },
+        { title: `${label} 领域学位论文精选`, type: '学术论著', source: '万方学位论文库', year: '2023', desc: '硕博论文中的前沿探索与实验结论' },
+      ];
+    }
+
+    const G = { selected: null, zoom: 1, filter: '全部' };
+    const svgW = 600, svgH = 470;
+
+    root.innerHTML = `
+    <div class="page gn-page">
+      <div class="page-head module-head">
+        <div>
+          <div class="breadcrumb"><a href="portal.html">首页</a><span>/</span><a href="platform.html?p=course">智慧课程</a><span>/</span><span>知识图谱构建和管理</span></div>
+          <div class="module-title-row">
+            <h1 class="page-title">知识图谱管理</h1>
+            <span class="tag violet">网状结构图谱</span>
+            <span class="tag blue">词条 / 期刊 / 图书 / 论著</span>
+          </div>
+          <p class="page-desc">知识图谱以网状结构可视化呈现，点击任意节点可查看关联知识点与多类型资源：知识词条、学术期刊、图书、学术论著，为学生提供全面的知识视角。</p>
+        </div>
+      </div>
+      <div class="gn-layout">
+        <section class="panel gn-graph-panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>课程知识图谱 · 点击节点查看关联资源</div>
+            <div class="panel-tools">
+              <button class="gn-tool-btn" title="缩小" data-gn="zoom-out">${icon('minus', 13)}</button>
+              <span class="zoom-label" id="gnZoom"></span>
+              <button class="gn-tool-btn" title="放大" data-gn="zoom-in">${icon('plus', 13)}</button>
+            </div>
+          </div>
+          <div class="panel-body gn-graph-body" id="gnSvgWrap"></div>
+          <div class="gn-graph-foot" id="gnFoot"></div>
+        </section>
+        <aside class="panel gn-resource-panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>关联资源列表</div>
+            <span class="gn-node-flag" id="gnFlag" hidden></span>
+          </div>
+          <div class="panel-body" id="gnPanel"></div>
+        </aside>
+      </div>
+    </div>`;
+
+    function isAttachEdge(e) { return nodeById(e.to).type === 'resource' || nodeById(e.from).type === 'resource'; }
+    function edgeActive(e) { return G.selected && (e.from === G.selected.id || e.to === G.selected.id); }
+    function isFocus(id) {
+      if (!G.selected) return true;
+      if (G.selected.id === id) return true;
+      return edges.some(e => (e.from === G.selected.id && e.to === id) || (e.to === G.selected.id && e.from === id));
+    }
+    function currentResources() {
+      if (!G.selected) return [];
+      return curated[G.selected.id] || fallbackResources(G.selected.label);
+    }
+    function neighbors() {
+      if (!G.selected) return [];
+      const ids = new Set();
+      for (const e of edges) { if (e.from === G.selected.id) ids.add(e.to); if (e.to === G.selected.id) ids.add(e.from); }
+      return nodes.filter(n => ids.has(n.id));
+    }
+    function renderGraph() {
+      const sel = G.selected;
+      $('#gnSvgWrap', root).innerHTML = `
+      <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
+        <defs><radialGradient id="glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(109,91,246,0.35)"/><stop offset="100%" stop-color="rgba(109,91,246,0)"/>
+        </radialGradient></defs>
+        <g transform="scale(${G.zoom})">
+          ${edges.map(e => {
+            const a = nodeById(e.from), b = nodeById(e.to);
+            return `<g class="edge-group"><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" class="${edgeActive(e) ? 'active' : ''}"${isAttachEdge(e) ? ' stroke-dasharray="5 4"' : ''}/></g>`;
+          }).join('')}
+          ${nodes.map(n => {
+            const t = nodeByType[n.type], isSel = sel && sel.id === n.id;
+            return `<g class="node-group${sel && !isFocus(n.id) ? ' dim' : ''}${isSel ? ' focus' : ''}" data-gn="node" data-id="${n.id}" style="cursor:pointer">
+              ${isSel ? `<circle cx="${n.x}" cy="${n.y}" r="${t.r + 8}" fill="url(#glow)"/>` : ''}
+              <circle cx="${n.x}" cy="${n.y}" r="${t.r}" fill="${t.fill}" stroke="${isSel ? '#fff' : t.stroke}" stroke-width="${isSel ? 3 : 1.5}"/>
+              <text x="${n.x}" y="${n.y + t.r + 12}" text-anchor="middle" font-size="10" fill="var(--ink-2)" font-weight="500">${n.label}</text>
+            </g>`;
+          }).join('')}
+        </g>
+      </svg>`;
+      $('#gnZoom', root).textContent = Math.round(G.zoom * 100) + '%';
+      const counts = { core: 0, concept: 0, resource: 0 };
+      nodes.forEach(n => counts[n.type]++);
+      $('#gnFoot', root).innerHTML = `
+        <span><span class="gn-legend core"></span>核心概念 ${counts.core}</span>
+        <span><span class="gn-legend concept"></span>知识点 ${counts.concept}</span>
+        <span><span class="gn-legend resource"></span>资源/工具 ${counts.resource}</span>
+        <span class="ml-auto muted tiny">共 ${nodes.length} 节点 · ${edges.length} 条关系 · 选中及邻接 ${neighbors().length}</span>`;
+    }
+    function renderPanel() {
+      const sel = G.selected;
+      const flag = $('#gnFlag', root);
+      const panel = $('#gnPanel', root);
+      if (!sel) {
+        flag.hidden = true;
+        panel.innerHTML = `<div class="empty-hint">${icon('sparkles', 24).replace('<svg', '<svg class="violet"')}<span>点击图谱中任意节点，查看该知识点关联的多类型资源</span></div>`;
+        return;
+      }
+      flag.hidden = false;
+      flag.innerHTML = `<span class="gn-legend ${sel.type}"></span>${esc(sel.label)}`;
+      const res = currentResources();
+      const filters = [
+        { key: '全部', count: res.length },
+        { key: '知识词条', count: res.filter(r => r.type === '知识词条').length },
+        { key: '学术期刊', count: res.filter(r => r.type === '学术期刊').length },
+        { key: '图书', count: res.filter(r => r.type === '图书').length },
+        { key: '学术论著', count: res.filter(r => r.type === '学术论著').length },
+      ].filter(f => f.key === '全部' || f.count > 0);
+      const filtered = G.filter === '全部' ? res : res.filter(r => r.type === G.filter);
+      panel.innerHTML = `
+        <div class="gn-summary">
+          <span>${icon('network', 12)}${res.length} 条资源</span>
+          <span>${icon('link-2', 12)}关联 ${neighbors().length} 个知识点</span>
+        </div>
+        <div class="gn-neighbors">
+          <span class="gn-section-label">关联知识点</span>
+          <div class="gn-neighbor-list">
+            ${neighbors().map(nb => `<button class="gn-neighbor ${nb.type}" data-gn="node" data-id="${nb.id}">${esc(nb.label)}</button>`).join('')}
+          </div>
+        </div>
+        <div class="gn-filters">
+          ${filters.map(f => `<button class="${G.filter === f.key ? 'active' : ''}" data-gn="filter" data-key="${f.key}">${f.key}<em>${f.count}</em></button>`).join('')}
+        </div>
+        <div class="resource-list">
+          ${filtered.map(r => `
+            <div class="resource-item">
+              <div class="resource-icon" style="background:${toneByType[r.type]}">${icon(iconByType[r.type] || 'book-open', 14)}</div>
+              <div class="resource-info">
+                <strong>${esc(r.title)}</strong>
+                <div class="resource-meta">
+                  <span class="tag" style="background:${toneByType[r.type]}18;color:${toneByType[r.type]}">${r.type}</span>
+                  <span class="muted">${esc(r.source)} · ${r.year}</span>
+                </div>
+                <p class="resource-desc">${esc(r.desc)}</p>
+              </div>
+            </div>`).join('')}
+          ${filtered.length ? '' : '<div class="gn-empty">该类型暂无资源</div>'}
+        </div>
+        <div class="gn-resource-foot">
+          <span class="muted tiny">覆盖 ${filters.length - 1} 类资源 · 支持按类型筛选</span>
+          <button class="btn btn-sm" data-gn="clear">${icon('x', 13)}清除选择</button>
+        </div>`;
+    }
+    root.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-gn]');
+      if (!el || !root.contains(el)) return;
+      const act = el.dataset.gn;
+      if (act === 'node') { G.selected = nodeById(el.dataset.id); G.filter = '全部'; renderGraph(); renderPanel(); }
+      else if (act === 'filter') { G.filter = el.dataset.key; renderPanel(); }
+      else if (act === 'clear') { G.selected = null; renderGraph(); renderPanel(); }
+      else if (act === 'zoom-in') { G.zoom = Math.min(1.8, Math.round((G.zoom + 0.1) * 100) / 100); renderGraph(); }
+      else if (act === 'zoom-out') { G.zoom = Math.max(0.5, Math.round((G.zoom - 0.1) * 100) / 100); renderGraph(); }
+    });
+    renderGraph(); renderPanel();
+  })();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+.login {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(900px 600px at 12% 6%, rgba(40, 105, 255, 0.32), transparent 60%),
+    radial-gradient(760px 520px at 92% 20%, rgba(18, 181, 201, 0.22), transparent 62%),
+    radial-gradient(700px 500px at 50% 110%, rgba(109, 91, 246, 0.26), transparent 60%),
+    linear-gradient(145deg, #071326 0%, #0b1d38 46%, #071427 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.login-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(2px);
+  opacity: 0.7;
+}
+
+.orb-a {
+  width: 460px;
+  height: 460px;
+  right: 4%;
+  top: -14%;
+  background: radial-gradient(circle at 40% 40%, rgba(67, 130, 255, 0.34), transparent 65%);
+}
+
+.orb-b {
+  width: 340px;
+  height: 340px;
+  left: 36%;
+  bottom: -16%;
+  background: radial-gradient(circle, rgba(31, 182, 201, 0.22), transparent 68%);
+}
+
+.orb-c {
+  width: 180px;
+  height: 180px;
+  left: 8%;
+  top: 46%;
+  background: radial-gradient(circle, rgba(109, 91, 246, 0.3), transparent 64%);
+}
+
+.grid-layer {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(120, 165, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 165, 255, 0.055) 1px, transparent 1px);
+  background-size: 62px 62px;
+  mask-image: radial-gradient(circle at 50% 40%, #000 0%, transparent 72%);
+}
+
+.login-top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 44px;
+}
+
+.top-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11.5px;
+  color: rgba(220, 233, 255, 0.62);
+}
+
+.top-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.2s;
+}
+
+.top-links a:hover {
+  color: #fff;
+}
+
+.top-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.secure {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.02em;
+}
+
+.login-main {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 18px 44px 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) 448px;
+  align-items: center;
+  gap: 60px;
+}
+
+.intro {
+  padding-bottom: 10px;
+}
+
+.intro-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  color: rgba(198, 218, 255, 0.56);
+  margin-bottom: 26px;
+}
+
+.eyebrow-line {
+  width: 34px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(116, 166, 255, 0.9), transparent);
+}
+
+.hero-brand {
+  margin-bottom: 30px;
+}
+
+.intro-title {
+  font-size: 20px;
+  line-height: 1.55;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(235, 243, 255, 0.92);
+}
+
+.intro-desc {
+  margin-top: 16px;
+  max-width: 600px;
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: rgba(186, 207, 240, 0.62);
+}
+
+.intro-stats {
+  display: flex;
+  gap: 44px;
+  margin-top: 34px;
+}
+
+.intro-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.intro-stats strong {
+  font-family: var(--num);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff, #8db9ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.intro-stats span {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: rgba(186, 207, 240, 0.5);
+}
+
+.platform-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 30px;
+  max-width: 640px;
+}
+
+.platform-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.045);
+  font-size: 10.5px;
+  color: rgba(219, 232, 255, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.chip-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.intro-highlight {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 560px;
+  margin-top: 32px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.045);
+  backdrop-filter: blur(10px);
+}
+
+.highlight-icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(116, 166, 255, 0.16);
+  color: #9cc0ff;
+  flex: none;
+}
+
+.intro-highlight strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 620;
+  color: rgba(235, 244, 255, 0.88);
+}
+
+.intro-highlight p {
+  margin-top: 4px;
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: rgba(186, 207, 240, 0.52);
+}
+
+/* card */
+.login-card {
+  position: relative;
+  padding: 30px 30px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.045));
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(26px);
+}
+
+.card-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  color: rgba(170, 198, 245, 0.46);
+  margin-bottom: 9px;
+}
+
+.card-head h2 {
+  font-size: 24px;
+  font-weight: 720;
+  letter-spacing: 0.01em;
+}
+
+.card-head p {
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: rgba(196, 215, 247, 0.56);
+}
+
+.sso-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 22px;
+  padding: 13px 15px;
+  border: 1px solid rgba(120, 168, 255, 0.28);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(59, 120, 255, 0.24), rgba(47, 107, 255, 0.08));
+  color: #fff;
+  text-align: left;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.sso-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(19, 51, 122, 0.35);
+  background: linear-gradient(135deg, rgba(72, 133, 255, 0.34), rgba(47, 107, 255, 0.14));
+}
+
+.sso-btn:active {
+  transform: scale(0.985);
+}
+
+.sso-btn span {
+  flex: 1;
+}
+
+.sso-btn strong {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.sso-btn small {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  color: rgba(193, 213, 250, 0.56);
+}
+
+.or-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 14px;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: rgba(178, 201, 243, 0.4);
+}
+
+.or-line::before,
+.or-line::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.field {
+  margin-bottom: 11px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10.5px;
+  color: rgba(194, 213, 247, 0.62);
+}
+
+.input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 39px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 11px;
+  background: rgba(5, 14, 30, 0.3);
+  color: rgba(171, 196, 240, 0.55);
+  transition: 0.2s;
+}
+
+.input-wrap:focus-within {
+  border-color: rgba(107, 155, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.12);
+}
+
+.input-wrap input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: rgba(235, 243, 255, 0.94);
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.input-wrap input::placeholder {
+  color: rgba(171, 196, 240, 0.35);
+}
+
+.role-picker {
+  margin-top: 16px;
+}
+
+.role-picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 10.5px;
+  color: rgba(194, 213, 247, 0.62);
+}
+
+.role-hint {
+  color: rgba(171, 196, 240, 0.38);
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.role-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(228, 238, 255, 0.86);
+  text-align: left;
+  transition: 0.18s ease;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.role-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.role-card.active {
+  border-color: rgba(120, 168, 255, 0.5);
+  background: rgba(59, 120, 255, 0.17);
+  box-shadow: 0 8px 18px rgba(17, 44, 101, 0.24);
+}
+
+.role-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  flex: none;
+}
+
+.role-text {
+  min-width: 0;
+}
+
+.role-text strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.role-text small {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+  color: rgba(188, 208, 245, 0.48);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.role-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #4d8dff;
+  color: #fff;
+}
+
+.enter-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 44px;
+  margin-top: 18px;
+  border: 0;
+  border-radius: 13px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #5b96ff, #2f6bff 46%, #1e53e5);
+  background-size: 140% 140%;
+  box-shadow: 0 16px 34px rgba(23, 74, 190, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-position 0.3s ease;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.enter-btn:hover {
+  transform: translateY(-2px);
+  background-position: 100% 50%;
+  box-shadow: 0 22px 44px rgba(23, 74, 190, 0.55);
+}
+
+.enter-btn:active {
+  transform: scale(0.985);
+}
+
+.enter-btn.loading {
+  opacity: 0.85;
+}
+
+.card-note {
+  margin-top: 14px;
+  font-size: 9.5px;
+  line-height: 1.6;
+  color: rgba(178, 201, 243, 0.4);
+  text-align: center;
+}
+
+.login-foot {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 44px 22px;
+  font-size: 10px;
+  color: rgba(178, 201, 243, 0.36);
+}
+
+@media (max-width: 1180px) {
+  .login-main {
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 34px;
+    padding: 12px 28px 32px;
+  }
+  .intro-title {
+    font-size: 17px;
+  }
+  .intro-stats {
+    gap: 28px;
+  }
+}
+
+@media (max-width: 900px) {
+  .login {
+    overflow: auto;
+  }
+  .login-main {
+    grid-template-columns: 1fr;
+    padding: 12px 20px 30px;
+    gap: 28px;
+  }
+  .intro-highlight,
+  .platform-strip {
+    display: none;
+  }
+  .login-top {
+    padding: 20px;
+  }
+  .top-links .secure {
+    display: none;
+  }
+  .login-card {
+    padding: 24px 20px 20px;
+  }
+  .login-foot {
+    padding: 14px 20px 20px;
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+</style>
+</head>
+<body data-standalone data-no-dock>
+<div class="login">
+  <div class="login-bg">
+    <span class="orb orb-a"></span>
+    <span class="orb orb-b"></span>
+    <span class="orb orb-c"></span>
+    <span class="grid-layer"></span>
+  </div>
+
+  <header class="login-top">
+    <div id="brandTop"></div>
+    <div class="top-links">
+      <a href="screen.html" id="linkScreen"></a>
+      <span class="top-divider"></span>
+      <span class="secure" id="secureBadge"></span>
+    </div>
+  </header>
+
+  <main class="login-main">
+    <section class="intro">
+      <div class="intro-eyebrow">
+        <span class="eyebrow-line"></span>
+        <span>SMART EDUCATION · 一体化数字基座</span>
+      </div>
+
+      <div id="brandHero" class="hero-brand"></div>
+
+      <h1 class="intro-title">让教、学、考、管、评、服、育、AI<br />在一个基座上同源运行。</h1>
+      <p class="intro-desc">
+        首页、统一身份、统一权限、统一消息、统一数据标准、统一应用接入。七个业务平台以一个数字基座为根，
+        以一套主数据为脉，以公共能力服务为翼。
+      </p>
+
+      <div class="intro-stats" id="introStats"></div>
+      <div class="platform-strip" id="platformStrip"></div>
+
+      <div class="intro-highlight">
+        <span class="highlight-icon" id="highlightIcon"></span>
+        <div>
+          <strong>公共能力不重复建设</strong>
+          <p>AI 能力中心、知识图谱引擎、题库测评、音视频与人脸识别统一下沉，各平台只做场景装配与数据接入。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="login-card">
+      <div class="card-head">
+        <div class="card-eyebrow">UNIFIED ACCESS</div>
+        <h2>登录一体化平台</h2>
+        <p>使用学校统一身份认证，或选择体验角色进入原型。</p>
+      </div>
+
+      <button class="sso-btn" id="ssoBtn"></button>
+
+      <div class="or-line"><span>或使用账号体验</span></div>
+
+      <div class="field">
+        <label>账号</label>
+        <div class="input-wrap" id="accountWrap"><input id="accountInput" placeholder="请输入统一账号" /></div>
+      </div>
+      <div class="field">
+        <label>密码</label>
+        <div class="input-wrap" id="passwordWrap"><input id="passwordInput" type="password" placeholder="请输入密码" /></div>
+      </div>
+
+      <div class="role-picker">
+        <div class="role-picker-head">
+          <span>选择体验角色</span>
+          <span class="role-hint">进入后可切换</span>
+        </div>
+        <div class="role-grid" id="roleGrid"></div>
+      </div>
+
+      <button class="enter-btn" id="enterBtn"></button>
+
+      <p class="card-note">本页面为前端原型，数据均为演示 Mock；统一身份、权限与审计将在联调阶段接入。</p>
+    </section>
+  </main>
+
+  <footer class="login-foot">
+    <span>重庆文化艺术职业学院 · 智能化教管一体化平台</span>
+    <span>前端原型 v0.1 · 2026</span>
+  </footer>
+</div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+(function () {
+  const S = window.SEED
+  let selectedRole = UI.session.roleKey
+  let submitting = false
+
+  const selectedProfile = () =>
+    S.roleProfiles.find((r) => r.key === selectedRole) || S.roleProfiles[0]
+
+  /* 品牌与静态图标 */
+  document.getElementById('brandTop').innerHTML = UI.brandHTML({ invert: true })
+  document.getElementById('brandHero').innerHTML = UI.brandHTML({ large: true, invert: true })
+  document.getElementById('linkScreen').innerHTML = UI.icon('monitor-play', 14) + '数据大屏'
+  document.getElementById('secureBadge').innerHTML = UI.icon('shield-check', 14) + '等保三级 · 信创适配'
+  document.getElementById('highlightIcon').innerHTML = UI.icon('sparkles', 16)
+  document.getElementById('ssoBtn').innerHTML =
+    UI.icon('fingerprint', 19) +
+    '<span><strong>学校统一身份认证登录</strong><small>OIDC / CAS 单点登录 · 全端会话同步</small></span>' +
+    UI.icon('arrow-right', 17)
+  document.getElementById('accountWrap').insertAdjacentHTML('afterbegin', UI.icon('key-round', 15))
+  document.getElementById('passwordWrap').insertAdjacentHTML('afterbegin', UI.icon('shield-check', 15))
+  document.getElementById('accountInput').value = 'chenyuan@cqca.edu.cn'
+  document.getElementById('passwordInput').value = 'demo123456'
+
+  /* 平台统计与平台条 */
+  document.getElementById('introStats').innerHTML = [
+    [S.platforms.length, '业务平台'],
+    [S.totalModules, '一级模块'],
+    [S.totalFeatures + '+', '功能条目'],
+    [7, '终端形态'],
+  ].map(([n, t]) => `<div><strong>${n}</strong><span>${t}</span></div>`).join('')
+
+  document.getElementById('platformStrip').innerHTML = S.platforms.map((p) => `
+    <div class="platform-chip">
+      <span class="chip-dot" style="background:${p.accent}"></span>
+      <span>${p.code} ${p.shortName}</span>
+    </div>`).join('')
+
+  /* 角色卡片 */
+  function renderRoles() {
+    document.getElementById('roleGrid').innerHTML = S.roleProfiles.map((role) => `
+      <button class="role-card${role.key === selectedRole ? ' active' : ''}" data-role="${role.key}">
+        <span class="role-avatar" style="background:${role.color}">${role.avatarText}</span>
+        <span class="role-text">
+          <strong>${role.scope.split(' · ')[0]}</strong>
+          <small>${role.org}</small>
+        </span>
+        ${role.key === selectedRole ? `<span class="role-check">${UI.icon('check', 12)}</span>` : ''}
+      </button>`).join('')
+  }
+  renderRoles()
+  document.getElementById('roleGrid').addEventListener('click', (e) => {
+    const card = e.target.closest('.role-card')
+    if (!card) return
+    selectedRole = card.dataset.role
+    renderRoles()
+    renderEnterBtn()
+  })
+
+  /* 进入按钮 */
+  const enterBtn = document.getElementById('enterBtn')
+  function renderEnterBtn() {
+    enterBtn.classList.toggle('loading', submitting)
+    enterBtn.innerHTML =
+      `<span>${submitting ? '正在进入…' : `以${selectedProfile().scope.split(' · ')[0]}身份进入`}</span>` +
+      UI.icon('arrow-right', 17)
+  }
+  renderEnterBtn()
+
+  function submit() {
+    if (submitting) return
+    submitting = true
+    renderEnterBtn()
+    setTimeout(() => {
+      UI.session.login(selectedRole)
+      location.href = UI.param('redirect', 'portal.html')
+    }, 450)
+  }
+  enterBtn.addEventListener('click', submit)
+  document.getElementById('ssoBtn').addEventListener('click', submit)
+})()
+</script>
+</body>
+</html>

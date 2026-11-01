@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 工作台 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+/* ===== AIWorkbench.vue scoped ===== */
+.ai-page .ai-sub-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.ai-page .ai-sub-tabs button {
+  height: 36px; padding: 0 16px; border-radius: 9px;
+  border: 1px solid var(--line); background: #fff;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11.5px; color: var(--ink-2); cursor: pointer; transition: 0.15s;
+}
+.ai-page .ai-sub-tabs button.active { background: var(--violet); border-color: transparent; color: #fff; }
+
+.ai-page .ai-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) 330px; gap: 12px; }
+.ai-page .ai-aside { display: flex; flex-direction: column; gap: 12px; }
+
+.ai-page .ai-chat-body { display: flex; flex-direction: column; gap: 10px; max-height: 600px; overflow-y: auto; }
+.ai-page .chat-msg { display: flex; gap: 10px; }
+.ai-page .chat-msg.user { flex-direction: row-reverse; }
+.ai-page .chat-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 650; color: #fff; flex: none;
+}
+.ai-page .chat-content { flex: 1; min-width: 0; }
+.ai-page .chat-bubble {
+  display: inline-block; padding: 10px 14px; border-radius: 12px;
+  font-size: 11.5px; line-height: 1.7;
+}
+.ai-page .chat-msg.user .chat-bubble { background: var(--blue); color: #fff; border-radius: 12px 2px 12px 12px; }
+.ai-page .chat-msg.ai .chat-bubble { background: #fff; border: 1px solid var(--line); border-radius: 2px 12px 12px 12px; }
+.ai-page .chat-citations { margin-top: 8px; padding: 9px; border-radius: 8px; background: rgba(109,91,246,0.05); border: 1px dashed rgba(109,91,246,0.2); }
+.ai-page .cit-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.ai-page .cit-label { font-size: 10px; color: var(--violet); display: flex; align-items: center; gap: 4px; font-weight: 600; }
+.ai-page .cit-item {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 6px 8px; margin-bottom: 4px; border: 1px solid transparent;
+  border-radius: 6px; background: #fff; font-size: 10.5px;
+  text-align: left; cursor: pointer; transition: 0.12s;
+}
+.ai-page .cit-item:hover { border-color: rgba(109,91,246,0.35); transform: translateX(2px); }
+.ai-page .cit-item:last-child { margin-bottom: 0; }
+.ai-page .cit-num { font-family: var(--num); font-weight: 600; color: var(--violet); flex: none; }
+.ai-page .cit-main { flex: 1; min-width: 0; }
+.ai-page .cit-main strong { display: block; font-size: 10.5px; font-weight: 600; color: var(--ink-2); }
+.ai-page .cit-main span { font-size: 9px; color: var(--muted); }
+.ai-page .cit-authority { display: inline-flex; align-items: center; gap: 3px; font-size: 9px; color: var(--green); flex: none; }
+.ai-page .cit-link { color: var(--muted-2); flex: none; }
+
+.ai-page .ai-chat-input {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px; border-radius: 10px; border: 1px solid var(--line); background: #fff;
+  margin-top: 4px;
+}
+.ai-page .ai-chat-input input { flex: 1; border: 0; outline: 0; padding: 6px 10px; font-size: 11.5px; }
+.ai-page .send-btn {
+  width: 34px; height: 34px; border-radius: 8px; border: 0;
+  background: var(--violet); color: #fff; display: grid; place-items: center; cursor: pointer;
+}
+.ai-page .agent-badge { padding: 4px 8px; border-radius: 5px; background: rgba(109,91,246,0.1); color: var(--violet); font-size: 10px; display: inline-flex; align-items: center; gap: 4px; }
+
+.ai-page .quick-list { display: flex; flex-direction: column; gap: 5px; }
+.ai-page .quick-item {
+  padding: 8px 10px; border-radius: 8px; background: rgba(47,107,255,0.04);
+  display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--ink-2);
+  cursor: pointer; transition: 0.12s; border: 0; text-align: left; width: 100%;
+}
+.ai-page .quick-item:hover { background: rgba(109,91,246,0.08); color: var(--violet); }
+.ai-page .cap-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 11px; color: var(--muted); border-bottom: 1px dashed var(--line); }
+.ai-page .cap-value { display: inline-flex; align-items: center; gap: 5px; font-size: 9.5px; color: var(--ink-2); }
+.ai-page .cap-row .green { color: var(--green); }
+.ai-page .cap-row:last-child { border-bottom: 0; }
+.ai-page .link-btn {
+  display: inline-flex; align-items: center; gap: 2px;
+  border: 0; background: transparent; font-size: 10px; color: var(--violet); cursor: pointer;
+}
+
+/* 身份识别 */
+.ai-page .id-card { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; background: rgba(47,107,255,0.05); }
+.ai-page .id-avatar { width: 40px; height: 40px; border-radius: 50%; color: #fff; display: grid; place-items: center; font-size: 15px; font-weight: 650; flex: none; }
+.ai-page .id-info strong { display: block; font-size: 12px; color: var(--ink-2); }
+.ai-page .id-info span { display: block; font-size: 10px; color: var(--muted); }
+.ai-page .id-shield { margin-left: auto; color: var(--green); }
+.ai-page .id-switch { display: flex; gap: 6px; margin-top: 9px; }
+.ai-page .id-switch button {
+  flex: 1; height: 28px; border-radius: 7px; border: 1px solid var(--line); background: #fff;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  font-size: 10px; color: var(--muted); cursor: pointer; transition: 0.12s;
+}
+.ai-page .id-switch button.active { background: var(--violet); border-color: transparent; color: #fff; }
+.ai-page .id-meta { margin-top: 9px; display: flex; flex-direction: column; gap: 5px; }
+.ai-page .id-meta div { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); }
+.ai-page .id-meta b { color: var(--ink-2); font-weight: 600; }
+.ai-page .id-meta b.green { color: var(--green); }
+.ai-page .id-scope { margin-top: 9px; }
+.ai-page .scope-chips { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+
+/* 自主学习 */
+.ai-page .ai-runtime { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 12px; }
+.ai-page .runtime-col { display: flex; flex-direction: column; gap: 12px; }
+.ai-page .switch {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 26px; padding: 0 9px; border-radius: 13px;
+  border: 1px solid var(--line); background: #fff;
+  font-size: 9.5px; color: var(--muted); cursor: pointer;
+  width: auto;
+}
+.ai-page .switch-dot { width: 7px; height: 7px; border-radius: 50%; background: #c3cbd6; }
+.ai-page .switch.on { border-color: rgba(15,157,143,0.4); background: rgba(15,157,143,0.07); color: var(--green); }
+.ai-page .switch.on .switch-dot { background: var(--green); }
+
+.ai-page .learn-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.ai-page .learn-stats div { padding: 10px; border-radius: 9px; background: rgba(47,107,255,0.05); }
+.ai-page .learn-stats span { display: block; font-size: 9.5px; color: var(--muted); }
+.ai-page .learn-stats strong { display: block; margin-top: 3px; font-family: var(--num); font-size: 18px; color: var(--ink-2); }
+.ai-page .learn-stats strong small { font-size: 9.5px; color: var(--muted); font-weight: 500; }
+.ai-page .learn-stats strong.amber { color: var(--amber); }
+.ai-page .learn-actions { display: flex; align-items: center; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+.ai-page .spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ai-page .learn-logs { display: flex; flex-direction: column; gap: 6px; }
+.ai-page .learn-log { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+.ai-page .log-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--violet); margin-top: 4px; flex: none; }
+.ai-page .log-main { flex: 1; min-width: 0; }
+.ai-page .log-main strong { display: block; font-size: 11px; font-weight: 620; color: var(--ink-2); }
+.ai-page .log-main span { font-size: 9.5px; color: var(--muted); }
+
+.ai-page .terminal-list { display: flex; flex-direction: column; gap: 7px; }
+.ai-page .terminal { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+.ai-page .terminal-icon { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; background: rgba(109,91,246,0.08); color: var(--violet); flex: none; }
+.ai-page .terminal-info { flex: 1; min-width: 0; }
+.ai-page .terminal-info strong { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-2); }
+.ai-page .online-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.ai-page .terminal-info > span { display: block; font-size: 9.5px; color: var(--muted); }
+.ai-page .terminal-info > span.tiny { display: inline-flex; align-items: center; gap: 3px; }
+
+/* practice */
+.ai-page .scene-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.ai-page .scene-card {
+  display: flex; gap: 10px; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: #fff;
+  transition: 0.15s; cursor: pointer;
+}
+.ai-page .scene-card:hover { border-color: rgba(109,91,246,0.3); transform: translateY(-2px); }
+.ai-page .scene-card.done { opacity: 0.75; }
+.ai-page .scene-icon { width: 44px; height: 44px; border-radius: 11px; color: #fff; display: grid; place-items: center; flex: none; }
+.ai-page .scene-info { flex: 1; min-width: 0; }
+.ai-page .scene-info strong { display: block; font-size: 12px; font-weight: 620; color: var(--ink-2); }
+.ai-page .scene-info p { font-size: 10.5px; color: var(--muted); margin: 4px 0; line-height: 1.5; }
+.ai-page .scene-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.ai-page .scene-status { flex: none; }
+.ai-page .scene-status .green { color: var(--green); }
+.ai-page .scene-status .muted { color: var(--muted); }
+
+.ai-page .practice-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+.ai-page .scene-card.selected { border-color: var(--violet) !important; box-shadow: 0 0 0 2px rgba(109, 91, 246, 0.12); }
+.ai-page .scene-score {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--num); font-size: 11px; font-weight: 680; color: #fff;
+  background: linear-gradient(135deg, #e0762f, #d64550);
+}
+.ai-page .scene-score.good { background: linear-gradient(135deg, #0f9d8f, #2f6bff); }
+
+.ai-page .eval-scene-desc { margin: 0; font-size: 10.5px; color: var(--muted); line-height: 1.6; }
+.ai-page .material-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ai-page .material-label { font-size: 9.5px; color: var(--muted-2); letter-spacing: 0.4px; }
+.ai-page .material-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.ai-page .material-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 8px; border-radius: 7px; border: 1px solid var(--line); background: #fff;
+  font-size: 10px; color: var(--ink-2);
+}
+.ai-page .material-chip em {
+  font-style: normal; color: #fff; font-size: 9px;
+  padding: 1px 5px; border-radius: 4px;
+}
+.ai-page .material-chip b { font-weight: 600; }
+.ai-page .material-chip small { font-size: 9px; color: var(--muted); }
+.ai-page .eval-divider {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-top: 10px; border-top: 1px solid var(--line);
+  font-size: 10.5px; font-weight: 600; color: var(--ink-2);
+}
+.ai-page .bar-num { font-family: var(--num); font-size: 9.5px; color: var(--muted); min-width: 34px; text-align: right; }
+.ai-page .eval-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 26px 16px; border-radius: 10px;
+  background: rgba(109, 91, 246, 0.04); border: 1px dashed rgba(109, 91, 246, 0.2);
+  text-align: center;
+}
+.ai-page .eval-empty .violet { color: var(--violet); }
+.ai-page .eval-empty > span { font-size: 11.5px; font-weight: 600; color: var(--ink-2); }
+.ai-page .eval-empty p { margin: 0 0 4px; font-size: 10px; color: var(--muted); line-height: 1.6; }
+.ai-page .eval-note {
+  display: flex; align-items: center; gap: 5px; margin: 0;
+  padding: 7px 9px; border-radius: 7px;
+  background: rgba(15, 157, 143, 0.05); font-size: 9.5px; color: var(--muted);
+}
+.ai-page .eval-note svg { color: var(--green); flex: none; }
+
+.ai-page .scene-field { display: flex; flex-direction: column; gap: 4px; }
+.ai-page .scene-field > span { font-size: 10px; color: var(--muted); }
+.ai-page .scene-field input, .ai-page .scene-field select, .ai-page .scene-field textarea {
+  width: 100%; padding: 7px 9px; border-radius: 7px;
+  border: 1px solid var(--line); background: #fff;
+  font-size: 11px; color: var(--ink-2); outline: none; resize: vertical; font-family: inherit;
+}
+.ai-page .scene-field input:focus, .ai-page .scene-field select:focus, .ai-page .scene-field textarea:focus { border-color: rgba(109, 91, 246, 0.5); }
+.ai-page .scene-field-row { display: grid; grid-template-columns: 150px 1fr; gap: 10px; }
+.ai-page .modality-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.ai-page .modality-chips button {
+  height: 25px; padding: 0 9px; border-radius: 6px;
+  border: 1px solid var(--line); background: #fff;
+  font-size: 10px; color: var(--muted); cursor: pointer; transition: 0.12s;
+}
+.ai-page .modality-chips button.on { background: var(--violet); border-color: transparent; color: #fff; }
+
+.ai-page .eval-panel .panel-head { display: flex; align-items: center; }
+.ai-page .score-badge {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--num); font-size: 18px; font-weight: 720; color: #fff;
+  background: linear-gradient(135deg, #e0762f, #d64550);
+}
+.ai-page .score-badge.good { background: linear-gradient(135deg, #0f9d8f, #2f6bff); }
+.ai-page .eval-head { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 11px; }
+.ai-page .eval-body { display: flex; flex-direction: column; gap: 10px; }
+.ai-page .eval-breakdown { display: flex; flex-direction: column; gap: 8px; }
+.ai-page .eval-bar .bar-label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.ai-page .eval-bar .bar-label strong { font-size: 11px; font-weight: 600; flex: none; }
+.ai-page .bar-line { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+.ai-page .bar-outer { height: 6px; border-radius: 3px; background: var(--line); flex: 1; overflow: hidden; }
+.ai-page .bar-inner { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #0f9d8f, #2f6bff); }
+.ai-page .eval-feedback {
+  padding: 10px 12px; border-radius: 8px;
+  background: rgba(109,91,246,0.06); font-size: 11px; line-height: 1.6;
+}
+.ai-page .eval-feedback strong { color: var(--violet); margin-right: 6px; }
+.ai-page .ai-comments { display: flex; flex-direction: column; gap: 5px; }
+.ai-page .ai-comment { font-size: 10.5px; color: var(--ink-2); padding: 5px 8px; border-radius: 6px; background: rgba(15,157,143,0.05); }
+
+/* 溯源弹窗 */
+.ai-page .ai-mask {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(10, 24, 46, 0.36); backdrop-filter: blur(2px);
+  display: grid; place-items: center; padding: 20px;
+}
+.ai-page .ai-dialog {
+  width: min(520px, 92vw); border-radius: 14px; background: #fff;
+  box-shadow: 0 24px 60px rgba(10, 24, 46, 0.24); overflow: hidden;
+}
+.ai-page .ai-dialog-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 16px; border-bottom: 1px solid var(--line);
+  font-size: 12px; font-weight: 650; color: var(--ink-2);
+}
+.ai-page .ai-dialog-head strong { display: inline-flex; align-items: center; gap: 6px; }
+.ai-page .ai-dialog-head svg { color: var(--violet); }
+.ai-page .ai-dialog-head button { border: 0; background: transparent; cursor: pointer; color: var(--muted); display: grid; place-items: center; }
+.ai-page .ai-dialog-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.ai-page .trace-title { font-size: 12.5px; font-weight: 650; color: var(--ink-2); line-height: 1.5; }
+.ai-page .trace-meta { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.ai-page .trace-row { display: flex; justify-content: space-between; gap: 10px; font-size: 10.5px; color: var(--muted); }
+.ai-page .trace-row b { color: var(--ink-2); font-weight: 600; }
+.ai-page .trace-quote { padding: 10px 12px; border-radius: 9px; background: rgba(109,91,246,0.05); border-left: 3px solid var(--violet); }
+.ai-page .trace-quote label { font-size: 9.5px; color: var(--violet); font-weight: 600; }
+.ai-page .trace-quote p { margin: 5px 0 0; font-size: 11px; line-height: 1.7; color: var(--ink-2); }
+.ai-page .trace-verify {
+  display: flex; align-items: center; gap: 6px; padding: 8px 10px;
+  border-radius: 8px; background: rgba(15,157,143,0.07);
+  font-size: 10px; color: var(--green);
+}
+.ai-page .ai-dialog-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); }
+
+@media (max-width: 1100px) {
+  .ai-page .ai-layout, .ai-page .ai-runtime { grid-template-columns: 1fr; }
+  .ai-page .scene-grid { grid-template-columns: 1fr; }
+  .ai-page .learn-stats { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body data-platform="course" data-module="ai-workbench">
+<main class="content"><div class="page ai-page">
+  <div class="page-head module-head">
+    <div>
+      <div class="breadcrumb">
+        <a href="portal.html">首页</a><span>/</span>
+        <a href="platform.html?p=course">智慧课程</a><span>/</span>
+        <span>AI 工作台</span>
+      </div>
+      <div class="module-title-row">
+        <h1 class="page-title">AI 工作台</h1>
+        <span class="tag violet">课程建设智能体（自主学习 · 身份识别 · 多终端 · 溯源）</span>
+        <span class="tag blue">AI 实践（角色模拟 · 实验任务 · 自动评估）</span>
+      </div>
+      <p class="page-desc">课程建设智能体支持自主学习、身份识别与多终端入口，教师与学生均可便捷使用；AI 回答提供逐条溯源，可查看引用片段、来源与相似度，确保问答准确可信。</p>
+    </div>
+  </div>
+
+  <div class="ai-sub-tabs" id="subTabs"></div>
+
+  <!-- 课程建设智能体 -->
+  <div id="tabAgent">
+    <div class="ai-layout">
+      <section class="panel ai-chat-panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>课程建设智能体 · <span id="chatIdentityName"></span></div>
+          <div class="agent-badge" id="agentBadge"></div>
+        </div>
+        <div class="panel-body ai-chat-body">
+          <div id="chatList" style="display:contents"></div>
+          <div class="ai-chat-input">
+            <input id="chatInput" placeholder="向课程建设智能体提问…支持溯源" />
+            <button class="send-btn" aria-label="发送" id="chatSend"></button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="ai-aside">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>身份识别</div>
+            <span class="tag green">已通过</span>
+          </div>
+          <div class="panel-body" id="identityPanelAgent"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>快捷场景</div>
+          </div>
+          <div class="panel-body quick-list" id="quickList"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>智能体能力</div>
+            <button class="link-btn" data-act="goto-runtime">运行状态</button>
+          </div>
+          <div class="panel-body" id="capList"></div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <!-- 自主学习与接入 -->
+  <div id="tabRuntime" style="display:none">
+    <div class="ai-runtime">
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>自主学习</div>
+          <button class="switch" id="autoLearnSwitch"></button>
+        </div>
+        <div class="panel-body">
+          <div class="learn-stats" id="learnStats"></div>
+          <div class="learn-actions">
+            <button class="btn btn-primary" id="learnNowBtn"></button>
+            <span class="muted tiny">新上传课件、图书与论文将自动入库、切分、向量化并更新知识图谱</span>
+          </div>
+          <div class="learn-logs" id="learnLogs"></div>
+        </div>
+      </section>
+
+      <div class="runtime-col">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>身份识别</div>
+            <span class="tag green">已通过 · 单点登录</span>
+          </div>
+          <div class="panel-body" id="identityPanelRuntime"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="panel-titlebar"></span>多终端入口</div>
+            <span class="muted tiny" id="terminalStatsText"></span>
+          </div>
+          <div class="panel-body terminal-list" id="terminalList"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI 实践 -->
+  <div id="tabPractice" style="display:none">
+    <div class="practice-layout">
+      <section class="panel scene-panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-titlebar"></span>AI 实践场景</div>
+          <button class="btn btn-sm btn-primary" data-act="open-scene-dialog" id="openSceneBtn"></button>
+        </div>
+        <div class="panel-body scene-grid" id="sceneGrid"></div>
+      </section>
+
+      <section class="panel eval-panel" id="evalPanel"></section>
+    </div>
+  </div>
+
+  <!-- 设计实践场景弹窗 -->
+  <div class="ai-mask" id="sceneDialog" style="display:none">
+    <div class="ai-dialog">
+      <div class="ai-dialog-head">
+        <strong id="sceneDialogTitle"></strong>
+        <button data-close-scene></button>
+      </div>
+      <div class="ai-dialog-body">
+        <label class="scene-field">
+          <span>场景名称</span>
+          <input id="newSceneTitle" placeholder="如：角色模拟 · 医院导诊咨询" />
+        </label>
+        <div class="scene-field-row">
+          <label class="scene-field">
+            <span>场景类型</span>
+            <select id="newSceneType">
+              <option value="角色模拟">角色模拟</option>
+              <option value="实验任务">实验任务</option>
+            </select>
+          </label>
+          <div class="scene-field">
+            <span>多模态采集方式</span>
+            <div class="modality-chips" id="modalityChips"></div>
+          </div>
+        </div>
+        <label class="scene-field">
+          <span>场景说明</span>
+          <textarea id="newSceneDesc" rows="3" placeholder="描述实践任务、AI 角色与评估要点…"></textarea>
+        </label>
+        <p class="muted tiny" style="margin: 0" id="sceneDimHint"></p>
+      </div>
+      <div class="ai-dialog-foot">
+        <button class="btn" data-close-scene>取消</button>
+        <button class="btn btn-primary" id="createSceneBtn" disabled></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 溯源详情弹窗 -->
+  <div class="ai-mask" id="citationDialog" style="display:none">
+    <div class="ai-dialog">
+      <div class="ai-dialog-head">
+        <strong id="citationTitle"></strong>
+        <button data-close-citation></button>
+      </div>
+      <div class="ai-dialog-body" id="citationBody"></div>
+      <div class="ai-dialog-foot">
+        <button class="btn" data-close-citation>关闭</button>
+        <button class="btn btn-primary" id="viewSourceBtn"></button>
+      </div>
+    </div>
+  </div>
+</div></main>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script>
+(function () {
+  const $ = UI.$, $$ = UI.$$, icon = UI.icon, esc = UI.esc
+  const showToast = UI.toast
+
+  /* ===== 溯源知识源 ===== */
+  const sourceCatalog = {
+    courseware: {
+      title: '《第3章 知识图谱构建》课件 第 4 页', source: '课程课件 · 教师上传', type: '课件',
+      location: '第 4 页 · 知识图谱技术路线', quote: '知识图谱构建包含本体建模、实体识别、关系抽取与知识融合四个核心环节，最终通过向量检索支撑课程资源推荐。',
+      similarity: 0.94, authority: true, updated: '2026-10-28',
+    },
+    book: {
+      title: '《知识图谱：方法、实践与应用》', source: '高等教育出版社 · 第 3 章', type: '图书',
+      location: '第 3 章 · 知识表示与建模', quote: '知识图谱以“实体—关系—实体”三元组刻画知识，本体用于约束概念层次与属性定义，是图谱工程化的前提。',
+      similarity: 0.91, authority: true, updated: '2020-09-01',
+    },
+    paper: {
+      title: 'A Survey on Knowledge Graphs', source: 'IEEE TKDE · 2021', type: '学术期刊',
+      location: '第 2 节 · 构建流程', quote: 'Knowledge graph construction generally consists of ontology construction, entity recognition, relation extraction, and knowledge fusion.',
+      similarity: 0.87, authority: true, updated: '2021-06-15',
+    },
+    wiki: {
+      title: '知识图谱（Knowledge Graph）', source: '学科知识库 · 词条', type: '知识词条',
+      location: '概念定义', quote: '知识图谱是一种以图结构组织、存储知识的知识库，节点表示实体或概念，边表示实体间的语义关系。',
+      similarity: 0.89, authority: false, updated: '2026-10-20',
+    },
+    doc: {
+      title: '课程知识图谱构建与管理 · 模块说明', source: '平台文档 · 课程建设指南', type: '平台文档',
+      location: '3.2 模块功能与参数', quote: '平台支持网状图谱可视化、知识点关联资源聚合与多元资源（词条/期刊/图书/论著）列表展示。',
+      similarity: 0.92, authority: true, updated: '2026-10-10',
+    },
+    video: {
+      title: '示例视频 · 知识图谱构建原理（00:45 - 01:02）', source: '课程视频 · 教学演示片段', type: '视频',
+      location: '视频片段 00:45 - 01:02', quote: '在这里我们先把实体和关系抽出来，再通过本体约束做知识融合，最后形成一个可以做推荐的知识网络。',
+      similarity: 0.85, authority: false, updated: '2026-10-26',
+    },
+  }
+
+  function generateReply(q) {
+    const text = q.trim()
+    if (/题|测验|考试|出题/.test(text)) {
+      return {
+        role: 'ai',
+        text: `已基于课程课件与本课程题库生成 6 道章节测验题：\n\n**单选题（3 道）**\n1. 知识图谱的基本组成单元是？\n2. 本体建模的主要作用是？\n3. 知识融合的核心任务是？\n\n**多选题（2 道）**\n4. 以下属于实体识别方法的有？\n5. 向量检索常用索引结构包括？\n\n**判断题（1 道）**\n6. 知识图谱可以基于向量相似度推荐学习资源。\n\n每题已附带参考答案与知识点标签，可直接插入视频互动测验或章节测验。`,
+        citations: [sourceCatalog.courseware, sourceCatalog.doc, sourceCatalog.paper],
+      }
+    }
+    if (/学情|预警|成绩|学习情况/.test(text)) {
+      return {
+        role: 'ai',
+        text: `根据近 7 天学情数据，诊断结论如下：\n\n**整体情况**\n· 课程完成率 78.6%，较上周提升 5.2%\n· 平均学习时长 2.4 小时，章节任务点完成率 83.3%\n\n**风险提示**\n· 1 名学生连续 3 天未登录，章节完成率仅 33%（高风险）\n· 第 3 章测验平均分 64 分，低于课程均值 14 分\n\n**改进建议**\n1. 对高风险学生推送督学提醒与补学任务\n2. 针对第 3 章安排 1 次课堂复盘与针对性练习`,
+        citations: [sourceCatalog.doc, sourceCatalog.courseware],
+      }
+    }
+    if (/教案|备课|教学|目标|重难点/.test(text)) {
+      return {
+        role: 'ai',
+        text: `好的，已基于本课程章节、知识图谱能力与往届教案，生成如下内容：\n\n**教学目标**\n1. 理解知识图谱的基本概念与技术路线\n2. 掌握实体、关系、属性三类要素建模方法\n3. 能够借助平台工具完成一个小型课程图谱\n\n**教学重难点**\n· 重点：本体建模 · 关系抽取 · 向量检索\n· 难点：知识融合的对齐策略\n\n**课前 / 课中 / 课后建议**\n· 课前：观看导学视频并完成 2 个任务点\n· 课中：在第 4 页课件插入互动测验\n· 课后：提交小型图谱构建作业`,
+        citations: [sourceCatalog.courseware, sourceCatalog.book, sourceCatalog.paper],
+      }
+    }
+    return {
+      role: 'ai',
+      text: `关于“${text}”，结合课程知识图谱与平台文档回答如下：\n\n知识图谱以“实体—关系—实体”三元组组织课程知识，网状结构便于呈现知识点之间的先修与关联关系；平台进一步为每个知识点聚合知识词条、学术期刊、图书与学术论著等多类型资源，学生可从任一节点进入查看，形成完整知识视角。\n\n如需继续深入，可让智能体基于课件某一页生成讲解或配套练习。`,
+      citations: [sourceCatalog.wiki, sourceCatalog.doc, sourceCatalog.book],
+    }
+  }
+
+  /* ===== 状态 ===== */
+  const state = {
+    subTab: 'agent',
+    input: '请帮我生成《知识图谱》章节的教学目标与重难点',
+    chatMessages: [],
+    activeIdentityKey: 'teacher',
+    identifyState: '已通过',
+    autoLearn: true,
+    learnedDocs: 24,
+    pendingDocs: 2,
+    freshness: 96,
+    learning: false,
+    learnLogs: [
+      { title: '新上传：《第4章 AI 辅助教学》课件', note: '自动解析 12 页 · 提取知识点 8 个', time: '今天 09:20' },
+      { title: '课程知识图谱增量同步', note: '新增实体 36 个 · 关系 52 条', time: '今天 08:40' },
+      { title: '期刊资源入库：A Survey on Knowledge Graphs', note: '切分 18 个片段 · 生成向量 18 条', time: '昨天 21:10' },
+      { title: '往届学情数据回流学习', note: '识别易错知识点 5 个', time: '昨天 18:30' },
+    ],
+    practiceScenes: [
+      {
+        id: 's1', title: '角色模拟 · 电商客服', desc: '模拟真实电商客服场景，AI 扮演顾客，学生进行答疑。',
+        tone: '#2f6bff', type: '角色模拟', multimodal: ['文本', '语音'], done: false,
+        materials: [
+          { kind: '文本', label: '客服对话记录', meta: '12 轮 · 2,180 字' },
+          { kind: '语音', label: '学生应答录音', meta: '00:42 · 已转写' },
+        ],
+      },
+      {
+        id: 's2', title: '实验任务 · 电路焊接', desc: '学生上传焊接后的实物图片，AI 自动识别焊点质量。',
+        tone: '#0f9d8f', type: '实验任务', multimodal: ['图片', '视频'], done: true,
+        materials: [
+          { kind: '图片', label: '焊点现场照片', meta: '3 张 · 已识别' },
+          { kind: '视频', label: '焊接过程视频', meta: '00:35 · 已抽帧' },
+          { kind: '文本', label: '操作步骤日志', meta: '8 步 · 已解析' },
+        ],
+        score: 86,
+        breakdown: [
+          { label: '焊点完整性', score: 22, total: 25, comment: '3 处焊点饱满，1 处略薄' },
+          { label: '焊缝连续性', score: 28, total: 30, comment: '整体连续，左侧焊缝有小缺口' },
+          { label: '器件对齐', score: 18, total: 20, comment: '电阻对齐良好，电容偏右 0.5mm' },
+          { label: '整体外观', score: 18, total: 25, comment: '建议清理多余焊锡' },
+        ],
+        feedback: '整体焊接质量良好，建议加强焊锡量控制与清理工序。',
+        comments: ['✅ 焊点饱满度达标', '⚠️ 左侧焊缝存在小缺口，建议补焊', '✅ 器件定位基本准确', '💡 建议使用助焊剂提升润湿性'],
+      },
+      {
+        id: 's3', title: '角色模拟 · 面试问答', desc: 'AI 模拟 HR 面试，多轮追问并实时评分。',
+        tone: '#6d5bf6', type: '角色模拟', multimodal: ['文本', '语音', '视频'], done: false,
+        materials: [{ kind: '文本', label: '多轮面试对话', meta: '8 轮 · 1,460 字' }],
+      },
+      {
+        id: 's4', title: '实验任务 · 代码审查', desc: '学生提交代码，AI 检查规范、算法复杂度与安全漏洞。',
+        tone: '#e0762f', type: '实验任务', multimodal: ['代码'], done: false,
+        materials: [{ kind: '代码', label: '提交的 Python 代码', meta: '3 文件 · 286 行' }],
+      },
+    ],
+    selectedSceneId: 's2',
+    evaluating: false,
+    newScene: { title: '', desc: '', type: '角色模拟', multimodal: ['文本', '语音'] },
+    activeCitation: null,
+    activeCitationIndex: 0,
+  }
+  state.chatMessages = [{ role: 'user', text: state.input }, generateReply(state.input)]
+
+  const identities = [
+    {
+      key: 'teacher', name: '陈予安', role: '教师 · 课程负责人', org: '数字媒体艺术学院',
+      method: '统一身份认证（CAS）', avatar: '陈', color: '#6d5bf6',
+      scope: ['课程建设', '教案编写', '学情查看', '资源管理'],
+    },
+    {
+      key: 'student', name: '林知夏', role: '学生 · 22级数媒1班', org: '数字媒体艺术学院',
+      method: '学号 + 人脸识别', avatar: '林', color: '#2f6bff',
+      scope: ['课程学习', '任务点提交', '互动测验', '资源检索'],
+    },
+  ]
+  const activeIdentity = () => identities.find((i) => i.key === state.activeIdentityKey) || identities[0]
+
+  const terminals = [
+    { name: 'PC Web 端', desc: '浏览器访问 · 备课与授课主入口', icon: 'monitor', active: '2 分钟前', today: 128, online: true },
+    { name: '移动端 H5', desc: '手机浏览器 · 随堂互动与任务提交', icon: 'smartphone', active: '8 分钟前', today: 96, online: true },
+    { name: '微信小程序', desc: '扫码进入 · 消息提醒与签到', icon: 'scan', active: '今天 09:20', today: 74, online: true },
+    { name: '教室大屏', desc: '投屏授课 · 课堂互动与学情看板', icon: 'monitor', active: '昨天 16:45', today: 12, online: true },
+  ]
+  const terminalStats = () => ({
+    total: terminals.reduce((s, t) => s + t.today, 0),
+    online: terminals.filter((t) => t.online).length,
+  })
+
+  const quickScenes = () =>
+    state.activeIdentityKey === 'teacher'
+      ? [
+          { icon: 'book-open', label: '智能备课', prompt: '请帮我生成《知识图谱》章节的教学目标与重难点' },
+          { icon: 'file-text', label: '教案生成', prompt: '请按课前、课中、课后给出《知识图谱》教案' },
+          { icon: 'play', label: '题目生成（单选/多选/对错）', prompt: '请生成 6 道知识图谱章节测验题' },
+          { icon: 'graduation-cap', label: '学情分析与诊断', prompt: '请分析本周课程学情并给出干预建议' },
+          { icon: 'wand-sparkles', label: '课件润色', prompt: '请润色《知识图谱构建》课件第 4 页的讲解词' },
+        ]
+      : [
+          { icon: 'book-open', label: '章节答疑', prompt: '请用通俗的方式讲解知识图谱是什么' },
+          { icon: 'play', label: '学习路径推荐', prompt: '请为我推荐本周的学习路径与任务点' },
+          { icon: 'file-text', label: '任务点提醒', prompt: '我还有哪些任务点没有完成？' },
+          { icon: 'graduation-cap', label: '测验讲解', prompt: '请讲解第3章测验中我答错的知识点' },
+        ]
+
+  const selectedScene = () => state.practiceScenes.find((s) => s.id === state.selectedSceneId) || state.practiceScenes[0]
+  const authorityCount = (citations) => citations.filter((c) => c.authority).length
+
+  function dimensionsFor(type) {
+    return type === '角色模拟'
+      ? [{ label: '语言表达', total: 25 }, { label: '应变能力', total: 25 }, { label: '专业准确性', total: 30 }, { label: '服务态度', total: 20 }]
+      : [{ label: '操作规范', total: 25 }, { label: '成果质量', total: 30 }, { label: '过程完整性', total: 25 }, { label: '安全与整理', total: 20 }]
+  }
+  const commentPool = {
+    good: ['表现稳定，关键步骤完整', '表达清晰，专业术语使用准确', '操作规范，无明显失误', '分析到位，结论有依据'],
+    warn: ['部分环节可进一步优化', '建议补充说明判断依据', '细节处理仍有提升空间', '建议加强流程熟练度'],
+  }
+  function materialTone(kind) {
+    if (kind === '文本') return '#2f6bff'
+    if (kind === '语音') return '#6d5bf6'
+    if (kind === '图片') return '#0f9d8f'
+    if (kind === '视频') return '#e0762f'
+    return '#22a6c9'
+  }
+  const modalities = ['文本', '语音', '图片', '视频', '代码']
+  const sceneTones = ['#2f6bff', '#0f9d8f', '#6d5bf6', '#e0762f', '#22a6c9']
+
+  /* ===== 子标签 ===== */
+  function renderSubTabs() {
+    $('#subTabs').innerHTML = `
+      <button data-subtab="agent" class="${state.subTab === 'agent' ? 'active' : ''}">${icon('bot', 14)}课程建设智能体</button>
+      <button data-subtab="runtime" class="${state.subTab === 'runtime' ? 'active' : ''}">${icon('database', 14)}自主学习与接入</button>
+      <button data-subtab="practice" class="${state.subTab === 'practice' ? 'active' : ''}">${icon('wand-sparkles', 14)}AI 实践</button>`
+    $('#tabAgent').style.display = state.subTab === 'agent' ? '' : 'none'
+    $('#tabRuntime').style.display = state.subTab === 'runtime' ? '' : 'none'
+    $('#tabPractice').style.display = state.subTab === 'practice' ? '' : 'none'
+  }
+
+  /* ===== 会话 ===== */
+  function renderChat() {
+    const idn = activeIdentity()
+    $('#chatIdentityName').textContent = idn.name
+    $('#chatList').innerHTML = state.chatMessages.map((m, mi) => `
+      <div class="chat-msg ${m.role}">
+        <div class="chat-avatar" style="background:${m.role === 'user' ? idn.color : 'var(--violet)'}">
+          ${m.role === 'user' ? idn.avatar : 'AI'}
+        </div>
+        <div class="chat-content">
+          <div class="chat-bubble" style="white-space: pre-line">${esc(m.text)}</div>
+          ${m.citations ? `
+            <div class="chat-citations">
+              <div class="cit-header">
+                <span class="cit-label">${icon('cpu', 11)}溯源引用 · ${m.citations.length} 条 · 权威来源 ${authorityCount(m.citations)} 条</span>
+                <span class="tag green">可信度 高</span>
+              </div>
+              ${m.citations.map((c, ci) => `
+                <button class="cit-item" data-cit="${mi}|${ci}">
+                  <span class="cit-num">[${ci + 1}]</span>
+                  <div class="cit-main">
+                    <strong>${esc(c.title)}</strong>
+                    <span>${c.type} · ${esc(c.source)} · 相似度 ${c.similarity}</span>
+                  </div>
+                  ${c.authority ? `<span class="cit-authority">${icon('circle-check', 10)}权威</span>` : ''}
+                  ${icon('external-link', 11).replace('<svg', '<svg class="cit-link"')}
+                </button>`).join('')}
+            </div>` : ''}
+        </div>
+      </div>`).join('')
+    const body = $('.ai-chat-body')
+    body.scrollTop = body.scrollHeight
+  }
+
+  function sendMessage() {
+    const text = state.input.trim()
+    if (!text) return
+    state.chatMessages.push({ role: 'user', text })
+    state.chatMessages.push(generateReply(text))
+    state.input = ''
+    $('#chatInput').value = ''
+    renderChat()
+  }
+
+  /* ===== 身份识别 ===== */
+  function identityPanelHTML(ctx) {
+    const idn = activeIdentity()
+    const btnLabel = (i) => ctx === 'agent'
+      ? (i.key === 'teacher' ? '教师视角' : '学生视角')
+      : `${icon('users', 12)}${i.key === 'teacher' ? '以教师身份进入' : '以学生身份进入'}`
+    return `
+      <div class="id-card">
+        <div class="id-avatar" style="background:${idn.color}">${idn.avatar}</div>
+        <div class="id-info">
+          <strong>${idn.name}</strong>
+          <span>${idn.role}</span>
+          <span class="muted tiny">${idn.org}</span>
+        </div>
+        ${ctx === 'runtime' ? icon('shield-check', 18).replace('<svg', '<svg class="id-shield"') : ''}
+      </div>
+      ${ctx === 'runtime' ? `
+        <div class="id-meta">
+          <div><span>认证方式</span><b>${idn.method}</b></div>
+          <div><span>认证状态</span><b class="green">已通过 · 权限已同步</b></div>
+          <div><span>最近登录</span><b>今天 09:12 · PC Web</b></div>
+        </div>
+        <div class="id-scope">
+          <span class="muted tiny">权限范围</span>
+          <div class="scope-chips">${idn.scope.map((s) => `<span class="tag gray">${s}</span>`).join('')}</div>
+        </div>
+        <div class="id-switch">
+          ${identities.map((i) => `<button data-identity="${i.key}" data-ctx="runtime" class="${state.activeIdentityKey === i.key ? 'active' : ''}">${btnLabel(i)}</button>`).join('')}
+        </div>` : `
+        <div class="id-switch">
+          ${identities.map((i) => `<button data-identity="${i.key}" data-ctx="agent" class="${state.activeIdentityKey === i.key ? 'active' : ''}">${btnLabel(i)}</button>`).join('')}
+        </div>
+        <div class="id-meta">
+          <div><span>认证方式</span><b>${idn.method}</b></div>
+          <div><span>最近登录</span><b>今天 09:12 · PC Web</b></div>
+        </div>
+        <div class="id-scope">
+          <span class="muted tiny">权限范围</span>
+          <div class="scope-chips">${idn.scope.map((s) => `<span class="tag gray">${s}</span>`).join('')}</div>
+        </div>`}`
+  }
+  function renderIdentityPanels() {
+    $('#identityPanelAgent').innerHTML = identityPanelHTML('agent')
+    $('#identityPanelRuntime').innerHTML = identityPanelHTML('runtime')
+  }
+
+  function renderQuick() {
+    $('#quickList').innerHTML = quickScenes().map((q) =>
+      `<button class="quick-item" data-quick="${esc(q.prompt)}">${icon(q.icon, 14)}${q.label}</button>`).join('')
+  }
+
+  function renderCaps() {
+    const ts = terminalStats()
+    $('#capList').innerHTML = `
+      <div class="cap-row"><span>自主学习</span><span class="cap-value">${state.learnedDocs} 份资料${icon('circle-check', 13).replace('<svg', '<svg class="green"')}</span></div>
+      <div class="cap-row"><span>身份识别</span><span class="cap-value">${activeIdentity().method}${icon('circle-check', 13).replace('<svg', '<svg class="green"')}</span></div>
+      <div class="cap-row"><span>多终端入口</span><span class="cap-value">${ts.online} 端在线${icon('circle-check', 13).replace('<svg', '<svg class="green"')}</span></div>
+      <div class="cap-row"><span>AI 内容溯源</span><span class="cap-value">逐条可查${icon('circle-check', 13).replace('<svg', '<svg class="green"')}</span></div>`
+  }
+
+  /* ===== 自主学习 ===== */
+  function renderLearn() {
+    const sw = $('#autoLearnSwitch')
+    sw.className = `switch${state.autoLearn ? ' on' : ''}`
+    sw.innerHTML = `<span class="switch-dot"></span>${state.autoLearn ? '自动学习已开启' : '自动学习已关闭'}`
+    $('#learnStats').innerHTML = `
+      <div><span>已学习资料</span><strong>${state.learnedDocs}<small> 份</small></strong></div>
+      <div><span>待学习</span><strong class="amber">${state.pendingDocs}<small> 份</small></strong></div>
+      <div><span>知识新鲜度</span><strong>${state.freshness}<small>%</small></strong></div>
+      <div><span>本周自动学习</span><strong>6<small> 份</small></strong></div>`
+    const btn = $('#learnNowBtn')
+    btn.disabled = state.pendingDocs === 0 || state.learning || !state.autoLearn
+    btn.innerHTML = `${icon('refresh-cw', 13).replace('<svg', `<svg class="${state.learning ? 'spin' : ''}"`)}${state.learning ? '正在学习…' : '立即学习新资料'}`
+    $('#learnLogs').innerHTML = state.learnLogs.map((l) => `
+      <div class="learn-log">
+        <span class="log-dot"></span>
+        <div class="log-main">
+          <strong>${esc(l.title)}</strong>
+          <span>${esc(l.note)}</span>
+        </div>
+        <span class="muted tiny">${l.time}</span>
+      </div>`).join('')
+  }
+  function learnNow() {
+    if (!state.autoLearn) return
+    if (state.pendingDocs <= 0) return
+    state.learning = true
+    renderLearn()
+    setTimeout(() => {
+      state.pendingDocs = Math.max(0, state.pendingDocs - 1)
+      state.learnedDocs += 1
+      state.freshness = Math.min(100, state.freshness + 1)
+      state.learnLogs.unshift({
+        title: '手动触发：学习新资料',
+        note: '自动解析文档 · 抽取知识点并生成向量',
+        time: '刚刚',
+      })
+      state.learning = false
+      renderLearn()
+      renderCaps()
+      showToast('智能体已完成 1 份新资料学习')
+    }, 900)
+  }
+
+  /* ===== 多终端 ===== */
+  function renderTerminals() {
+    const ts = terminalStats()
+    $('#terminalStatsText').textContent = `${ts.online} 端在线 · 今日访问 ${ts.total}`
+    $('#terminalList').innerHTML = terminals.map((t) => `
+      <div class="terminal">
+        <div class="terminal-icon">${icon(t.icon, 16)}</div>
+        <div class="terminal-info">
+          <strong>${t.name}<span class="online-dot"></span>在线</strong>
+          <span>${t.desc}</span>
+          <span class="muted tiny">${icon('clock-3', 10)}最近活跃 ${t.active} · 今日 ${t.today} 次</span>
+        </div>
+        <button class="btn btn-sm" data-terminal="${t.name}">${icon('link-2', 12)}入口</button>
+      </div>`).join('')
+  }
+
+  /* ===== AI 实践 ===== */
+  function renderScenes() {
+    $('#sceneGrid').innerHTML = state.practiceScenes.map((s) => `
+      <div class="scene-card ${s.done ? 'done' : ''} ${state.selectedSceneId === s.id ? 'selected' : ''}"
+           style="border-color:${s.tone}40" data-scene="${s.id}">
+        <div class="scene-icon" style="background:${s.tone}">
+          ${s.type === '角色模拟' ? icon('bot', 18) : icon('cpu', 18)}
+        </div>
+        <div class="scene-info">
+          <strong>${esc(s.title)}</strong>
+          <p>${esc(s.desc)}</p>
+          <div class="scene-tags">
+            <span class="tag" style="background:${s.tone}18;color:${s.tone}">${s.type}</span>
+            ${s.multimodal.map((m) => `<span class="tag gray">${m}</span>`).join('')}
+          </div>
+        </div>
+        <div class="scene-status">
+          ${s.score !== undefined
+            ? `<span class="scene-score ${s.score >= 85 ? 'good' : ''}">${s.score}</span>`
+            : s.done
+              ? icon('circle-check', 14).replace('<svg', '<svg class="green"')
+              : icon('circle-x', 14).replace('<svg', '<svg class="muted"')}
+        </div>
+      </div>`).join('')
+  }
+
+  function renderEval() {
+    const s = selectedScene()
+    const head = `
+      <div class="panel-head">
+        <div class="panel-title"><span class="panel-titlebar"></span>${esc(s.title)}</div>
+        ${s.score !== undefined
+          ? `<div class="score-badge ${s.score >= 85 ? 'good' : ''}">${s.score}</div>`
+          : '<span class="tag amber">待评估</span>'}
+      </div>`
+    const body = `
+      <div class="panel-body eval-body">
+        <p class="eval-scene-desc">${esc(s.desc)}</p>
+        <div class="material-head">
+          <span class="material-label">多模态数据采集 · ${s.materials.length} 条</span>
+          <button class="btn btn-sm" data-act="add-material">${icon('plus', 12)}补充采集</button>
+        </div>
+        <div class="material-list">
+          ${s.materials.map((m) => `
+            <span class="material-chip" style="border-color:${materialTone(m.kind)}40">
+              <em style="background:${materialTone(m.kind)}">${m.kind}</em>
+              <b>${esc(m.label)}</b>
+              <small>${esc(m.meta)}</small>
+            </span>`).join('')}
+          ${s.materials.length ? '' : '<span class="muted tiny">尚未采集数据，请先补充采集后再评估</span>'}
+        </div>
+        ${s.breakdown ? `
+          <div class="eval-divider">
+            <span>自动评估结果</span>
+            <span class="muted tiny">多模态分析 · 4 个维度 · AI 反馈</span>
+          </div>
+          <div class="eval-breakdown">
+            ${s.breakdown.map((b) => `
+              <div class="eval-bar">
+                <div class="bar-label"><strong>${b.label}</strong><span class="muted tiny">${esc(b.comment)}</span></div>
+                <div class="bar-line">
+                  <div class="bar-outer"><div class="bar-inner" style="width:${(b.score / b.total) * 100}%"></div></div>
+                  <span class="bar-num">${b.score}/${b.total}</span>
+                </div>
+              </div>`).join('')}
+          </div>
+          <div class="eval-feedback"><strong>AI 反馈：</strong>${esc(s.feedback)}</div>
+          <div class="ai-comments">
+            ${s.comments.map((c) => `<div class="ai-comment">${esc(c)}</div>`).join('')}
+          </div>` : `
+          <div class="eval-empty">
+            ${icon('cpu', 26).replace('<svg', '<svg class="violet"')}
+            <span>尚未生成评估结果</span>
+            <p>系统将采集文本、语音、图片、视频或代码等多模态数据，自动分析并给出维度评分与智能反馈。</p>
+            <button class="btn btn-primary" ${state.evaluating ? 'disabled' : ''} data-act="evaluate">
+              ${icon('refresh-cw', 13).replace('<svg', `<svg class="${state.evaluating ? 'spin' : ''}"`)}${state.evaluating ? 'AI 评估中…' : '开始自动评估'}
+            </button>
+          </div>`}
+        <p class="eval-note">
+          ${icon('sparkles', 11)}多模态采集 → AI 特征分析 → 维度自动评分 → 智能反馈，全程无需人工批阅。
+        </p>
+      </div>`
+    $('#evalPanel').innerHTML = head + body
+  }
+
+  function evaluateScene() {
+    const s = selectedScene()
+    if (!s || s.materials.length === 0) {
+      showToast('请先采集至少 1 条多模态数据再评估')
+      return
+    }
+    state.evaluating = true
+    renderEval()
+    setTimeout(() => {
+      const breakdown = dimensionsFor(s.type).map((d) => {
+        const ratio = 0.7 + Math.random() * 0.28
+        const score = Math.min(d.total, Math.round(d.total * ratio))
+        const good = score / d.total >= 0.82
+        const pool = good ? commentPool.good : commentPool.warn
+        return { ...d, score, comment: pool[(d.label.length + score) % pool.length] }
+      })
+      const total = breakdown.reduce((sum, b) => sum + b.score, 0)
+      s.breakdown = breakdown
+      s.score = Math.round(total)
+      s.feedback =
+        s.score >= 85
+          ? '整体表现优秀，各维度均衡达标，可作为示范案例。'
+          : '整体完成度良好，建议针对薄弱维度加强训练并复盘过程数据。'
+      s.comments = breakdown.map((b) => `${b.score / b.total >= 0.82 ? '✅' : '⚠️'} ${b.label}：${b.comment}`)
+      s.done = true
+      state.evaluating = false
+      renderScenes()
+      renderEval()
+      showToast(`「${s.title}」自动评估完成：${s.score} 分`)
+    }, 1000)
+  }
+
+  function addMaterial() {
+    const s = selectedScene()
+    if (!s) return
+    const used = s.materials.map((m) => m.kind)
+    const next = s.multimodal.find((k) => !used.includes(k)) || s.multimodal[0]
+    s.materials.push({ kind: next, label: `新增${next}采集`, meta: '刚刚 · 自动采集' })
+    renderEval()
+    showToast(`已采集 1 条${next}数据`)
+  }
+
+  /* ===== 设计实践场景弹窗 ===== */
+  const sceneDialog = $('#sceneDialog')
+  function openSceneDialog() {
+    state.newScene = { title: '', desc: '', type: '角色模拟', multimodal: ['文本', '语音'] }
+    $('#newSceneTitle').value = ''
+    $('#newSceneType').value = '角色模拟'
+    $('#newSceneDesc').value = ''
+    renderSceneDialog()
+    sceneDialog.style.display = 'grid'
+  }
+  function renderSceneDialog() {
+    $('#modalityChips').innerHTML = modalities.map((m) =>
+      `<button class="${state.newScene.multimodal.includes(m) ? 'on' : ''}" data-modality="${m}">${m}</button>`).join('')
+    $('#sceneDimHint').textContent = `评估维度：${state.newScene.type === '角色模拟' ? '语言表达 / 应变能力 / 专业准确性 / 服务态度' : '操作规范 / 成果质量 / 过程完整性 / 安全与整理'}`
+    $('#createSceneBtn').disabled = !state.newScene.title.trim()
+  }
+  $('#sceneDialogTitle').innerHTML = `${icon('wand-sparkles', 14)}设计 AI 实践场景`
+  $('#createSceneBtn').innerHTML = `${icon('circle-check', 13)}创建场景`
+  $$('#sceneDialog [data-close-scene]').forEach((b) => { b.innerHTML = b.tagName === 'BUTTON' && !b.textContent ? icon('x', 15) : b.innerHTML })
+  sceneDialog.addEventListener('click', (e) => {
+    if (e.target === sceneDialog || e.target.closest('[data-close-scene]')) { sceneDialog.style.display = 'none'; return }
+    const m = e.target.closest('[data-modality]')
+    if (m) {
+      const list = state.newScene.multimodal
+      const idx = list.indexOf(m.dataset.modality)
+      if (idx >= 0) { if (list.length > 1) list.splice(idx, 1) } else { list.push(m.dataset.modality) }
+      renderSceneDialog()
+    }
+  })
+  $('#newSceneTitle').addEventListener('input', (e) => { state.newScene.title = e.target.value; renderSceneDialog() })
+  $('#newSceneType').addEventListener('change', (e) => { state.newScene.type = e.target.value; renderSceneDialog() })
+  $('#newSceneDesc').addEventListener('input', (e) => { state.newScene.desc = e.target.value })
+  $('#createSceneBtn').addEventListener('click', () => {
+    const title = state.newScene.title.trim()
+    if (!title) return
+    const scene = {
+      id: `s${Date.now()}`,
+      title,
+      desc: state.newScene.desc.trim() || '自定义实践场景，支持多模态数据采集与自动评估。',
+      tone: sceneTones[state.practiceScenes.length % sceneTones.length],
+      type: state.newScene.type,
+      multimodal: [...state.newScene.multimodal],
+      done: false,
+      materials: [],
+    }
+    state.practiceScenes.push(scene)
+    state.selectedSceneId = scene.id
+    sceneDialog.style.display = 'none'
+    renderScenes()
+    renderEval()
+    showToast(`实践场景「${title}」已创建，请采集数据后评估`)
+  })
+
+  /* ===== 溯源详情弹窗 ===== */
+  const citationDialog = $('#citationDialog')
+  function openCitation(c, index) {
+    state.activeCitation = c
+    state.activeCitationIndex = index + 1
+    $('#citationTitle').innerHTML = `${icon('cpu', 14)}AI 回答溯源 · 引用 [${state.activeCitationIndex}]`
+    $('#citationBody').innerHTML = `
+      <div class="trace-title">${esc(c.title)}</div>
+      <div class="trace-meta">
+        <span class="tag gray">${c.type}</span>
+        ${c.authority ? `<span class="tag green">${icon('circle-check', 10)}权威来源</span>` : ''}
+        <span class="tag violet">相似度 ${c.similarity}</span>
+        <span class="tag gray">更新于 ${c.updated}</span>
+      </div>
+      <div class="trace-row"><span>来源</span><b>${esc(c.source)}</b></div>
+      <div class="trace-row"><span>命中位置</span><b>${esc(c.location)}</b></div>
+      <div class="trace-quote">
+        <label>引用原文片段</label>
+        <p>“${esc(c.quote)}”</p>
+      </div>
+      <div class="trace-verify">
+        ${icon('circle-check', 13).replace('<svg', '<svg class="green"')}
+        <span>溯源校验通过：引用内容与来源原文一致，未检索到冲突信息</span>
+      </div>`
+    citationDialog.style.display = 'grid'
+  }
+  citationDialog.addEventListener('click', (e) => {
+    if (e.target === citationDialog || e.target.closest('[data-close-citation]')) {
+      citationDialog.style.display = 'none'
+      state.activeCitation = null
+    }
+  })
+  $$('#citationDialog [data-close-citation]')[0].innerHTML = icon('x', 15)
+  $('#viewSourceBtn').innerHTML = `${icon('external-link', 13)}查看原文`
+  $('#viewSourceBtn').addEventListener('click', () => {
+    if (state.activeCitation) showToast('已打开来源原文：' + state.activeCitation.title)
+  })
+
+  /* ===== 全局事件 ===== */
+  $('#subTabs').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-subtab]')
+    if (!b) return
+    state.subTab = b.dataset.subtab
+    renderSubTabs()
+  })
+  $('#chatSend').innerHTML = icon('send', 15)
+  $('#chatSend').addEventListener('click', sendMessage)
+  $('#chatInput').addEventListener('input', (e) => { state.input = e.target.value })
+  $('#chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage() })
+  $('#agentBadge').innerHTML = `${icon('sparkles', 11)}溯源已开启 · 点击引用可查看原文`
+  $('#openSceneBtn').innerHTML = `${icon('wand-sparkles', 13)}设计实践场景`
+  $('.link-btn').insertAdjacentHTML('beforeend', icon('chevron-right', 11))
+
+  document.querySelector('.ai-page').addEventListener('click', (e) => {
+    const t = e.target
+    const cit = t.closest('[data-cit]')
+    if (cit) {
+      const [mi, ci] = cit.dataset.cit.split('|').map(Number)
+      const msg = state.chatMessages[mi]
+      if (msg && msg.citations && msg.citations[ci]) openCitation(msg.citations[ci], ci)
+      return
+    }
+    const q = t.closest('[data-quick]')
+    if (q) {
+      state.input = q.dataset.quick
+      $('#chatInput').value = state.input
+      $('#chatInput').focus()
+      return
+    }
+    const idn = t.closest('[data-identity]')
+    if (idn) {
+      const i = identities.find((x) => x.key === idn.dataset.identity)
+      state.activeIdentityKey = idn.dataset.identity
+      renderIdentityPanels()
+      renderQuick()
+      renderChat()
+      renderCaps()
+      if (idn.dataset.ctx === 'agent') showToast('已切换身份：' + i.role)
+      else showToast('身份识别成功：' + i.name + ' · ' + i.role)
+      return
+    }
+    const term = t.closest('[data-terminal]')
+    if (term) {
+      showToast(`已生成「${term.dataset.terminal}」入口链接，可分享给师生扫码或点击进入`)
+      return
+    }
+    const scene = t.closest('[data-scene]')
+    if (scene) {
+      state.selectedSceneId = scene.dataset.scene
+      renderScenes()
+      renderEval()
+      return
+    }
+    const act = t.closest('[data-act]')
+    if (!act) return
+    if (act.dataset.act === 'goto-runtime') { state.subTab = 'runtime'; renderSubTabs() }
+    else if (act.dataset.act === 'add-material') addMaterial()
+    else if (act.dataset.act === 'evaluate') evaluateScene()
+    else if (act.dataset.act === 'open-scene-dialog') openSceneDialog()
+  })
+  $('#autoLearnSwitch').addEventListener('click', () => {
+    state.autoLearn = !state.autoLearn
+    renderLearn()
+  })
+  $('#learnNowBtn').addEventListener('click', learnNow)
+
+  $('#chatInput').value = state.input
+  renderSubTabs()
+  renderChat()
+  renderIdentityPanels()
+  renderQuick()
+  renderCaps()
+  renderLearn()
+  renderTerminals()
+  renderScenes()
+  renderEval()
+})()
+</script>
+</body>
+</html>

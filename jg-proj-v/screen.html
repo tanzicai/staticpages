@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>运行大屏 · 智慧教育一体化平台</title>
+<link rel="stylesheet" href="assets/css/common.css">
+<style>
+.screen {
+  position: relative;
+  min-height: 100vh;
+  padding: 16px 22px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+  color: #dbe8ff;
+  background: #05101f;
+}
+
+.screen-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.s-orb {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.s-orb.a {
+  width: 620px;
+  height: 620px;
+  left: 20%;
+  top: -34%;
+  background: radial-gradient(circle, rgba(47, 107, 255, 0.22), transparent 66%);
+}
+
+.s-orb.b {
+  width: 480px;
+  height: 480px;
+  right: -8%;
+  bottom: -22%;
+  background: radial-gradient(circle, rgba(31, 182, 201, 0.16), transparent 68%);
+}
+
+.s-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(100, 150, 240, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 150, 240, 0.04) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: radial-gradient(circle at 50% 42%, #000, transparent 82%);
+}
+
+.screen-head {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 18px;
+  height: 58px;
+  padding: 0 6px;
+  border-bottom: 1px solid rgba(100, 150, 240, 0.14);
+}
+
+.head-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.head-mark {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 16px;
+  background: linear-gradient(135deg, #3b78ff, #1fb6c9);
+  box-shadow: 0 8px 18px rgba(35, 92, 210, 0.36);
+}
+
+.head-left strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.head-left span {
+  display: block;
+  margin-top: 2px;
+  font-size: 7.5px;
+  letter-spacing: 0.2em;
+  color: rgba(150, 180, 228, 0.5);
+}
+
+.head-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.head-title h1 {
+  font-size: 19px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  background: linear-gradient(180deg, #fff, #9dc4ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.head-line {
+  width: 52px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(120, 170, 255, 0.6));
+}
+
+.head-line:last-child {
+  background: linear-gradient(90deg, rgba(120, 170, 255, 0.6), transparent);
+}
+
+.head-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.head-clock {
+  text-align: right;
+  line-height: 1.2;
+}
+
+.head-clock span {
+  display: block;
+  font-family: var(--num);
+  font-size: 15px;
+  font-weight: 650;
+  color: #dcebff;
+}
+
+.head-clock small {
+  font-size: 8px;
+  color: rgba(155, 183, 227, 0.5);
+}
+
+.head-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border: 1px solid rgba(55, 214, 168, 0.26);
+  border-radius: 6px;
+  font-size: 8.5px;
+  color: #61d7b5;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.head-live .dot {
+  background: #37d6a8;
+  box-shadow: 0 0 8px #37d6a8;
+  animation: pulse 2s infinite;
+}
+
+.head-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 9px;
+  border: 1px solid rgba(130, 175, 245, 0.2);
+  border-radius: 6px;
+  font-size: 8.5px;
+  color: rgba(180, 205, 245, 0.7);
+  transition: 0.16s;
+}
+
+.head-back:hover {
+  color: #fff;
+  border-color: rgba(130, 175, 245, 0.5);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.screen-kpis {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.s-kpi {
+  position: relative;
+  overflow: hidden;
+  padding: 10px 13px;
+  border: 1px solid rgba(100, 150, 240, 0.14);
+  border-radius: 10px;
+  background: linear-gradient(150deg, rgba(24, 52, 94, 0.5), rgba(9, 26, 50, 0.42));
+  backdrop-filter: blur(8px);
+}
+
+.s-kpi::after {
+  content: '';
+  position: absolute;
+  right: -16px;
+  bottom: -24px;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(77, 141, 255, 0.2), transparent 68%);
+}
+
+.s-kpi > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 8.5px;
+  color: rgba(158, 187, 233, 0.62);
+}
+
+.s-kpi strong {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--num);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #e8f2ff;
+}
+
+.s-kpi strong small {
+  margin-left: 2px;
+  font-size: 8px;
+  color: rgba(165, 193, 236, 0.55);
+  font-weight: 500;
+}
+
+.s-kpi em {
+  display: block;
+  margin-top: 2px;
+  font-size: 7.5px;
+  font-style: normal;
+  color: #61d7b5;
+}
+
+.screen-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(250px, 0.9fr) minmax(380px, 1.5fr) minmax(250px, 0.9fr);
+  gap: 12px;
+  min-height: 0;
+}
+
+.screen-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.screen-center {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.sc-panel,
+.topo-panel {
+  position: relative;
+  padding: 10px 12px;
+  border: 1px solid rgba(100, 150, 240, 0.14);
+  border-radius: 11px;
+  background: linear-gradient(155deg, rgba(16, 40, 76, 0.55), rgba(7, 21, 42, 0.45));
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.sc-panel::before,
+.topo-panel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(77, 141, 255, 0.7), transparent);
+}
+
+.sc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(100, 150, 240, 0.1);
+}
+
+.sc-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #cfe1ff;
+}
+
+.sc-title svg {
+  color: #6fa5ff;
+}
+
+.sc-tag {
+  font-size: 7.5px;
+  color: rgba(158, 187, 233, 0.55);
+  white-space: nowrap;
+}
+
+.sc-tag.red {
+  color: #ff8f9b;
+}
+
+.health-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 5px 2px 2px;
+}
+
+.health-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9px;
+}
+
+.health-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex: none;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.health-name {
+  width: 54px;
+  color: rgba(190, 212, 245, 0.72);
+  flex: none;
+}
+
+.health-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(120, 165, 255, 0.08);
+  overflow: hidden;
+}
+
+.health-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.health-val {
+  width: 32px;
+  text-align: right;
+  font-family: var(--num);
+  font-size: 8px;
+  color: rgba(158, 187, 233, 0.6);
+}
+
+/* topology */
+.topo-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+}
+
+.topo {
+  position: relative;
+  flex: 1;
+  min-height: 300px;
+}
+
+.topo-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.topo-lines line {
+  stroke: rgba(100, 160, 255, 0.22);
+  stroke-width: 0.35;
+}
+
+.topo-lines circle {
+  fill: none;
+  stroke: rgba(100, 160, 255, 0.12);
+  stroke-width: 0.35;
+  stroke-dasharray: 1.5 3;
+}
+
+.topo-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 76px;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--node) 36%, transparent);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--node) 9%, rgba(6, 20, 40, 0.7));
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 26px color-mix(in srgb, var(--node) 14%, transparent);
+}
+
+.topo-node .node-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--node);
+  box-shadow: 0 0 8px var(--node);
+}
+
+.topo-node strong {
+  font-size: 10px;
+  font-weight: 620;
+  color: #e3eeff;
+  white-space: nowrap;
+}
+
+.topo-node small {
+  font-family: var(--num);
+  font-size: 8px;
+  color: color-mix(in srgb, var(--node) 55%, white);
+  white-space: nowrap;
+}
+
+.topo-node.core {
+  min-width: 122px;
+  padding: 15px 16px;
+  border-width: 1.5px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 50% 30%, rgba(77, 141, 255, 0.32), rgba(6, 20, 40, 0.86));
+  box-shadow: 0 0 44px rgba(47, 107, 255, 0.32);
+  animation: coreGlow 3.4s ease-in-out infinite;
+}
+
+.topo-node.core strong {
+  font-size: 13px;
+}
+
+.topo-node.core small {
+  font-size: 9px;
+}
+
+@keyframes coreGlow {
+  0%, 100% { box-shadow: 0 0 34px rgba(47, 107, 255, 0.24); }
+  50% { box-shadow: 0 0 56px rgba(47, 107, 255, 0.44); }
+}
+
+.topo-foot {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(100, 150, 240, 0.1);
+  font-size: 7.5px;
+  color: rgba(158, 187, 233, 0.55);
+}
+
+.topo-foot span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* exam */
+.live-exam {
+  flex: none;
+}
+
+.exam-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-top: 4px;
+}
+
+.exam-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  border-bottom: 1px dashed rgba(100, 150, 240, 0.09);
+  font-size: 9px;
+}
+
+.exam-row:last-child {
+  border-bottom: 0;
+}
+
+.exam-pulse {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ff8f9b;
+  box-shadow: 0 0 0 3px rgba(255, 143, 155, 0.1);
+  flex: none;
+}
+
+.exam-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.exam-main strong {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #dbe8ff;
+}
+
+.exam-main span {
+  display: block;
+  margin-top: 1px;
+  font-size: 7.5px;
+  color: rgba(158, 187, 233, 0.5);
+}
+
+.exam-progress {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 120px;
+}
+
+.exam-progress .progress {
+  flex: 1;
+  height: 4px;
+  background: rgba(120, 165, 255, 0.1);
+}
+
+.exam-progress small {
+  font-family: var(--num);
+  font-size: 7.5px;
+  color: rgba(158, 187, 233, 0.55);
+}
+
+.exam-status {
+  width: 42px;
+  text-align: right;
+  font-size: 8px;
+  color: #61d7b5;
+}
+
+.exam-status.warn {
+  color: #f0b06a;
+}
+
+/* ai donut */
+.ai-chart-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-chart-wrap .chart {
+  flex: 1;
+}
+
+.ai-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100px;
+  flex: none;
+}
+
+.ai-legend span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 7.5px;
+  color: rgba(158, 187, 233, 0.62);
+  white-space: nowrap;
+}
+
+.ai-legend i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-top: 4px;
+}
+
+.alert-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px 2px;
+}
+
+.alert-ic {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  flex: none;
+}
+
+.alert-ic.red {
+  color: #ff8f9b;
+  background: rgba(255, 123, 138, 0.1);
+}
+
+.alert-ic.amber {
+  color: #f0b06a;
+  background: rgba(240, 160, 90, 0.1);
+}
+
+.alert-row > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-row strong {
+  display: block;
+  font-size: 8.5px;
+  font-weight: 600;
+  color: #dbe8ff;
+}
+
+.alert-row span {
+  display: block;
+  margin-top: 1px;
+  font-size: 7.5px;
+  color: rgba(158, 187, 233, 0.52);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alert-row em {
+  font-family: var(--num);
+  font-size: 7.5px;
+  font-style: normal;
+  color: rgba(158, 187, 233, 0.4);
+}
+
+.screen-foot {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(100, 150, 240, 0.14);
+  padding-top: 8px;
+}
+
+.ticker {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.ticker-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  font-size: 8px;
+  color: rgba(158, 187, 233, 0.6);
+  padding: 4px 8px;
+  border-right: 1px solid rgba(100, 150, 240, 0.16);
+}
+
+.ticker-track {
+  display: flex;
+  gap: 32px;
+  white-space: nowrap;
+  animation: ticker 36s linear infinite;
+}
+
+.ticker-track span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 8px;
+  color: rgba(180, 205, 245, 0.55);
+}
+
+.ticker-track svg {
+  color: #37d6a8;
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (max-width: 1280px) {
+  .screen {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+  .screen-main {
+    grid-template-columns: 1fr 1fr;
+  }
+  .screen-center {
+    grid-column: 1 / -1;
+    order: -1;
+  }
+  .screen-head {
+    grid-template-columns: 1fr auto;
+  }
+  .head-title {
+    display: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .screen-main {
+    grid-template-columns: 1fr;
+  }
+  .screen-kpis {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .screen-center {
+    grid-column: auto;
+  }
+  .head-left span,
+  .head-clock small {
+    display: none;
+  }
+}
+</style>
+</head>
+<body data-standalone data-no-dock>
+<div class="screen">
+  <div class="screen-bg">
+    <span class="s-orb a"></span><span class="s-orb b"></span><span class="s-grid"></span>
+  </div>
+
+  <header class="screen-head">
+    <div class="head-left">
+      <span class="head-mark">S</span>
+      <div>
+        <strong>智慧教育 · 教学运行态势中心</strong>
+        <span>SMART EDUCATION OPERATION CENTER</span>
+      </div>
+    </div>
+    <div class="head-title">
+      <span class="head-line"></span>
+      <h1>全平台运行驾驶舱</h1>
+      <span class="head-line"></span>
+    </div>
+    <div class="head-right">
+      <div class="head-clock"><span id="clockTime"></span><small id="clockDate"></small></div>
+      <span class="head-live"><span class="dot"></span>实时</span>
+      <a href="portal.html" class="head-back" id="headBack"></a>
+    </div>
+  </header>
+
+  <div class="screen-kpis" id="screenKpis"></div>
+
+  <main class="screen-main">
+    <div class="screen-col">
+      <section class="sc-panel">
+        <div class="sc-head"><span class="sc-title" id="trendTitle"></span><span class="sc-tag">今日</span></div>
+        <div class="chart" id="trendChart"></div>
+      </section>
+
+      <section class="sc-panel">
+        <div class="sc-head"><span class="sc-title" id="healthTitle"></span><span class="sc-tag">7 / 7 正常</span></div>
+        <div class="health-list" id="healthList"></div>
+      </section>
+    </div>
+
+    <div class="screen-center">
+      <section class="topo-panel">
+        <div class="sc-head"><span class="sc-title" id="topoTitle"></span><span class="sc-tag">微服务 · 独立资源池</span></div>
+        <div class="topo" id="topo"></div>
+        <div class="topo-foot">
+          <span><span class="dot" style="background: #37d6a8"></span>网关 12ms</span>
+          <span><span class="dot" style="background: #4d8dff"></span>缓存命中 92%</span>
+          <span><span class="dot" style="background: #8b7bff"></span>消息延迟 0.4s</span>
+        </div>
+      </section>
+
+      <section class="sc-panel live-exam">
+        <div class="sc-head"><span class="sc-title" id="examTitle"></span><span class="sc-tag red">6 场进行中</span></div>
+        <div class="exam-list" id="examList"></div>
+      </section>
+    </div>
+
+    <div class="screen-col">
+      <section class="sc-panel">
+        <div class="sc-head"><span class="sc-title" id="aiTitle"></span><span class="sc-tag">18,640 次</span></div>
+        <div class="ai-chart-wrap">
+          <div class="chart" id="aiChart"></div>
+          <div class="ai-legend">
+            <span><i style="background: #4d8dff"></i>智能备课 42%</span>
+            <span><i style="background: #37d6a8"></i>知识问答 26%</span>
+            <span><i style="background: #8b7bff"></i>题目生成 18%</span>
+            <span><i style="background: #f0a05a"></i>学情分析 14%</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="sc-panel">
+        <div class="sc-head"><span class="sc-title" id="courseTitle"></span><span class="sc-tag">本学期</span></div>
+        <div class="chart" id="courseChart"></div>
+      </section>
+
+      <section class="sc-panel">
+        <div class="sc-head"><span class="sc-title" id="alertTitle"></span><span class="sc-tag red">7 条</span></div>
+        <div class="alert-list" id="alertList"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="screen-foot">
+    <div class="ticker">
+      <span class="ticker-label" id="tickerLabel"></span>
+      <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+  </footer>
+</div>
+
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/seed.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/vendor/echarts.min.js"></script>
+<script>
+(function () {
+  var $ = UI.$, esc = UI.esc, icon = UI.icon;
+
+  /* ---------- clock ---------- */
+  var clockTime = $('#clockTime'), clockDate = $('#clockDate');
+  function tickClock() {
+    var now = new Date();
+    clockTime.textContent = now.toLocaleTimeString('zh-CN', { hour12: false });
+    clockDate.textContent = now.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'long' });
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  /* ---------- header & panel titles ---------- */
+  $('#headBack').innerHTML = icon('arrow-left', 13) + '退出大屏';
+  $('#trendTitle').innerHTML = icon('activity', 13) + '教学活跃趋势';
+  $('#healthTitle').innerHTML = icon('cpu', 13) + '平台运行健康度';
+  $('#topoTitle').innerHTML = icon('sparkles', 13) + '全平台运行拓扑';
+  $('#examTitle').innerHTML = icon('monitor-play', 13) + '实时考试监考';
+  $('#aiTitle').innerHTML = icon('brain-circuit', 13) + 'AI 能力调用构成';
+  $('#courseTitle').innerHTML = icon('graduation-cap', 13) + '课程完成率 TOP5';
+  $('#alertTitle').innerHTML = icon('bell', 13) + '实时预警';
+  $('#tickerLabel').innerHTML = icon('calendar-clock', 13) + '实时播报';
+
+  /* ---------- kpis ---------- */
+  var kpis = [
+    { icon: 'users', label: '在线用户', value: '9,864', unit: '', trend: '+12.4%' },
+    { icon: 'zap', label: '今日调用', value: '246', unit: '万', trend: '+8.1%' },
+    { icon: 'book-open', label: '在线课程', value: '1,286', unit: '', trend: '+42' },
+    { icon: 'shield-check', label: '今日考试', value: '18', unit: '场', trend: '6 场进行中' },
+    { icon: 'brain-circuit', label: '智能体', value: '64', unit: '个', trend: '满意度 94%' },
+    { icon: 'activity', label: '服务可用性', value: '99.9', unit: '%', trend: '达标' },
+  ];
+  $('#screenKpis').innerHTML = kpis.map(function (k) {
+    return '<div class="s-kpi"><span>' + icon(k.icon, 13) + k.label + '</span><strong>' + k.value +
+      (k.unit ? '<small>' + k.unit + '</small>' : '') + '</strong><em>' + k.trend + '</em></div>';
+  }).join('');
+
+  /* ---------- platform health (SEED) ---------- */
+  $('#healthList').innerHTML = SEED.platforms.map(function (p) {
+    return '<div class="health-row">' +
+      '<span class="health-dot" style="background:' + p.accent + '"></span>' +
+      '<span class="health-name">' + esc(p.shortName) + '</span>' +
+      '<span class="health-bar"><i style="width:' + (82 + p.modules.length) + '%;background:linear-gradient(90deg, ' + p.accent + ', ' + p.accent + '66)"></i></span>' +
+      '<span class="health-val">99.9%</span></div>';
+  }).join('');
+
+  /* ---------- topology ---------- */
+  var topology = [
+    { key: 'course', name: '智慧课程', x: 18, y: 20, value: '1,286 门', color: '#8b7bff' },
+    { key: 'base', name: '数字基座', x: 50, y: 50, value: '246万 调用', color: '#4d8dff', core: true },
+    { key: 'exam', name: '考试系统', x: 82, y: 20, value: '18 场', color: '#ff7b8a' },
+    { key: 'ai', name: 'AI 能力中心', x: 84, y: 76, value: '64 智能体', color: '#37d6a8' },
+    { key: 'major', name: '专业建设', x: 17, y: 76, value: '36 专业', color: '#f0a05a' },
+    { key: 'industry', name: '产教融合', x: 6, y: 50, value: '86 单位', color: '#16c7b8' },
+    { key: 'project', name: '项目管理', x: 94, y: 50, value: '126 项目', color: '#8fbf5a' },
+  ];
+  var topoSvg = '<svg class="topo-lines" viewBox="0 0 100 100" preserveAspectRatio="none">' +
+    topology.filter(function (t) { return !t.core; }).map(function (n) {
+      return '<line x1="50" y1="50" x2="' + n.x + '" y2="' + n.y + '" />';
+    }).join('') +
+    '<circle cx="50" cy="50" r="15" /><circle cx="50" cy="50" r="24" /></svg>';
+  var topoNodes = topology.map(function (node) {
+    return '<div class="topo-node' + (node.core ? ' core' : '') + '" style="left:' + node.x + '%;top:' + node.y + '%;--node:' + node.color + '">' +
+      '<span class="node-dot"></span><strong>' + node.name + '</strong><small>' + node.value + '</small></div>';
+  }).join('');
+  $('#topo').innerHTML = topoSvg + topoNodes;
+
+  /* ---------- live exams ---------- */
+  var exams = [
+    { name: '设计基础 · 2024 级', room: '线上 32 考场', people: '1,024', progress: 68, status: '进行中' },
+    { name: '数字影像创作 · 2023 级', room: '线上 18 考场', people: '612', progress: 42, status: '进行中' },
+    { name: '交互设计方法 · 2023 级', room: '线下 A-302', people: '248', progress: 86, status: '待收卷' },
+  ];
+  $('#examList').innerHTML = exams.map(function (e) {
+    return '<div class="exam-row"><span class="exam-pulse"></span>' +
+      '<div class="exam-main"><strong>' + e.name + '</strong><span>' + e.room + ' · ' + e.people + ' 人</span></div>' +
+      '<div class="exam-progress"><span class="progress"><i style="width:' + e.progress + '%"></i></span><small>' + e.progress + '%</small></div>' +
+      '<span class="exam-status' + (e.status === '待收卷' ? ' warn' : '') + '">' + e.status + '</span></div>';
+  }).join('');
+
+  /* ---------- alerts ---------- */
+  var alerts = [
+    { level: 'red', title: '线上监考 AI 异常', desc: '检测到考生离开画面 3 次', time: '10:42' },
+    { level: 'amber', title: '学习预警', desc: '23 级 12 名学生连续 3 天未学习', time: '10:18' },
+    { level: 'amber', title: '节点负载', desc: '知识图谱渲染节点 CPU 82%', time: '09:51' },
+    { level: 'red', title: '人脸核验未通过', desc: '2 名考生需人工复核', time: '09:26' },
+  ];
+  $('#alertList').innerHTML = alerts.map(function (a) {
+    return '<div class="alert-row"><span class="alert-ic ' + a.level + '">' + icon('circle-alert', 12) + '</span>' +
+      '<div><strong>' + a.title + '</strong><span>' + a.desc + '</span></div><em>' + a.time + '</em></div>';
+  }).join('');
+
+  /* ---------- ticker ---------- */
+  var tickerItems = [
+    '统一身份认证今日登录 9,864 人次，成功率 99.6%',
+    '《设计基础》线上考试 1,024 名考生作答中，监考正常',
+    '知识图谱引擎新增 14 个知识点，版本 v2.3 已发布',
+    'AI 能力中心今日调用 18,640 次，P95 首字延迟 1.4s',
+    '产教融合新增 23 条企业岗位需求，已同步专业建设平台',
+  ];
+  $('#tickerTrack').innerHTML = tickerItems.map(function (t) {
+    return '<span>' + icon('check-circle-2', 12) + t + '</span>';
+  }).join('');
+
+  /* ---------- charts ---------- */
+  var axisColor = 'rgba(139, 178, 235, 0.55)';
+  var splitColor = 'rgba(120, 165, 255, 0.09)';
+
+  var trendOption = {
+    grid: { top: 18, right: 14, bottom: 24, left: 40 },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(6, 18, 38, 0.96)',
+      borderColor: 'rgba(120,165,255,0.2)',
+      textStyle: { color: '#dfeaff', fontSize: 10 },
+    },
+    legend: { show: true, right: 0, top: 0, itemWidth: 8, itemHeight: 8, textStyle: { color: '#9db6dd', fontSize: 9 } },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
+      axisLine: { lineStyle: { color: 'rgba(120,165,255,0.16)' } },
+      axisTick: { show: false },
+      axisLabel: { color: axisColor, fontSize: 9 },
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: splitColor, type: 'dashed' } },
+      axisLabel: { color: axisColor, fontSize: 9 },
+    },
+    series: [
+      {
+        name: '在线用户',
+        type: 'line',
+        smooth: true,
+        symbol: 'none',
+        data: [4100, 7280, 8960, 9860, 8420, 6120, 3860],
+        lineStyle: { width: 2, color: '#4d8dff' },
+        areaStyle: {
+          color: {
+            type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [{ offset: 0, color: 'rgba(77,141,255,0.26)' }, { offset: 1, color: 'rgba(77,141,255,0)' }],
+          },
+        },
+      },
+      {
+        name: 'AI 调用',
+        type: 'line',
+        smooth: true,
+        symbol: 'none',
+        data: [2100, 4260, 5480, 6120, 4820, 3240, 1860],
+        lineStyle: { width: 1.6, color: '#37d6a8' },
+      },
+    ],
+  };
+
+  var aiOption = {
+    tooltip: { trigger: 'item', backgroundColor: 'rgba(6,18,38,.96)', borderWidth: 0, textStyle: { color: '#dfeaff', fontSize: 10 } },
+    legend: { show: false },
+    series: [
+      {
+        type: 'pie',
+        radius: ['52%', '76%'],
+        center: ['50%', '48%'],
+        avoidLabelOverlap: true,
+        itemStyle: { borderColor: 'rgba(8,22,44,0.9)', borderWidth: 2 },
+        label: { show: false },
+        data: [
+          { value: 42, name: '智能备课', itemStyle: { color: '#4d8dff' } },
+          { value: 26, name: '知识问答', itemStyle: { color: '#37d6a8' } },
+          { value: 18, name: '题目生成', itemStyle: { color: '#8b7bff' } },
+          { value: 14, name: '学情分析', itemStyle: { color: '#f0a05a' } },
+        ],
+      },
+    ],
+  };
+
+  var courseBarOption = {
+    grid: { top: 6, right: 18, bottom: 6, left: 76 },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, backgroundColor: 'rgba(6,18,38,.96)', borderWidth: 0, textStyle: { color: '#dfeaff', fontSize: 10 } },
+    xAxis: {
+      type: 'value',
+      max: 100,
+      splitLine: { show: false },
+      axisLabel: { show: false },
+    },
+    yAxis: {
+      type: 'category',
+      data: ['数字影像', '交互设计', '设计基础', '版式设计', '三维建模'],
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#a8c0e6', fontSize: 9 },
+    },
+    series: [
+      {
+        type: 'bar',
+        data: [86, 78, 92, 68, 74],
+        barWidth: 8,
+        showBackground: true,
+        backgroundStyle: { color: 'rgba(120,165,255,0.07)', borderRadius: 4 },
+        itemStyle: {
+          borderRadius: 4,
+          color: {
+            type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
+            colorStops: [{ offset: 0, color: '#2f6bff' }, { offset: 1, color: '#37d6a8' }],
+          },
+        },
+        label: { show: true, position: 'right', color: '#9db6dd', fontSize: 9, formatter: '{c}%' },
+      },
+    ],
+  };
+
+  UI.chart($('#trendChart'), trendOption, '176px');
+  UI.chart($('#aiChart'), aiOption, '156px');
+  UI.chart($('#courseChart'), courseBarOption, '152px');
+})();
+</script>
+</body>
+</html>
