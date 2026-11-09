@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智课云 · AI+智慧课程资源建设与运行平台</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ 登录页 ============ -->
+<div class="login-wrap" id="loginView">
+  <div class="login-visual">
+    <div class="login-brand">
+      <span class="brand-logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5 12 3l9 2.5-9 2.5-9-2.5Z"/><path d="M5 8v6.5c0 1 3 2.5 7 2.5s7-1.5 7-2.5V8"/><path d="M21 6v6"/></svg></span>
+      <span>智课云<small>ZHICLOUD · AI COURSE</small></span>
+    </div>
+    <div class="login-headline">
+      <h1>AI+ 智慧课程<br>资源建设与运行平台</h1>
+      <p>面向职业教育重点建设课程，提供课程知识图谱、3D 教学资源、AI 教学环境、课程门户与虚拟展厅、学情分析与资源安全治理的一体化建设与运行服务。</p>
+      <div class="login-features">
+        <div><span class="dot"></span>课程知识图谱</div>
+        <div><span class="dot"></span>AI 科研与学情</div>
+        <div><span class="dot"></span>虚拟展厅门户</div>
+        <div><span class="dot"></span>资源安全检测</div>
+      </div>
+    </div>
+    <div class="login-copyright">© 2026 智课云教育科技 · 课程资源建设与运行平台</div>
+  </div>
+  <div class="login-panel">
+    <div class="login-card">
+      <h2>账号登录</h2>
+      <p class="sub">请输入平台账号以进入智慧课程系统</p>
+      <div class="login-error" id="loginError"></div>
+      <form id="loginForm" autocomplete="off">
+        <div class="field"><label>账号</label><div class="ctrl"><input type="text" id="loginUser" placeholder="请输入账号" autocomplete="off"></div></div>
+        <div class="field"><label>密码</label><div class="ctrl"><input type="password" id="loginPass" placeholder="请输入密码" autocomplete="off"></div></div>
+        <div class="login-row">
+          <label><input type="checkbox" id="rememberMe" checked> 记住登录状态</label>
+          <span>忘记密码？联系管理员</span>
+        </div>
+        <button class="btn-primary" type="submit">登 录</button>
+      </form>
+      <div class="login-tips">登录即代表您已同意《平台服务协议》与《隐私政策》</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 应用主体 ============ -->
+<div class="app" id="appView">
+  <aside class="sidebar">
+    <div class="side-brand">
+      <span class="brand-logo"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5 12 3l9 2.5-9 2.5-9-2.5Z"/><path d="M5 8v6.5c0 1 3 2.5 7 2.5s7-1.5 7-2.5V8"/><path d="M21 6v6"/></svg></span>
+      <span>智课云<small>课程资源建设平台</small></span>
+    </div>
+    <div class="side-group-title">课程与教学</div>
+    <nav class="nav" id="navMenu"></nav>
+    <div class="side-foot">
+      <div id="sideUser"></div>
+      <div style="margin-top:4px">v3.1.0 · 服务运行正常</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title" id="pageTitle">工作台</div>
+        <div class="page-crumb" id="pageCrumb">首页 / 工作台</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="top-search">
+        <span class="si"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></span>
+        <input type="text" id="globalSearch" placeholder="搜索知识点 / 文献 / 资源">
+      </div>
+      <button class="icon-btn" id="bellBtn" title="消息中心">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="dot-badge" id="bellBadge" style="display:none">0</span>
+      </button>
+      <div class="role-switch">
+        <button class="role-switch-btn" id="roleBtn">
+          <span class="role-avatar" id="roleAvatar">管</span>
+          <span style="text-align:left"><span style="display:block;font-size:12px;color:var(--muted);line-height:1.1">当前角色</span><b id="roleName" style="font-size:13px">平台管理员</b></span>
+          <svg class="caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="dropdown" id="roleDropdown"></div>
+      </div>
+      <div class="user-menu">
+        <span class="role-avatar" id="userAvatar" style="background:#334155">刘</span>
+        <span><div class="uname" id="userName">刘建国</div><div class="udept" id="userDept">现代教育技术中心</div></span>
+        <button class="icon-btn" id="logoutBtn" title="退出登录" style="margin-left:4px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        </button>
+      </div>
+    </header>
+    <main class="content" id="content"></main>
+  </div>
+</div>
+
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-hd"><h3 id="drawerTitle">详情</h3><button class="icon-btn x" id="drawerClose">✕</button></div>
+  <div class="drawer-bd" id="drawerBody"></div>
+  <div class="drawer-ft" id="drawerFoot"></div>
+</aside>
+
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <div class="modal-hd"><h3 id="modalTitle">编辑</h3><button class="icon-btn x" id="modalClose">✕</button></div>
+    <div class="modal-bd" id="modalBody"></div>
+    <div class="modal-ft" id="modalFoot"></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
