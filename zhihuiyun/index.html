@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<title>智课云 · 移动端知识图谱</title>
+<link rel="stylesheet" href="../css/mobile.css">
+</head>
+<body>
+
+<!-- 登录 -->
+<div id="mLogin" class="m-login">
+  <div class="brand">
+    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="background:rgba(255,255,255,.15);padding:11px;border-radius:15px"><path d="M3 5.5 12 3l9 2.5-9 2.5-9-2.5Z"/><path d="M5 8v6.5c0 1 3 2.5 7 2.5s7-1.5 7-2.5V8"/><path d="M21 6v6"/></svg>
+    <h1>智课云</h1>
+    <p>AI+ 智慧课程 · 移动端知识图谱学习</p>
+  </div>
+  <div class="panel">
+    <h2>账号登录</h2>
+    <p class="sub">随时随地访问课程图谱与微课</p>
+    <div class="m-err" id="mErr"></div>
+    <form id="mLoginForm" autocomplete="off">
+      <div class="m-field"><input type="text" id="mUser" placeholder="平台账号" autocomplete="off"></div>
+      <div class="m-field"><input type="password" id="mPass" placeholder="登录密码" autocomplete="off"></div>
+      <button class="m-btn" type="submit">登 录</button>
+    </form>
+  </div>
+</div>
+
+<!-- 主体 -->
+<div id="mApp">
+  <header class="m-header">
+    <div>
+      <h1 id="mTitle">课程图谱</h1>
+      <div class="m-sub" id="mSub">智课云 · 移动学习</div>
+    </div>
+    <div class="m-spacer"></div>
+    <button class="m-bell" id="mBell">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <span class="dot" id="mBellDot" style="display:none">0</span>
+    </button>
+    <span class="m-avatar" id="mAvatar" style="background:#2563eb">管</span>
+  </header>
+
+  <main class="m-body" id="mBody"></main>
+
+  <nav class="m-tabbar" id="mTabbar"></nav>
+</div>
+
+<!-- 全屏页（微课 / 详情） -->
+<div class="m-page" id="mPage">
+  <div class="m-page-hd">
+    <button class="m-back" id="mBack"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <h2 id="mPageTitle">微课</h2>
+  </div>
+  <div class="m-page-bd" id="mPageBody"></div>
+</div>
+
+<!-- 底部弹层 -->
+<div class="m-sheet-mask" id="mSheetMask"></div>
+<div class="m-sheet" id="mSheet"><div class="sheet-title" id="mSheetTitle">选择</div><div id="mSheetBody"></div></div>
+
+<div class="m-toast-wrap" id="mToast"></div>
+
+<script src="../js/store.js"></script>
+<script src="../js/mobile.js"></script>
+</body>
+</html>
