@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#2563EB" />
+<title>智课云 · 数字教材教学运行平台</title>
+<link rel="stylesheet" href="assets/css/app.css?v=5" />
+</head>
+<body>
+
+<!-- ============ 登录 ============ -->
+<section class="login" id="loginView">
+  <div class="login-bg">
+    <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+  </div>
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 40 40" fill="none"><path d="M8 12.5 20 6l12 6.5v15L20 34 8 27.5v-15Z" stroke="currentColor" stroke-width="1.6"/><path d="M20 20.5v13M20 20.5 8 14M20 20.5 32 14" stroke="currentColor" stroke-width="1.6"/></svg>
+      </div>
+      <h1>智课云</h1>
+      <p class="brand-sub">数字教材教学运行平台</p>
+      <ul class="brand-list">
+        <li><i></i>数字教材承载与课程运行一体化</li>
+        <li><i></i>课前 · 课中 · 课后全环节闭环</li>
+        <li><i></i>AI 实践空间与多维智能评价</li>
+      </ul>
+    </div>
+    <form class="login-card" id="loginForm" autocomplete="off">
+      <h2>账号登录</h2>
+      <p class="login-tip">请使用院校统一身份或平台账号登录</p>
+      <label class="field">
+        <span>账号</span>
+        <input type="text" id="loginUser" placeholder="请输入账号" autocomplete="username" />
+      </label>
+      <label class="field">
+        <span>密码</span>
+        <input type="password" id="loginPass" placeholder="请输入密码" autocomplete="current-password" />
+      </label>
+      <div class="login-row">
+        <label class="check"><input type="checkbox" id="loginRemember" checked /><span>记住登录状态</span></label>
+        <a class="link" id="loginHelp">忘记密码</a>
+      </div>
+      <div class="login-err" id="loginErr"></div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit">登 录</button>
+      <p class="login-foot">登录即表示同意《平台服务协议》与《数据安全规范》</p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ 主体（顶部导航） ============ -->
+<div class="app" id="appView" hidden>
+  <header class="topnav">
+    <div class="tn-left">
+      <button class="icon-btn menu-btn" id="menuBtn" aria-label="菜单">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7"/></svg>
+      </button>
+      <div class="brand-mark sm">
+        <svg viewBox="0 0 40 40" fill="none"><path d="M8 12.5 20 6l12 6.5v15L20 34 8 27.5v-15Z" stroke="currentColor" stroke-width="1.8"/><path d="M20 20.5v13M20 20.5 8 14M20 20.5 32 14" stroke="currentColor" stroke-width="1.8"/></svg>
+      </div>
+      <div class="tn-brand-txt"><strong>智课云</strong><span>教学运行平台</span></div>
+    </div>
+    <nav class="tn-nav" id="sideNav"></nav>
+    <div class="top-actions">
+      <button class="icon-btn" id="searchBtn" title="全局搜索" aria-label="搜索">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.6"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.6"/></svg>
+      </button>
+      <button class="icon-btn" id="msgBtn" title="消息通知" aria-label="消息">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 13 6 9Z" stroke="currentColor" stroke-width="1.6"/><path d="M10 18.5a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.6"/></svg>
+        <i class="dot"></i>
+      </button>
+      <div class="user-chip" id="userChip">
+        <span class="ava xs" id="userAva">RT</span><span class="user-chip-name" id="userChipName">root</span>
+        <svg viewBox="0 0 24 24" fill="none" class="caret"><path d="m7 10 5 5 5-5" stroke="currentColor" stroke-width="1.6"/></svg>
+      </div>
+    </div>
+    <nav class="tn-mobile" id="mobileNav"></nav>
+  </header>
+  <div class="tn-mask" id="sideMask"></div>
+
+  <main class="view" id="view"></main>
+</div>
+
+<div class="menu-pop" id="userMenu" hidden>
+  <button data-act="profile">个人中心</button>
+  <button data-act="switch">切换教学身份</button>
+  <button data-act="clear">清理本地缓存</button>
+  <div class="menu-sep"></div>
+  <button data-act="logout" class="danger">退出登录</button>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot" class="toast-root"></div>
+
+<script src="assets/js/store.js?v=5"></script>
+<script src="assets/js/ui.js?v=5"></script>
+<script src="assets/js/views-course.js?v=5"></script>
+<script src="assets/js/views-class.js?v=5"></script>
+<script src="assets/js/views-ai.js?v=5"></script>
+<script src="assets/js/views-ops.js?v=5"></script>
+<script src="assets/js/views-app.js?v=5"></script>
+<script src="assets/js/main.js?v=5"></script>
+</body>
+</html>
