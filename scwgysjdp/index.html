@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四川外国语大学虚拟实践平台 · 数据大屏</title>
+<style>
+  :root{
+    --text:#e6f3ff;
+    --muted:#7ea3c9;
+    --line:rgba(90,150,255,.16);
+    --cyan:#35e0ff;
+    --blue:#3f7cff;
+    --gold:#ffcc66;
+    --purple:#a06bff;
+    --green:#38e8a8;
+    --panel:linear-gradient(165deg, rgba(15,34,66,.92), rgba(7,16,34,.84));
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:#03080f;color:var(--text);
+    font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;
+    -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+
+  /* ---------- 舞台与缩放 ---------- */
+  #stage{position:fixed;inset:0;overflow:hidden;background:
+      radial-gradient(1200px 700px at 50% -12%, rgba(30,90,180,.38), transparent 62%),
+      radial-gradient(900px 620px at 8% 100%, rgba(20,140,190,.16), transparent 62%),
+      radial-gradient(900px 620px at 100% 92%, rgba(90,60,200,.15), transparent 62%),
+      #03080f;}
+  #stage::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+    background-image:linear-gradient(rgba(90,150,255,.055) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(90,150,255,.055) 1px, transparent 1px);
+    background-size:64px 64px;
+    -webkit-mask-image:radial-gradient(circle at 50% 45%, #000 30%, transparent 78%);
+            mask-image:radial-gradient(circle at 50% 45%, #000 30%, transparent 78%);}
+  #stage::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(circle at 50% 50%, transparent 55%, rgba(0,0,0,.55) 100%);}
+  #screen{position:absolute;top:50%;left:50%;width:1920px;height:1080px;
+    transform:translate(-50%,-50%) scale(1);transform-origin:center center;
+    display:flex;flex-direction:column;gap:14px;padding:18px 24px 16px;}
+
+  /* ---------- 顶栏 ---------- */
+  .header{height:68px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;position:relative}
+  .brand{display:flex;align-items:center;gap:12px;min-width:330px}
+  .logo{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;
+    font:700 16px/1 "PingFang SC";letter-spacing:1px;color:#fff;
+    background:linear-gradient(135deg,#1f6fe0,#35e0ff);
+    box-shadow:inset 0 0 18px rgba(255,255,255,.35), 0 6px 18px rgba(31,111,224,.4)}
+  .brand-txt b{display:block;font-size:15px;letter-spacing:2px;font-weight:600}
+  .brand-txt span{display:block;margin-top:4px;font-size:10.5px;color:var(--muted);letter-spacing:1.4px}
+  .head-center{position:absolute;left:50%;transform:translateX(-50%);text-align:center;white-space:nowrap}
+  .head-center h1{font-size:31px;font-weight:700;letter-spacing:5px;line-height:1.15;
+    background:linear-gradient(92deg,#8fe6ff 0%,#ffffff 42%,#bfe9ff 62%,#8fe6ff 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 18px rgba(53,224,255,.35))}
+  .head-center p{margin-top:6px;font-size:10.5px;letter-spacing:4.2px;color:#6d94bd}
+  .head-center::after{content:"";position:absolute;left:50%;bottom:-11px;width:420px;height:1px;
+    transform:translateX(-50%);
+    background:linear-gradient(90deg,transparent,rgba(53,224,255,.9),transparent);
+    box-shadow:0 0 12px rgba(53,224,255,.85)}
+  .head-right{min-width:330px;display:flex;align-items:center;justify-content:flex-end;gap:16px}
+  .clock{text-align:right}
+  .clock b{display:block;font-family:"DIN Alternate","PingFang SC",sans-serif;font-size:30px;font-weight:700;
+    color:#eaf9ff;letter-spacing:1px;line-height:1;text-shadow:0 0 16px rgba(53,224,255,.35)}
+  .clock span{display:block;margin-top:5px;font-size:11px;color:var(--muted);letter-spacing:1px}
+  .live{display:flex;align-items:center;gap:6px;font-size:11px;color:#9fe1ff;
+    border:1px solid rgba(53,224,255,.3);background:rgba(53,224,255,.08);
+    padding:5px 10px;border-radius:20px;letter-spacing:.5px}
+  .live i{width:6px;height:6px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 8px var(--green);animation:blink 1.6s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* ---------- 指标卡 ---------- */
+  .kpis{flex:0 0 auto;height:100px;display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+  .kpi{position:relative;overflow:hidden;border-radius:10px;border:1px solid var(--line);
+    background:var(--panel);padding:12px 16px;display:flex;flex-direction:column;justify-content:space-between;
+    box-shadow:0 10px 26px rgba(0,0,0,.35), inset 0 1px 0 rgba(140,200,255,.06)}
+  .kpi::before{content:"";position:absolute;top:0;left:16px;right:16px;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(53,224,255,.75),transparent)}
+  .kpi::after{content:"";position:absolute;right:-26px;bottom:-34px;width:96px;height:96px;border-radius:50%;
+    background:radial-gradient(circle, rgba(53,224,255,.16), transparent 68%)}
+  .k-label{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#a9c7e6;letter-spacing:.6px}
+  .k-label i{width:5px;height:5px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+  .k-val{display:flex;align-items:baseline;gap:6px;font-family:"DIN Alternate","PingFang SC",sans-serif;
+    font-size:33px;font-weight:700;line-height:1;color:#fff;letter-spacing:.5px}
+  .k-val small{font-size:11.5px;font-weight:400;color:var(--muted);letter-spacing:0}
+  .k-sub{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+  .k-sub em{font-style:normal}
+  .up{color:var(--green)} .down{color:#ff7b8a}
+
+  /* ---------- 面板 ---------- */
+  .row{display:grid;gap:14px;flex:1 1 0;min-height:0}
+  .row-b{grid-template-columns:452px 1fr 452px;flex-grow:1.16}
+  .row-c{grid-template-columns:452px 1fr 452px}
+  .row-c-mid{display:grid;grid-template-columns:1fr 1fr;gap:14px;min-height:0}
+  .panel{position:relative;display:flex;flex-direction:column;min-height:0;overflow:hidden;border-radius:10px;
+    border:1px solid var(--line);background:var(--panel);
+    box-shadow:0 12px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(140,200,255,.06)}
+  .panel::before{content:"";position:absolute;top:-1px;left:14px;right:14px;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(53,224,255,.8),transparent)}
+  .p-head{height:40px;flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:0 14px;
+    border-bottom:1px solid rgba(90,150,255,.1);
+    background:linear-gradient(90deg, rgba(53,224,255,.09), transparent 62%)}
+  .p-head .bar{width:3px;height:13px;border-radius:2px;
+    background:linear-gradient(180deg,#35e0ff,#3f7cff);box-shadow:0 0 8px rgba(53,224,255,.9)}
+  .p-head b{font-size:14px;font-weight:600;letter-spacing:1.6px;color:#dcefff}
+  .p-head em{margin-left:auto;font-style:normal;font-size:10.5px;color:#8fb2d9;letter-spacing:.5px;
+    border:1px solid rgba(120,170,255,.24);border-radius:20px;padding:2px 9px}
+  .p-body{position:relative;flex:1 1 auto;min-height:0;padding:6px 8px 4px}
+  .chart{width:100%;height:100%}
+
+  /* 完成率面板 */
+  .gauge-wrap{display:flex;flex-direction:column;padding:2px 10px 10px;gap:6px}
+  #gaugeChart{flex:1 1 auto;height:auto;min-height:0}
+  .g-stats{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+  .g-stats div{text-align:center;padding:7px 4px;border-radius:8px;
+    background:rgba(53,224,255,.055);border:1px solid rgba(53,224,255,.14)}
+  .g-stats b{display:block;font-family:"DIN Alternate","PingFang SC",sans-serif;font-size:18px;
+    font-weight:700;line-height:1.35;color:#eaf9ff}
+  .g-stats span{font-size:10.5px;color:var(--muted)}
+
+  /* 排行榜 */
+  .rank{padding:8px 12px 6px;display:flex;flex-direction:column;gap:7px;justify-content:space-around}
+  .rank-row{display:flex;align-items:center;gap:9px;height:100%}
+  .rk{flex:0 0 auto;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;
+    font:700 11.5px/1 "DIN Alternate",sans-serif;color:#8fb2d9;
+    background:rgba(90,150,255,.1);border:1px solid rgba(90,150,255,.2)}
+  .rank-row.top .rk{color:#05121f;border:0;background:linear-gradient(135deg,#ffd98a,#ffb020);
+    box-shadow:0 0 12px rgba(255,190,60,.45)}
+  .rank-main{flex:1 1 auto;min-width:0}
+  .rank-line{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+  .rank-line b{font-size:12.5px;font-weight:500;color:#dcefff;letter-spacing:.3px}
+  .rank-line i{font-style:normal;font-size:10.5px;color:#6f94ba;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .rank-bar{height:5px;border-radius:3px;background:rgba(90,150,255,.1);overflow:hidden}
+  .rank-bar span{display:block;height:100%;border-radius:3px;
+    background:linear-gradient(90deg,#1f6fe0,#35e0ff);box-shadow:0 0 8px rgba(53,224,255,.5)}
+  .rank-row:nth-child(1) .rank-bar span{background:linear-gradient(90deg,#e0a33a,#ffd98a)}
+  .rank-val{flex:0 0 auto;font-family:"DIN Alternate",sans-serif;font-size:14px;font-weight:700;color:#9fe1ff}
+
+  /* ---------- 滚动播报 ---------- */
+  .ticker{flex:0 0 auto;height:44px;display:flex;align-items:center;gap:14px;overflow:hidden;
+    border:1px solid var(--line);border-radius:10px;padding:0 14px;position:relative;
+    background:linear-gradient(90deg, rgba(15,34,66,.92), rgba(7,16,34,.78))}
+  .t-label{flex:0 0 auto;display:flex;align-items:center;gap:7px;font-size:12.5px;color:#8fe6ff;letter-spacing:1.4px}
+  .t-label i{width:7px;height:7px;border-radius:50%;background:var(--cyan);
+    box-shadow:0 0 10px var(--cyan);animation:blink 1.6s ease-in-out infinite}
+  .t-track{flex:1 1 auto;overflow:hidden;position:relative;height:100%}
+  .t-move{display:flex;width:max-content;height:100%;align-items:center;
+    animation:scrollx 48s linear infinite}
+  .t-move:hover{animation-play-state:paused}
+  .t-group{display:inline-flex;align-items:center;gap:44px;padding-right:44px}
+  .t-item{font-size:12.5px;color:#b9d4ee;white-space:nowrap;letter-spacing:.3px}
+  .t-item b{font-family:"DIN Alternate",sans-serif;color:var(--gold);font-weight:700;margin-right:8px}
+  .t-item i{font-style:normal;color:var(--cyan);margin-right:6px}
+  @keyframes scrollx{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .t-status{flex:0 0 auto;display:flex;align-items:center;gap:8px;font-size:11px;color:#8fb2d9}
+  .chip{display:flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;
+    border:1px solid rgba(56,232,168,.28);background:rgba(56,232,168,.08);color:#9ff0d2}
+  .chip i{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="screen">
+
+    <!-- 顶栏 -->
+    <div class="header">
+      <div class="brand">
+        <div class="logo">川外</div>
+        <div class="brand-txt">
+          <b>四川外国语大学</b>
+          <span>VIRTUAL PRACTICE PLATFORM</span>
+        </div>
+      </div>
+      <div class="head-center">
+        <h1>虚拟实践平台数据大屏</h1>
+        <p>SICHUAN INTERNATIONAL STUDIES UNIVERSITY · DATA COCKPIT</p>
+      </div>
+      <div class="head-right">
+        <div class="live"><i></i>实时监测</div>
+        <div class="clock">
+          <b id="clock-time">00:00:00</b>
+          <span id="clock-date">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 核心指标 -->
+    <div class="kpis" id="kpis"></div>
+
+    <!-- 第二行 -->
+    <div class="row row-b">
+      <div class="panel">
+        <div class="p-head"><span class="bar"></span><b>学院实践参与排行</b><em>TOP 8</em></div>
+        <div class="p-body"><div id="rankChart" class="chart"></div></div>
+      </div>
+      <div class="panel">
+        <div class="p-head"><span class="bar"></span><b>近 30 天平台访问与实践趋势</b><em>人次</em></div>
+        <div class="p-body"><div id="trendChart" class="chart"></div></div>
+      </div>
+      <div class="panel">
+        <div class="p-head"><span class="bar"></span><b>实践任务完成率</b><em>本学年</em></div>
+        <div class="p-body gauge-wrap">
+          <div id="gaugeChart" class="chart"></div>
+          <div class="g-stats">
+            <div><b>12,480</b><span>已提交任务</span></div>
+            <div><b>326</b><span>待批改</span></div>
+            <div><b>58</b><span>逾期预警</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第三行 -->
+    <div class="row row-c">
+      <div class="panel">
+        <div class="p-head"><span class="bar"></span><b>多语种实践分布</b><em>语种</em></div>
+        <div class="p-body"><div id="langChart" class="chart"></div></div>
+      </div>
+      <div class="row-c-mid">
+        <div class="panel">
+          <div class="p-head"><span class="bar"></span><b>实践类型占比</b><em>项目</em></div>
+          <div class="p-body"><div id="typeChart" class="chart"></div></div>
+        </div>
+        <div class="panel">
+          <div class="p-head"><span class="bar"></span><b>24 小时在线师生</b><em>实时</em></div>
+          <div class="p-body"><div id="hourChart" class="chart"></div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="p-head"><span class="bar"></span><b>实践之星 · 积分榜</b><em>本月</em></div>
+        <div class="p-body rank" id="ranking"></div>
+      </div>
+    </div>
+
+    <!-- 滚动播报 -->
+    <div class="ticker">
+      <div class="t-label"><i></i>实践动态</div>
+      <div class="t-track"><div class="t-move" id="tickerMove"></div></div>
+      <div class="t-status">
+        <span class="chip"><i></i>数据同步正常</span>
+        <span id="syncTime">3 秒前</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="assets/echarts.min.js"></script>
+<script>
+/* ============================================================
+ *  四川外国语大学虚拟实践平台 · 数据大屏
+ *  数据均为演示数据，可在 DATA 中替换为真实接口返回值
+ * ============================================================ */
+
+const DATA = {
+  kpis: [
+    { label:'累计实践人次', value:2846120, unit:'人次', sub:'较上月', delta:'+12.8%', up:true },
+    { label:'今日活跃师生', value:3842, unit:'人', sub:'较昨日', delta:'+6.4%', up:true },
+    { label:'虚拟仿真项目', value:168, unit:'个', sub:'本月新增', delta:'+9 个', up:true },
+    { label:'实践课程总数', value:542, unit:'门', sub:'覆盖学院', delta:'13 个', up:true },
+    { label:'任务完成率', value:94.6, unit:'%', sub:'较上月', delta:'+1.7%', up:true, decimals:1 },
+    { label:'在线实验终端', value:1024, unit:'台', sub:'较昨日', delta:'-2.1%', up:false },
+  ],
+  // 学院实践参与排行（人次）
+  faculties: [
+    { name:'英语学院', value:4826 },
+    { name:'翻译学院', value:4318 },
+    { name:'商务英语学院', value:3864 },
+    { name:'国际关系学院', value:3211 },
+    { name:'东方语言文化学院', value:2876 },
+    { name:'西方语言文化学院', value:2405 },
+    { name:'国际工商管理学院', value:1988 },
+    { name:'新闻传播学院', value:1622 },
+  ],
+  // 多语种实践分布（人次）
+  languages: [
+    { name:'英语', value:9640 }, { name:'日语', value:5210 }, { name:'俄语', value:3870 },
+    { name:'德语', value:3120 }, { name:'法语', value:2960 }, { name:'西语', value:2410 },
+    { name:'阿语', value:1780 }, { name:'韩语', value:1560 }, { name:'葡语', value:980 },
+    { name:'意语', value:860 },
+  ],
+  // 实践类型占比
+  types: [
+    { name:'口译实训', value:312, color:'#35e0ff' },
+    { name:'笔译实训', value:268, color:'#3f7cff' },
+    { name:'商务谈判', value:196, color:'#a06bff' },
+    { name:'跨文化交际', value:158, color:'#38e8a8' },
+    { name:'教学技能', value:132, color:'#ffcc66' },
+    { name:'舆情分析', value:118, color:'#ff7b8a' },
+    { name:'其他', value:102, color:'#7ea3c9' },
+  ],
+  // 实践之星积分榜
+  stars: [
+    { name:'李思远', dept:'翻译学院', score:986 },
+    { name:'Anna Petrova', dept:'俄语学院', score:942 },
+    { name:'陈雨桐', dept:'英语学院', score:917 },
+    { name:'佐藤美咲', dept:'东方语言文化学院', score:883 },
+    { name:'王梓涵', dept:'商务英语学院', score:856 },
+    { name:'Lucas Martin', dept:'西方语言文化学院', score:812 },
+    { name:'赵一诺', dept:'国际关系学院', score:794 },
+  ],
+  // 实践动态
+  feed: [
+    { time:'21:03', dept:'翻译学院', text:'2024 级同声传译实训室完成模拟国际会议口译考核' },
+    { time:'20:57', dept:'英语学院', text:'“跨境电商直播”虚拟仿真项目新增 3 个实践班级' },
+    { time:'20:42', dept:'国际关系学院', text:'模拟联合国磋商场景上线，支持英/法双语切换' },
+    { time:'20:26', dept:'东方语言文化学院', text:'日语敬语情景实训模块通过验收并开放选课' },
+    { time:'20:09', dept:'教务处', text:'本学期虚拟实践任务提交率 94.6%，较上月提升 1.7%' },
+    { time:'19:54', dept:'商务英语学院', text:'涉外商务谈判实训完成 126 人次，平均得分 87.4' },
+    { time:'19:38', dept:'西方语言文化学院', text:'西班牙语旅游文化 VR 场景资源更新至 2.3 版本' },
+    { time:'19:12', dept:'平台运维', text:'实验终端集群扩容完成，在线终端容量提升至 1,200 台' },
+  ],
+};
+
+const PALETTE = {
+  text:'#e6f3ff', muted:'#7ea3c9', cyan:'#35e0ff', blue:'#3f7cff',
+  gold:'#ffcc66', purple:'#a06bff', green:'#38e8a8', red:'#ff7b8a',
+  axis:'rgba(120,170,255,.18)', split:'rgba(120,170,255,.10)',
+};
+
+/* ---------------- 工具函数 ---------------- */
+const fmt = (n, dec=0) => Number(n).toLocaleString('en-US', { minimumFractionDigits:dec, maximumFractionDigits:dec });
+
+function animateNumber(el, target, decimals=0, duration=900){
+  const from = Number(el.dataset.cur || 0);
+  const start = performance.now();
+  el.dataset.cur = target;
+  const step = now => {
+    const p = Math.min(1, (now - start) / duration);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(from + (target - from) * ease, decimals);
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = fmt(target, decimals);
+  };
+  requestAnimationFrame(step);
+}
+
+function baseTooltip(){
+  return {
+    backgroundColor:'rgba(6,18,38,.94)',
+    borderColor:'rgba(53,224,255,.35)',
+    borderWidth:1,
+    padding:[8,12],
+    textStyle:{ color:PALETTE.text, fontSize:12, fontFamily:'PingFang SC' },
+    extraCssText:'box-shadow:0 8px 24px rgba(0,0,0,.5);border-radius:8px;',
+  };
+}
+
+const axisLabel = { color:'#8fb2d9', fontSize:11, fontFamily:'PingFang SC' };
+
+/* ---------------- 指标卡 ---------------- */
+function renderKpis(){
+  const box = document.getElementById('kpis');
+  box.innerHTML = DATA.kpis.map((k, i) => `
+    <div class="kpi">
+      <div class="k-label"><i></i>${k.label}</div>
+      <div class="k-val"><span class="num" id="kpi-${i}" data-cur="0">0</span><small>${k.unit}</small></div>
+      <div class="k-sub"><em>${k.sub}</em><em class="${k.up ? 'up' : 'down'}">${k.delta}</em></div>
+    </div>`).join('');
+  DATA.kpis.forEach((k, i) => {
+    const el = document.getElementById('kpi-' + i);
+    if (el){
+      el.textContent = fmt(k.value, k.decimals || 0);
+      el.dataset.cur = k.value;
+    }
+  });
+}
+
+/* ---------------- 学院排行 ---------------- */
+function initRank(){
+  const chart = echarts.init(document.getElementById('rankChart'));
+  const list = DATA.faculties.slice().sort((a,b) => b.value - a.value);
+  chart.setOption({
+    grid:{ left:8, right:62, top:10, bottom:8, containLabel:true },
+    tooltip:{ ...baseTooltip(), trigger:'axis', axisPointer:{ type:'shadow', shadowStyle:{ color:'rgba(53,224,255,.06)' } },
+      formatter: p => `${p[0].name}<br/><b style="color:#35e0ff">${fmt(p[0].value)}</b> 人次` },
+    xAxis:{ type:'value', show:false, max: v => v.max * 1.1 },
+    yAxis:{
+      type:'category', inverse:true, data:list.map(d => d.name),
+      axisLine:{ show:false }, axisTick:{ show:false },
+      axisLabel:{ ...axisLabel, fontSize:12, color:'#a9c7e6', margin:12 },
+    },
+    series:[{
+      type:'bar', data:list.map(d => d.value), barWidth:11,
+      showBackground:true,
+      backgroundStyle:{ color:'rgba(90,150,255,.08)', borderRadius:6 },
+      itemStyle:{
+        borderRadius:6,
+        color:new echarts.graphic.LinearGradient(0,0,1,0,[
+          { offset:0, color:'#1f6fe0' }, { offset:1, color:'#35e0ff' },
+        ]),
+      },
+      label:{ show:true, position:'right', color:'#8fe6ff', fontSize:11,
+        fontFamily:'PingFang SC', formatter: p => fmt(p.value) },
+      animationDelay: i => i * 90,
+      animationDuration: 900,
+    }],
+  });
+  return chart;
+}
+
+/* ---------------- 30 天趋势 ---------------- */
+function initTrend(){
+  const chart = echarts.init(document.getElementById('trendChart'));
+  const days = [];
+  const now = new Date();
+  for (let i = 29; i >= 0; i--){
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    days.push(`${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  }
+  const visits = [];
+  const practice = [];
+  const ai = [];
+  for (let i = 0; i < 30; i++){
+    const weekend = ((now.getDay() - (29 - i)) % 7 + 7) % 7;
+    const wave = Math.sin(i / 3.1) * 4200 + Math.cos(i / 1.7) * 1600;
+    const boost = (weekend === 4 || weekend === 5) ? 2600 : 0;
+    visits.push(Math.round(26200 + wave + boost + i * 210));
+    practice.push(Math.round(8600 + wave * 0.34 + boost * 0.5 + i * 86));
+    ai.push(Math.round(4100 + wave * 0.2 + i * 54));
+  }
+  chart.setOption({
+    grid:{ left:10, right:18, top:44, bottom:6, containLabel:true },
+    legend:{
+      top:6, right:8, itemWidth:9, itemHeight:9, itemGap:16,
+      textStyle:{ color:'#9fbcd8', fontSize:11, fontFamily:'PingFang SC' },
+      data:['平台访问','实践人次','AI 智能评测'],
+    },
+    tooltip:{ ...baseTooltip(), trigger:'axis',
+      axisPointer:{ type:'line', lineStyle:{ color:'rgba(53,224,255,.35)', type:'dashed' } } },
+    xAxis:{
+      type:'category', boundaryGap:false, data:days,
+      axisLine:{ lineStyle:{ color:PALETTE.axis } }, axisTick:{ show:false },
+      axisLabel:{ ...axisLabel, interval:4 },
+    },
+    yAxis:{
+      type:'value',
+      axisLine:{ show:false }, axisTick:{ show:false },
+      axisLabel:{ ...axisLabel, formatter: v => v >= 10000 ? (v/10000).toFixed(1)+'w' : v },
+      splitLine:{ lineStyle:{ color:PALETTE.split, type:'dashed' } },
+    },
+    series:[
+      {
+        name:'平台访问', type:'line', smooth:true, symbol:'none', data:visits,
+        lineStyle:{ width:2, color:'#35e0ff', shadowColor:'rgba(53,224,255,.55)', shadowBlur:12 },
+        itemStyle:{ color:'#35e0ff' },
+        areaStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[
+          { offset:0, color:'rgba(53,224,255,.34)' }, { offset:1, color:'rgba(53,224,255,0)' },
+        ]) },
+      },
+      {
+        name:'实践人次', type:'line', smooth:true, symbol:'none', data:practice,
+        lineStyle:{ width:2, color:'#a06bff', shadowColor:'rgba(160,107,255,.45)', shadowBlur:10 },
+        itemStyle:{ color:'#a06bff' },
+        areaStyle:{ color:new echarts.graphic.LinearGradient(0,0,0,1,[
+          { offset:0, color:'rgba(160,107,255,.26)' }, { offset:1, color:'rgba(160,107,255,0)' },
+        ]) },
+      },
+      {
+        name:'AI 智能评测', type:'line', smooth:true, symbol:'none', data:ai,
+        lineStyle:{ width:1.5, color:'#ffcc66', type:'dashed' },
+        itemStyle:{ color:'#ffcc66' },
+      },
+    ],
+  });
+  return chart;
+}
+
+/* ---------------- 完成率仪表盘 ---------------- */
+let gaugeChart = null;
+function gaugeOption(value){
+  return {
+    series:[{
+      type:'gauge', startAngle:210, endAngle:-30, min:0, max:100, radius:'96%',
+      center:['50%','58%'],
+      progress:{ show:true, roundCap:true, width:13,
+        itemStyle:{ color:new echarts.graphic.LinearGradient(0,0,1,0,[
+          { offset:0, color:'#3f7cff' }, { offset:0.55, color:'#35e0ff' }, { offset:1, color:'#8fe6ff' },
+        ]), shadowColor:'rgba(53,224,255,.6)', shadowBlur:12 } },
+      axisLine:{ lineStyle:{ width:13, color:[[1,'rgba(90,150,255,.14)']] } },
+      pointer:{ show:false }, axisTick:{ show:false }, splitLine:{ show:false }, axisLabel:{ show:false },
+      anchor:{ show:false },
+      title:{ offsetCenter:[0,'34%'], color:'#7ea3c9', fontSize:11, fontFamily:'PingFang SC' },
+      detail:{
+        offsetCenter:[0,'0%'], formatter: v => v.toFixed(1) + '%',
+        color:'#eaf9ff', fontSize:36, fontWeight:700, fontFamily:'DIN Alternate',
+      },
+      data:[{ value, name:'任务完成率' }],
+      animationDuration: 1400,
+    }],
+  };
+}
+function initGauge(){
+  gaugeChart = echarts.init(document.getElementById('gaugeChart'));
+  gaugeChart.setOption(gaugeOption(DATA.kpis[4].value));
+  return gaugeChart;
+}
+
+/* ---------------- 多语种分布 ---------------- */
+function initLang(){
+  const chart = echarts.init(document.getElementById('langChart'));
+  const list = DATA.languages;
+  chart.setOption({
+    grid:{ left:6, right:12, top:30, bottom:4, containLabel:true },
+    tooltip:{ ...baseTooltip(), trigger:'axis', axisPointer:{ type:'shadow', shadowStyle:{ color:'rgba(53,224,255,.06)' } },
+      formatter: p => `${p[0].name}<br/><b style="color:#35e0ff">${fmt(p[0].value)}</b> 人次` },
+    xAxis:{
+      type:'category', data:list.map(d => d.name),
+      axisLine:{ lineStyle:{ color:PALETTE.axis } }, axisTick:{ show:false },
+      axisLabel:{ ...axisLabel, fontSize:11.5, margin:10 },
+    },
+    yAxis:{
+      type:'value', show:false, max: v => v.max * 1.18,
+    },
+    series:[{
+      type:'bar', barWidth:15, data:list.map(d => d.value),
+      itemStyle:{
+        borderRadius:[4,4,0,0],
+        color:new echarts.graphic.LinearGradient(0,0,0,1,[
+          { offset:0, color:'#35e0ff' }, { offset:1, color:'rgba(31,111,224,.18)' },
+        ]),
+      },
+      label:{ show:true, position:'top', color:'#8fe6ff', fontSize:10.5,
+        fontFamily:'DIN Alternate', formatter: p => fmt(p.value) },
+      animationDelay: i => i * 55,
+    }],
+  });
+  return chart;
+}
+
+/* ---------------- 实践类型占比 ---------------- */
+function initType(){
+  const chart = echarts.init(document.getElementById('typeChart'));
+  const list = DATA.types;
+  const total = list.reduce((s, d) => s + d.value, 0);
+  chart.setOption({
+    tooltip:{ ...baseTooltip(), trigger:'item',
+      formatter: p => `${p.marker} ${p.name}<br/><b style="color:#35e0ff">${fmt(p.value)}</b> 个 · ${p.percent}%` },
+    legend:{
+      bottom:2, left:'center', itemWidth:8, itemHeight:8, itemGap:9,
+      textStyle:{ color:'#9fbcd8', fontSize:10.5, fontFamily:'PingFang SC' },
+    },
+    title:{
+      text:fmt(total), subtext:'实践项目',
+      left:'center', top:'35%',
+      textStyle:{ color:'#eaf9ff', fontSize:26, fontWeight:700, fontFamily:'DIN Alternate' },
+      subtextStyle:{ color:'#7ea3c9', fontSize:10.5, fontFamily:'PingFang SC' },
+    },
+    series:[{
+      type:'pie', radius:['42%','64%'], center:['50%','47%'],
+      itemStyle:{ borderColor:'#071226', borderWidth:2 },
+      label:{ show:false }, labelLine:{ show:false },
+      data:list.map(d => ({ name:d.name, value:d.value, itemStyle:{ color:d.color } })),
+      animationType:'scale',
+    }],
+  });
+  return chart;
+}
+
+/* ---------------- 24 小时在线 ---------------- */
+let hourChart = null;
+function hourData(){
+  const nowH = new Date().getHours();
+  return Array.from({ length:24 }, (_, i) => {
+    const base = 420 + 760 * Math.exp(-Math.pow(i - 15, 2) / 34) + 260 * Math.exp(-Math.pow(i - 10, 2) / 12);
+    return Math.round(base + (i % 3) * 26 + (i === nowH ? 90 : 0));
+  });
+}
+function initHour(){
+  hourChart = echarts.init(document.getElementById('hourChart'));
+  const data = hourData();
+  const nowH = new Date().getHours();
+  hourChart.setOption({
+    grid:{ left:6, right:12, top:26, bottom:4, containLabel:true },
+    tooltip:{ ...baseTooltip(), trigger:'axis', axisPointer:{ type:'shadow', shadowStyle:{ color:'rgba(53,224,255,.06)' } },
+      formatter: p => `${p[0].name}:00 - ${p[0].name}:59<br/><b style="color:#35e0ff">${fmt(p[0].value)}</b> 人在线` },
+    xAxis:{
+      type:'category', data:Array.from({ length:24 }, (_, i) => String(i).padStart(2,'0')),
+      axisLine:{ lineStyle:{ color:PALETTE.axis } }, axisTick:{ show:false },
+      axisLabel:{ ...axisLabel, interval:3, fontSize:10.5 },
+    },
+    yAxis:{
+      type:'value', show:false, max: v => v.max * 1.15,
+    },
+    series:[{
+      type:'bar', barWidth:9,
+      data:data.map((v, i) => ({
+        value:v,
+        itemStyle:{
+          borderRadius:[3,3,0,0],
+          color: i === nowH
+            ? new echarts.graphic.LinearGradient(0,0,0,1,[{ offset:0, color:'#ffd98a' }, { offset:1, color:'rgba(224,163,58,.15)' }])
+            : new echarts.graphic.LinearGradient(0,0,0,1,[{ offset:0, color:'#35e0ff' }, { offset:1, color:'rgba(31,111,224,.15)' }]),
+        },
+      })),
+      markPoint:{
+        symbol:'circle', symbolSize:5, data:[{ type:'max' }],
+        itemStyle:{ color:'#ffcc66', shadowColor:'#ffcc66', shadowBlur:10 },
+        label:{ show:false },
+      },
+      animationDelay: i => i * 28,
+    }],
+  });
+  return hourChart;
+}
+
+/* ---------------- 排行榜 ---------------- */
+function renderRanking(){
+  const max = Math.max(...DATA.stars.map(s => s.score));
+  document.getElementById('ranking').innerHTML = DATA.stars.map((s, i) => `
+    <div class="rank-row ${i < 3 ? 'top' : ''}">
+      <span class="rk">${i + 1}</span>
+      <div class="rank-main">
+        <div class="rank-line"><b>${s.name}</b><i>${s.dept}</i></div>
+        <div class="rank-bar"><span style="width:${Math.round(s.score / max * 100)}%"></span></div>
+      </div>
+      <span class="rank-val">${s.score}</span>
+    </div>`).join('');
+}
+
+/* ---------------- 滚动播报 ---------------- */
+function renderTicker(){
+  const html = DATA.feed.map(f =>
+    `<span class="t-item"><b>${f.time}</b><i>[${f.dept}]</i>${f.text}</span>`).join('');
+  document.getElementById('tickerMove').innerHTML =
+    `<div class="t-group">${html}</div><div class="t-group">${html}</div>`;
+}
+
+/* ---------------- 时钟 ---------------- */
+function tickClock(){
+  const d = new Date();
+  const p = n => String(n).padStart(2,'0');
+  const week = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'][d.getDay()];
+  document.getElementById('clock-time').textContent = `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  document.getElementById('clock-date').textContent =
+    `${d.getFullYear()}年${p(d.getMonth()+1)}月${p(d.getDate())}日 ${week}`;
+}
+
+/* ---------------- 模拟实时刷新 ---------------- */
+function refreshLive(){
+  // 活跃师生小幅波动
+  const active = DATA.kpis[1];
+  active.value = Math.max(0, active.value + Math.round((Math.random() - 0.42) * 60));
+  animateNumber(document.querySelector('#kpi-1'), active.value, 0, 700);
+
+  // 在线终端波动
+  const terminal = DATA.kpis[5];
+  terminal.value = Math.max(0, terminal.value + Math.round((Math.random() - 0.5) * 18));
+  animateNumber(document.querySelector('#kpi-5'), terminal.value, 0, 700);
+
+  // 完成率微调
+  const rate = 94.6 + Math.random() * 0.5;
+  DATA.kpis[4].value = Number(rate.toFixed(1));
+  animateNumber(document.querySelector('#kpi-4'), DATA.kpis[4].value, 1, 700);
+  if (gaugeChart) gaugeChart.setOption(gaugeOption(DATA.kpis[4].value));
+
+  // 24 小时曲线刷新当前小时点
+  if (hourChart){
+    const nowH = new Date().getHours();
+    const base = hourData()[nowH] + Math.round((Math.random() - 0.5) * 40);
+    hourChart.setOption({ series:[{ data: hourData().map((v, i) => ({
+      value: i === nowH ? Math.max(v, base) : v,
+      itemStyle:{
+        borderRadius:[3,3,0,0],
+        color: i === nowH
+          ? new echarts.graphic.LinearGradient(0,0,0,1,[{ offset:0, color:'#ffd98a' }, { offset:1, color:'rgba(224,163,58,.15)' }])
+          : new echarts.graphic.LinearGradient(0,0,0,1,[{ offset:0, color:'#35e0ff' }, { offset:1, color:'rgba(31,111,224,.15)' }]),
+      },
+    })) }] });
+  }
+
+  document.getElementById('syncTime').textContent = '刚刚';
+}
+
+/* ---------------- 自适应缩放 ---------------- */
+function fit(){
+  const screen = document.getElementById('screen');
+  const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  screen.style.transform = `translate(-50%,-50%) scale(${scale})`;
+}
+
+/* ---------------- 启动 ---------------- */
+(function boot(){
+  fit();
+  renderKpis();
+  renderRanking();
+  renderTicker();
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  const charts = [initRank(), initTrend(), initGauge(), initLang(), initType(), initHour()];
+  setInterval(refreshLive, 6000);
+  window.addEventListener('resize', () => {
+    fit();
+    charts.forEach(c => c && c.resize());
+  });
+})();
+</script>
+</body>
+</html>
