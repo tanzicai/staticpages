@@ -1,0 +1,468 @@
+:root {
+  --ink: #18264a;
+  --muted: #526184;
+  --accent: #214bd1;
+  --accent-deep: #142e74;
+  --paper: #eff5fd;
+  --line: #dce6f8;
+  --white: #fff;
+  --radius: 16px;
+  color-scheme: light;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.65 "Inter","PingFang SC","Microsoft YaHei",sans-serif}a{color:inherit;text-decoration:none}button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:default}img{display:block;width:100%;object-fit:cover}h1,h2,h3,p{margin:0}a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #da8354;outline-offset:4px}section[id]{scroll-margin-top:92px}.wrap{width:min(1296px,calc(100% - 100px));margin-inline:auto}.top{position:sticky;top:0;z-index:5;background:#fffcf7f5;border-bottom:1px solid #e9e0d7;backdrop-filter:blur(14px)}.top-inner{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{display:flex;align-items:center;gap:12px;flex:none;color:var(--accent-deep)}.brand b{display:block;font:700 22px/1.2 "Songti SC",STSong,serif;letter-spacing:2px}.brand small{display:block;font-size:7.5px;letter-spacing:.07em;margin-top:6px}.seal{display:grid;place-content:center;position:relative;width:40px;height:40px;border:1px solid currentColor;outline:1px solid currentColor;outline-offset:-5px;border-radius:50%;font:italic 26px/1 Georgia}.seal span{position:absolute;right:7px;bottom:6px;font-size:12px}.top nav{display:flex;gap:clamp(12px,2vw,32px);align-self:stretch;white-space:nowrap}.top nav a{display:grid;place-items:center;border-bottom:2px solid transparent;padding-top:2px;font-size:14px}.top nav a:hover,.top nav .current{color:var(--accent);border-color:var(--accent)}
+.hero{position:relative;isolation:isolate;overflow:hidden;background:#591025;color:white}.hero-photo,.hero-lines{position:absolute;inset:0;z-index:-1}.hero-photo{background:linear-gradient(90deg,#4a1021 0%,#6c1428 34%,#66152bcc 48%,#3f182748 72%,#2d101a24),url("assets/chongqing.jpg") right 48%/64% auto no-repeat;animation:landscape 24s ease-in-out infinite alternate}.hero-lines{background:radial-gradient(ellipse at 4% 85%,#df557a56,transparent 48%),repeating-radial-gradient(ellipse at 8% 115%,transparent 0 24px,#ffd5bd20 25px,transparent 26px 40px);mask-image:linear-gradient(90deg,#000,transparent 86%);animation:drift 12s ease-in-out infinite alternate}.hero-inner{position:relative;min-height:410px;padding-top:75px;padding-bottom:86px}.eyebrow{font-size:11px;font-weight:750;letter-spacing:.17em;color:var(--accent)}.hero-label{display:flex;align-items:center;gap:13px;color:#ffe1cb;letter-spacing:.13em}.hero-label span{width:7px;height:7px;border-radius:50%;background:#efb183;box-shadow:0 0 14px #ffba91}.hero-label i,.hero-caption i{height:12px;width:1px;background:currentColor;opacity:.5}.hero h1{font:800 clamp(48px,6vw,86px)/1.15 "Songti SC",STSong,"Noto Serif CJK SC",serif;letter-spacing:.04em;margin:18px 0 14px}.hero p{color:#ffebdf;font-size:16px;letter-spacing:.02em}.actions{display:flex;flex-wrap:wrap;gap:12px}.hero .actions{margin-top:28px}.button{display:inline-flex;align-items:center;justify-content:center;gap:17px;min-height:44px;padding:8px 17px;border-radius:7px;border:1px solid transparent;font-weight:650;font-size:14px;transition:background .2s,transform .2s}.button:hover{transform:translateY(-2px)}.white{background:#fff8ee;color:#77162d}.outline{border-color:#ffffff8c;color:#fff;background:#fff1}.primary{background:var(--accent);color:#fff}.secondary{color:var(--accent);border-color:#d7a6af;background:#fff9}.hero-caption{position:absolute;right:0;bottom:61px;display:flex;align-items:center;gap:8px;color:#fff1e3;font-size:10px;letter-spacing:.15em;text-shadow:0 1px 6px #000}
+.workspace{position:relative}.quick{margin-top:-36px;position:relative;z-index:1;background:var(--white);border:1px solid var(--line);border-radius:13px;box-shadow:0 10px 36px #4e231110;display:grid;grid-template-columns:repeat(7,1fr);padding-block:13px}.quick a{min-width:0;display:grid;gap:5px;justify-items:center;text-align:center;border-right:1px solid var(--line);padding:6px 3px;color:#3d2c2c;font-weight:650;font-size:13px}.quick a:last-child{border:0}.quick a:hover{color:var(--accent);background:#fcf0ed}.icon{width:34px;height:34px;background:#f9eae9;border-radius:9px;color:var(--accent);display:grid;place-items:center}.icon svg{width:19px;height:19px}.section{margin:48px 0 0}.section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:18px}.section-head p{color:var(--muted);font-size:13px;padding-bottom:2px}.section-head p span{padding-inline:5px;color:#b66471}h2{font-size:31px;line-height:1.3;margin-top:5px;letter-spacing:.025em}h3{font-size:18px;line-height:1.35}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}.card{display:block;position:relative;background:var(--white);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:0 4px 16px #59332008;transition:transform .22s,box-shadow .22s;text-align:left;color:inherit;width:100%;padding:0}.card:hover{transform:translateY(-4px);box-shadow:0 12px 24px #59332016}.card img{aspect-ratio:2.25}.card-copy{padding:15px 17px 17px}.card-copy p{font-size:13px;color:var(--muted);margin-top:5px}.badge{display:inline-flex;background:#fff7ee;color:#782135;border-radius:5px;padding:4px 9px;font-size:11px;font-weight:700}.card>.badge{position:absolute;top:11px;left:11px}.card-action{display:flex;justify-content:space-between;color:var(--accent);font-size:13px;font-weight:650;margin-top:12px}.scenes .card img{aspect-ratio:1.8}.portfolio-cover{height:162px;padding:19px;color:#fff;display:grid;align-content:space-between;background:linear-gradient(120deg,#200c16dc,#741a3a67),var(--cover) center/cover}.portfolio-cover strong{font:700 27px/1.15 Georgia,serif;max-width:240px}.portfolio-cover small{letter-spacing:.13em}.team .card-copy{display:flex;gap:12px}.team .icon{flex:none}.research{margin-bottom:52px;padding:26px;border-radius:var(--radius);border:1px solid #e7d0ca;background:linear-gradient(122deg,#faece7,#f8f0e8);display:flex;align-items:center;justify-content:space-between;gap:20px}.research p{margin-top:8px;color:var(--muted)}footer{background:#eee5dc;color:#66574f}.footer-inner{min-height:75px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px;font-size:13px}.footer-inner a{color:var(--accent)}
+dialog{width:min(580px,calc(100% - 32px));border:1px solid var(--line);border-radius:var(--radius);padding:0;color:var(--ink);background:var(--white);box-shadow:0 22px 60px #21101a40}dialog::backdrop{background:#25172180;backdrop-filter:blur(3px)}.dialog-inner{position:relative;padding:28px}.close{position:absolute;right:12px;top:10px;background:#f3e9e4;border:0;width:34px;height:34px;border-radius:50%;font-size:22px}.dialog-inner h2{padding-right:24px}.dialog-inner p{margin:12px 0}.room{border-top:1px solid var(--line);padding:12px 0}.room .button{margin-top:4px}
+.course-page{background:#102b56;color:#f5f8ff;min-height:100vh}.course-page::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at 93% 10%,#246a9b,transparent 54%),radial-gradient(ellipse at 4% 80%,#3945a1,transparent 65%),#142d59;background-size:140% 140%;animation:blue-drift 14s ease-in-out infinite alternate}.course-page .top{background:#fbf8f2}.back{color:var(--accent-deep);font-weight:650}.course-main{padding-block:40px 54px}.course-main .eyebrow{color:#b7ddff}.course-main h1{font:750 clamp(31px,5vw,64px)/1.18 "Songti SC",STSong,serif;margin:12px 0}.course-meta{display:flex;flex-wrap:wrap;gap:12px;color:#d9e8ff;margin-bottom:21px}.glass{background:#f9fcff1a;border:1px solid #f0f5ff38;border-radius:17px;padding:21px;min-width:0}.glass p{margin-top:8px;color:#e0edff}.course-columns{display:grid;grid-template-columns:1.08fr 1fr;gap:17px;margin-top:17px}.lesson-cover{border-radius:10px;max-height:208px;margin:14px 0 10px}.course-page .button.secondary{background:#eaf4ff15;color:#fff;border-color:#dfecff70}.course-page .button.primary{background:#e7f0ff;color:#1a3364}.prompt-list,.options{display:grid;gap:8px;margin:12px 0}.prompt-list button,.options button{text-align:left;border:1px solid #b4c3db75;border-radius:7px;padding:8px 11px;background:#e7f0ff16;color:inherit}.prompt-list button:hover,.options button:hover{background:#b5c6ff50}.dialog-inner .options button{border-color:#e2c8c8;background:#f8ede8}.chat-log{max-height:195px;overflow:auto;display:grid;gap:6px;padding:6px 0}.chat-log p{padding:7px 10px;border-radius:8px;margin:0;background:#0b1e4460;overflow-wrap:anywhere}.chat-form{display:flex;gap:7px;margin-top:12px}.chat-form input{min-width:0;width:100%;border:1px solid #c9d8fc82;border-radius:7px;background:#f4f8ff;color:#132745;padding:8px}.exercise{margin-top:13px}.feedback{min-height:1.65em;font-weight:650}.course-page footer{background:#101e3b;color:#dbe6f8}
+@keyframes landscape{to{transform:scale(1.075) translateX(-.7%)}}@keyframes drift{to{transform:translate(24px,-12px) scale(1.03);opacity:.58}}@keyframes blue-drift{to{background-position:100% 100%}}
+@media(max-width:1050px){.wrap{width:calc(100% - 48px)}.top-inner{gap:16px}.top nav{gap:14px}.top nav a{font-size:12px}.hero-photo{background-size:auto,79% auto}}
+@media(max-width:760px){.wrap{width:calc(100% - 32px)}.top-inner{min-height:62px}.top:has(nav) .top-inner{flex-direction:column;align-items:flex-start;padding-top:12px;gap:8px}.top nav{width:100%;overflow:auto;min-height:36px;gap:18px}.hero-inner{min-height:360px;padding:57px 0 71px}.hero-photo{background-size:auto,cover}.hero-caption{bottom:42px}.hero p{max-width:350px}.quick{grid-template-columns:repeat(4,1fr);row-gap:8px}.quick a:nth-child(4){border:0}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.section{margin-top:33px}.section-head{align-items:start;flex-direction:column;gap:4px}.section-head p{padding:0}.course-columns{grid-template-columns:1fr}.research{align-items:start;flex-direction:column}.back{font-size:12px}.footer-inner{padding:12px 0}}
+@media(max-width:460px){.quick a{font-size:11px}.cards{grid-template-columns:1fr}.hero h1{font-size:47px}.hero p{font-size:14px}.brand b{font-size:18px}.brand small{font-size:6px}.card img{aspect-ratio:2.35}.research{padding:18px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+.options button[aria-pressed="true"]{border-color:#dd8b65;background:#da835433}.dialog-inner .options button[aria-pressed="true"]{border-color:var(--accent);background:#f6dcdc}
+.courses{grid-template-columns:repeat(4,minmax(0,1fr))}.courses .card-copy p{min-height:2.8em;line-height:1.4}.portfolio-cover{height:184px}.portfolio-cover span{font-size:12px;color:#fff4eb}.hero-photo{background-size:auto,64% max(100%,33vw)}
+@media(max-width:1050px){.hero-photo{background-size:auto,79% 120%}}
+@media(max-width:760px){.hero-photo{background-size:auto,cover}.courses{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:460px){.courses{grid-template-columns:1fr}.courses .card-copy p{min-height:0}}
+
+/* 教学平台首页 */
+body:not(.course-page) {
+  background: radial-gradient(circle at 87% 34%, #e4eeff, transparent 34%), var(--paper);
+}
+.top {background: #fbfdfff5; border-color: var(--line)}
+.seal {background: #eef4ff}
+.hero {background: #11245b}
+.hero-photo {
+  background: linear-gradient(90deg, #0b1b49 3%, #163c87f7 34%, #1a4286bd 52%, #1b33703b 78%, #14234347),
+    url("assets/chongqing.jpg") right center / auto max(100%, 34vw) no-repeat;
+}
+.hero-lines {
+  background: radial-gradient(ellipse at 20% 82%, #19a6f55c, transparent 53%),
+    repeating-radial-gradient(ellipse at 11% 116%, transparent 0 28px, #9de3ff36 29px, transparent 30px 43px);
+}
+.hero-inner {min-height: 432px; padding-top: 79px}
+.hero h1 {font-size: clamp(42px, 6vw, 80px)}
+.hero-label, .hero p, .hero-caption {color: #dbf1ff}
+.hero-label span {background: #80ebff; box-shadow: 0 0 16px #80ebff}
+.white {background: #f7fbff; color: #143c96}
+.quick {border-radius: 15px; box-shadow: 0 12px 28px #17366717}
+.quick a {color: #263b67}
+.quick a:hover, .icon {background: #eaf1ff}
+.section {margin-top: 58px}
+.section-head {
+  position: relative;
+  justify-content: center;
+  margin-bottom: 26px;
+  text-align: center;
+}
+.section-head > div {
+  min-width: min(300px, 100%);
+  padding: 9px 30px 12px;
+  border-radius: 7px 7px 13px 13px;
+  color: white;
+  background: linear-gradient(112deg, #159abf, #2851d3 65%, #4d38de);
+  box-shadow: 0 8px 18px #254fc130;
+}
+.section-head p {position: absolute; right: 0; bottom: 0}
+.section-head .eyebrow {color: #e4f5ff; font-size: 10px}
+.section-head h2 {font-size: clamp(22px, 2.2vw, 30px); margin-top: 3px}
+.course-showcase {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 18px;
+}
+.courses {grid-template-columns: repeat(2, minmax(0, 1fr))}
+.course-features {display: grid; grid-template-rows: repeat(2, minmax(185px, 1fr)); gap: 17px}
+.feature {
+  position: relative;
+  display: flex;
+  align-items: end;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 18px 21px;
+  border: 0;
+  text-align: left;
+  border-radius: var(--radius);
+  background-position: center;
+  background-size: cover;
+  color: white;
+}
+.feature::before {content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg, #0c1d45e8, transparent 81%)}
+.feature-city {background-image: url("assets/chongqing.jpg")}
+.feature-interpreting {background-image: url("assets/interpreting.jpg")}
+.feature:hover h3 {text-decoration: underline}
+.feature p {color: #e6f0ff; font-size: 13px}
+.feature > .badge, .card > .badge {position: absolute; left: auto; right: 11px; top: 11px}
+.badge {background: linear-gradient(115deg, #087d9a, #3451d8); color: white}
+.feature h3 {font-size: clamp(19px, 2vw, 26px)}
+.card {box-shadow: 0 5px 18px #123a860a}
+.card:hover {box-shadow: 0 12px 24px #1836811c}
+.portfolio-cover {background-image: linear-gradient(120deg, #081d48ea, #2449a66a), var(--cover)}
+.portfolio-cover span {color: #e8f2ff}
+.research {border-color: var(--line); background: linear-gradient(120deg, #e3edff, #f6fbff)}
+.secondary {border-color: #afc2fa; background: #ffffffcc}
+footer {background: #e2ebfc; color: #304469}
+.close {background: #eaf0fc}
+.dialog-inner .options button {border-color: #d3e0fc; background: #f0f5ff}
+.dialog-inner .options button[aria-pressed="true"] {background: #dae6ff}
+
+/* 课程详情 */
+.course-page {
+  background: #2665c4;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+}
+.course-page::before {
+  background:
+    radial-gradient(ellipse at 95% 8%, #36badb 0%, transparent 57%),
+    radial-gradient(ellipse at 4% 96%, #4355d6 0%, transparent 70%),
+    radial-gradient(ellipse at 86% 83%, #2064c9 0%, transparent 62%),
+    #297fd7;
+  background-size: 125% 125%;
+}
+.course-page .wrap {width: min(1260px, calc(100% - 88px))}
+.course-nav {display: flex; justify-content: space-between; align-items: center; padding: 18px 0; gap: 10px; color: #ecf6ff; font-size: 14px}
+.course-nav .back {color: white; background: #ffffff21; border: 1px solid #ffffff66; padding: 7px 13px; border-radius: 9px}
+.course-main {padding-top: 13px; flex: 1}
+.course-title-row {display: flex; align-items: center; flex-wrap: wrap; gap: 12px 22px}
+.course-main h1 {font-size: clamp(32px, 4.3vw, 60px); margin: 0; text-shadow: 0 2px 7px #174f9f55}
+.course-heading > p {margin-top: 8px; color: #e5f3ff}
+.course-emblem {display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; padding: 8px 12px; border: 1px solid #ecf7ffa5; background: #eaf7ffb9; color: #114a9e; font-weight: 750}
+.orb {width: 29px; height: 29px; display: inline-grid; place-items: center; flex: none; border-radius: 50%; color: white; background: radial-gradient(circle at 31% 25%, #ffd2d8, transparent 38%), radial-gradient(circle at 76% 65%, #8668ea, transparent 50%), #8ad8ee; box-shadow: inset 0 0 5px 2px #fffc; font: 750 12px/1 sans-serif}
+.course-meta {display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 20px; margin: 26px 0; color: white}
+.course-meta div, .course-meta dt {display: flex; align-items: center; gap: 8px}
+.course-meta dt {white-space: nowrap; font-weight: 750}
+.course-meta dd {margin: 0; color: #edf7ff}
+.course-meta svg {width: 20px; height: 20px; flex: none}
+.glass {border-radius: 26px; border-color: #f0f7ff69; background: #f1f7ff38; box-shadow: inset 0 1px 0 #ffffff36}
+.course-intro {padding: 23px 30px}
+.intro-heading {display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px}
+.intro-heading h2 {display: flex; align-items: center; gap: 10px}
+.intro-heading a {font-weight: 720}
+.intro-heading a:hover {text-decoration: underline}
+.course-main h2 {font-family: "Songti SC", STSong, serif; color: white}
+.course-main .glass p {color: #f1f7ff}
+.course-intro p {font-size: clamp(15px, 1.45vw, 20px); line-height: 1.8}
+.course-columns {grid-template-columns: 1.04fr 1fr; gap: 22px; margin-top: 22px}
+.lesson-panel {align-self: start; padding: 12px; background: #cbdcffac}
+.lesson-visual {position: relative; overflow: hidden; border-radius: 17px; isolation: isolate}
+.lesson-cover {aspect-ratio: 1.68; max-height: none; margin: 0; border-radius: 0}
+.lesson-overlay {position: absolute; inset: 0; display: flex; flex-direction: column; align-items: start; justify-content: end; padding: 22px; background: linear-gradient(0deg, #07193de8 0%, #101e5470 62%, #0e214012)}
+.lesson-overlay > span {font-weight: 650; color: #d7efff}
+.lesson-overlay .button {margin-top: 10px}
+.lesson-body {border-radius: 12px; padding: 2px 14px 10px; margin-top: 12px; background: #173772}
+.agent-panel {padding: 24px 25px}
+.agent-panel .eyebrow {color: #ecf6ff; letter-spacing: .09em}
+.prompt-list {justify-items: start; gap: 10px; margin-top: 16px}
+.prompt-list button {display: flex; align-items: center; gap: 9px; border: 1px solid white; border-radius: 999px; padding: 9px 15px; background: #f0f6ffeb; color: #172b55; font-weight: 650}
+.prompt-list button::before {content: "···"; display: grid; place-items: center; flex: none; width: 23px; height: 23px; border-radius: 50%; color: white; background: #197bb9; font-weight: 800}
+.prompt-list button:hover {background: white}
+.chat-log:empty {display: none}
+.chat-form input {background: #f5f9ff}
+.course-page footer {background: #193b83}
+
+@media (max-width: 1050px) {
+  .section-head p {position: static}
+  .section-head {flex-direction: column; align-items: center; gap: 10px}
+}
+@media (max-width: 760px) {
+  .hero-inner {min-height: 360px; padding-top: 56px}
+  .hero-photo {background-size: auto, cover}
+  .course-showcase, .course-columns {grid-template-columns: 1fr}
+  .course-features {grid-template-columns: 1fr 1fr; grid-template-rows: minmax(155px, auto)}
+  .section {margin-top: 39px}
+  .course-page .wrap {width: calc(100% - 32px)}
+  .course-meta {gap: 9px 14px}
+  .course-intro, .agent-panel {padding: 18px}
+}
+@media (max-width: 460px) {
+  .hero h1 {font-size: 40px}
+  .courses, .course-features {grid-template-columns: 1fr}
+  .course-features {grid-auto-rows: minmax(145px, auto)}
+  .course-meta {grid-template-columns: 1fr; margin: 17px 0}
+  .course-nav {font-size: 11px}
+  .lesson-overlay {padding: 13px}
+}
+
+/* 实时动态背景 */
+.ambient-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.hero > .ambient-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+.hero-photo {
+  background-image:
+    linear-gradient(90deg, #081636 0%, #0d2456fa 33%, #123775af 59%, #10264f55 100%),
+    url("assets/chongqing.jpg");
+  animation-duration: 19s;
+}
+.hero-lines {
+  inset: -14%;
+  mask-image: none;
+  background:
+    radial-gradient(ellipse at 68% 24%, #46dafa57, transparent 42%),
+    radial-gradient(ellipse at 93% 83%, #8450f569, transparent 43%),
+    radial-gradient(ellipse at 38% 96%, #168df567, transparent 48%);
+  animation: aurora-drift 10s ease-in-out infinite alternate;
+  mix-blend-mode: screen;
+}
+.hero-caption {text-shadow: 0 1px 7px #061029, 0 0 16px #061029}
+.course-page > .ambient-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+}
+.course-page {
+  background: #112b67;
+}
+.course-page::before {
+  background:
+    radial-gradient(ellipse at 96% 4%, #177baf 0%, transparent 53%),
+    radial-gradient(ellipse at 11% 98%, #473aa8 0%, transparent 61%),
+    radial-gradient(ellipse at 72% 75%, #235fba 0%, transparent 70%),
+    #102c66;
+  background-size: 125% 130%;
+  animation-duration: 11s;
+}
+.course-page .glass {
+  background-color: #d9eaff25;
+  backdrop-filter: blur(11px);
+}
+.course-page .lesson-panel {background-color: #cbdcffac}
+@keyframes aurora-drift {
+  from {transform: translate3d(-4%, 4%, 0) scale(1); opacity: .65}
+  to {transform: translate3d(6%, -5%, 0) scale(1.13); opacity: .98}
+}
+
+/* 首页全页背景与深色板块 */
+body.home-page {
+  --ink: #eef5ff;
+  --muted: #b5c6e6;
+  --accent: #85dcff;
+  --accent-deep: #e4efff;
+  --line: #8dbeff39;
+  --white: #142957;
+  color: var(--ink);
+  background: #07142f;
+  isolation: isolate;
+}
+.home-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 84% 38%, #0757829c, transparent 45%),
+    radial-gradient(ellipse at 11% 82%, #323b9caa, transparent 51%),
+    radial-gradient(ellipse at 72% 84%, #39236a81, transparent 43%),
+    #07142f;
+  background-size: 137% 132%;
+  animation: blue-drift 14s ease-in-out infinite alternate;
+}
+.home-page .home-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+}
+.home-page .top {
+  background: #07152ce8;
+  border-color: #92baff35;
+  box-shadow: 0 6px 24px #030a1840;
+}
+.home-page .seal {background: #98ceff14}
+.home-page .top nav .current,
+.home-page .top nav a:hover {color: #91e8ff; border-color: #91e8ff}
+.home-page .white {background: #e8f6ff; color: #102c54}
+.home-page .quick {
+  background: linear-gradient(115deg, #1d3767e8, #102447db);
+  border-color: #7cb7ff66;
+  box-shadow: 0 14px 44px #020c266e, inset 0 1px #c1e3ff40;
+  backdrop-filter: blur(15px);
+}
+.home-page .quick a {color: #e1edff}
+.home-page .quick a:hover {background: #7abaff23; color: #fff}
+.home-page .icon {
+  color: #a5e4ff;
+  background: linear-gradient(140deg, #3d83bb4a, #3662a529);
+  box-shadow: inset 0 0 0 1px #a3d9ff2d;
+}
+.home-page .section-head > div {
+  border: 1px solid #94c4ff76;
+  background: linear-gradient(112deg, #0b6681d4, #234491e8 60%, #462b89dc);
+  box-shadow: 0 7px 26px #4d86fb40, inset 0 1px #9adfff42;
+}
+.home-page .section-head p span {color: #91dfff}
+.home-page .card,
+.home-page .feature {
+  border: 1px solid #9ec3ff4a;
+  box-shadow: 0 8px 30px #020a2654;
+}
+.home-page .card {
+  background: linear-gradient(155deg, #214278d9, #142348da 70%);
+}
+.home-page .team .card {background: linear-gradient(135deg, #1e3b6bc9, #18244ead)}
+.home-page .card:hover,
+.home-page .feature:hover {
+  border-color: #8fddffb3;
+  box-shadow: 0 8px 34px #52a6fc36;
+}
+.home-page .card-action {color: #94e2ff}
+.home-page .research {
+  background: linear-gradient(110deg, #23396fc9, #27338e9c 52%, #363069b5);
+  border-color: #9dc3ff66;
+  box-shadow: inset 0 1px #9adfff35, 0 14px 33px #050e314f;
+}
+.home-page .primary {background: #a0e5ff; color: #142c52}
+.home-page .secondary {
+  background: #bbd7ff1a;
+  border-color: #9fb9ff73;
+  color: #dcf5ff;
+}
+.home-page footer {
+  background: #060f25e8;
+  color: #c3d4ef;
+  border-top: 1px solid #accaff2b;
+}
+.home-page dialog {background: #142a52; color: var(--ink); color-scheme: dark}
+.home-page dialog .close,
+.home-page dialog .options button {
+  color: var(--ink);
+  background: #284575;
+  border-color: #698fbb;
+}
+.home-page dialog .options button[aria-pressed="true"] {background: #345e8b; border-color: #8adcff}
+
+/* 英语学习智能体与数字教材 */
+.home-page .hero-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(200px, 30vw, 360px);
+  align-items: center;
+  gap: 14px;
+  padding-block: 38px 66px;
+}
+.hero-copy {min-width: 0}
+.home-page .hero h1 {font-size: clamp(42px, 5.5vw, 77px)}
+.hero-assistant {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  justify-items: center;
+  align-items: end;
+  aspect-ratio: 1.04;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #f4fcff;
+}
+.hero-assistant img {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  filter: drop-shadow(0 13px 19px #06152bb0);
+  animation: float-mascot 5.8s ease-in-out infinite;
+  transition: filter .25s;
+}
+.hero-assistant:hover img {filter: drop-shadow(0 0 22px #7dcfff70)}
+.mascot-orbit {
+  position: absolute;
+  z-index: -1;
+  top: 14%;
+  left: 12%;
+  width: 76%;
+  aspect-ratio: 1;
+  border: 1px solid #a3edff64;
+  border-radius: 50%;
+  background: radial-gradient(circle, #73cbfc4d, #8e5dff28 53%, transparent 72%);
+  box-shadow: inset 0 0 28px #a4d9ff23, 0 0 36px #5489fc5c;
+}
+.mascot-label {
+  grid-area: 1 / 1;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  padding: 7px 12px;
+  border: 1px solid #9adfff9c;
+  border-radius: 999px;
+  background: #0a2045ef;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 4px 22px #49a9ff47;
+}
+.mascot-status {width: 7px; height: 7px; border-radius: 50%; background: #91e9ff; box-shadow: 0 0 10px #91e9ff}
+@keyframes float-mascot {50% {transform: translateY(-9px)}}
+
+.textbook-grid {grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: start}
+.textbook {scroll-margin-top: 118px}
+.textbook summary {list-style: none; cursor: pointer}
+.textbook summary::-webkit-details-marker {display: none}
+.textbook summary:focus-visible {outline: 2px solid #94e2ff; outline-offset: -3px}
+.textbook-cover {
+  display: grid;
+  align-content: space-between;
+  gap: 18px;
+  min-height: 120px;
+  padding: 16px;
+  background: linear-gradient(130deg, #112952, #245c91 70%, #554ca7);
+  color: #f1f8ff;
+  font: 650 20px/1.2 Georgia, serif;
+}
+.textbook:nth-child(even) .textbook-cover {background: linear-gradient(130deg, #172b55, #45458c 72%, #2b6889)}
+.textbook-chapters {margin: 0 17px 12px; padding: 13px 0 0 20px; border-top: 1px solid var(--line)}
+.textbook-chapters li + li {margin-top: 10px}
+.textbook-chapters p {color: var(--muted); font-size: 13px; margin-top: 3px}
+.textbook-course {display: inline-block; margin: 0 17px 16px; color: var(--accent); text-decoration: underline}
+
+.assistant-dialog {width: min(560px, calc(100% - 24px))}
+.assistant-dialog .dialog-inner {padding: 22px}
+.assistant-heading {display: flex; align-items: center; gap: 10px; padding-right: 28px}
+.assistant-heading img {width: 56px; height: 56px; object-fit: contain; border-radius: 15px; background: #243f72}
+.assistant-heading h2 {font-size: 22px; padding: 0}
+.assistant-heading p {font-size: 12px; color: var(--muted); margin: 3px 0 0}
+.assistant-modes {display: flex; flex-wrap: wrap; gap: 7px; margin: 16px 0 12px}
+.assistant-modes button {
+  color: #e2f1ff;
+  border: 1px solid #7fb8ed70;
+  background: #233f70;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+.assistant-modes button[aria-pressed="true"] {color: #11294d; background: #a0e5ff; border-color: #a0e5ff}
+.assistant-log {display: flex; flex-direction: column; gap: 9px; max-height: min(42vh, 330px); overflow: auto; padding: 2px 6px 8px 0; overscroll-behavior: contain}
+.assistant-message {align-self: flex-start; max-width: 94%; background: #25406e; border-radius: 12px; padding: 9px 12px; overflow-wrap: anywhere}
+.assistant-message p {margin: 0}
+.assistant-message a {display: block; margin-top: 4px; color: #a5eeff; text-decoration: underline}
+.assistant-message.user-message {align-self: flex-end; background: #355c8a}
+.assistant-form {display: flex; gap: 8px; margin-top: 10px}
+.assistant-form input {width: 100%; min-width: 0; padding: 8px 10px; color: #f4faff; background: #102347; border: 1px solid #769cce; border-radius: 8px}
+.assistant-form input::placeholder {color: #a9bddf}
+.assistant-form .button {flex: none}
+
+@media (max-width: 900px) {
+  .textbook-grid {grid-template-columns: repeat(2, minmax(0, 1fr))}
+}
+@media (max-width: 760px) {
+  .home-page .hero-inner {grid-template-columns: minmax(0, 1fr) clamp(120px, 29vw, 215px); gap: 8px}
+  .home-page .hero h1 {font-size: clamp(30px, 6vw, 46px)}
+  .hero-label {flex-wrap: wrap; gap: 6px}
+  .mascot-label {font-size: 10px; padding: 5px 7px; gap: 5px}
+}
+@media (max-width: 460px) {
+  .hero .actions {gap: 6px; margin-top: 15px}
+  .hero .actions .button {min-height: 36px; padding: 5px 9px; font-size: 12px; gap: 5px}
+  .textbook-grid {grid-template-columns: 1fr}
+  .assistant-dialog .dialog-inner {padding: 17px}
+}
