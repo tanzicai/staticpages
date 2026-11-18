@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1743a4">
+<title>虚拟实践平台 · 四川外国语大学英语学院</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="app.js"></script>
+<script defer src="background.js"></script>
+</head>
+<body class="home-page">
+<canvas class="ambient-canvas home-ambient" data-ambient="workspace" aria-hidden="true"></canvas>
+<header class="top"><div class="wrap top-inner">
+<a class="brand" href="index.html" aria-label="平台首页"><span class="seal" aria-hidden="true">S<span>·</span></span><span><b>四川外国语大学</b><small>SICHUAN INTERNATIONAL STUDIES UNIVERSITY</small></span></a>
+<nav aria-label="主导航"><a href="#home" class="current">首页</a><a href="#courses">智慧课程</a><a href="#labs">虚拟仿真</a><a href="#scenes">实践场景</a><a href="#portfolio">一生一案</a><a href="#textbooks">数字教材</a><a href="#mentors">企业导师</a><a href="#research">虚拟教研室</a></nav>
+</div></header>
+<main id="home">
+<section class="hero"><div class="hero-photo"></div><div class="hero-lines" aria-hidden="true"></div><canvas class="ambient-canvas" data-ambient="hero" aria-hidden="true"></canvas><div class="wrap hero-inner">
+<div class="hero-copy">
+<div class="eyebrow hero-label"><span></span> 英语学院 <i></i> SCHOOL OF ENGLISH STUDIES</div>
+<h1>虚拟实践教学平台</h1>
+<p>从英语课堂走进真实语境，在跨文化交流中学习、实践与表达。</p>
+<div class="actions"><a class="button white" href="#courses">探索智慧课程 <span>↗</span></a><a class="button outline" href="#scenes">浏览实践场景 <span>→</span></a></div>
+</div>
+<button class="hero-assistant" id="open-assistant" type="button" aria-haspopup="dialog" aria-controls="assistant-dialog">
+  <span class="mascot-orbit" aria-hidden="true"></span>
+  <img src="assets/english-assistant.webp" alt="" width="360" height="360">
+  <span class="mascot-label"><span class="mascot-status" aria-hidden="true"></span> 英语学习智能体 <span aria-hidden="true">↗</span></span>
+</button>
+</div></section>
+<div class="wrap workspace">
+<nav class="quick" aria-label="平台板块">
+<a href="#courses"><span class="icon" data-icon="book"></span>智慧课程空间</a>
+<a href="#labs"><span class="icon" data-icon="cube"></span>虚拟仿真实验</a>
+<a href="#scenes"><span class="icon" data-icon="globe"></span>实践教学场景</a>
+<a href="#portfolio"><span class="icon" data-icon="folder"></span>一生一案</a>
+<a href="#textbooks"><span class="icon" data-icon="book"></span>数字教材</a>
+<a href="#mentors"><span class="icon" data-icon="case"></span>企业导师队伍</a>
+<a href="#research"><span class="icon" data-icon="grid"></span>虚拟教研室</a>
+</nav>
+<section id="courses" class="section"><div class="section-head"><div><div class="eyebrow">SMART COURSE SPACE</div><h2>智慧课程空间</h2></div><p>课程虚拟空间 <span>·</span> 课程 AI 智能体</p></div><div class="course-showcase">
+<div class="cards courses" id="course-list"></div>
+<aside class="course-features" aria-label="课程相关实践">
+<button type="button" class="feature feature-city" id="feature-city"><span class="badge">跨文化实践</span><div><h3>重庆城市双语导览</h3><p>用英语讲述山城故事 <span aria-hidden="true">↗</span></p></div></button>
+<button type="button" class="feature feature-interpreting" id="feature-interpreting"><span class="badge">仿真教学</span><div><h3>国际会议口译模拟</h3><p>进入会议口译实验 <span aria-hidden="true">↗</span></p></div></button>
+</aside>
+</div></section>
+<section id="labs" class="section"><div class="section-head"><div><div class="eyebrow">VIRTUAL SIMULATION</div><h2>虚拟仿真实验</h2></div><p>选择角色，完成模拟任务</p></div><div class="cards" id="lab-list"></div></section>
+<section id="scenes" class="section"><div class="section-head"><div><div class="eyebrow">PRACTICE SCENARIOS</div><h2>实践教学场景</h2></div></div><div class="cards scenes" id="scene-list"></div></section>
+<section id="portfolio" class="section"><div class="section-head"><div><div class="eyebrow">STUDENT PORTFOLIO</div><h2>一生一案学习平台</h2></div><p>学生成果展示 · 示例作品</p></div><div class="cards portfolios" id="portfolio-list"></div></section>
+<section id="textbooks" class="section"><div class="section-head"><div><div class="eyebrow">DIGITAL TEXTBOOKS</div><h2>数字教材</h2></div><p>英语学院 · 教学示例</p></div><div class="cards textbook-grid" id="textbook-list"></div></section>
+<section id="mentors" class="section"><div class="section-head"><div><div class="eyebrow">INDUSTRY MENTORS</div><h2>企业导师队伍</h2></div><p>导师方向示例</p></div><div class="cards team" id="mentor-list"></div></section>
+<section id="research" class="section research"><div><div class="eyebrow">VIRTUAL TEACHING &amp; RESEARCH</div><h2>虚拟教研室</h2><p>围绕语音教学、口译训练与国别文化，浏览教研主题和活动。</p></div><div class="actions"><button class="button primary" id="my-room">我的教研室 <span>↗</span></button><button class="button secondary" id="room-square">教研室广场 <span>→</span></button></div></section>
+</div>
+</main>
+<footer><div class="wrap footer-inner"><b>四川外国语大学 · 英语学院</b><span>虚拟实践平台 / 教学演示</span><a href="#home">返回顶部 ↑</a></div></footer>
+<dialog id="detail"><div class="dialog-inner"><button class="close" type="button" aria-label="关闭">×</button><div id="detail-content"></div></div></dialog>
+<dialog class="assistant-dialog" id="assistant-dialog" aria-labelledby="assistant-heading">
+  <div class="dialog-inner">
+    <form method="dialog"><button class="close" type="submit" aria-label="关闭对话">×</button></form>
+    <header class="assistant-heading">
+      <img src="assets/english-assistant.webp" alt="" width="56" height="56">
+      <div><h2 id="assistant-heading">英语学习智能体</h2><p>四川外国语大学英语学院 · 本地助手</p></div>
+    </header>
+    <div class="assistant-modes" role="group" aria-label="对话功能">
+      <button type="button" data-mode="course" aria-pressed="false">课程查询</button>
+      <button type="button" data-mode="material" aria-pressed="false">资料查询</button>
+      <button type="button" data-mode="help" aria-pressed="true">智能助手</button>
+    </div>
+    <div class="assistant-log" id="assistant-log" role="log" aria-label="对话记录">
+      <div class="assistant-message"><p>Hi! 我可以帮你找课程和数字教材，也可以给你安排英语练习。试试输入「怎么练口译」。</p></div>
+    </div>
+    <form class="assistant-form" id="assistant-form">
+      <input id="assistant-question" type="text" maxlength="200" required placeholder="例如：怎么练口译？" aria-label="输入你的问题">
+      <button class="button primary" type="submit">发送</button>
+    </form>
+  </div>
+</dialog>
+</body>
+</html>
