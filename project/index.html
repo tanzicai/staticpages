@@ -390,16 +390,20 @@ const DEFAULT={
    {id:'ct3',cat:'通知公告',title:'关于决赛时间调整的通知',date:'2026-11-10',top:true,status:'已发布'},
    {id:'ct4',cat:'通知公告',title:'参赛材料提交规范说明',date:'2026-11-06',top:false,status:'草稿'}],
  portal:{
-   device:'web',theme:'#b1503a',template:'大屏数据门户',nav:'顶部横向导航',
+   device:'web',theme:'#b1503a',template:'大屏数据门户',nav:'顶部横向导航',moduleSize:'标准',moduleStyle:'描边',
    tplDesc:'深色数据密集型布局，核心指标 + 多图表组合，适配赛事指挥中心大屏展示',
    web:[{id:'p1',name:'赛事概览',type:'stat',on:true},{id:'p2',name:'报名趋势',type:'chart',on:true},{id:'p3',name:'赛事动态',type:'list',on:true},{id:'p4',name:'参赛队伍',type:'table',on:true}],
    mobile:[{id:'m1',name:'快捷入口',type:'shortcut',on:true},{id:'m2',name:'我的报名',type:'list',on:true},{id:'m3',name:'消息通知',type:'list',on:true}],
    space:[{id:'s1',name:'个人信息',type:'form',on:true},{id:'s2',name:'我的赛事',type:'list',on:true},{id:'s3',name:'成绩查询',type:'table',on:true}],
-   saved:['大屏数据门户','简约赛事门户','H5 移动门户'],
+   saved:['大屏数据门户','赛事直播大屏','简约赛事门户','官方赛事官网','H5 移动门户','报名 H5 单页'],
+   customTpls:[],
    tplStyles:{
-     '大屏数据门户':{layout:'grid',density:'密集',radius:8,header:'大屏深色顶栏',cols:2,desc:'核心指标卡 + 双图表 + 数据列表，深色数据密集型布局，适合大屏与指挥中心'},
-     '简约赛事门户':{layout:'list',density:'宽松',radius:16,header:'简约品牌横幅',cols:1,desc:'大幅品牌横幅 + 宽松单列内容，留白充足、层次清晰，适合官方网站门户'},
-     'H5 移动门户':{layout:'mobile',density:'紧凑',radius:22,header:'移动端标题栏',cols:1,desc:'竖屏手机框预览，底部标签导航 + 卡片流式布局，适合微信 H5 分享'}
+     '大屏数据门户':{cat:'大屏类',layout:'grid',density:'密集',radius:8,header:'大屏深色顶栏',cols:2,desc:'核心指标卡 + 双图表 + 数据列表，深色数据密集型布局，适合大屏与指挥中心'},
+     '赛事直播大屏':{cat:'大屏类',layout:'grid',density:'密集',radius:6,header:'直播深色顶栏',cols:2,desc:'实时赛况 + 榜单 + 趋势 charts，适合决赛现场与直播指挥场景'},
+     '简约赛事门户':{cat:'官网类',layout:'list',density:'宽松',radius:16,header:'简约品牌横幅',cols:1,desc:'大幅品牌横幅 + 宽松单列内容，留白充足、层次清晰，适合官方网站门户'},
+     '官方赛事官网':{cat:'官网类',layout:'list',density:'标准',radius:10,header:'官网标准导航',cols:1,desc:'标准官网布局，栏目清晰、信息密度适中，适合综合赛事门户'},
+     'H5 移动门户':{cat:'H5类',layout:'mobile',density:'紧凑',radius:22,header:'移动端标题栏',cols:1,desc:'竖屏手机框预览，底部标签导航 + 卡片流式布局，适合微信 H5 分享'},
+     '报名 H5 单页':{cat:'H5类',layout:'mobile',density:'紧凑',radius:18,header:'报名页标题栏',cols:1,desc:'单页式 H5，突出报名入口与赛事亮点，适合社交渠道投放'}
    }},
  screens:[
    {id:'sc1',name:'决赛现场主屏',domain:'screen.guanlan.cn/final',icon:'trophy',desc:'决赛实时比分与榜单大屏',access:'login',online:true,ip:'10.0.0.0/8',intranet:false,guest:false},
@@ -412,7 +416,7 @@ const DEFAULT={
  signatures:[]
 };
 let S=load();
-function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);const base=JSON.parse(JSON.stringify(DEFAULT));if(d&&d.portal)base.portal=Object.assign(base.portal,d.portal);if(d&&d.sso)base.sso=Object.assign(base.sso,d.sso);return Object.assign(base,d)}}catch(e){}return JSON.parse(JSON.stringify(DEFAULT))}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);const base=JSON.parse(JSON.stringify(DEFAULT));if(d&&d.portal){const dp=d.portal;base.portal=Object.assign(base.portal,dp);base.portal.tplStyles=Object.assign(base.portal.tplStyles,dp.tplStyles||{});base.portal.customTpls=dp.customTpls||[];if(Array.isArray(dp.saved))dp.saved.forEach(function(t){if(base.portal.saved.indexOf(t)<0)base.portal.saved.push(t)})}}if(d&&d.sso)base.sso=Object.assign(base.sso,d.sso);return Object.assign(base,d)}catch(e){}return JSON.parse(JSON.stringify(DEFAULT))}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function uid(){return 'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -498,7 +502,7 @@ function doLoginCode(){const c=document.getElementById('lgCode').value.trim();if
 let _ssoProvider='统一身份认证中心';
 function pickSSO(i,n){document.querySelectorAll('.sso-opt').forEach((x,j)=>x.classList.toggle('on',j===i));_ssoProvider=n;document.getElementById('ssoBtnText').textContent=n}
 function doLoginSSO(){finishLogin()}
-function finishLogin(){S.logged=true;S.view='overview';save();document.getElementById('loginView').style.display='none';document.getElementById('appShell').style.display='block';render();toast('登录成功，欢迎回来')}
+function finishLogin(){S.logged=true;S.view='overview';save();document.getElementById('loginView').style.display='none';document.getElementById('appShell').style.display='flex';render();toast('登录成功，欢迎回来')}
 function logout(){S.logged=false;S.view='overview';save();document.getElementById('appShell').style.display='none';document.getElementById('loginView').style.display='flex';renderLoginForm()}
 
 /* ==================== OVERVIEW ==================== */
@@ -521,7 +525,7 @@ R.overview=function(){
 function miniLine(){const d=[32,48,65,88,120,156],w=460,hgt=150,mx=Math.max.apply(null,d),pts=d.map((v,i)=>[30+i*(w-60)/(d.length-1),hgt-24-(v/mx)*(hgt-46)]);let p=pts.map(x=>x[0]+','+x[1]).join(' ');let s='<svg viewBox="0 0 '+w+' '+hgt+'" style="width:100%;height:150px">';for(let i=0;i<4;i++){let y=18+i*(hgt-40)/3;s+='<line x1="30" y1="'+y+'" x2="'+(w-20)+'" y2="'+y+'" stroke="#e5e0d5" stroke-width="1"/>'}s+='<polyline points="'+p+'" fill="none" stroke="#b1503a" stroke-width="2.5" stroke-linejoin="round"/>';pts.forEach(x=>s+='<circle cx="'+x[0]+'" cy="'+x[1]+'" r="3.5" fill="#fffefa" stroke="#b1503a" stroke-width="2"/>');s+='</svg>';return s}
 
 /* ==================== INIT ==================== */
-window.addEventListener('DOMContentLoaded',function(){initLogin();if(S.logged){document.getElementById('loginView').style.display='none';document.getElementById('appShell').style.display='block';render()}});
+window.addEventListener('DOMContentLoaded',function(){initLogin();if(S.logged){document.getElementById('loginView').style.display='none';document.getElementById('appShell').style.display='flex';render()}});
 document.getElementById('btnLogout').addEventListener('click',function(){confirmBox('确认退出当前登录账号？',logout)});
 /* ==================== EXTRA CSS ==================== */
 function injectCSS(css){const s=document.createElement('style');s.textContent=css;document.head.appendChild(s)}
@@ -874,6 +878,42 @@ injectCSS(`
 .pt-preview-h h3{font-family:'Songti SC',serif;font-size:16px}
 .pt-preview-h span{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--rust)}
 .pt-preview-h .ic{width:14px;height:14px}
+/* 门户：前后端分离架构说明 */
+.pt-arch{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:14px;border:1px solid var(--line);border-radius:var(--r2);background:var(--card)}
+.pt-arch-l{display:flex;align-items:baseline;gap:7px;padding:5px 11px;border-radius:4px;background:var(--paper2)}
+.pt-arch-l b{font-size:11px;color:var(--rust)}
+.pt-arch-l span{font-size:10px;color:var(--muted)}
+.pt-arch-l.on{background:var(--rust-soft)}
+.pt-arch>i{font-style:normal;color:var(--faint);font-size:14px}
+.pt-arch-note{margin-left:auto;font-size:10px;color:var(--faint)}
+.pt-cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.pt-cats .chip{padding:5px 10px;font-size:10.5px}
+.pt-cats .chip.on{background:var(--rust);border-color:var(--rust);color:#fff}
+.pt-color{display:inline-flex;align-items:center;gap:5px;padding:0 9px;height:32px;border:1px solid var(--line);border-radius:5px;font-size:10.5px;color:var(--muted);cursor:pointer;background:var(--paper2)}
+.pt-color input{width:20px;height:20px;border:none;border-radius:3px;padding:0;background:none;cursor:pointer}
+/* 预览导航三态 */
+.tp-navh{display:flex;align-items:center;gap:14px;padding:9px 14px;border-bottom:1px solid rgba(160,150,130,.3);background:rgba(255,255,255,.4)}
+.tp-navh b{font-family:'Songti SC',serif;font-size:13px;letter-spacing:2px}
+.tp-navh span{font-size:9.5px}
+.tpl-screen .tp-navh{background:rgba(255,254,250,.04);border-bottom-color:rgba(224,190,124,.18)}
+.tp-navv{display:flex;flex-direction:column;gap:5px;padding:9px 14px;border-bottom:1px solid var(--line);background:var(--paper2)}
+.tp-navv span{font-size:10px;color:var(--muted);white-space:nowrap;padding:2px 7px;border-left:2px solid transparent}
+.tpl-screen .tp-navv{border-bottom-color:rgba(224,190,124,.18);background:rgba(255,254,250,.04)}
+.tpl-screen .tp-navv{background:rgba(255,254,250,.04);border-right-color:rgba(224,190,124,.18)}
+.tp-navb{display:flex;justify-content:space-around;padding:7px 0;border-top:1px solid;background:rgba(255,255,255,.5)}
+.tp-navb span{font-size:9px;color:var(--faint)}
+.tpl-screen .tp-navb{background:rgba(255,254,250,.04)}
+/* 预览模块尺寸 / 样式 */
+.sz-s .tpl-metric,.sz-s .tpl-h5card,.sz-s .tpl-simple-item{padding:6px 9px}
+.sz-l .tpl-metric,.sz-l .tpl-h5card,.sz-l .tpl-simple-item{padding:16px 18px}
+.sz-s .tpl-screen-grid,.sz-s .tpl-h5body,.sz-s .tpl-simple-body{gap:5px}
+.sz-l .tpl-screen-grid,.sz-l .tpl-h5body,.sz-l .tpl-simple-body{gap:14px}
+.ms-fill .tpl-metric,.ms-fill .tpl-h5card,.ms-fill .tpl-simple-item{background:var(--rust-soft);border-color:transparent}
+.ms-shadow .tpl-metric,.ms-shadow .tpl-h5card,.ms-shadow .tpl-simple-item{box-shadow:0 5px 16px rgba(60,40,25,.13)}
+.tpl-screen.ms-fill .tpl-metric{background:rgba(177,80,58,.16)}
+.tpl-metric[draggable=true],.tpl-h5card[draggable=true],.tpl-simple-item[draggable=true]{cursor:grab}
+.tpl-metric[draggable=true]:active,.tpl-h5card[draggable=true]:active,.tpl-simple-item[draggable=true]:active{cursor:grabbing}
+
 /* 大屏：非对称杂志式 */
 .big-top{display:flex;justify-content:space-between;align-items:flex-end;padding:20px 24px 14px;border-bottom:1px solid rgba(224,190,124,.16)}
 .big-kicker{font-size:9px;letter-spacing:2.4px;color:#b08d5a;margin-bottom:7px}
@@ -1297,81 +1337,121 @@ function importContent(){modal('批量导入内容','<div class="tip" style="mar
 function doImportContent(){const rows=document.getElementById('impText').value.split(/\n/).map(x=>x.split(/[,，]/)).filter(x=>x[0]&&x[0].trim());if(!rows.length)return toast('暂无可导入数据','err');rows.forEach(x=>S.contents.push({id:uid(),title:x[0].trim(),cat:(x[1]||'赛事动态').trim(),date:(x[2]||new Date().toISOString().slice(0,10)).trim(),status:(x[3]||'草稿').trim(),top:false}));closeModal();save();render();log('批量导入内容数据 '+rows.length+' 条');toast('成功导入 '+rows.length+' 条内容')}
 
 /* ==================== PORTAL BUILDER ==================== */
-let _dragBlock=null,_ptStep=1;
+let _dragBlock=null,_ptStep=1,_tplCat='全部';
 function setPtStep(n){_ptStep=n;render()}
+function setTplCat(c){_tplCat=c;render()}
 R.portal=function(){
   const p=S.portal,dev=p.device,list=p[dev],st=p.tplStyles[p.template]||p.tplStyles['大屏数据门户'];
-  let h='<div class="page-head"><div><h2>门户可视化配置</h2><p>前后端分离架构 · 分步配置网页门户、移动端首页与个人空间，所见即所得</p></div><div class="head-actions"><button class="btn" onclick="saveAsTemplate()">'+svg('template','ic-sm')+'保存为模板</button><button class="btn gold" onclick="savePortal()">'+svg('save','ic-sm')+'发布门户</button></div></div>';
+  let h='<div class="page-head"><div><h2>门户可视化配置</h2><p>前后端分离架构 · 可视化设计后台 + 拖拽式页面布局，所见即所得</p></div><div class="head-actions"><button class="btn" onclick="saveAsTemplate()">'+svg('template','ic-sm')+'保存为模板</button><button class="btn gold" onclick="savePortal()">'+svg('save','ic-sm')+'发布门户</button></div></div>';
+  h+='<div class="pt-arch"><div class="pt-arch-l"><b>配置层</b><span>可视化设计后台</span></div><i>›</i><div class="pt-arch-l"><b>服务层</b><span>门户配置 API</span></div><i>›</i><div class="pt-arch-l on"><b>表现层</b><span>网页 / H5 / 个人空间</span></div><span class="pt-arch-note">前后端分离 · 配置无需二次开发</span></div>';
   h+='<div class="pt-work"><nav class="pt-steps">'+[['配置端','desktop','选择要配置的终端'],['模板','template','挑选门户模板'],['模块','components','编排展示模块'],['主题','palette','设置主题样式']].map((x,i)=>'<div class="pt-step '+(_ptStep===i?'on':'')+' '+(i<_ptStep?'done':'')+'" onclick="setPtStep('+i+')"><span>'+(i+1)+'</span>'+svg(x[1],'ic-sm')+'<div><b>'+x[0]+'</b><small>'+x[2]+'</small></div></div>').join('')+'</nav>';
   h+='<section class="pt-config"><div class="mini-head">第 '+(_ptStep+1)+' 步 / 共 4 步</div>';
   if(_ptStep===0){
-    h+='<div class="pt-devcards">'+[['web','desktop','网页端门户','面向 PC 浏览器的完整门户'],['mobile','mobile','移动端首页','适配手机的 H5 首页'],['space','user','个人空间','参赛者个人中心页面']].map(x=>'<div class="pt-devcard '+(dev===x[0]?'on':'')+'" onclick="setDevice(\''+x[0]+'\')">'+svg(x[1],'ic-xl')+'<b>'+x[2]+'</b><span>'+x[3]+'</span></div>').join('')+'</div>';
-    h+='<div class="tip" style="margin-top:14px">当前配置：<b class="hl">'+({web:'网页端',mobile:'移动端',space:'个人空间'}[dev])+'</b>，可随时切换后再编排模块。</div>';
+    h+='<div class="pt-devcards">'+[['web','desktop','网页端门户','面向 PC 浏览器的完整门户'],['mobile','mobile','移动端首页','适配手机的 H5 首页'],['space','user','个人空间','参赛者个人中心页面']].map(x=>'<div class="pt-devcard '+(dev===x[0]?'on':'')+'" onclick="setDevice(\''+x[0]+'\')">'+svg(x[1],'ic-xl')+'<b>'+x[2]+'</b><span>'+x[3]+' · '+p[x[0]].length+' 个栏目</span></div>').join('')+'</div>';
+    h+='<div class="tip" style="margin-top:14px">当前配置：<b class="hl">'+({web:'网页端',mobile:'移动端',space:'个人空间'}[dev])+'</b>，可随时切换后再编排栏目。所有栏目由后台配置，无需二次开发。</div>';
   }else if(_ptStep===1){
-    p.saved.forEach(t=>{const s2=p.tplStyles[t];const ticon=t==='大屏数据门户'?'screen':t==='H5 移动门户'?'mobile':'portal';
-      h+='<div class="pt-tplcard '+(p.template===t?'on':'')+'" onclick="chooseTemplate(\''+t+'\')"><div class="pt-tplico">'+svg(ticon)+'</div><div><b>'+esc(t)+'</b><p>'+esc(s2?s2.desc:'自定义模板')+'</p><div class="pt-tplmeta"><span>'+esc(s2?s2.header:'')+'</span><span>布局 '+esc(s2?s2.layout:'')+'</span><span>密度 '+esc(s2?s2.density:'')+'</span></div></div></div>'});
+    h+='<div class="pt-cats">'+[['全部','全部'],['大屏类','大屏类'],['H5类','H5类'],['官网类','官网类'],['自定义','自定义']].map(x=>'<div class="chip '+(_tplCat===x[1]?'on':'')+'" onclick="setTplCat(\''+x[1]+'\')">'+x[0]+'</div>').join('')+'</div>';
+    let shown=false;
+    p.saved.forEach(t=>{
+      const s2=p.tplStyles[t];if(!s2)return;
+      if(_tplCat==='自定义'){if(!s2.custom)return}else if(_tplCat!=='全部'&&s2.cat!==_tplCat)return;
+      shown=true;
+      const ticon=s2.cat==='大屏类'?'screen':s2.cat==='H5类'?'mobile':'portal';
+      const custom=!!s2.custom;
+      h+='<div class="pt-tplcard '+(p.template===t?'on':'')+'" onclick="chooseTemplate(\''+t+'\')"><div class="pt-tplico">'+svg(ticon)+'</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><b>'+esc(t)+'</b><span class="tag" style="font-size:9px">'+esc(s2.cat||'官网类')+'</span>'+(custom?'<span class="tag g" style="font-size:9px">自建</span>':'')+'</div><p>'+esc(s2.desc||'自定义模板')+'</p><div class="pt-tplmeta"><span>'+esc(s2.header||'')+'</span><span>布局 '+esc(s2.layout||'')+'</span><span>密度 '+esc(s2.density||'')+'</span></div></div>'+(custom?'<button class="icobtn del" title="删除模板" onclick="event.stopPropagation();delCustomTpl(\''+t+'\')">'+svg('trash','ic-sm')+'</button>':'')+'</div>';
+    });
+    if(!shown)h+='<div class="tip">该分类下暂无模板，可点击右上角「保存为模板」创建。</div>';
+    h+='<div class="tip" style="margin-top:10px">选择模板后可到下一步自由调整栏目布局与样式；「保存为模板」会把当前主题、栏目与样式一起存为可复用模板。</div>';
   }else if(_ptStep===2){
-    h+='<div class="tip" style="margin-bottom:12px">拖拽模块调整展示顺序，开关控制显隐，右侧预览实时更新。</div>';
+    h+='<div class="tip" style="margin-bottom:12px">在左侧列表或右侧预览中拖拽栏目即可调整顺序，开关控制显隐，所见即所得。</div>';
     list.forEach((b,i)=>{h+='<div class="pblock" draggable="true" data-i="'+i+'" ondragover="event.preventDefault()" ondrop="dropBlock('+i+')" ondragstart="_dragBlock='+i+'">'+svg('drag','ic-sm')+svg(blockIcon(b.type),'ic-sm')+'<b>'+esc(b.name)+'</b><span class="tag" style="margin-left:auto">'+esc(b.type.toUpperCase())+'</span><div class="switch '+(b.on?'on':'')+'" onclick="toggleBlock('+i+')"></div><button class="icobtn del" onclick="delBlock('+i+')">'+svg('trash','ic-sm')+'</button></div>'});
-    h+='<button class="btn" style="width:100%;margin-top:8px" onclick="addBlock()">'+svg('plus','ic-sm')+'添加展示模块</button>';
+    h+='<button class="btn" style="width:100%;margin-top:8px" onclick="addBlock()">'+svg('plus','ic-sm')+'添加展示栏目</button>';
   }else{
-    h+='<div class="f-row"><label>门户主题色</label><div class="chips">'+['#b1503a','#1e4b3d','#a9792f','#8a6f4e','#b06a5a'].map(c=>'<div class="chip" style="width:32px;height:32px;padding:0;background:'+c+';border:2px solid '+(p.theme===c?'#fff':'transparent')+'" onclick="setTheme(\''+c+'\')"></div>').join('')+'</div></div>';
-    h+='<div class="f-row"><label>导航栏样式</label><select class="sel2" onchange="setPortal(\'nav\',this.value)">'+['顶部横向导航','左侧纵向导航','底部标签导航'].map(x=>'<option '+(p.nav===x?'selected':'')+'>'+x+'</option>').join('')+'</select></div>';
-    h+='<div class="f-row"><label>模块尺寸</label><select class="sel2" onchange="toast(\'模块尺寸已应用\')"><option>标准</option><option>紧凑</option><option>宽松</option></select></div>';
-    h+='<div class="divider"></div><div class="kv"><span>当前模板</span><b class="hl">'+esc(p.template)+'</b></div><div class="kv"><span>配置端</span><b>'+({web:'网页端',mobile:'移动端',space:'个人空间'}[dev])+'</b></div><div class="kv"><span>模块数量</span><b>'+list.length+' 个</b></div>';
+    h+='<div class="f-row"><label>门户主题色（预设或自定义）</label><div class="chips" style="align-items:center">'+['#b1503a','#1e4b3d','#a9792f','#8a6f4e','#b06a5a'].map(c=>'<div class="chip" style="width:32px;height:32px;padding:0;background:'+c+';border:2px solid '+(p.theme.toLowerCase()===c?'#fff':'transparent')+'" onclick="setTheme(\''+c+'\')"></div>').join('')+'<label class="pt-color" title="自定义主题色"><input type="color" value="'+esc(p.theme)+'" oninput="setThemeCustom(this.value)">'+esc(p.theme)+'</label></div></div>';
+    h+='<div class="f-row"><label>导航栏样式</label><div class="seg" style="display:flex;width:100%">'+['顶部横向导航','左侧纵向导航','底部标签导航'].map(x=>'<button class="tab '+(p.nav===x?'on':'')+'" style="flex:1" onclick="setPortal(\'nav\',\''+x+'\')">'+x+'</button>').join('')+'</div></div>';
+    h+='<div class="f-row"><label>模块尺寸</label><div class="seg" style="display:flex;width:100%">'+['紧凑','标准','宽松'].map(x=>'<button class="tab '+((p.moduleSize||'标准')===x?'on':'')+'" style="flex:1" onclick="setModuleSize(\''+x+'\')">'+x+'</button>').join('')+'</div></div>';
+    h+='<div class="f-row"><label>模块样式</label><div class="seg" style="display:flex;width:100%">'+['描边','填充','投影'].map(x=>'<button class="tab '+((p.moduleStyle||'描边')===x?'on':'')+'" style="flex:1" onclick="setModuleStyle(\''+x+'\')">'+x+'</button>').join('')+'</div></div>';
+    h+='<div class="f-row"><label>模块圆角 · <b class="hl">'+(st.radius||8)+'px</b></label><input type="range" min="0" max="28" value="'+(st.radius||8)+'" style="width:100%" oninput="setRadius(this.value)"></div>';
+    h+='<div class="divider"></div><div class="kv"><span>当前模板</span><b class="hl">'+esc(p.template)+'</b></div><div class="kv"><span>配置端</span><b>'+({web:'网页端',mobile:'移动端',space:'个人空间'}[dev])+'</b></div><div class="kv"><span>栏目数量</span><b>'+list.length+' 个</b></div><div class="kv"><span>主题 / 导航</span><b>'+esc(p.theme)+' · '+esc(p.nav)+'</b></div>';
   }
   h+='<div class="pt-navfoot"><button class="btn" '+(_ptStep===0?'disabled':'')+' onclick="setPtStep('+(_ptStep-1)+')">上一步</button><button class="btn gold" '+(_ptStep===3?'disabled':'')+' onclick="setPtStep('+(_ptStep+1)+')">下一步 →</button></div></section>';
-  h+='<aside class="pt-preview"><div class="pt-preview-h"><div><h3>实时预览 · '+esc(p.template)+'</h3><span>'+svg('eye','ic-sm')+' 所见即所得</span></div></div><div class="tpl-meta"><div class="tag g">'+esc(st.header)+'</div><div class="tag">布局 '+esc(st.layout)+'</div><div class="tag">圆角 '+st.radius+'px</div></div><div class="tpl-desc">'+esc(st.desc)+'</div>'+renderTplPreview(p,st,list)+'</aside></div>';
+  h+='<aside class="pt-preview"><div class="pt-preview-h"><div><h3>实时预览 · '+esc(p.template)+'</h3><span>'+svg('eye','ic-sm')+' 所见即所得</span></div></div><div class="tpl-meta"><div class="tag g">'+esc(st.header)+'</div><div class="tag">布局 '+esc(st.layout)+'</div><div class="tag">圆角 '+(st.radius||8)+'px</div></div><div class="tpl-desc">'+esc(st.desc)+'</div>'+renderTplPreview(p,st,list)+'</aside></div>';
   return h;
 };
 
 function renderTplPreview(p,st,list){
-  const theme=p.theme,on=list.filter(b=>b.on);
-  // 模板一：大屏数据门户 —— 深色数据密集网格 + 指标卡 + 双图表
+  const theme=p.theme,on=list.filter(b=>b.on),nav=p.nav||'顶部横向导航';
+  const szm={紧凑:'s',标准:'m',宽松:'l'},msm={描边:'line',填充:'fill',投影:'shadow'};
+  const sz=' sz-'+(szm[p.moduleSize]||'m'),ms=' ms-'+(msm[p.moduleStyle]||'line'),rd=(st.radius||8);
+  const typeName={stat:'数据概览',chart:'图表',list:'图文列表',table:'表格',shortcut:'快捷入口',form:'表单'};
+  function navH(bright){
+    const col=bright?'#e8d4a6':'var(--ink2)';
+    if(nav==='底部标签导航')return '<div class="tp-navb" style="border-top-color:'+theme+'44">'+['首页','赛事','报名','成绩'].map((x,i)=>'<span '+(i===0?'style="color:'+theme+'"':'')+'>'+x+'</span>').join('')+'</div>';
+    if(nav==='左侧纵向导航')return '<div class="tp-navv">'+['首页','赛事','报名','成绩'].map((x,i)=>'<span '+(i===0?'style="color:'+theme+'"':'')+'>'+x+'</span>').join('')+'</div>';
+    return '<div class="tp-navh"><b style="color:'+theme+'">观澜</b><span style="color:'+col+'">首页　　赛事介绍　　报名中心　　成绩公示</span></div>';
+  }
   if(st.layout==='grid'){
-    let h='<div class="tpl-view tpl-screen"><div class="tpl-screen-head" style="border-bottom-color:'+theme+'40"><b style="color:'+theme+'">观澜赛事 · 数据指挥中心</b><span>首页　赛事　报名　成绩</span></div>';
-    h+='<div class="tpl-screen-title" style="color:'+theme+'">2026 创新技能大赛 数据总览</div>';
-    h+='<div class="tpl-screen-grid">';
-    h+='<div class="tpl-metric" style="border-top:2px solid '+theme+'"><span>累计报名</span><b style="color:'+theme+'">156</b></div>';
-    h+='<div class="tpl-metric" style="border-top:2px solid #1e4b3d"><span>参赛队伍</span><b style="color:#1e4b3d">86</b></div>';
-    h+='<div class="tpl-metric" style="border-top:2px solid '+theme+'"><span>覆盖赛道</span><b style="color:'+theme+'">3</b></div>';
-    h+='<div class="tpl-metric" style="border-top:2px solid #1e4b3d"><span>今日访问</span><b style="color:#1e4b3d">2481</b></div>';
+    let h='<div class="tpl-view tpl-screen'+sz+ms+'" style="border-radius:'+rd+'px">'+navH(true);
+    h+='<div class="tpl-screen-title" style="color:'+theme+'">2026 创新技能大赛 数据总览</div><div class="tpl-screen-grid">';
+    const mets=on.slice(0,4);
+    (mets.length?mets:[{name:'累计报名',type:'stat'},{name:'参赛队伍',type:'stat'},{name:'覆盖赛道',type:'stat'},{name:'今日访问',type:'stat'}]).forEach((b,i)=>{
+      const v=[156,86,3,2481][i]||88;
+      h+='<div class="tpl-metric" draggable="true" ondragstart="_dragBlock='+list.indexOf(b)+'" ondragover="event.preventDefault()" ondrop="dropBlock('+list.indexOf(b)+')" style="border-top:2px solid '+(i%2?'#1e4b3d':theme)+'"><span>'+esc(b.name)+'</span><b style="color:'+(i%2?'#c8b98a':theme)+'">'+v+'</b></div>';
+    });
     h+='<div class="tpl-chartcell" style="grid-column:span 2;height:120px">'+drawChart({type:'bar',data:[{n:'技术',v:42},{n:'应用',v:31},{n:'创意',v:27},{n:'综合',v:38}]})+'</div>';
     h+='<div class="tpl-chartcell" style="grid-column:span 2;height:120px">'+drawChart({type:'line',data:[{n:'1月',v:32},{n:'3月',v:65},{n:'5月',v:120},{n:'6月',v:156}]})+'</div>';
-    h+='</div><div class="tpl-foot" style="color:'+theme+'">LIVE · 实时数据刷新中</div></div>';
+    h+='</div><div class="tpl-foot" style="color:'+theme+'">LIVE · 实时数据刷新中</div>'+(nav==='底部标签导航'?navH(true):'')+'</div>';
     return h;
   }
-  // 模板三：H5 移动门户 —— 竖屏手机框 + 底部标签栏
   if(st.layout==='mobile'){
-    let h='<div class="tpl-h5wrap"><div class="tpl-h5phone" style="border-radius:'+st.radius+'px">';
+    let h='<div class="tpl-h5wrap"><div class="tpl-h5phone'+sz+ms+'" style="border-radius:'+rd+'px">';
     h+='<div class="tpl-h5status"><span>9:41</span><span>●●● ▮</span></div>';
-    h+='<div class="tpl-h5head" style="background:linear-gradient(135deg,'+theme+','+theme+'aa)"><b>观澜赛事</b><div>发现 · 参与 · 竞技</div></div>';
-    h+='<div class="tpl-h5body">';
+    h+='<div class="tpl-h5head" style="background:linear-gradient(135deg,'+theme+','+theme+'aa)"><b>观澜赛事</b><div>发现 · 参与 · 竞技</div></div><div class="tpl-h5body">';
     h+='<div class="tpl-h5banner" style="background:'+theme+'22;color:'+theme+'">2026 年度赛事报名火热进行中 →</div>';
-    on.slice(0,4).forEach(b=>{h+='<div class="tpl-h5card" style="border-left:3px solid '+theme+'">'+svg(blockIcon(b.type),'ic-sm')+'<div><b>'+esc(b.name)+'</b><span>'+esc({stat:'数据概览',chart:'图表',list:'图文列表',table:'表格',shortcut:'快捷入口',form:'表单'}[b.type]||'内容')+' · 点击查看详情</span></div></div>'});
-    h+='</div><div class="tpl-h5tab" style="border-top-color:'+theme+'44">'+[['home','首页',true],['trophy','赛事'],['form','报名'],['user','我的']].map(x=>'<div class="'+(x[2]?'on':'')+'" style="'+(x[2]?'color:'+theme:'')+'">'+svg(x[0],'ic-sm')+'<span>'+x[1]+'</span></div>').join('')+'</div>';
-    h+='</div></div>';return h;
+    on.slice(0,4).forEach(b=>{h+='<div class="tpl-h5card" draggable="true" ondragstart="_dragBlock='+list.indexOf(b)+'" ondragover="event.preventDefault()" ondrop="dropBlock('+list.indexOf(b)+')" style="border-left:3px solid '+theme+'">'+svg(blockIcon(b.type),'ic-sm')+'<div><b>'+esc(b.name)+'</b><span>'+esc(typeName[b.type]||'内容')+' · 点击查看详情</span></div></div>'});
+    h+='</div>'+navH(false)+'</div></div>';
+    return h;
   }
-  // 模板二：简约赛事门户 —— 大幅品牌横幅 + 宽松单列内容
-  let h='<div class="tpl-view tpl-simple" style="border-radius:'+st.radius+'px">';
-  h+='<div class="tpl-simple-nav"><b style="color:'+theme+'">观澜</b><span>首页　　赛事介绍　　报名中心　　成绩公示</span><button style="border-color:'+theme+';color:'+theme+'">立即报名</button></div>';
-  h+='<div class="tpl-simple-hero" style="background:linear-gradient(120deg,'+theme+'1f,transparent)"><div class="tpl-simple-tag" style="background:'+theme+'">2026 SEASON</div><h2>让每一份热爱<br><span style="color:'+theme+'">都有登场的舞台</span></h2><p>2026 年度创新技能大赛 · 报名通道已开启</p></div>';
-  h+='<div class="tpl-simple-body">';
-  on.slice(0,3).forEach(b=>{h+='<div class="tpl-simple-item"><div class="tpl-simple-ico" style="background:'+theme+'18;color:'+theme+'">'+svg(blockIcon(b.type))+'</div><div><b>'+esc(b.name)+'</b><p>'+esc(b.desc||'展示赛事相关内容与最新动态')+'</p></div><span style="color:'+theme+'">→</span></div>'});
-  h+='</div></div>';return h;
+  let h='<div class="tpl-view tpl-simple'+sz+ms+'" style="border-radius:'+rd+'px">'+navH(false);
+  h+='<div class="tpl-simple-hero" style="background:linear-gradient(120deg,'+theme+'1f,transparent)"><div class="tpl-simple-tag" style="background:'+theme+'">2026 SEASON</div><h2>让每一份热爱<br><span style="color:'+theme+'">都有登场的舞台</span></h2><p>2026 年度创新技能大赛 · 报名通道已开启</p></div><div class="tpl-simple-body">';
+  on.slice(0,3).forEach(b=>{h+='<div class="tpl-simple-item" draggable="true" ondragstart="_dragBlock='+list.indexOf(b)+'" ondragover="event.preventDefault()" ondrop="dropBlock('+list.indexOf(b)+')"><div class="tpl-simple-ico" style="background:'+theme+'18;color:'+theme+'">'+svg(blockIcon(b.type))+'</div><div><b>'+esc(b.name)+'</b><p>'+esc(b.desc||'展示赛事相关内容与最新动态')+'</p></div><span style="color:'+theme+'">→</span></div>'});
+  h+='</div>'+(nav==='底部标签导航'?navH(false):'')+'</div>';
+  return h;
 }
 function blockIcon(t){return {stat:'number',chart:'chart',list:'content',table:'table',shortcut:'components',form:'form'}[t]||'components'}
 function setDevice(d){S.portal.device=d;save();render()}
-function chooseTemplate(t){S.portal.template=t;const st=S.portal.tplStyles[t];save();render();toast('已切换模板：'+t+(st?'（'+st.layout+' 布局）':''))}
-function setPortal(k,v){S.portal[k]=v;save();render()}
+function chooseTemplate(t){const p=S.portal,rec=(p.customTpls||[]).find(x=>x.name===t);if(rec){p.theme=rec.theme;p.nav=rec.nav;p.moduleSize=rec.moduleSize;p.moduleStyle=rec.moduleStyle;['web','mobile','space'].forEach(function(k){if(rec[k])p[k]=JSON.parse(JSON.stringify(rec[k]))});if(p.tplStyles[t])p.tplStyles[t].radius=rec.radius}p.template=t;const st=p.tplStyles[t];save();render();toast('已切换模板：'+t+(st?'（'+st.cat+' · '+st.layout+' 布局）':''))}
+function setPortal(k,v){S.portal[k]=v;save();render();if(k==='nav')toast('导航栏样式：'+v)}
 function setTheme(c){S.portal.theme=c;save();render();toast('主题色已切换')}
+function setThemeCustom(c){S.portal.theme=c;save();render()}
+function setModuleSize(v){S.portal.moduleSize=v;save();render();toast('模块尺寸：'+v)}
+function setModuleStyle(v){S.portal.moduleStyle=v;save();render();toast('模块样式：'+v)}
+function setRadius(v){const st=S.portal.tplStyles[S.portal.template];if(!st)return;st.radius=Number(v);save();render()}
 function toggleBlock(i){const b=S.portal[S.portal.device][i];b.on=!b.on;save();render()}
 function delBlock(i){S.portal[S.portal.device].splice(i,1);save();render()}
-function addBlock(){modal('添加展示模块','<div class="f-row"><label>模块名称</label><input class="inp2" id="abName" placeholder="如：赛事新闻"></div><div class="f-row"><label>模块类型</label><select class="sel2" id="abType">'+[['stat','数据概览'],['chart','图表'],['list','图文列表'],['table','表格'],['shortcut','快捷入口'],['form','表单']].map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join('')+'</select></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="doAddBlock()">添加</button>')}
-function doAddBlock(){const n=document.getElementById('abName').value.trim()||'新模块',t=document.getElementById('abType').value;S.portal[S.portal.device].push({id:uid(),name:n,type:t,on:true});closeModal();save();render();toast('模块已添加')}
-function dropBlock(to){if(_dragBlock==null||_dragBlock===to)return;const arr=S.portal[S.portal.device],it=arr.splice(_dragBlock,1)[0];arr.splice(to,0,it);_dragBlock=null;save();render();toast('模块顺序已调整')}
-function saveAsTemplate(){const n=prompt('模板名称','我的赛事门户');if(!n)return;S.portal.saved.push(n);save();render();log('保存门户模板：'+n);toast('门户已保存为模板')}
-function savePortal(){save();log('发布门户配置：'+S.portal.template);toast('门户配置已发布')}
+function addBlock(){modal('添加展示栏目','<div class="f-row"><label>栏目名称</label><input class="inp2" id="abName" placeholder="如：赛事新闻"></div><div class="f-row"><label>栏目类型</label><select class="sel2" id="abType">'+[['stat','数据概览'],['chart','图表'],['list','图文列表'],['table','表格'],['shortcut','快捷入口'],['form','表单']].map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join('')+'</select></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="doAddBlock()">添加</button>')}
+function doAddBlock(){const n=document.getElementById('abName').value.trim()||'新栏目',t=document.getElementById('abType').value;S.portal[S.portal.device].push({id:uid(),name:n,type:t,on:true});closeModal();save();render();toast('栏目已添加')}
+function dropBlock(to){if(_dragBlock==null||_dragBlock===to)return;const arr=S.portal[S.portal.device],it=arr.splice(_dragBlock,1)[0];arr.splice(to,0,it);_dragBlock=null;save();render();toast('栏目顺序已调整')}
+function saveAsTemplate(){modal('保存为门户模板','<div class="tip" style="margin-bottom:12px">将当前主题色、导航栏、模块尺寸/样式与三端栏目配置一起保存为可复用模板。</div><div class="f-row"><label>模板名称</label><input class="inp2" id="tplName" placeholder="如：招生季赛事门户"></div><div class="f-row"><label>模板分类</label><select class="sel2" id="tplCatSel"><option>大屏类</option><option>H5类</option><option selected>官网类</option></select></div><div class="f-row"><label>模板说明</label><input class="inp2" id="tplDesc" placeholder="简要说明适用场景"></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="doSaveAsTemplate()">保存模板</button>')}
+function doSaveAsTemplate(){
+  const name=document.getElementById('tplName').value.trim();if(!name)return toast('请输入模板名称','err');
+  const p=S.portal;if(p.saved.indexOf(name)>=0)return toast('模板名称已存在','err');
+  const cat=document.getElementById('tplCatSel').value,desc=document.getElementById('tplDesc').value.trim()||'由当前门户配置保存的自定义模板';
+  const st=p.tplStyles[p.template]||p.tplStyles['简约赛事门户'],layout=cat==='大屏类'?'grid':cat==='H5类'?'mobile':'list';
+  const rec={id:uid(),name:name,cat:cat,layout:layout,theme:p.theme,nav:p.nav,moduleSize:p.moduleSize||'标准',moduleStyle:p.moduleStyle||'描边',radius:st.radius||8,web:JSON.parse(JSON.stringify(p.web)),mobile:JSON.parse(JSON.stringify(p.mobile)),space:JSON.parse(JSON.stringify(p.space))};
+  p.customTpls=p.customTpls||[];p.customTpls.push(rec);
+  p.tplStyles[name]={cat:cat,custom:true,layout:layout,density:st.density||'标准',radius:st.radius||8,header:cat==='大屏类'?'大屏深色顶栏':cat==='H5类'?'移动端标题栏':'自定义品牌横幅',cols:layout==='grid'?2:1,desc:desc};
+  p.saved.push(name);p.template=name;_tplCat='自定义';
+  closeModal();save();render();log('保存门户为模板：'+name);toast('门户已保存为模板：'+name)
+}
+function delCustomTpl(name){
+  confirmBox('确认删除自定义模板「'+name+'」？',function(){
+    const p=S.portal;p.customTpls=(p.customTpls||[]).filter(function(x){return x.name!==name});p.saved=p.saved.filter(function(x){return x!==name});delete p.tplStyles[name];
+    if(p.template===name){p.template='简约赛事门户';_tplCat='全部'}
+    save();render();toast('自定义模板已删除')
+  })
+}
+function savePortal(){save();log('发布门户配置：'+S.portal.template+' / '+S.portal.nav+' / '+S.portal.moduleSize);toast('门户配置已发布')}
 /* ==================== BIG SCREEN ==================== */
 R.bigscreen=function(){
   const d=S.charts[0].data;
