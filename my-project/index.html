@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>观澜赛事运营平台 · GUANLAN</title>
+<style>
+:root{
+  --paper:#f5f2eb; --paper2:#fbf9f4; --card:#fffefa;
+  --ink:#24211c; --ink2:#49443a; --muted:#797266; --faint:#a8a091;
+  --line:#e5e0d5; --line2:#d4ccbc;
+  --brand:#1e4b3d; --brand2:#2f6b57; --brand-soft:rgba(30,75,61,.09);
+  --rust:#b1503a; --rust-soft:rgba(177,80,58,.10);
+  --ochre:#a9792f; --ochre-soft:rgba(169,121,47,.13);
+  --shadow:0 1px 2px rgba(40,35,25,.04),0 10px 34px rgba(40,35,25,.055);
+  --r:8px; --r2:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;outline:none}
+button{cursor:pointer;border:none;background:none}
+a{color:inherit;text-decoration:none}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:#d3ccbc;border-radius:8px}
+::-webkit-scrollbar-thumb:hover{background:#bdb4a2}
+::-webkit-scrollbar-track{background:transparent}
+svg{display:block;flex:none}
+.ic{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ic-sm{width:15px;height:15px}.ic-lg{width:22px;height:22px}.ic-xl{width:30px;height:30px}
+.serif{font-family:'Songti SC','Noto Serif SC',Georgia,serif}
+
+/* ===== LOGIN ===== */
+#loginView{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:var(--paper);overflow:hidden}
+#loginView:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(36,33,28,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(36,33,28,.035) 1px,transparent 1px);background-size:54px 54px;-webkit-mask-image:linear-gradient(90deg,#000,transparent 80%);mask-image:linear-gradient(90deg,#000,transparent 80%)}
+.login-page{position:relative;z-index:2;width:min(1120px,94vw);min-height:680px;display:grid;grid-template-columns:1.1fr .9fr;background:var(--card);border:1px solid var(--line);box-shadow:0 34px 90px rgba(40,35,25,.13)}
+.login-editorial{position:relative;padding:52px 54px;display:flex;flex-direction:column;justify-content:space-between;background:#1d352c;color:#f4efe3;overflow:hidden}
+.login-editorial:after{content:"";position:absolute;width:480px;height:480px;border:1px solid rgba(244,239,227,.08);border-radius:50%;right:-190px;bottom:-230px;box-shadow:0 0 0 60px rgba(244,239,227,.025),0 0 0 120px rgba(244,239,227,.015)}
+.ed-top{display:flex;align-items:center;gap:13px;position:relative;z-index:2}
+.ed-brand{font-family:'Songti SC','Noto Serif SC',Georgia,serif;font-size:20px;letter-spacing:2px}
+.ed-brand span{font-family:-apple-system,sans-serif;font-size:10px;letter-spacing:3px;color:#a9bdb0;margin-left:8px}
+.brand-mark{width:38px;height:38px;border-radius:5px;display:grid;place-items:center;background:#f0e6cf;color:#1d352c;flex:none}
+.ed-body{position:relative;z-index:2;margin-top:26px}
+.ed-kicker,.lb-kicker{font-size:10px;letter-spacing:3px;color:#c8a86a;font-weight:700}
+.ed-body h1{font-family:'Songti SC','Noto Serif SC',Georgia,serif;font-size:40px;line-height:1.42;font-weight:600;letter-spacing:1px;margin:18px 0 16px}
+.ed-body h1 em{font-style:normal;color:#e3bd79}
+.ed-lede{color:#c3cec5;font-size:13px;line-height:2;max-width:430px}
+.ed-line{width:52px;height:2px;background:#c8a86a;margin:30px 0 24px}
+.ed-features{display:flex;flex-direction:column;gap:15px}
+.ed-feat{display:flex;gap:15px;align-items:flex-start}
+.ed-feat i{font-family:Georgia,serif;font-style:normal;font-size:12px;color:#c8a86a;padding-top:3px}
+.ed-feat b{display:block;font-size:13.5px;font-weight:600;margin-bottom:3px}
+.ed-feat span{font-size:11.5px;color:#9fb0a5}
+.ed-foot{position:relative;z-index:2;margin-top:26px;font-size:9.5px;letter-spacing:1.6px;color:#8fa195}
+.login-right{padding:54px 52px 40px;display:flex;flex-direction:column;justify-content:center;background:var(--card)}
+.login-box{width:100%;max-width:360px;margin:0 auto}
+.lb-kicker{color:var(--rust)}
+.login-box h2{font-family:'Songti SC','Noto Serif SC',Georgia,serif;font-size:29px;font-weight:600;margin:12px 0 6px;letter-spacing:1px}
+.lb-sub{color:var(--muted);font-size:12.5px;margin-bottom:30px}
+.ltabs{display:flex;gap:24px;border-bottom:1px solid var(--line);margin-bottom:28px}
+.ltab{padding:0 0 12px;font-size:13px;color:var(--faint);border-bottom:2px solid transparent;transition:.2s;position:relative;top:1px}
+.ltab:hover{color:var(--ink2)}.ltab.on{color:var(--rust);border-color:var(--rust);font-weight:600}
+.lform{display:flex;flex-direction:column;gap:17px;min-height:190px}
+.fld label{display:block;font-size:11px;letter-spacing:.6px;color:var(--muted);margin-bottom:8px}
+.inp{width:100%;height:44px;background:var(--paper2);border:1px solid var(--line);border-radius:var(--r2);padding:0 13px;color:var(--ink);transition:.2s}
+.inp:focus{border-color:var(--rust);box-shadow:0 0 0 3px var(--rust-soft);background:#fff}
+.inp::placeholder{color:#b2aa9c}
+.inp-row{display:flex;gap:10px}.inp-row .inp{flex:1}
+.code-btn{height:44px;padding:0 14px;border:1px solid var(--line2);border-radius:var(--r2);color:var(--rust);background:var(--rust-soft);white-space:nowrap;font-size:12.5px}
+.code-btn:hover{border-color:var(--rust)}
+.login-opts{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-top:-3px}
+.chk{display:flex;align-items:center;gap:7px;cursor:pointer}
+.chk input{appearance:none;width:15px;height:15px;border:1px solid var(--line2);border-radius:3px;background:var(--paper2);cursor:pointer}
+.chk input:checked{background:var(--rust);border-color:var(--rust);box-shadow:inset 0 0 0 3px var(--paper2)}
+.login-opts a{color:var(--rust);cursor:pointer}
+.btn-main{height:46px;border-radius:var(--r2);background:var(--brand);color:#fff;font-weight:600;font-size:13px;letter-spacing:2px;transition:.2s}
+.btn-main:hover{background:#173c31;transform:translateY(-1px);box-shadow:0 8px 22px rgba(30,75,61,.22)}
+.sso-btn{width:100%;height:46px;border:1px solid var(--line2);border-radius:var(--r2);background:var(--paper2);display:flex;align-items:center;justify-content:center;gap:10px;color:var(--ink);font-size:13px}
+.sso-btn:hover{border-color:var(--brand);background:var(--brand-soft)}
+.sso-opts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.sso-opt{display:flex;align-items:center;gap:8px;padding:11px 12px;border:1px solid var(--line);border-radius:var(--r2);background:var(--paper2);font-size:12px;color:var(--muted);cursor:pointer;transition:.15s}
+.sso-opt:hover{border-color:var(--line2);color:var(--ink)}
+.sso-opt.on{border-color:var(--rust);color:var(--rust);background:var(--rust-soft)}
+.err{color:var(--rust);font-size:12px;min-height:16px}
+.login-legal{text-align:center;font-size:10px;color:var(--faint);margin-top:28px;letter-spacing:.5px}
+
+/* ===== APP SHELL ===== */
+#appShell{display:none;height:100vh;width:100vw;flex-direction:column}
+.masthead{flex:none;background:var(--card);border-bottom:1px solid var(--line)}
+.mast-top{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 34px;border-bottom:1px solid var(--line)}
+.mast-brand{display:flex;align-items:center;gap:11px}
+.mast-brand .brand-mark{width:30px;height:30px;border-radius:4px;background:var(--brand);color:#f0e6cf}
+.mast-brand b{font-family:'Songti SC','Noto Serif SC',Georgia,serif;font-size:18px;letter-spacing:2px}
+.mast-brand small{display:block;font-size:8.5px;letter-spacing:2px;color:var(--faint);margin-top:-2px}
+.mast-tools{display:flex;align-items:center;gap:9px}
+.tb-search{height:32px;width:200px;background:var(--paper2);border:1px solid var(--line);border-radius:var(--r2);display:flex;align-items:center;gap:8px;padding:0 11px;color:var(--faint);font-size:12px}
+.tb-search input{background:none;border:none;flex:1;color:var(--ink);font-size:12px}
+.tb-icon{width:32px;height:32px;border-radius:var(--r2);display:grid;place-items:center;color:var(--muted);border:1px solid transparent}
+.tb-icon:hover{background:var(--paper2);border-color:var(--line);color:var(--ink)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--brand);display:grid;place-items:center;color:#f0e6cf;font-weight:600;font-size:12px}
+.user-meta{line-height:1.25;white-space:nowrap}.user-meta b{font-size:12px;display:block}.user-meta span{font-size:10px;color:var(--faint);display:block}
+.mast-nav{height:50px;display:flex;align-items:center;gap:20px;padding:0 34px;overflow-x:auto;scrollbar-width:none}
+.mast-nav::-webkit-scrollbar{display:none}
+.nav-seg{display:flex;align-items:center;gap:4px;flex:none;padding-right:20px;border-right:1px solid var(--line)}
+.nav-seg:last-child{border-right:none}
+.nav-g{font-size:9.5px;letter-spacing:1.6px;color:var(--faint);margin-right:6px;white-space:nowrap;font-weight:600}
+.nav-i{display:flex;align-items:center;gap:6px;padding:7px 11px;border-radius:var(--r2);font-size:12.5px;color:var(--ink2);white-space:nowrap;transition:.15s}
+.nav-i:hover{background:var(--paper2);color:var(--ink)}
+.nav-i.on{background:var(--brand);color:#fff;font-weight:600}
+.stage{flex:1;display:flex;flex-direction:column;min-height:0}
+.stage-head{flex:none;padding:24px 34px 20px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--paper2),var(--paper))}
+.stage-kicker{font-size:9.5px;letter-spacing:2.6px;color:var(--rust);font-weight:700;text-transform:uppercase}
+.stage-head h1{font-family:'Songti SC','Noto Serif SC',Georgia,serif;font-size:29px;font-weight:600;letter-spacing:1px;margin:5px 0 4px}
+.stage-head p{color:var(--muted);font-size:12.5px;max-width:900px}
+#mainContent{flex:1;overflow-y:auto;padding:24px 34px 60px}
+
+/* ===== COMMON ===== */
+.page{animation:fade .3s ease}@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.page-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:16px;padding-bottom:13px;border-bottom:1px dashed var(--line)}
+.page-head h2{font-size:14px;font-weight:600;color:var(--ink2);letter-spacing:.5px}
+.page-head p{color:var(--muted);font-size:12px;margin-top:3px}
+.head-actions{display:flex;gap:9px;flex-wrap:wrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.card-h h3{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-h h3 .ic{color:var(--rust)}
+.card-b{padding:18px}
+.btn{height:34px;padding:0 13px;border-radius:var(--r2);border:1px solid var(--line2);background:var(--card);display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);transition:.16s;white-space:nowrap}
+.btn:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
+.btn.gold{background:var(--rust);color:#fff;border-color:var(--rust);font-weight:600}
+.btn.gold:hover{background:#97412e;border-color:#97412e;color:#fff}
+.btn.teal{background:var(--brand-soft);border-color:rgba(30,75,61,.3);color:var(--brand)}
+.btn.teal:hover{background:rgba(30,75,61,.16)}
+.btn.danger{color:var(--rust);border-color:rgba(177,80,58,.3)}
+.btn.danger:hover{background:var(--rust-soft)}
+.btn.sm{height:28px;padding:0 9px;font-size:11px;border-radius:5px}
+.btn.icon{width:32px;padding:0;justify-content:center}
+.grid{display:grid;gap:15px}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:1180px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:3px;font-size:10.5px;background:var(--paper2);border:1px solid var(--line);color:var(--muted)}
+.tag.g{background:var(--brand-soft);color:var(--brand);border-color:rgba(30,75,61,.25)}
+.tag.t{background:var(--ochre-soft);color:#8a6323;border-color:rgba(169,121,47,.28)}
+.tag.r{background:var(--rust-soft);color:var(--rust);border-color:rgba(177,80,58,.28)}
+.stat{padding:17px 18px;position:relative;overflow:hidden;border-left:2px solid var(--rust)}
+.stat:nth-child(even){border-left-color:var(--brand)}
+.stat .lbl{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.stat .lbl .ic{color:var(--rust)}
+.stat:nth-child(even) .lbl .ic{color:var(--brand)}
+.stat .num{font-family:Georgia,'Songti SC',serif;font-size:29px;font-weight:600;margin:8px 0 3px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.stat .sub{font-size:10.5px;color:var(--faint)}
+.stat .sub b{color:var(--brand)}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th{text-align:left;padding:10px 13px;color:var(--faint);font-weight:600;font-size:10px;letter-spacing:1px;border-bottom:1px solid var(--line2);white-space:nowrap;text-transform:uppercase}
+.tbl td{padding:11px 13px;border-bottom:1px solid var(--line);color:var(--ink)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover{background:var(--paper2)}
+.tbl .mini{color:var(--faint);font-size:10.5px}
+.rowacts{display:flex;gap:5px}
+.icobtn{width:26px;height:26px;border-radius:5px;display:grid;place-items:center;color:var(--muted);border:1px solid transparent}
+.icobtn:hover{background:var(--paper2);color:var(--brand);border-color:var(--line)}
+.icobtn.del:hover{color:var(--rust);background:var(--rust-soft)}
+.empty{padding:40px;text-align:center;color:var(--faint);font-size:12px}
+.empty .ic{margin:0 auto 12px;color:var(--line2)}
+.divider{height:1px;background:var(--line);margin:17px 0}
+.f-row{margin-bottom:13px}
+.f-row>label{display:block;font-size:11.5px;color:var(--ink2);margin-bottom:7px;font-weight:600}
+.f-row>label i{color:var(--rust);font-style:normal}
+.inp2,.sel2,.ta2{width:100%;min-height:37px;background:var(--paper2);border:1px solid var(--line);border-radius:var(--r2);padding:8px 11px;color:var(--ink);transition:.16s}
+.inp2:focus,.sel2:focus,.ta2:focus{border-color:var(--rust);box-shadow:0 0 0 3px var(--rust-soft);background:#fff}
+.ta2{resize:vertical;min-height:78px;line-height:1.6}
+.sel2{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23797266' stroke-width='2'><path d='m6 9 6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+.switch{width:36px;height:20px;border-radius:20px;background:#cfc8b9;position:relative;transition:.2s;cursor:pointer;flex:none}
+.switch:after{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;left:3px;top:3px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.switch.on{background:var(--brand)}.switch.on:after{left:19px}
+.seg{display:inline-flex;background:var(--paper2);border:1px solid var(--line);border-radius:var(--r2);padding:3px;gap:2px}
+.seg button{padding:6px 12px;border-radius:5px;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.seg button.on{background:var(--card);color:var(--rust);box-shadow:0 1px 4px rgba(40,35,25,.1);font-weight:600}
+.tabs{display:flex;gap:3px;border-bottom:1px solid var(--line);margin-bottom:17px;overflow-x:auto}
+.tab{padding:9px 15px;font-size:12.5px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;transition:.16s}
+.tab:hover{color:var(--ink)}.tab.on{color:var(--rust);border-color:var(--rust);font-weight:600}
+.bar{height:5px;border-radius:5px;background:#e8e2d6;overflow:hidden}.bar i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--rust),#d08a63)}
+.bar.teal i{background:linear-gradient(90deg,var(--brand),#5b9a83)}
+
+/* ===== MODAL / TOAST ===== */
+#modalRoot{position:fixed;inset:0;z-index:80;display:none}
+.mask{position:absolute;inset:0;background:rgba(36,33,28,.42);backdrop-filter:blur(3px)}
+.modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,92vw);max-height:86vh;overflow:auto;background:var(--card);border:1px solid var(--line2);border-radius:var(--r);box-shadow:0 30px 80px rgba(40,35,25,.22);animation:pop .2s ease}
+@keyframes pop{from{opacity:0;transform:translate(-50%,-47%) scale(.98)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.modal.wide{width:min(900px,94vw)}
+.modal-h{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.modal-h h3{font-size:14px;font-weight:600}
+.modal-b{padding:20px}
+.modal-f{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:9px}
+#toastRoot{position:fixed;top:20px;right:24px;z-index:100;display:flex;flex-direction:column;gap:9px;pointer-events:none}
+.toast{min-width:220px;max-width:350px;padding:12px 15px;border-radius:var(--r2);background:var(--card);border:1px solid var(--line2);box-shadow:var(--shadow);display:flex;align-items:center;gap:9px;font-size:12.5px;animation:slidein .25s ease}
+.toast.ok{border-left:3px solid var(--brand)}.toast.err{border-left:3px solid var(--rust)}.toast.info{border-left:3px solid var(--ochre)}
+@keyframes slidein{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:6px 11px;border:1px solid var(--line);border-radius:5px;background:var(--paper2);font-size:11.5px;color:var(--muted);cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--line2);color:var(--ink)}
+.chip.on{border-color:var(--rust);color:var(--rust);background:var(--rust-soft)}
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px}
+.kv:last-child{border:none}.kv span{color:var(--muted)}.kv b{font-weight:600}
+.tip{font-size:11px;color:var(--faint);line-height:1.7}
+.pill-num{font-variant-numeric:tabular-nums}
+.hl{color:var(--rust)}
+.mini-head{font-size:10px;letter-spacing:1.6px;color:var(--faint);margin-bottom:11px;font-weight:700;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<!-- ========== LOGIN ========== -->
+<div id="loginView">
+  <div class="login-page">
+    <div class="login-editorial">
+      <div class="ed-top"><div class="brand-mark" id="loginMark"></div><div class="ed-brand">观澜 <span>GUANLAN</span></div></div>
+      <div class="ed-body">
+        <div class="ed-kicker">COMPETITION OPERATIONS · 2026</div>
+        <h1>以数据为尺，<br><em>丈量每一场竞技。</em></h1>
+        <p class="ed-lede">从报名采集、流程审批到门户与大屏呈现，一套平台贯通赛事全周期，让运营有据可依。</p>
+        <div class="ed-line"></div>
+        <div class="ed-features">
+          <div class="ed-feat"><i>01</i><div><b>多引擎业务支撑</b><span>表单 · 审批 · 图表协同联动</span></div></div>
+          <div class="ed-feat"><i>02</i><div><b>可视化搭建能力</b><span>组件、内容与门户自由配置</span></div></div>
+          <div class="ed-feat"><i>03</i><div><b>全场景赛事呈现</b><span>数据大屏与智能屏幕统一管理</span></div></div>
+        </div>
+      </div>
+      <div class="ed-foot">GUANLAN COMPETITION OPERATING SYSTEM · V1.0</div>
+    </div>
+    <div class="login-right">
+      <div class="login-box">
+        <div class="lb-kicker">SECURE ACCESS</div>
+        <h2>登录控制台</h2>
+        <div class="lb-sub">请使用平台账号进入运营中心</div>
+        <div class="ltabs" id="ltabs">
+          <button class="ltab on" data-t="pwd">账号密码</button>
+          <button class="ltab" data-t="code">手机验证</button>
+          <button class="ltab" data-t="sso">统一认证</button>
+        </div>
+        <div id="lform"></div>
+      </div>
+      <div class="login-legal">© 2026 观澜 · 演示环境</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== APP ========== -->
+<div id="appShell">
+  <header class="masthead">
+    <div class="mast-top">
+      <div class="mast-brand"><div class="brand-mark" id="sbMark"></div><div><b>观澜</b><small>COMPETITION OPS</small></div></div>
+      <div class="mast-tools">
+        <div class="tb-search"><span data-ic="search" class="ic ic-sm"></span><input id="globalSearch" placeholder="搜索功能 / 数据…"></div>
+        <button class="tb-icon" data-ic="bell" title="通知"></button>
+        <div class="avatar" id="avatar">管</div>
+        <div class="user-meta"><b id="userName">管理员</b><span id="userRole">超级管理员</span></div>
+        <button class="tb-icon" data-ic="logout" id="btnLogout" title="退出登录"></button>
+      </div>
+    </div>
+    <nav class="mast-nav" id="topNav"></nav>
+  </header>
+  <div class="stage">
+    <div class="stage-head" id="stageHead"></div>
+    <main id="mainContent"></main>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+/* ==================== ICONS ==================== */
+const ICONS={
+home:'<path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+form:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+approval:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+chart:'<path d="M3 3v18h18"/><path d="m7 16 4-5 3 3 5-7"/>',
+components:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+content:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11M13 13h5M13 17h3"/>',
+portal:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M2 8h20"/>',
+screen:'<rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 22h8M12 18v4"/>',
+security:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6h.08A1.7 1.7 0 0 0 10 3.04V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.08A1.7 1.7 0 0 0 20.96 10H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/>',
+logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/>',
+search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>',
+bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',
+trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5"/>',
+edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+eye:'<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',
+check:'<path d="M20 6 9 17l-5-5"/>',
+x:'<path d="M18 6 6 18M6 6l12 12"/>',
+right:'<path d="m9 18 6-6-6-6"/>',
+left:'<path d="m15 18-6-6 6-6"/>',
+drag:'<circle cx="9" cy="5" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/>',
+save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+mobile:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/>',
+desktop:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+template:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+link:'<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
+lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
+user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+users:'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5a3 3 0 0 1 0 6M18 20a6 6 0 0 0-2-4.5"/>',
+calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+filter:'<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',
+sort:'<path d="M11 5h10M11 9h7M11 13h4M3 17l3 3 3-3M6 20V4"/>',
+star:'<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 6.9-1z"/>',
+refresh:'<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+play:'<path d="m6 3 14 9-14 9z"/>',
+full:'<path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/>',
+copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+text:'<path d="M4 6h16M4 12h10M4 18h13"/>',
+image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>',
+table:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>',
+pie:'<path d="M21 12A9 9 0 1 1 12 3v9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/>',
+line:'<path d="M3 3v18h18"/><path d="m6 15 4-5 3 3 5-7"/>',
+bar:'<path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8"/><rect x="12" y="6" width="3" height="12"/><rect x="17" y="13" width="3" height="5"/>',
+number:'<path d="M5 4h3v16M5 4h8M13 20h6"/>',
+carousel:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m9 9 4 3-4 3z"/>',
+api:'<circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/>',
+history:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>',
+package:'<path d="m12 2 9 5v10l-9 5-9-5V7z"/><path d="m3 7 9 5 9-5M12 12v10"/>',
+guide:'<path d="M4 19.5V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14.5l-8-4-8 4z"/>',
+phone:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/>',
+key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9 2 2-2 2 2 2-3 3-2-2-2 2"/>',
+trophy:'<path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M9 20h6M12 14v6"/>',
+branch:'<circle cx="6" cy="5" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="6" cy="19" r="2"/><path d="M6 7v10M8 5h4a4 4 0 0 1 4 4v1M8 19h4a4 4 0 0 0 4-4v-1"/>',
+pen:'<path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18M2 2l8 8"/>',
+palette:'<path d="M12 3a9 9 0 1 0 0 18h1.5a2.5 2.5 0 0 0 0-5H12a2 2 0 0 1 0-4h7a2 2 0 0 0 2-2A7 7 0 0 0 12 3z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="10" cy="6.5" r="1"/><circle cx="15" cy="7.5" r="1"/>',
+ban:'<circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/>',
+cloud:'<path d="M18 10h-1.3A7 7 0 1 0 5 15h13a4 4 0 0 0 0-8z"/>'
+};
+function svg(name,cls){return '<svg class="ic '+(cls||'')+'" viewBox="0 0 24 24">'+(ICONS[name]||'')+'</svg>'}
+function paintIcons(root){root.querySelectorAll('[data-ic]').forEach(function(el){el.innerHTML=svg(el.getAttribute('data-ic'),el.className.baseVal&&el.className.baseVal.includes('ic-sm')?'ic-sm':'')})}
+
+/* ==================== STATE ==================== */
+const KEY='guanlan_ops_v1';
+const DEFAULT={
+ logged:false, user:{name:'管理员',role:'超级管理员'}, view:'overview', loginTab:'pwd',
+ forms:[
+  {id:'f4',name:'观众报名信息采集',app:'信息采集',icon:'user',desc:'现场观众报名信息采集微应用',fields:[
+   {type:'text',label:'观众姓名',ph:'请输入姓名',req:true},{type:'phone',label:'手机号码',ph:'请输入手机号',req:true},
+   {type:'select',label:'观众类型',opts:['学生','教师','企业代表','其他'],req:true},{type:'date',label:'到场日期',req:false}],
+   records:[{观众姓名:'赵敏',手机号码:'135****4412',观众类型:'学生',到场日期:'2026-11-26'},{观众姓名:'陈立',手机号码:'186****7789',观众类型:'企业代表',到场日期:'2026-11-26'}]},
+  {id:'f5',name:'赛事满意度问卷调查',app:'问卷调查',icon:'star',desc:'赛事服务满意度在线问卷微应用',fields:[
+   {type:'radio',label:'赛事整体满意度',opts:['非常满意','满意','一般','不满意'],req:true},
+   {type:'radio',label:'组织服务评价',opts:['优秀','良好','合格','待改进'],req:true},
+   {type:'select',label:'参赛渠道',opts:['学校推荐','自主报名','老师通知'],req:false},
+   {type:'textarea',label:'改进建议',ph:'欢迎留下宝贵建议',req:false}],
+   records:[{赛事整体满意度:'非常满意',组织服务评价:'优秀',参赛渠道:'学校推荐',改进建议:'希望增加更多交流环节'},{赛事整体满意度:'满意',组织服务评价:'良好',参赛渠道:'自主报名',改进建议:''}]},
+  {id:'f1',name:'参赛人员信息登记表',app:'信息采集',icon:'form',desc:'采集参赛选手基本信息、联系方式与所属单位',fields:[
+   {type:'text',label:'姓名',ph:'请输入姓名',req:true},{type:'text',label:'身份证号',ph:'请输入身份证号',req:true},
+   {type:'select',label:'性别',opts:['男','女'],req:false},{type:'text',label:'所属单位',ph:'请输入单位名称',req:true},
+   {type:'phone',label:'联系电话',ph:'请输入手机号',req:true},{type:'date',label:'出生日期',req:false},
+   {type:'textarea',label:'备注',ph:'其他说明',req:false}],
+   records:[{姓名:'张明远',身份证号:'1101**********1234',性别:'男',所属单位:'信息科技大学',联系电话:'138****5620',出生日期:'1998-05-12',备注:'队长'},
+   {姓名:'李思雨',身份证号:'3101**********8821',性别:'女',所属单位:'城市学院',联系电话:'139****8831',出生日期:'2000-09-03',备注:''},
+   {姓名:'王浩',身份证号:'4401**********3376',性别:'男',所属单位:'理工学院',联系电话:'137****2245',出生日期:'1999-01-27',备注:''}]},
+  {id:'f2',name:'赛事项目申报表',app:'赛事管理',icon:'trophy',desc:'项目信息、团队成员与作品材料申报',fields:[
+   {type:'text',label:'项目名称',ph:'请输入项目名称',req:true},{type:'select',label:'赛道类别',opts:['技术创新','应用实践','创意设计'],req:true},
+   {type:'textarea',label:'项目简介',ph:'简要介绍项目',req:true},{type:'date',label:'计划完成时间',req:false}],
+   records:[{项目名称:'智慧校园服务平台',赛道类别:'技术创新',项目简介:'基于数据中台的校园服务一体化平台',计划完成时间:'2026-12-01'}]},
+  {id:'f3',name:'分组管理表',app:'分组管理',icon:'users',desc:'赛事分组、评委分配与场次安排',fields:[
+   {type:'text',label:'分组名称',ph:'如 A组',req:true},{type:'select',label:'所属赛道',opts:['技术创新','应用实践','创意设计'],req:true},
+   {type:'number',label:'参赛队伍数',ph:'0',req:false}],
+   records:[{分组名称:'A组',所属赛道:'技术创新',参赛队伍数:'12'},{分组名称:'B组',所属赛道:'应用实践',参赛队伍数:'10'}]}
+ ],
+ flows:[{id:'ap1',name:'参赛资格审批流程',desc:'提交 → 指导教师 → 院系初审 → 组委会终审',nodes:[
+   {id:'n1',type:'start',name:'提交申请',mode:'单人',who:['参赛选手']},
+   {id:'n2',type:'task',name:'指导教师审核',mode:'或签',who:['指导教师']},
+   {id:'n3',type:'task',name:'院系初审',mode:'会签',who:['院系负责人','教务专员']},
+   {id:'n4',type:'branch',name:'条件分支',mode:'分支',who:['分数 ≥ 80 通过']},
+   {id:'n5',type:'task',name:'组委会终审',mode:'会签',who:['组委会主席','技术专家']},
+   {id:'n6',type:'end',name:'审批完成',mode:'单人',who:['系统']}]}],
+ charts:[{id:'c1',title:'各赛道报名分布',type:'pie',source:'表单数据',data:[{n:'技术创新',v:42},{n:'应用实践',v:31},{n:'创意设计',v:27}]},
+   {id:'c2',title:'近六月报名趋势',type:'line',source:'表单数据',data:[{n:'1月',v:32},{n:'2月',v:48},{n:'3月',v:65},{n:'4月',v:88},{n:'5月',v:120},{n:'6月',v:156}]}],
+ components:[
+   {id:'w1',type:'number',name:'累计报名人数',value:156,color:'#b1503a',bg:'#fffefa',border:'#b1503a'},
+   {id:'w2',type:'text',name:'公告标题',value:'2026 年度赛事报名火热进行中',color:'#24211c',bg:'#fbf9f4',border:'#e5e0d5'},
+   {id:'w3',type:'image',name:'赛事主视觉',value:'赛事现场 · 创新无限',color:'#797266',bg:'#f5f2eb',border:'#1e4b3d'},
+   {id:'w4',type:'pie',name:'赛道占比',value:'',color:'#a9792f',bg:'#fffefa',border:'#d4ccbc'},
+   {id:'w5',type:'bar',name:'月度报名',value:'',color:'#1e4b3d',bg:'#fffefa',border:'#d4ccbc'},
+   {id:'w6',type:'line',name:'趋势曲线',value:'',color:'#a9792f',bg:'#fffefa',border:'#d4ccbc'}],
+ contents:[
+   {id:'ct1',cat:'赛事动态',title:'2026 赛事正式启动报名',date:'2026-11-18',top:true,status:'已发布'},
+   {id:'ct2',cat:'赛事动态',title:'评审专家名单公示',date:'2026-11-15',top:false,status:'已发布'},
+   {id:'ct3',cat:'通知公告',title:'关于决赛时间调整的通知',date:'2026-11-10',top:true,status:'已发布'},
+   {id:'ct4',cat:'通知公告',title:'参赛材料提交规范说明',date:'2026-11-06',top:false,status:'草稿'}],
+ portal:{
+   device:'web',theme:'#b1503a',template:'大屏数据门户',nav:'顶部横向导航',moduleSize:'标准',moduleStyle:'描边',
+   tplDesc:'深色数据密集型布局，核心指标 + 多图表组合，适配赛事指挥中心大屏展示',
+   web:[{id:'p1',name:'赛事概览',type:'stat',on:true},{id:'p2',name:'报名趋势',type:'chart',on:true},{id:'p3',name:'赛事动态',type:'list',on:true},{id:'p4',name:'参赛队伍',type:'table',on:true}],
+   mobile:[{id:'m1',name:'快捷入口',type:'shortcut',on:true},{id:'m2',name:'我的报名',type:'list',on:true},{id:'m3',name:'消息通知',type:'list',on:true}],
+   space:[{id:'s1',name:'个人信息',type:'form',on:true},{id:'s2',name:'我的赛事',type:'list',on:true},{id:'s3',name:'成绩查询',type:'table',on:true}],
+   saved:['大屏数据门户','赛事直播大屏','简约赛事门户','官方赛事官网','H5 移动门户','报名 H5 单页'],
+   customTpls:[],
+   tplStyles:{
+     '大屏数据门户':{cat:'大屏类',layout:'grid',density:'密集',radius:8,header:'大屏深色顶栏',cols:2,desc:'核心指标卡 + 双图表 + 数据列表，深色数据密集型布局，适合大屏与指挥中心'},
+     '赛事直播大屏':{cat:'大屏类',layout:'grid',density:'密集',radius:6,header:'直播深色顶栏',cols:2,desc:'实时赛况 + 榜单 + 趋势 charts，适合决赛现场与直播指挥场景'},
+     '简约赛事门户':{cat:'官网类',layout:'list',density:'宽松',radius:16,header:'简约品牌横幅',cols:1,desc:'大幅品牌横幅 + 宽松单列内容，留白充足、层次清晰，适合官方网站门户'},
+     '官方赛事官网':{cat:'官网类',layout:'list',density:'标准',radius:10,header:'官网标准导航',cols:1,desc:'标准官网布局，栏目清晰、信息密度适中，适合综合赛事门户'},
+     'H5 移动门户':{cat:'H5类',layout:'mobile',density:'紧凑',radius:22,header:'移动端标题栏',cols:1,desc:'竖屏手机框预览，底部标签导航 + 卡片流式布局，适合微信 H5 分享'},
+     '报名 H5 单页':{cat:'H5类',layout:'mobile',density:'紧凑',radius:18,header:'报名页标题栏',cols:1,desc:'单页式 H5，突出报名入口与赛事亮点，适合社交渠道投放'}
+   }},
+ screens:[
+   {id:'sc1',name:'决赛现场主屏',domain:'screen.guanlan.cn/final',icon:'trophy',desc:'决赛实时比分与榜单大屏',access:'login',online:true,ip:'10.0.0.0/8',intranet:false,guest:false},
+   {id:'sc2',name:'赛事数据总览屏',domain:'data.guanlan.cn/overview',icon:'chart',desc:'报名与赛道数据可视化大屏',access:'free',online:true,ip:'*',intranet:false,guest:true},
+   {id:'sc3',name:'评委候场屏',domain:'judge.guanlan.cn/wait',icon:'users',desc:'评委签到与候场信息展示',access:'login',online:false,ip:'192.168.1.0/24',intranet:true,guest:false}],
+ sso:{enabled:true,provider:'统一身份认证中心',clientId:'guanlan-portal-2026',whitelist:'10.0.0.0/8, 192.168.1.0/24',methods:['账号密码','手机验证码','第三方认证','SSO 单点登录'],loginMethods:{pwd:true,code:true,sso:true}},
+ logs:[{t:'2026-11-22 21:40',u:'管理员',a:'更新门户主题颜色',ip:'192.168.1.12'},
+   {t:'2026-11-22 20:15',u:'管理员',a:'发布赛事动态内容',ip:'192.168.1.12'},
+   {t:'2026-11-22 18:02',u:'运营专员',a:'导出参赛人员数据',ip:'192.168.1.36'}],
+ signatures:[]
+};
+let S=load();
+function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);const base=JSON.parse(JSON.stringify(DEFAULT));if(d&&d.portal){const dp=d.portal;base.portal=Object.assign(base.portal,dp);base.portal.tplStyles=Object.assign(base.portal.tplStyles,dp.tplStyles||{});base.portal.customTpls=dp.customTpls||[];if(Array.isArray(dp.saved))dp.saved.forEach(function(t){if(base.portal.saved.indexOf(t)<0)base.portal.saved.push(t)})}}if(d&&d.sso)base.sso=Object.assign(base.sso,d.sso);return Object.assign(base,d)}catch(e){}return JSON.parse(JSON.stringify(DEFAULT))}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function uid(){return 'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function now(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function log(a){S.logs.unshift({t:now(),u:S.user.name,a:a,ip:'192.168.1.12'});if(S.logs.length>60)S.logs.length=60;save()}
+
+/* ==================== UI UTILS ==================== */
+function toast(msg,type){const d=document.createElement('div');d.className='toast '+(type||'ok');d.innerHTML=svg(type==='err'?'x':'check','ic-sm')+'<span>'+esc(msg)+'</span>';document.getElementById('toastRoot').appendChild(d);setTimeout(()=>{d.style.opacity='0';d.style.transform='translateX(20px)';d.style.transition='.25s';setTimeout(()=>d.remove(),260)},2600)}
+function modal(title,body,foot,wide){const r=document.getElementById('modalRoot');r.style.display='block';r.innerHTML='<div class="mask" onclick="closeModal()"></div><div class="modal '+(wide?'wide':'')+'"><div class="modal-h"><h3>'+title+'</h3><button class="icobtn" onclick="closeModal()">'+svg('x')+'</button></div><div class="modal-b">'+body+'</div>'+(foot?'<div class="modal-f">'+foot+'</div>':'')+'</div>'}
+function closeModal(){document.getElementById('modalRoot').style.display='none';document.getElementById('modalRoot').innerHTML=''}
+function confirmBox(msg,cb){modal('操作确认','<div style="font-size:13.5px;line-height:1.8">'+esc(msg)+'</div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn danger" id="cfmOk">确认</button>');document.getElementById('cfmOk').onclick=function(){closeModal();cb()}}
+function downloadText(name,text,type){const b=new Blob(['\ufeff'+text],{type:type||'text/plain;charset=utf-8'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+function csvCell(v){const s=String(v==null?'':v);return '"'+s.replace(/"/g,'""')+'"'}
+function toCSV(headers,rows){return [headers.map(csvCell).join(',')].concat(rows.map(r=>r.map(csvCell).join(','))).join('\r\n')}
+
+/* ==================== NAV ==================== */
+const NAV=[
+ {g:'总览',items:[{k:'overview',t:'运营总览',i:'home'}]},
+ {g:'引擎中心',items:[{k:'formdesign',t:'表单引擎',i:'form'},{k:'approval',t:'审批引擎',i:'approval'},{k:'chart',t:'图表引擎',i:'chart'}]},
+ {g:'应用与资产',items:[{k:'apps',t:'微应用',i:'components'},{k:'components',t:'组件库',i:'components'},{k:'content',t:'内容管理',i:'content'}]},
+ {g:'呈现与配置',items:[{k:'portal',t:'门户配置',i:'portal'},{k:'bigscreen',t:'赛事大屏',i:'screen'},{k:'screens',t:'屏幕管理',i:'desktop'}]},
+ {g:'系统',items:[{k:'security',t:'访问安全',i:'security'}]}
+];
+const TITLES={overview:'运营总览',apps:'微应用中心',formdesign:'表单设计引擎',approval:'审批引擎',chart:'图表引擎',components:'可视化组件库',content:'内容数据管理',portal:'门户可视化配置',bigscreen:'赛事数据大屏',screens:'智能屏幕管理',security:'访问与安全'};
+const DESC={
+ overview:'赛事全周期运营能力总览 · 数据、流程与呈现一屏掌握',
+ apps:'信息采集、问卷调查等微应用的创建、设计与数据管理',
+ formdesign:'拖拽式配置表单字段，支持数据录入、统计分析与导出',
+ approval:'可视化编排审批节点，支持会签、或签、条件分支与手写签名',
+ chart:'多数据源接入，柱状、折线、饼图与报表上传生成可视化图表',
+ components:'数字、文本、图表等组件配置，支持颜色样式与动态数据对接',
+ content:'多级分类内容管理，批量导入导出、置顶排序与关键词筛选',
+ portal:'网页端、移动端与个人空间的三端门户布局与主题可视化配置',
+ bigscreen:'赛事实时数据大屏，核心指标、赛道分布与评审进度一屏呈现',
+ screens:'智能屏幕的创建、域名挂接、访问权限与上下线管理',
+ security:'登录方式启停、SSO 对接、IP 白名单与操作审计'
+};
+const R={},BIND={};
+function groupOf(k){for(const g of NAV){if(g.items.some(i=>i.k===k))return g.g}return '总览'}
+function navHTML(){let h='';NAV.forEach(g=>{h+='<div class="nav-seg"><span class="nav-g">'+g.g+'</span>';g.items.forEach(it=>{h+='<button class="nav-i '+(S.view===it.k?'on':'')+'" onclick="go(\''+it.k+'\')">'+svg(it.i,'ic-sm')+it.t+'</button>'});h+='</div>'});return h}
+function go(k){if(!TITLES[k])k='overview';S.view=k;save();render();document.getElementById('mainContent').scrollTop=0}
+function render(){
+  document.getElementById('topNav').innerHTML=navHTML();
+  document.getElementById('stageHead').innerHTML='<div class="stage-kicker">GUANLAN / '+esc(groupOf(S.view))+'</div><h1>'+esc(TITLES[S.view])+'</h1><p>'+esc(DESC[S.view]||'')+'</p>';
+  const mc=document.getElementById('mainContent');
+  mc.innerHTML='<div class="page">'+(R[S.view]?R[S.view]():'<div class="empty">模块建设中</div>')+'</div>';
+  if(BIND[S.view])BIND[S.view]();
+  paintIcons(mc);
+}
+
+/* ==================== LOGIN ==================== */
+function initLogin(){
+  document.getElementById('loginMark').innerHTML=svg('trophy','ic-xl');
+  document.getElementById('sbMark').innerHTML=svg('trophy');
+  paintIcons(document.getElementById('loginView'));
+  renderLoginTabs();
+  renderLoginForm();
+}
+function enabledLoginTabs(){const m=(S.sso&&S.sso.loginMethods)||{pwd:true,code:true,sso:true};const all=[{k:'pwd',n:'账号密码'},{k:'code',n:'手机验证'},{k:'sso',n:'统一认证'}];return all.filter(x=>m[x.k])}
+function renderLoginTabs(){
+  const tabs=enabledLoginTabs(),box=document.getElementById('ltabs');
+  if(!tabs.some(t=>t.k===S.loginTab))S.loginTab=tabs[0]?tabs[0].k:'pwd';
+  box.innerHTML=tabs.map(t=>'<button class="ltab '+(S.loginTab===t.k?'on':'')+'" data-t="'+t.k+'">'+t.n+'</button>').join('');
+  box.style.display=tabs.length>1?'flex':'none';
+  box.querySelectorAll('.ltab').forEach(b=>b.onclick=function(){box.querySelectorAll('.ltab').forEach(x=>x.classList.remove('on'));b.classList.add('on');S.loginTab=b.dataset.t;save();renderLoginForm()});
+}
+function renderLoginForm(){
+  const box=document.getElementById('lform'),t=S.loginTab;
+  if(t==='pwd'){
+    box.innerHTML='<div class="lform"><div class="fld"><label>账号</label><input class="inp" id="lgUser" placeholder="请输入管理员账号" autocomplete="off"></div><div class="fld"><label>密码</label><input class="inp" id="lgPwd" type="password" placeholder="请输入登录密码" autocomplete="off"></div><div class="login-opts"><label class="chk"><input type="checkbox" checked>记住账号</label><a onclick="toast(\'请联系管理员重置密码\',\'info\')">忘记密码？</a></div><div class="err" id="lgErr"></div><button class="btn-main" onclick="doLogin()">登 录</button></div>';
+  }else if(t==='code'){
+    box.innerHTML='<div class="lform"><div class="fld"><label>手机号码</label><input class="inp" id="lgPhone" placeholder="请输入注册手机号" value="138 0000 0000"></div><div class="fld"><label>短信验证码</label><div class="inp-row"><input class="inp" id="lgCode" placeholder="6 位验证码"><button class="code-btn" id="codeBtn" onclick="sendCode()">获取验证码</button></div></div><div class="err" id="lgErr"></div><button class="btn-main" onclick="doLoginCode()">登 录</button></div>';
+  }else{
+    const providers=[['统一身份认证中心','shield'],['企业微信','users'],['钉钉','user'],['校园 CAS','key']];
+    let plist=providers.map((p,i)=>'<div class="sso-opt '+(i===0?'on':'')+'" id="ssoOpt'+i+'" onclick="pickSSO('+i+',\''+p[0]+'\')">'+svg(p[1],'ic-sm')+p[0]+'</div>').join('');
+    box.innerHTML='<div class="lform"><div class="tip" style="margin-bottom:4px">请选择第三方认证方式</div><div class="sso-opts">'+plist+'</div><button class="sso-btn" style="margin-top:6px" onclick="doLoginSSO()">'+svg('shield')+' <span id="ssoBtnText">统一身份认证中心</span>登录</button><div class="tip" style="text-align:center">支持 CAS / OAuth2 / LDAP 协议对接</div><div class="err" id="lgErr"></div></div>';
+  }
+}
+let _code='';
+function sendCode(){_code=String(Math.floor(100000+Math.random()*900000));const b=document.getElementById('codeBtn');if(b.dataset.sent)return;b.dataset.sent='1';let n=60;b.textContent=n+'s 后重发';b.style.opacity='.65';const t=setInterval(()=>{n--;if(n<=0){clearInterval(t);delete b.dataset.sent;b.textContent='重新获取';b.style.opacity='1'}else b.textContent=n+'s 后重发'},1000);toast('验证码已发送（演示）：'+_code,'info')}
+function doLogin(){const u=document.getElementById('lgUser').value.trim(),p=document.getElementById('lgPwd').value.trim();if(!u||!p){document.getElementById('lgErr').textContent='请输入账号与密码';return}if(u!=='root'||p!=='root'){document.getElementById('lgErr').textContent='账号或密码错误，请重新输入';return}document.getElementById('lgErr').textContent='';finishLogin()}
+function doLoginCode(){const c=document.getElementById('lgCode').value.trim();if(!c){document.getElementById('lgErr').textContent='请输入验证码';return}if(!_code){document.getElementById('lgErr').textContent='请先获取验证码';return}if(c!==_code){document.getElementById('lgErr').textContent='验证码不正确，演示验证码为 '+_code;return}finishLogin()}
+let _ssoProvider='统一身份认证中心';
+function pickSSO(i,n){document.querySelectorAll('.sso-opt').forEach((x,j)=>x.classList.toggle('on',j===i));_ssoProvider=n;document.getElementById('ssoBtnText').textContent=n}
+function doLoginSSO(){finishLogin()}
+function finishLogin(){S.logged=true;S.view='overview';save();document.getElementById('loginView').style.display='none';document.getElementById('appShell').style.display='flex';render();toast('登录成功，欢迎回来')}
+function logout(){S.logged=false;S.view='overview';save();document.getElementById('appShell').style.display='none';document.getElementById('loginView').style.display='flex';renderLoginForm()}
+
+/* ==================== OVERVIEW ==================== */
+R.overview=function(){
+  const active=S.screens.filter(x=>x.online).length;
+  const metrics=[[S.forms[0].records.length+153,'报名参赛人数','users'],[S.forms.length,'在线表单','form'],[S.components.length,'可视化组件','components'],[active+' / '+S.screens.length,'在线屏幕','screen']];
+  let h='<div class="page-head"><div><h2>今日概览</h2></div><div class="head-actions"><span class="tag g">'+svg('refresh','ic-sm')+' 演示环境运行中</span><button class="btn" onclick="go(\'bigscreen\')">'+svg('full','ic-sm')+'进入赛事大屏</button></div></div>';
+  h+='<div class="ov-cover"><div class="ov-cover-main">';
+  h+='<div class="ov-hero"><div class="ov-hero-tag">2026 ANNUAL COMPETITION · LIVE</div><h3>让每一份热爱<br>都有登场的舞台</h3><p>2026 年度创新技能大赛 · 当前处于资格审核阶段</p><div class="ov-hero-bar"><i style="width:46%"></i></div><div class="ov-hero-meta"><span>报名启动</span><b>资格审核中</b><span>初赛评审</span><span>决赛公示</span></div></div>';
+  h+='<div class="ov-strip">'+metrics.map((m,i)=>'<div class="ov-strip-i"><span class="ov-strip-n">0'+(i+1)+'</span><div class="ov-strip-ic">'+svg(m[2])+'</div><b>'+m[0]+'</b><span>'+m[1]+'</span></div>').join('')+'</div>';
+  h+='<div class="ov-track"><div class="mini-head">赛事进程</div><div class="ov-track-row">'+[['报名启动','11.01','done'],['资格审核','11.18','now'],['初赛评审','11.28',''],['决赛公示','12.15','']].map(x=>'<div class="ov-track-s '+x[2]+'"><i></i><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join('')+'</div></div>';
+  h+='</div><aside class="ov-side">';
+  h+='<div class="ov-side-b"><div class="mini-head">运行速览</div>'+miniLine()+'<div class="ov-side-k"><span>报名趋势</span><b class="hl">+12.6%</b></div></div>';
+  h+='<div class="ov-side-b"><div class="mini-head">最近操作</div>'+S.logs.slice(0,5).map(l=>'<div class="ov-log"><i></i><div><b>'+esc(l.a)+'</b><span>'+esc(l.t)+' · '+esc(l.u)+'</span></div></div>').join('')+'<button class="btn sm" style="width:100%;margin-top:8px" onclick="go(\'security\')">查看全部记录</button></div>';
+  h+='</aside></div>';
+  h+='<div class="ov-entry"><div class="mini-head">四大演示能力</div><div class="ov-entry-grid">'+[['多引擎服务','表单 · 审批 · 图表','formdesign'],['组件与数据','可视化组件与内容管理','components'],['门户可视化','多端模板拖拽配置','portal'],['赛事大屏','大屏与智能屏幕管理','screens']].map((x,i)=>'<div class="ov-entry-i" onclick="go(\''+x[2]+'\')"><span>0'+(i+1)+'</span><b>'+x[0]+'</b><small>'+x[1]+'</small>'+svg('right','ic-sm')+'</div>').join('')+'</div></div>';
+  return h;
+};
+
+function miniLine(){const d=[32,48,65,88,120,156],w=460,hgt=150,mx=Math.max.apply(null,d),pts=d.map((v,i)=>[30+i*(w-60)/(d.length-1),hgt-24-(v/mx)*(hgt-46)]);let p=pts.map(x=>x[0]+','+x[1]).join(' ');let s='<svg viewBox="0 0 '+w+' '+hgt+'" style="width:100%;height:150px">';for(let i=0;i<4;i++){let y=18+i*(hgt-40)/3;s+='<line x1="30" y1="'+y+'" x2="'+(w-20)+'" y2="'+y+'" stroke="#e5e0d5" stroke-width="1"/>'}s+='<polyline points="'+p+'" fill="none" stroke="#b1503a" stroke-width="2.5" stroke-linejoin="round"/>';pts.forEach(x=>s+='<circle cx="'+x[0]+'" cy="'+x[1]+'" r="3.5" fill="#fffefa" stroke="#b1503a" stroke-width="2"/>');s+='</svg>';return s}
+
+/* ==================== INIT ==================== */
+window.addEventListener('DOMContentLoaded',function(){initLogin();if(S.logged){document.getElementById('loginView').style.display='none';document.getElementById('appShell').style.display='flex';render()}});
+document.getElementById('btnLogout').addEventListener('click',function(){confirmBox('确认退出当前登录账号？',logout)});
+/* ==================== EXTRA CSS ==================== */
+function injectCSS(css){const s=document.createElement('style');s.textContent=css;document.head.appendChild(s)}
+injectCSS(`
+/* 表单引擎：控件库横置于顶部，画布 + 属性双栏 */
+.des{display:grid;grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:auto minmax(0,1fr);gap:14px;align-items:start}
+.des-col{background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
+.des-col:nth-child(1){grid-column:1 / -1}
+.des-col:nth-child(2){grid-column:1}
+.des-col:nth-child(3){grid-column:2}
+.des-ch{height:44px;display:flex;align-items:center;gap:8px;padding:0 15px;border-bottom:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--rust)}
+.des-col:nth-child(2) .des-ch,.des-col:nth-child(3) .des-ch{color:var(--ink2)}
+.des-ch .ic{width:16px;height:16px}
+.des-col:nth-child(1) .des-cb{display:flex;flex-wrap:wrap;gap:8px;padding:12px 15px;align-items:center}
+.des-col:nth-child(1) .des-cb .tip{width:100%;margin-bottom:2px}
+.des-cb{padding:13px}
+.lib-item{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid var(--line);border-radius:5px;background:var(--paper2);cursor:grab;font-size:12px;color:var(--ink2);transition:.15s}
+.lib-item:hover{border-color:var(--rust);color:var(--rust);background:var(--rust-soft)}
+.lib-item:active{cursor:grabbing}.lib-item .ic{width:15px;height:15px}
+.canvas-wrap{min-height:400px;padding:6px 0}
+.fitem{position:relative;border:1px solid var(--line);border-radius:var(--r2);padding:11px 13px;margin:0 13px 9px;background:var(--paper2);cursor:pointer;transition:.15s}
+.fitem:hover{border-color:var(--line2)}
+.fitem.sel{border-color:var(--rust);box-shadow:0 0 0 2px var(--rust-soft);background:#fff}
+.fitem .fl{font-size:12px;font-weight:600;margin-bottom:6px;display:flex;gap:5px;align-items:center}
+.fitem .fl i{color:var(--rust);font-style:normal}
+.fitem .fake{height:32px;border:1px solid var(--line);border-radius:5px;background:#fff;display:flex;align-items:center;padding:0 10px;color:var(--faint);font-size:11.5px}
+.fitem .fa{position:absolute;right:8px;top:8px;display:none;gap:2px}
+.fitem:hover .fa,.fitem.sel .fa{display:flex}
+.fitem .fa .icobtn{width:23px;height:23px}
+.drop-hint{border:1px dashed var(--line2);border-radius:var(--r2);margin:0 13px;padding:20px;text-align:center;color:var(--faint);font-size:11.5px}
+.drop-hint.over{border-color:var(--rust);color:var(--rust);background:var(--rust-soft)}
+.prop-empty{padding:44px 18px;text-align:center;color:var(--faint);font-size:11.5px;line-height:1.8}
+.prop-empty .ic{margin:0 auto 11px;width:28px;height:28px;color:var(--line2)}
+.frun{display:flex;flex-direction:column;gap:15px;max-width:620px;margin:0 auto}
+.frun .lab{font-size:12px;color:var(--ink2);margin-bottom:6px}.frun .lab i{color:var(--rust);font-style:normal}
+.flow-canvas{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:20px 6px 8px}
+.fnode{min-width:145px;background:var(--paper2);border:1px solid var(--line2);border-radius:var(--r2);padding:12px;position:relative}
+.fnode.sel{border-color:var(--rust);box-shadow:0 0 0 2px var(--rust-soft)}
+.fnode .nt{font-size:9px;letter-spacing:1.4px;color:var(--faint);margin-bottom:7px;text-transform:uppercase}
+.fnode .nn{font-size:12.5px;font-weight:600;margin-bottom:9px}
+.fnode .nm{font-size:10.5px;color:var(--rust);background:var(--rust-soft);display:inline-block;padding:2px 7px;border-radius:3px}
+.fconn{width:30px;display:flex;align-items:center;justify-content:center;color:var(--line2);flex:none}
+.fconn:after{content:"";width:100%;height:1px;background:var(--line2)}
+.signpad{border:1px dashed var(--line2);border-radius:var(--r2);background:var(--paper2);position:relative;overflow:hidden}
+.signpad canvas{display:block;width:100%;height:180px;touch-action:none;cursor:crosshair}
+.signpad .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--faint);font-size:12px;pointer-events:none}
+.chart-box{width:100%;height:280px;position:relative}
+.comp-card{border:1px solid var(--line);border-radius:var(--r2);background:var(--card);padding:13px;transition:.16s;cursor:pointer}
+.comp-card:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.comp-card.sel{border-color:var(--rust);box-shadow:0 0 0 2px var(--rust-soft)}
+.comp-preview{height:92px;border-radius:5px;margin-bottom:11px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.portal-frame{border:1px solid var(--line2);border-radius:var(--r2);background:var(--paper2);overflow:hidden}
+.portal-top{height:46px;display:flex;align-items:center;padding:0 17px;border-bottom:1px solid var(--line);gap:18px}
+.portal-body{padding:18px;min-height:400px}
+.pblock{border:1px solid var(--line);border-radius:var(--r2);background:var(--paper2);padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;gap:11px;cursor:grab}
+.pblock:hover{border-color:var(--line2)}.pblock.dragover{border-color:var(--rust);background:var(--rust-soft)}
+.pblock .ic{color:var(--rust)}
+.rs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:11px}
+.rs-item{aspect-ratio:16/9;border-radius:var(--r2);background:var(--paper2);border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;font-size:11px;color:var(--muted);transition:.16s}
+.rs-item:hover{border-color:var(--rust);color:var(--rust)}
+/* 大屏：深松绿底 + 暖金数据 */
+.big-wrap{position:relative;border:1px solid #2d3d34;border-radius:6px;overflow:hidden;background:radial-gradient(900px 500px at 50% -10%,rgba(200,168,106,.10),transparent 65%),#16271f}
+.big-grid{display:grid;grid-template-columns:1.1fr 1.5fr 1.1fr;gap:13px;padding:17px}
+.big-card{background:rgba(255,254,250,.045);border:1px solid rgba(224,190,124,.16);border-radius:6px;padding:13px;color:#ece7db}
+.big-title{text-align:center;padding:15px 0 4px;font-family:'Songti SC','Noto Serif SC',Georgia,serif;font-size:22px;font-weight:600;letter-spacing:5px;background:linear-gradient(90deg,#b08d5a,#e8d4a6,#b08d5a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tpl-pick{display:flex;gap:9px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:var(--r2);margin-bottom:8px;cursor:pointer;transition:.15s}
+.tpl-pick:hover{border-color:var(--line2);background:var(--paper2)}
+.tpl-pick.on{border-color:var(--rust);background:var(--rust-soft)}
+.tpl-pick-ico{width:30px;height:30px;border-radius:5px;background:var(--paper2);color:var(--rust);display:grid;place-items:center;flex:none}
+.tpl-pick b{display:block;font-size:12px;margin-bottom:3px}.tpl-pick span{display:block;font-size:10px;color:var(--faint);line-height:1.5}
+.tpl-meta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px}
+.tpl-desc{font-size:11px;color:var(--muted);line-height:1.7;margin:0 0 13px;padding:9px 11px;background:var(--paper2);border-left:2px solid var(--rust);border-radius:0 5px 5px 0}
+.tpl-view{border:1px solid var(--line2);overflow:hidden;background:var(--paper2)}
+/* 模板一：大屏数据门户 —— 深色数据密集网格 */
+.tpl-screen{background:radial-gradient(600px 300px at 50% 0%,rgba(200,168,106,.10),transparent 70%),#16271f;color:#e8e2d5}
+.tpl-screen-head{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid rgba(224,190,124,.18);font-size:10px;color:#b8b5a8}
+.tpl-screen-title{text-align:center;font-family:'Songti SC',serif;font-size:16px;font-weight:600;letter-spacing:3px;padding:12px 0;color:#e8d4a6}
+.tpl-screen-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:0 14px 12px}
+.tpl-metric{background:rgba(255,254,250,.05);border:1px solid rgba(224,190,124,.16);border-radius:5px;padding:9px 11px;display:flex;flex-direction:column;gap:3px;color:#e8e2d5}
+.tpl-metric span{font-size:9.5px;color:#a9a79b}.tpl-metric b{font-size:19px;font-variant-numeric:tabular-nums;color:#e8d4a6}
+.tpl-chartcell{background:rgba(255,254,250,.05);border:1px solid rgba(224,190,124,.16);border-radius:5px;padding:4px;overflow:hidden;height:118px}
+.tpl-foot{text-align:center;font-size:9px;letter-spacing:1px;padding:8px;border-top:1px solid rgba(224,190,124,.16);color:#c8a86a}
+/* 模板二：简约赛事门户 —— 米白编辑部风格 */
+.tpl-simple{background:#faf8f2;padding:0;color:var(--ink)}
+.tpl-simple-nav{display:flex;align-items:center;gap:15px;padding:12px 18px;border-bottom:1px solid var(--line);background:#fffefa}
+.tpl-simple-nav b{font-family:'Songti SC',serif;font-size:15px;letter-spacing:2px}.tpl-simple-nav span{flex:1;font-size:10px;color:var(--muted)}
+.tpl-simple-nav button{border:1px solid;border-radius:4px;padding:5px 11px;font-size:10px;background:transparent}
+.tpl-simple-hero{padding:28px 26px;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.tpl-simple-tag{display:inline-block;color:#fff;font-size:9px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;border-radius:2px;margin-bottom:11px}
+.tpl-simple-hero h2{font-family:'Songti SC','Noto Serif SC',serif;font-size:24px;line-height:1.45;font-weight:600}
+.tpl-simple-hero p{font-size:11px;color:var(--muted);margin-top:9px}
+.tpl-simple-body{padding:8px 18px 18px;display:flex;flex-direction:column;gap:8px}
+.tpl-simple-item{display:flex;align-items:center;gap:12px;padding:11px 13px;background:#fff;border:1px solid var(--line);border-radius:5px}
+.tpl-simple-ico{width:36px;height:36px;border-radius:5px;display:grid;place-items:center;flex:none}
+.tpl-simple-item>div{flex:1}.tpl-simple-item b{font-size:12px}.tpl-simple-item p{font-size:10px;color:var(--faint);margin-top:2px}
+.tpl-simple-item>span{font-size:16px}
+/* 模板三：H5 移动门户 */
+.tpl-h5wrap{display:flex;justify-content:center;padding:4px 0;background:var(--paper2)}
+.tpl-h5phone{width:228px;background:#fffefa;border:2px solid var(--line2);overflow:hidden;box-shadow:0 12px 30px rgba(40,35,25,.12)}
+.tpl-h5status{display:flex;justify-content:space-between;padding:6px 12px;font-size:8px;color:var(--faint);background:var(--paper2)}
+.tpl-h5head{padding:14px 13px;color:#fff}.tpl-h5head b{font-size:15px;display:block;font-family:'Songti SC',serif;letter-spacing:2px}.tpl-h5head div{font-size:9px;opacity:.85;margin-top:3px}
+.tpl-h5body{padding:10px;display:flex;flex-direction:column;gap:8px;min-height:190px;background:#faf8f2}
+.tpl-h5banner{font-size:9.5px;padding:9px;border-radius:4px;font-weight:600}
+.tpl-h5card{display:flex;gap:9px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:5px;padding:9px;color:var(--muted)}
+.tpl-h5card b{display:block;font-size:10.5px;color:var(--ink)}.tpl-h5card span{font-size:8.5px;color:var(--faint)}
+.tpl-h5tab{display:flex;justify-content:space-around;padding:8px 0;border-top:1px solid;background:#fffefa}
+.tpl-h5tab>div{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:8px;color:var(--faint)}
+.tpl-h5tab .ic{width:15px;height:15px}
+/* 概览页重排样式 */
+.ov-grid{display:grid;grid-template-columns:1.65fr 1fr;gap:15px}
+.ov-grid2{display:grid;grid-template-columns:1fr 1.65fr;gap:15px}
+.tl{display:flex;flex-direction:column;gap:2px}
+.tl-i{display:flex;align-items:center;gap:12px;padding:9px 4px;border-bottom:1px solid var(--line)}
+.tl-i:last-child{border-bottom:none}
+.tl-d{width:9px;height:9px;border-radius:50%;background:var(--line2);flex:none}
+.tl-i.done .tl-d{background:var(--brand)}.tl-i.now .tl-d{background:var(--rust);box-shadow:0 0 0 4px var(--rust-soft)}
+.tl-t{flex:1;display:flex;align-items:baseline;gap:10px}.tl-t b{font-size:12.5px;font-weight:600}.tl-t span{font-size:10.5px;color:var(--faint)}
+.cap{display:flex;align-items:center;gap:11px;padding:13px;border:1px solid var(--line);border-radius:var(--r2);background:var(--paper2);cursor:pointer;transition:.16s}
+.cap:hover{border-color:var(--rust);background:#fff;transform:translateX(2px)}
+.cap-i{width:32px;height:32px;border-radius:5px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;flex:none}
+.cap b{display:block;font-size:12px;margin-bottom:2px}.cap span{display:block;font-size:10px;color:var(--faint);line-height:1.4}
+.cap>.ic:last-child{margin-left:auto;color:var(--faint)}
+/* ====== 模块内部差异化重构样式 ====== */
+/* 概览：社论封面式 */
+.ov-cover{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(260px,.85fr);gap:16px;margin-bottom:16px}
+.ov-cover-main{display:flex;flex-direction:column;gap:14px}
+.ov-hero{position:relative;overflow:hidden;border-radius:var(--r);border:1px solid var(--line);background:linear-gradient(115deg,#1e4b3d 0%,#173c31 55%,#123028 100%);color:#f2ecdf;padding:24px 28px 20px}
+.ov-hero:before{content:"";position:absolute;right:-60px;top:-70px;width:250px;height:250px;border-radius:50%;border:1px solid rgba(224,190,124,.18);box-shadow:0 0 0 30px rgba(224,190,124,.05),0 0 0 60px rgba(224,190,124,.04)}
+.ov-hero-tag{position:relative;font-size:9.5px;letter-spacing:2.2px;color:#d8bd82;margin-bottom:12px}
+.ov-hero h3{position:relative;font-family:'Songti SC','Noto Serif SC',Georgia,serif;font-size:27px;line-height:1.4;font-weight:600;letter-spacing:1px;margin-bottom:8px}
+.ov-hero p{position:relative;font-size:11.5px;color:#b9cbbd;margin-bottom:16px}
+.ov-hero-bar{position:relative;height:3px;background:rgba(255,255,255,.12);border-radius:3px;margin-bottom:9px;overflow:hidden}
+.ov-hero-bar i{display:block;height:100%;background:linear-gradient(90deg,#d8bd82,#e8d4a6)}
+.ov-hero-meta{position:relative;display:flex;justify-content:space-between;font-size:10px;color:#93aa9b}
+.ov-hero-meta b{color:#e8d4a6;font-weight:600}
+.ov-strip{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:var(--r);background:var(--card);overflow:hidden}
+.ov-strip-i{position:relative;padding:15px 16px 14px;border-right:1px solid var(--line)}
+.ov-strip-i:last-child{border-right:none}
+.ov-strip-n{position:absolute;right:10px;top:8px;font-size:9px;color:var(--line2);font-family:Georgia,serif}
+.ov-strip-ic{color:var(--rust);margin-bottom:8px}.ov-strip-ic .ic{width:18px;height:18px}
+.ov-strip-i b{display:block;font-size:22px;font-weight:650;line-height:1.1;margin-bottom:3px;font-variant-numeric:tabular-nums}
+.ov-strip-i>span:last-child{font-size:10.5px;color:var(--muted)}
+.ov-track{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px 18px}
+.ov-track-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:14px;position:relative}
+.ov-track-row:before{content:"";position:absolute;left:8px;right:8px;top:5px;height:1px;background:var(--line)}
+.ov-track-s{position:relative;padding-top:18px;display:flex;flex-direction:column;gap:3px}
+.ov-track-s i{position:absolute;top:0;left:0;width:11px;height:11px;border-radius:50%;background:var(--paper);border:2px solid var(--line2);z-index:1}
+.ov-track-s.done i{background:var(--brand);border-color:var(--brand)}
+.ov-track-s.now i{background:var(--rust);border-color:var(--rust);box-shadow:0 0 0 4px var(--rust-soft)}
+.ov-track-s b{font-size:12px}.ov-track-s span{font-size:10px;color:var(--faint)}
+.ov-side{display:flex;flex-direction:column;gap:14px}
+.ov-side-b{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:13px 15px}
+.ov-side-b .mini-head{margin-bottom:8px}
+.ov-side-k{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+.ov-log{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid var(--line)}
+.ov-log i{width:5px;height:5px;border-radius:50%;background:var(--rust);margin-top:5px;flex:none}
+.ov-log b{display:block;font-size:11px;font-weight:550}
+.ov-log span{font-size:9.5px;color:var(--faint)}
+.ov-entry{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:15px 18px}
+.ov-entry-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+.ov-entry-i{position:relative;border:1px solid var(--line);border-radius:var(--r2);padding:14px;cursor:pointer;transition:.16s;background:var(--paper2)}
+.ov-entry-i:hover{border-color:var(--rust);transform:translateY(-2px);box-shadow:var(--shadow)}
+.ov-entry-i>span{font-family:Georgia,serif;font-size:10px;color:var(--line2)}
+.ov-entry-i b{display:block;font-size:13px;margin:6px 0 3px}
+.ov-entry-i small{font-size:10px;color:var(--faint)}
+.ov-entry-i>.ic{position:absolute;right:12px;bottom:12px;color:var(--faint)}
+/* 微应用：分类目录 + 横向条目 */
+.app-shell{display:grid;grid-template-columns:210px minmax(0,1fr);gap:16px;align-items:start}
+.app-cats{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px 12px}
+.app-cat{display:flex;align-items:center;gap:9px;padding:10px;border-radius:var(--r2);cursor:pointer;font-size:12px;color:var(--ink2);margin-bottom:3px}
+.app-cat:hover{background:var(--paper2)}
+.app-cat.on{background:var(--rust-soft);color:var(--rust);font-weight:600}
+.app-cat .ic{width:15px;height:15px}.app-cat span{flex:1}.app-cat b{font-size:10px;color:var(--faint)}
+.app-cat-new{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;padding:10px;border:1px dashed var(--line2);border-radius:var(--r2);color:var(--muted);font-size:11.5px;cursor:pointer}
+.app-cat-new:hover{border-color:var(--rust);color:var(--rust)}
+.app-cat-new .ic{width:14px;height:14px}
+.app-main{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:16px 18px}
+.app-main-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.app-main-h h3{font-family:'Songti SC',serif;font-size:17px;margin-bottom:3px}
+.app-main-h p{font-size:11px;color:var(--muted)}
+.app-quick{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.app-quick-i{text-align:left;border:1px solid var(--line);border-radius:var(--r2);background:var(--paper2);padding:12px;cursor:pointer;transition:.16s}
+.app-quick-i:hover{border-color:var(--rust);background:#fff}
+.app-quick-i>.ic{width:20px;height:20px;color:var(--rust);margin-bottom:8px}
+.app-quick-i b{display:block;font-size:12px;margin-bottom:4px}
+.app-quick-i span{font-size:9.5px;color:var(--faint);line-height:1.5;display:block}
+.app-list{display:flex;flex-direction:column;gap:9px}
+.app-row{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:var(--r2);padding:12px 14px;background:var(--paper2);transition:.16s}
+.app-row:hover{border-color:var(--line2);box-shadow:var(--shadow);background:#fff}
+.app-row-ico{width:44px;height:44px;border-radius:9px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;flex:none}
+.app-row-main{flex:1;min-width:0}
+.app-row-main b{display:block;font-size:13.5px;margin-bottom:3px}
+.app-row-main>span{font-size:10.5px;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app-row-tags{display:flex;gap:5px;margin-top:7px}
+.app-row-stat{text-align:center;min-width:64px}
+.app-row-stat b{display:block;font-size:18px;font-weight:650;font-variant-numeric:tabular-nums}
+.app-row-stat span{font-size:9.5px;color:var(--faint)}
+.app-row-act{display:flex;gap:6px}
+/* 表单设计：步骤导航 + 三栏 */
+.fd-work{display:grid;grid-template-columns:118px minmax(0,1fr);gap:14px;align-items:start}
+.fd-steps{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:10px 8px}
+.fd-step{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;padding:13px 6px;border-radius:var(--r2);cursor:pointer;color:var(--muted);margin-bottom:4px}
+.fd-step:hover{background:var(--paper2)}
+.fd-step.on{background:var(--rust-soft);color:var(--rust)}
+.fd-step>span{font-family:Georgia,serif;font-size:10px;color:var(--line2)}
+.fd-step .ic{width:20px;height:20px}
+.fd-step b{font-size:11.5px;font-weight:600}
+.fd-step-foot{display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 4px 4px;margin-top:6px;border-top:1px solid var(--line);color:var(--faint);font-size:9px;text-align:center;line-height:1.5}
+.fd-step-foot .ic{width:16px;height:16px}
+.fd-stage{border:1px solid var(--line);border-radius:var(--r);background:var(--paper2);padding:14px;min-height:520px}
+.fd-canvas-layout{display:grid;grid-template-columns:190px minmax(0,1fr) 250px;gap:12px;align-items:start}
+.fd-forms,.fd-prop{border:1px solid var(--line);border-radius:var(--r2);background:var(--card);padding:12px}
+.fd-forms .mini-head,.fd-prop .mini-head{margin-bottom:10px}
+.fd-form-i{display:flex;gap:8px;align-items:flex-start;padding:9px;border:1px solid var(--line);border-radius:var(--r2);margin-bottom:6px;cursor:pointer}
+.fd-form-i:hover{border-color:var(--line2)}
+.fd-form-i.on{border-color:var(--rust);background:var(--rust-soft)}
+.fd-form-i .ic{width:15px;height:15px;color:var(--rust);flex:none;margin-top:1px}
+.fd-form-i b{display:block;font-size:11.5px;line-height:1.4}
+.fd-form-i span{font-size:9.5px;color:var(--faint)}
+.fd-center{min-width:0}
+.fd-toolbar{border:1px solid var(--line);border-radius:var(--r2);background:var(--card);padding:10px 12px;margin-bottom:10px}
+.fd-toolbar>span{font-size:10px;color:var(--muted);display:block;margin-bottom:9px;letter-spacing:.5px}
+.fd-tool-row{display:flex;flex-wrap:wrap;gap:6px}
+.fd-tool-row .lib-item{font-size:11px;padding:6px 9px}
+.fd-canvas{border:1px solid var(--line);border-radius:var(--r2);background:#fff;min-height:400px;padding:12px}
+.fd-canvas-head{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;margin-bottom:10px;border-bottom:2px solid var(--ink)}
+.fd-canvas-head b{font-family:'Songti SC',serif;font-size:15px}
+.fd-canvas-head span{font-size:10px;color:var(--faint)}
+.fd-canvas .fitem{margin:0 0 8px;padding:9px 11px}
+.fitem .fi-no{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:3px;background:var(--paper2);color:var(--faint);font-size:9px;margin-right:6px}
+/* 审批：纵向流程 + 侧栏 */
+.ap-work{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+.ap-flow{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:16px 18px}
+.ap-flow-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.ap-flow-title{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;margin:16px 0 8px;color:var(--rust)}
+.ap-flow-title .ic{width:16px;height:16px}
+.ap-flow-title span{font-weight:400;color:var(--faint);font-size:10.5px;margin-left:auto}
+.flow-canvas{display:flex;flex-direction:column;align-items:stretch;padding:6px 0;background:linear-gradient(90deg,transparent 28px,var(--line) 28px,var(--line) 29px,transparent 29px)}
+.fnode{display:flex;align-items:center;gap:12px;min-width:0;margin-left:0;padding:11px 13px}
+.fnode .fn-ord{width:26px;height:26px;border-radius:50%;background:var(--paper2);border:1px solid var(--line2);display:grid;place-items:center;font-family:Georgia,serif;font-size:11px;color:var(--muted);flex:none;z-index:1}
+.fnode.sel .fn-ord{background:var(--rust);color:#fff;border-color:var(--rust)}
+.fnode .fn-body{flex:1;min-width:0}
+.fnode .nt{font-size:9px;letter-spacing:1.4px;color:var(--faint);margin-bottom:4px}
+.fnode .nn{font-size:12.5px;font-weight:600;margin-bottom:6px}
+.fnode .fn-meta{display:flex;align-items:center;gap:10px}
+.fnode .fn-meta .tip{margin:0}
+.fnode>.icobtn{align-self:flex-start}
+.fconn{height:16px;width:29px;display:flex;justify-content:center;flex:none}
+.fconn:after{content:"";width:1px;height:100%;background:var(--line2)}
+.ap-add{width:100%;margin-top:10px;padding:11px;border:1px dashed var(--line2);border-radius:var(--r2);background:transparent;color:var(--muted);font-size:11.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.ap-add:hover{border-color:var(--rust);color:var(--rust)}
+.ap-add .ic{width:14px;height:14px}
+.ap-side{display:flex;flex-direction:column;gap:12px}
+.ap-side-b{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px 16px}
+.ap-side-b .mini-head{margin-bottom:10px}
+.ap-sign-list{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.ap-sign-i{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted)}
+.ap-sign-i .ic{width:13px;height:13px;color:var(--brand)}
+.ap-path{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:10px}
+.ap-path span{font-size:10px;padding:3px 8px;background:var(--paper2);border:1px solid var(--line);border-radius:3px}
+.ap-path i{color:var(--faint);font-style:normal;font-size:10px}
+/* 图表：图表集 + 舞台 + 配置 */
+.chart-work{display:grid;grid-template-columns:200px minmax(0,1fr) 270px;gap:14px;align-items:start}
+.chart-list,.chart-cfg{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px}
+.chart-list .mini-head,.chart-cfg .mini-head{margin-bottom:10px}
+.chart-list-i{display:flex;gap:9px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:var(--r2);margin-bottom:6px;cursor:pointer}
+.chart-list-i:hover{border-color:var(--line2)}
+.chart-list-i.on{border-color:var(--rust);background:var(--rust-soft)}
+.chart-list-ic{width:30px;height:30px;border-radius:5px;background:var(--paper2);display:grid;place-items:center;color:var(--rust);flex:none}
+.chart-list-ic .ic{width:16px;height:16px}
+.chart-list-i b{display:block;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart-list-i span{font-size:9.5px;color:var(--faint)}
+.chart-stage{border:1px solid var(--line);border-radius:var(--r);background:var(--card);overflow:hidden}
+.chart-stage-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.chart-stage-k{font-size:9px;letter-spacing:1.8px;color:var(--rust)}
+.chart-stage-h h3{font-family:'Songti SC',serif;font-size:17px;margin-top:3px}
+.chart-stage-tools{display:flex;align-items:center;gap:8px}
+.chart-stage-tools .seg button{min-width:52px}
+.chart-stage-b{padding:14px 18px}
+.chart-stage-b .chart-box{height:320px}
+.chart-stage-f{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+.chart-stage-f>div{padding:12px 16px;border-right:1px solid var(--line)}
+.chart-stage-f>div:last-child{border-right:none}
+.chart-stage-f span{font-size:9.5px;color:var(--faint);display:block;margin-bottom:4px}
+.chart-stage-f b{font-size:14px;font-weight:600}
+/* 组件库：分类筛选 + 画廊 + 检查器 */
+.comp-top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.comp-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:12px;margin-bottom:16px}
+.comp-gallery .comp-card{padding:12px}
+.comp-card-b{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.comp-card-b b{font-size:12px}
+.comp-inspector{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:15px 18px}
+.comp-inspector .mini-head{margin-bottom:12px}
+.comp-insp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 20px}
+.comp-empty{padding:22px;text-align:center;color:var(--faint);font-size:11.5px}
+.comp-empty .ic{width:22px;height:22px;margin-bottom:8px}
+/* 内容管理：分类侧栏 + 卡片信息流 */
+.ct-work{display:grid;grid-template-columns:210px minmax(0,1fr);gap:16px;align-items:start}
+.ct-side{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px 12px}
+.ct-side .mini-head{margin-bottom:8px;padding:0 6px}
+.ct-cat{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--r2);cursor:pointer;font-size:11.5px;color:var(--ink2)}
+.ct-cat:hover{background:var(--paper2)}
+.ct-cat.on{background:var(--rust-soft);color:var(--rust);font-weight:600}
+.ct-cat .ic{width:14px;height:14px}.ct-cat span{flex:1}.ct-cat b{font-size:10px;color:var(--faint)}
+.ct-side .divider{margin:10px 4px}
+.ct-flow{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:16px 18px;min-height:400px}
+.ct-flow-h{border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:14px}
+.ct-flow-h h3{font-family:'Songti SC',serif;font-size:17px;margin-bottom:3px}
+.ct-flow-h span{font-size:10.5px;color:var(--muted)}
+.ct-card{display:flex;border:1px solid var(--line);border-radius:var(--r2);margin-bottom:10px;overflow:hidden;background:var(--paper2);transition:.16s}
+.ct-card:hover{border-color:var(--line2);box-shadow:var(--shadow);background:#fff}
+.ct-card-bar{width:3px;flex:none}
+.ct-card-b{flex:1;padding:12px 14px}
+.ct-card-top{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.ct-card h4{font-size:13px;font-weight:600;margin-bottom:10px}
+.ct-card-act{display:flex;gap:6px}
+.btn.icon.del{color:var(--faint)}
+/* 门户配置：步骤向导 + 大预览 */
+.pt-work{display:grid;grid-template-columns:180px 320px minmax(0,1fr);gap:14px;align-items:start}
+.pt-steps{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:10px}
+.pt-step{display:flex;align-items:center;gap:9px;padding:11px 9px;border-radius:var(--r2);cursor:pointer;margin-bottom:4px;color:var(--muted)}
+.pt-step:hover{background:var(--paper2)}
+.pt-step.on{background:var(--rust-soft);color:var(--rust)}
+.pt-step>span{width:22px;height:22px;border-radius:50%;border:1px solid var(--line2);display:grid;place-items:center;font-family:Georgia,serif;font-size:10px;flex:none}
+.pt-step.on>span{background:var(--rust);border-color:var(--rust);color:#fff}
+.pt-step.done>span{background:var(--brand);border-color:var(--brand);color:#fff}
+.pt-step .ic{width:15px;height:15px;flex:none}
+.pt-step b{display:block;font-size:11.5px}.pt-step small{font-size:9px;color:var(--faint);display:block;line-height:1.3}
+.pt-config{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:15px 16px;min-height:560px}
+.pt-config>.mini-head{margin-bottom:14px}
+.pt-navfoot{display:flex;justify-content:space-between;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.pt-devcards{display:flex;flex-direction:column;gap:9px}
+.pt-devcard{border:1px solid var(--line);border-radius:var(--r2);padding:14px;cursor:pointer;transition:.16s}
+.pt-devcard:hover{border-color:var(--line2)}
+.pt-devcard.on{border-color:var(--rust);background:var(--rust-soft)}
+.pt-devcard .ic{width:22px;height:22px;color:var(--rust);margin-bottom:8px}
+.pt-devcard b{display:block;font-size:12.5px;margin-bottom:3px}
+.pt-devcard span{font-size:10px;color:var(--faint)}
+.pt-tplcard{display:flex;gap:11px;border:1px solid var(--line);border-radius:var(--r2);padding:12px;margin-bottom:9px;cursor:pointer;transition:.16s}
+.pt-tplcard:hover{border-color:var(--line2)}
+.pt-tplcard.on{border-color:var(--rust);background:var(--rust-soft)}
+.pt-tplico{width:38px;height:38px;border-radius:7px;background:var(--paper2);display:grid;place-items:center;color:var(--rust);flex:none}
+.pt-tplico .ic{width:20px;height:20px}
+.pt-tplcard b{font-size:12.5px}
+.pt-tplcard p{font-size:10px;color:var(--muted);margin:4px 0 6px;line-height:1.5}
+.pt-tplmeta{display:flex;gap:5px;flex-wrap:wrap}
+.pt-tplmeta span{font-size:9px;padding:2px 6px;background:var(--paper2);border-radius:3px;color:var(--muted)}
+.pt-preview{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:15px 16px}
+.pt-preview-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.pt-preview-h h3{font-family:'Songti SC',serif;font-size:16px}
+.pt-preview-h span{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--rust)}
+.pt-preview-h .ic{width:14px;height:14px}
+/* 门户：前后端分离架构说明 */
+.pt-arch{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:14px;border:1px solid var(--line);border-radius:var(--r2);background:var(--card)}
+.pt-arch-l{display:flex;align-items:baseline;gap:7px;padding:5px 11px;border-radius:4px;background:var(--paper2)}
+.pt-arch-l b{font-size:11px;color:var(--rust)}
+.pt-arch-l span{font-size:10px;color:var(--muted)}
+.pt-arch-l.on{background:var(--rust-soft)}
+.pt-arch>i{font-style:normal;color:var(--faint);font-size:14px}
+.pt-arch-note{margin-left:auto;font-size:10px;color:var(--faint)}
+.pt-cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.pt-cats .chip{padding:5px 10px;font-size:10.5px}
+.pt-cats .chip.on{background:var(--rust);border-color:var(--rust);color:#fff}
+.pt-color{display:inline-flex;align-items:center;gap:5px;padding:0 9px;height:32px;border:1px solid var(--line);border-radius:5px;font-size:10.5px;color:var(--muted);cursor:pointer;background:var(--paper2)}
+.pt-color input{width:20px;height:20px;border:none;border-radius:3px;padding:0;background:none;cursor:pointer}
+/* 预览导航三态 */
+.tp-navh{display:flex;align-items:center;gap:14px;padding:9px 14px;border-bottom:1px solid rgba(160,150,130,.3);background:rgba(255,255,255,.4)}
+.tp-navh b{font-family:'Songti SC',serif;font-size:13px;letter-spacing:2px}
+.tp-navh span{font-size:9.5px}
+.tpl-screen .tp-navh{background:rgba(255,254,250,.04);border-bottom-color:rgba(224,190,124,.18)}
+.tp-navv{display:flex;flex-direction:column;gap:5px;padding:9px 14px;border-bottom:1px solid var(--line);background:var(--paper2)}
+.tp-navv span{font-size:10px;color:var(--muted);white-space:nowrap;padding:2px 7px;border-left:2px solid transparent}
+.tpl-screen .tp-navv{border-bottom-color:rgba(224,190,124,.18);background:rgba(255,254,250,.04)}
+.tpl-screen .tp-navv{background:rgba(255,254,250,.04);border-right-color:rgba(224,190,124,.18)}
+.tp-navb{display:flex;justify-content:space-around;padding:7px 0;border-top:1px solid;background:rgba(255,255,255,.5)}
+.tp-navb span{font-size:9px;color:var(--faint)}
+.tpl-screen .tp-navb{background:rgba(255,254,250,.04)}
+/* 预览模块尺寸 / 样式 */
+.sz-s .tpl-metric,.sz-s .tpl-h5card,.sz-s .tpl-simple-item{padding:6px 9px}
+.sz-l .tpl-metric,.sz-l .tpl-h5card,.sz-l .tpl-simple-item{padding:16px 18px}
+.sz-s .tpl-screen-grid,.sz-s .tpl-h5body,.sz-s .tpl-simple-body{gap:5px}
+.sz-l .tpl-screen-grid,.sz-l .tpl-h5body,.sz-l .tpl-simple-body{gap:14px}
+.ms-fill .tpl-metric,.ms-fill .tpl-h5card,.ms-fill .tpl-simple-item{background:var(--rust-soft);border-color:transparent}
+.ms-shadow .tpl-metric,.ms-shadow .tpl-h5card,.ms-shadow .tpl-simple-item{box-shadow:0 5px 16px rgba(60,40,25,.13)}
+.tpl-screen.ms-fill .tpl-metric{background:rgba(177,80,58,.16)}
+.tpl-metric[draggable=true],.tpl-h5card[draggable=true],.tpl-simple-item[draggable=true]{cursor:grab}
+.tpl-metric[draggable=true]:active,.tpl-h5card[draggable=true]:active,.tpl-simple-item[draggable=true]:active{cursor:grabbing}
+
+/* 大屏：非对称杂志式 */
+.big-top{display:flex;justify-content:space-between;align-items:flex-end;padding:20px 24px 14px;border-bottom:1px solid rgba(224,190,124,.16)}
+.big-kicker{font-size:9px;letter-spacing:2.4px;color:#b08d5a;margin-bottom:7px}
+.big-top .big-title{text-align:left;padding:0;letter-spacing:4px;font-size:21px}
+.big-clock{font-size:11px;color:#c8a86a;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.big-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:18px 22px;border:1px solid rgba(224,190,124,.16);border-radius:5px;background:rgba(255,254,250,.035)}
+.big-kpi-i{padding:14px 18px;border-right:1px solid rgba(224,190,124,.16)}
+.big-kpi-i:last-child{border-right:none}
+.big-kpi-i b{display:block;font-size:27px;font-weight:600;color:#e8d4a6;line-height:1.05;font-variant-numeric:tabular-nums}
+.big-kpi-i:nth-child(even) b{color:#8ec0a5}
+.big-kpi-i b small{font-size:10px;margin-left:4px;color:#a9a79b;font-weight:400}
+.big-kpi-i>span{font-size:10.5px;color:#b8c4b6}
+.big-body{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(240px,.85fr);gap:13px;padding:0 22px 16px}
+.big-main{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.big-rail{display:flex;flex-direction:column;gap:13px}
+.big-card{background:rgba(255,254,250,.045);border:1px solid rgba(224,190,124,.16);border-radius:6px;padding:14px;color:#ece7db}
+.big-card .mini-head{color:#e8d4a6;margin-bottom:10px}
+.big-pie{height:250px}.big-line{height:250px}
+.big-prog{margin-bottom:14px}
+.big-prog>div:first-child{display:flex;justify-content:space-between;font-size:11px;color:#d3dacf;margin-bottom:7px}
+.big-feed{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid rgba(224,190,124,.12)}
+.big-feed i{width:5px;height:5px;border-radius:50%;background:#c8a86a;margin-top:6px;flex:none}
+.big-feed span{font-size:10px;margin-right:8px}
+.big-feed b{font-size:10.5px;font-weight:400;color:#d3dacf}
+.big-marquee{display:flex;align-items:center;gap:16px;padding:9px 22px;border-top:1px solid rgba(224,190,124,.16);background:rgba(200,168,106,.06);overflow:hidden;font-size:10px;color:#c8a86a}
+.big-marquee>span{white-space:nowrap;flex:none;letter-spacing:1px}
+.big-marquee>div{white-space:nowrap;color:#a9a79b}
+/* 屏幕管理：设备卡片墙 */
+.sc-stat{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.sc-stat>div{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:13px 16px}
+.sc-stat b{display:block;font-size:22px;font-weight:650;margin-bottom:2px;font-variant-numeric:tabular-nums}
+.sc-stat span{font-size:10.5px;color:var(--muted)}
+.sc-wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:14px}
+.sc-card{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:15px 16px;transition:.16s}
+.sc-card:hover{border-color:var(--line2);box-shadow:var(--shadow)}
+.sc-card-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.sc-screen-ic{width:42px;height:42px;border-radius:9px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center}
+.sc-card-t b{display:block;font-size:13.5px;margin-bottom:3px}
+.sc-card-t span{font-size:10.5px;color:var(--muted)}
+.sc-card-domain{display:flex;align-items:center;gap:6px;margin:12px 0;padding:8px 10px;background:var(--paper2);border-radius:var(--r2);font-size:10.5px;color:var(--rust);overflow:hidden}
+.sc-card-domain .ic{width:13px;height:13px;flex:none}
+.sc-card-domain span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:13px}
+.sc-card-f{display:flex;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
+.sc-add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:230px;border:1px dashed var(--line2);border-radius:var(--r);background:transparent;color:var(--muted);cursor:pointer;transition:.16s}
+.sc-add:hover{border-color:var(--rust);color:var(--rust);background:var(--rust-soft)}
+.sc-add .ic{width:26px;height:26px}
+.sc-add b{font-size:12.5px}.sc-add span{font-size:10px;color:var(--faint)}
+/* 访问安全：设置向导式 */
+.sec-work{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
+.sec-main{display:flex;flex-direction:column;gap:14px}
+.sec-block{border:1px solid var(--line);border-radius:var(--r);background:var(--card);overflow:hidden}
+.sec-block-h{display:flex;align-items:center;gap:11px;padding:13px 18px;border-bottom:1px solid var(--line);background:var(--paper2)}
+.sec-no{font-family:Georgia,serif;font-size:12px;color:var(--rust)}
+.sec-block-h h3{font-size:13.5px;flex:1}
+.sec-block-b{padding:16px 18px}
+.sec-methods{display:flex;flex-direction:column;gap:9px}
+.sec-method{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:var(--r2);padding:12px 14px;cursor:pointer;transition:.16s;color:var(--dim)}
+.sec-method:hover{border-color:var(--line2)}
+.sec-method.on{border-color:var(--rust);background:var(--rust-soft);color:var(--ink)}
+.sec-method-ic{width:36px;height:36px;border-radius:7px;background:var(--paper2);display:grid;place-items:center;color:var(--rust);flex:none}
+.sec-method-ic .ic{width:18px;height:18px}
+.sec-method>div:nth-child(2){flex:1}
+.sec-method b{display:block;font-size:12.5px;margin-bottom:3px}
+.sec-method span{font-size:10px;color:var(--muted)}
+.sec-toggles{display:flex;flex-direction:column;gap:0;margin-top:12px}
+.sec-toggle{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.sec-toggle:last-child{border-bottom:none}
+.sec-toggle b{display:block;font-size:12px;margin-bottom:2px}
+.sec-toggle span{font-size:10px;color:var(--faint)}
+.sec-audit{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:15px 16px}
+.sec-audit-h{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.sec-audit-h h3{font-family:'Songti SC',serif;font-size:15px;margin-bottom:3px}
+.sec-audit-h span{font-size:10px;color:var(--faint)}
+.sec-audit-list{max-height:460px;overflow:auto}
+.sec-log{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.sec-log-dot{width:7px;height:7px;border-radius:50%;background:var(--rust);margin-top:5px;flex:none;box-shadow:0 0 0 3px var(--rust-soft)}
+.sec-log-b b{display:block;font-size:11px;font-weight:550;margin-bottom:3px}
+.sec-log-b span{font-size:9.5px;color:var(--faint)}
+@media(max-width:1200px){.fd-canvas-layout{grid-template-columns:150px minmax(0,1fr)}.fd-prop{grid-column:1 / -1}.pt-work{grid-template-columns:150px minmax(0,1fr)}.pt-preview{grid-column:1 / -1}.chart-work{grid-template-columns:170px minmax(0,1fr)}.chart-cfg{grid-column:1 / -1}}
+`);
+
+/* ==================== MICRO APPS ==================== */
+const APP_TYPES=[{t:'信息采集',n:'信息采集',i:'user',d:'报名登记、选手信息、现场签到等数据采集微应用'},
+ {t:'问卷调查',n:'问卷调查',i:'star',d:'满意度调查、意见征集、在线投票等问卷微应用'},
+ {t:'赛事管理',n:'赛事管理',i:'trophy',d:'项目申报、赛道管理、成绩录入等赛事业务微应用'},
+ {t:'分组管理',n:'分组管理',i:'users',d:'选手分组、评委分配、场次编排等管理微应用'}];
+let _appCat='全部';
+R.apps=function(){
+  const counts={};S.forms.forEach(f=>{const a=f.app||'其他';counts[a]=(counts[a]||0)+1});
+  const cats=['全部'].concat(APP_TYPES.map(a=>a.t)).concat(Object.keys(counts).filter(x=>x!=='全部'&&!APP_TYPES.some(a=>a.t===x)));
+  const list=S.forms.filter(f=>_appCat==='全部'||(f.app||'其他')===_appCat);
+  let h='<div class="page-head"><div><h2>微应用中心</h2><p>信息采集、问卷调查等微应用统一目录，支持字段配置、数据采集与统计分析</p></div><div class="head-actions"><button class="btn gold" onclick="newMicroApp()">'+svg('plus','ic-sm')+'创建微应用</button></div></div>';
+  h+='<div class="app-shell"><aside class="app-cats"><div class="mini-head">应用分类</div>';
+  cats.forEach(c=>{const meta=APP_TYPES.find(a=>a.t===c);h+='<div class="app-cat '+(_appCat===c?'on':'')+'" onclick="setAppCat(\''+c+'\')">'+svg(meta?meta.i:'components','ic-sm')+'<span>'+esc(c)+'</span><b>'+(c==='全部'?S.forms.length:(counts[c]||0))+'</b></div>'});
+  h+='<div class="app-cat-new" onclick="newMicroApp()">'+svg('plus','ic-sm')+'新建应用</div></aside>';
+  h+='<div class="app-main"><div class="app-main-h"><div><h3>'+esc(_appCat)+(_appCat==='全部'?'微应用':'应用')+'</h3><p>按分类浏览与管理已创建的微应用</p></div><span class="tag g">'+list.length+' 个应用</span></div>';
+  h+='<div class="app-quick">'+APP_TYPES.map(a=>'<button class="app-quick-i" onclick="newMicroApp(\''+a.t+'\')">'+svg(a.i)+'<b>'+a.n+'</b><span>'+a.d+'</span></button>').join('')+'</div>';
+  h+='<div class="app-list">';
+  list.forEach(f=>{const ic=f.icon||'form';
+    h+='<div class="app-row"><div class="app-row-ico">'+svg(ic)+'</div><div class="app-row-main"><b>'+esc(f.name)+'</b><span>'+esc(f.desc)+'</span><div class="app-row-tags"><span class="tag g">'+esc(f.app||'其他')+'</span><span class="tag">'+f.fields.length+' 字段</span></div></div>';
+    h+='<div class="app-row-stat"><b>'+f.records.length+'</b><span>采集数据</span></div><div class="app-row-stat"><b>'+f.fields.length+'</b><span>表单字段</span></div>';
+    h+='<div class="app-row-act"><button class="btn sm" onclick="openApp(\''+f.id+'\')">'+svg('edit','ic-sm')+'设计</button><button class="btn sm" onclick="openAppData(\''+f.id+'\')">'+svg('table','ic-sm')+'数据</button><button class="btn sm icon" title="导出" onclick="selectAndExport(\''+f.id+'\')">'+svg('download','ic-sm')+'</button></div></div>';
+  });
+  h+='</div></div></div>';
+  return h;
+};
+function setAppCat(c){_appCat=c;render()}
+
+function openApp(id){_formId=id;_ftab='design';_selField=-1;go('formdesign')}
+function openAppData(id){_formId=id;_ftab='data';_selField=-1;go('formdesign')}
+function selectAndExport(id){_formId=id;exportFormData()}
+function newMicroApp(preset){
+  let opts=APP_TYPES.map(a=>'<option value="'+a.t+'" '+(preset===a.t?'selected':'')+'>'+a.n+'</option>').join('');
+  modal('创建微应用','<div class="f-row"><label>应用类型</label><select class="sel2" id="maType">'+opts+'</select></div><div class="f-row"><label>应用名称</label><input class="inp2" id="maName" placeholder="如：新生报到信息采集"></div><div class="f-row"><label>应用说明</label><input class="inp2" id="maDesc" placeholder="简要描述该微应用用途"></div><div class="tip">创建后可在「表单设计引擎」中拖拽控件配置字段</div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="doCreateMicroApp()">创建并设计</button>');
+}
+function doCreateMicroApp(){
+  const t=document.getElementById('maType').value,n=document.getElementById('maName').value.trim()||t+'微应用',desc=document.getElementById('maDesc').value.trim()||t+'场景采集应用';
+  const meta=APP_TYPES.find(a=>a.t===t)||APP_TYPES[0];
+  const presetFields={
+    '信息采集':[{type:'text',label:'姓名',ph:'请输入姓名',req:true},{type:'phone',label:'联系电话',ph:'请输入手机号',req:true},{type:'text',label:'所属单位',ph:'请输入单位',req:false}],
+    '问卷调查':[{type:'radio',label:'满意度',opts:['非常满意','满意','一般','不满意'],req:true},{type:'textarea',label:'建议',ph:'请填写建议',req:false}],
+    '赛事管理':[{type:'text',label:'项目名称',ph:'请输入项目名称',req:true},{type:'date',label:'提交日期',req:false}],
+    '分组管理':[{type:'text',label:'分组名称',ph:'如 A组',req:true},{type:'number',label:'人数',ph:'0',req:false}]
+  };
+  const f={id:uid(),name:n,app:t,icon:meta.i,desc:desc,fields:presetFields[t]||[],records:[]};
+  S.forms.push(f);_formId=f.id;_ftab='design';_selField=-1;closeModal();save();render();log('创建微应用：'+n);toast('微应用创建成功，可拖拽控件配置字段');go('formdesign');
+}
+
+/* ==================== FORM DESIGNER ==================== */
+let _formId=null,_ftab='design',_selField=-1;
+const FIELD_TYPES=[{t:'text',n:'单行文本',i:'text'},{t:'textarea',n:'多行文本',i:'text'},{t:'select',n:'下拉选择',i:'sort'},{t:'radio',n:'单选框',i:'components'},{t:'number',n:'数字输入',i:'number'},{t:'phone',n:'手机号码',i:'phone'},{t:'date',n:'日期选择',i:'calendar'}];
+function curForm(){if(!_formId||!S.forms.some(f=>f.id===_formId))_formId=S.forms[0]&&S.forms[0].id;return S.forms.find(f=>f.id===_formId)||S.forms[0]}
+R.formdesign=function(){
+  const f=curForm();if(!f)return '<div class="empty">暂无表单</div>';
+  let h='<div class="page-head"><div><h2>表单设计引擎</h2><p>拖拽控件配置表单字段，支持数据采集、统计分析与导出</p></div><div class="head-actions">';
+  h+='<select class="sel2" style="width:210px;min-height:36px" id="formSel" onchange="switchForm()">'+S.forms.map(x=>'<option value="'+x.id+'" '+(x.id===f.id?'selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select>';
+  h+='<button class="btn" onclick="exportFormData()">'+svg('download','ic-sm')+'导出数据</button><button class="btn gold" onclick="saveForm()">'+svg('save','ic-sm')+'保存表单</button></div></div>';
+  h+='<div class="fd-work"><nav class="fd-steps">'+[['design','01','设计表单','form'],['data','02','数据采集','table'],['stat','03','统计分析','chart']].map(x=>'<div class="fd-step '+(_ftab===x[0]?'on':'')+'" onclick="setFTab(\''+x[0]+'\')"><span>'+x[1]+'</span>'+svg(x[3],'ic-sm')+'<b>'+x[2]+'</b></div>').join('')+'<div class="fd-step-foot">'+svg('drag','ic-sm')+'<span>拖拽控件<br>即时配置</span></div></nav>';
+  h+='<div class="fd-stage">';
+  if(_ftab==='design')h+=formDesignHTML(f);
+  else if(_ftab==='data')h+=formDataHTML(f);
+  else h+=formStatHTML(f);
+  h+='</div></div>';
+  return h;
+};
+
+function switchForm(){_formId=document.getElementById('formSel').value;_selField=-1;render()}
+function setFTab(t){_ftab=t;render()}
+function saveForm(){save();log('保存表单配置：'+curForm().name);toast('表单配置已保存')}
+function newForm(){modal('新建表单','<div class="f-row"><label>表单名称</label><input class="inp2" id="nfName" placeholder="如：志愿者信息登记表"></div><div class="f-row"><label>表单说明</label><input class="inp2" id="nfDesc" placeholder="简要描述用途"></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="createForm()">创建</button>')}
+function createForm(){const n=document.getElementById('nfName').value.trim();if(!n)return toast('请输入表单名称','err');const f={id:uid(),name:n,desc:document.getElementById('nfDesc').value.trim()||'自定义表单',fields:[],records:[]};S.forms.push(f);_formId=f.id;_ftab='design';closeModal();save();render();toast('表单创建成功')}
+function formDesignHTML(f){
+  let h='<div class="fd-canvas-layout"><aside class="fd-forms"><div class="mini-head">表单清单</div>';
+  S.forms.forEach(x=>{h+='<div class="fd-form-i '+(x.id===f.id?'on':'')+'" onclick="switchFormTo(\''+x.id+'\')">'+svg(x.icon||'form','ic-sm')+'<div><b>'+esc(x.name)+'</b><span>'+x.fields.length+' 字段 · '+x.records.length+' 条数据</span></div></div>'});
+  h+='<button class="btn sm" style="width:100%;margin-top:10px" onclick="newForm()">'+svg('plus','ic-sm')+'新建表单</button></aside>';
+  h+='<div class="fd-center"><div class="fd-toolbar"><span>控件工具箱 · 拖入画布或点击添加</span><div class="fd-tool-row">';
+  FIELD_TYPES.forEach(x=>{h+='<div class="lib-item" draggable="true" data-type="'+x.t+'" onclick="addField(\''+x.t+'\',null)">'+svg(x.i,'ic-sm')+x.n+'</div>'});
+  h+='</div></div><div class="fd-canvas" id="formCanvas"><div class="fd-canvas-head"><b>'+esc(f.name)+'</b><span>'+f.fields.length+' 个字段</span></div>';
+  if(!f.fields.length)h+='<div class="drop-hint">从上方拖拽控件到此处开始设计</div>';
+  f.fields.forEach((fd,i)=>{
+    let fake=fd.type==='textarea'?'多行文本域':fd.type==='select'?'下拉选择：'+(fd.opts||[]).join(' / '):fd.type==='radio'?'单选：'+(fd.opts||[]).join(' / '):fd.type==='date'?'日期选择器':fd.type==='number'?'数字输入':fd.type==='phone'?'手机号输入':'请输入'+(fd.ph||'');
+    h+='<div class="fitem '+(i===_selField?'sel':'')+'" data-i="'+i+'" onclick="selField('+i+')"><div class="fl"><span class="fi-no">'+(i+1)+'</span>'+esc(fd.label)+(fd.req?'<i>*</i>':'')+'</div><div class="fake">'+esc(fake)+'</div><div class="fa"><button class="icobtn" title="上移" onclick="event.stopPropagation();moveField('+i+',-1)">'+svg('left','ic-sm')+'</button><button class="icobtn" title="下移" onclick="event.stopPropagation();moveField('+i+',1)">'+svg('right','ic-sm')+'</button><button class="icobtn del" title="删除" onclick="event.stopPropagation();delField('+i+')">'+svg('trash','ic-sm')+'</button></div></div>';
+  });
+  h+='<div class="drop-hint" id="dropZone" style="margin-top:4px">拖拽控件到此处追加到末尾</div></div></div>';
+  h+='<aside class="fd-prop"><div class="mini-head">字段属性</div><div id="propBox">';
+  if(_selField<0||!f.fields[_selField])h+='<div class="prop-empty">'+svg('settings')+'选中画布中的字段<br>即可在此配置属性</div>';
+  else{const fd=f.fields[_selField];
+    h+='<div class="f-row"><label>字段标题</label><input class="inp2" id="pLabel" value="'+esc(fd.label)+'" onchange="updField(\'label\',this.value)"></div>';
+    h+='<div class="f-row"><label>占位提示</label><input class="inp2" id="pPh" value="'+esc(fd.ph||'')+'" onchange="updField(\'ph\',this.value)" placeholder="输入提示文字"></div>';
+    h+='<div class="f-row"><label>选项配置（英文逗号分隔）</label><textarea class="ta2" id="pOpts" onchange="updField(\'opts\',this.value)" placeholder="选项一,选项二">'+(fd.opts||[]).join(',')+'</textarea></div>';
+    h+='<div class="f-row" style="display:flex;justify-content:space-between;align-items:center"><label style="margin:0">必填字段</label><div class="switch '+(fd.req?'on':'')+'" onclick="toggleReq()"></div></div>';
+    h+='<div class="f-row"><label>字段类型</label><input class="inp2" value="'+esc((FIELD_TYPES.find(x=>x.t===fd.type)||{}).n||fd.type)+'" disabled style="opacity:.6"></div>';
+  }
+  h+='</div></aside></div>';
+  return h;
+}
+function switchFormTo(id){_formId=id;_selField=-1;save();render()}
+
+function selField(i){_selField=i;render()}
+function addField(type,idx){const f=curForm();const meta=FIELD_TYPES.find(x=>x.t===type)||FIELD_TYPES[0];const fd={type:type,label:meta.n,ph:'请输入'+meta.n,req:false};if(type==='select'||type==='radio')fd.opts=['选项一','选项二','选项三'];if(idx==null)f.fields.push(fd);else f.fields.splice(idx,0,fd);_selField=idx==null?f.fields.length-1:idx;save();render();toast('已添加控件：'+meta.n)}
+function moveField(i,d){const f=curForm(),j=i+d;if(j<0||j>=f.fields.length)return;const t=f.fields[i];f.fields[i]=f.fields[j];f.fields[j]=t;_selField=j;save();render()}
+function delField(i){const f=curForm();f.fields.splice(i,1);_selField=-1;save();render();toast('字段已删除')}
+function updField(k,v){const f=curForm();if(!f.fields[_selField])return;if(k==='opts')f.fields[_selField].opts=v.split(/[,，]/).map(x=>x.trim()).filter(Boolean);else f.fields[_selField][k]=v;save()}
+function toggleReq(){const fd=curForm().fields[_selField];fd.req=!fd.req;save();render()}
+let _dragFieldFrom=null;
+BIND.formdesign=function(){
+  // 控件库拖拽：携带类型；画布内字段拖拽：携带字段名标记
+  document.querySelectorAll('.lib-item').forEach(el=>{el.setAttribute('draggable','true');el.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',el.dataset.type);e.dataTransfer.setData('application/x-libcontrol',el.dataset.type);e.dataTransfer.effectAllowed='copy';el.style.opacity='.5'});el.addEventListener('dragend',()=>el.style.opacity='')});
+  document.querySelectorAll('.fitem').forEach(el=>{el.setAttribute('draggable','true');el.addEventListener('dragstart',e=>{e.stopPropagation();_dragFieldFrom=parseInt(el.dataset.i);e.dataTransfer.setData('text/plain','__move__');e.dataTransfer.setData('application/x-movefield',el.dataset.i);e.dataTransfer.effectAllowed='move'});el.addEventListener('dragend',()=>{_dragFieldFrom=null;document.querySelectorAll('.fitem').forEach(x=>x.style.borderTopColor='')})});
+  const cv=document.getElementById('formCanvas');if(!cv)return;
+  const clearMark=()=>document.querySelectorAll('.fitem').forEach(x=>x.style.borderTopColor='');
+  ['dragover','dragenter'].forEach(ev=>cv.addEventListener(ev,e=>{e.preventDefault();e.dataTransfer.dropEffect=(_dragFieldFrom!=null)?'move':'copy';clearMark();const it=e.target.closest('.fitem');if(it)it.style.borderTopColor='var(--gold)'}));
+  cv.addEventListener('dragleave',e=>{if(!cv.contains(e.relatedTarget))clearMark()});
+  cv.addEventListener('drop',e=>{
+    e.preventDefault();clearMark();
+    const move=e.dataTransfer.getData('application/x-movefield');
+    const type=e.dataTransfer.getData('application/x-libcontrol')||e.dataTransfer.getData('text/plain');
+    const it=e.target.closest('.fitem');let targetIdx=it?parseInt(it.dataset.i):null;
+    if(move!==''&&move!=null&&_dragFieldFrom!=null){ // 画布内重排
+      const f=curForm(),from=_dragFieldFrom;let to=(targetIdx==null?f.fields.length:targetIdx);
+      if(from>=to)to--;if(to<0)to=0;if(from!==to){const item=f.fields.splice(from,1)[0];f.fields.splice(to,0,item);_selField=to;save();render();toast('字段顺序已调整')}
+      _dragFieldFrom=null;return;
+    }
+    if(!type||type==='__move__')return;addField(type,targetIdx);
+  });
+};
+function formDataHTML(f){
+  let h='<div class="card"><div class="card-h"><h3>'+svg('table','ic-sm')+'「'+esc(f.name)+'」采集数据</h3><div style="display:flex;gap:8px"><button class="btn sm" onclick="openFill()">'+svg('plus','ic-sm')+'新增数据</button><button class="btn sm" onclick="exportFormData()">'+svg('download','ic-sm')+'导出 CSV</button></div></div><div class="card-b" style="padding:0 20px 14px">';
+  if(!f.records.length)h+='<div class="empty">'+svg('table','ic-xl')+'暂无采集数据，点击「新增数据」录入</div>';
+  else{const cols=Object.keys(f.records[0]);h+='<table class="tbl"><thead><tr><th>#</th>'+cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'<th>操作</th></tr></thead><tbody>';f.records.forEach((r,i)=>{h+='<tr><td class="mini">'+(i+1)+'</td>'+cols.map(c=>'<td>'+esc(r[c]||'-')+'</td>').join('')+'<td><button class="icobtn del" onclick="delRecord('+i+')">'+svg('trash','ic-sm')+'</button></td></tr>'});h+='</tbody></table>'}
+  h+='</div></div>';return h;
+}
+function delRecord(i){confirmBox('确认删除第 '+(i+1)+' 条数据？',function(){curForm().records.splice(i,1);save();render();toast('数据已删除')})}
+function openFill(){const f=curForm();if(!f.fields.length)return toast('请先在表单设计中添加字段','err');
+  let b='<div class="frun">';f.fields.forEach((fd,i)=>{b+='<div><div class="lab">'+esc(fd.label)+(fd.req?' <i>*</i>':'')+'</div>';
+    if(fd.type==='textarea')b+='<textarea class="ta2" id="ff'+i+'" placeholder="'+esc(fd.ph||'')+'"></textarea>';
+    else if(fd.type==='select')b+='<select class="sel2" id="ff'+i+'">'+(fd.opts||[]).map(o=>'<option>'+esc(o)+'</option>').join('')+'</select>';
+    else if(fd.type==='radio')b+='<div class="chips" id="ff'+i+'" data-val="'+(fd.opts||[])[0]+'">'+(fd.opts||[]).map((o,j)=>'<div class="chip '+(j===0?'on':'')+'" onclick="pickRadio('+i+',this,\''+esc(o)+'\')">'+esc(o)+'</div>').join('')+'</div>';
+    else b+='<input class="inp2" id="ff'+i+'" type="'+(fd.type==='date'?'date':fd.type==='number'?'number':'text')+'" placeholder="'+esc(fd.ph||'')+'">';
+    b+='</div>'});b+='</div>';
+  modal('录入数据 · '+f.name,b,'<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="submitFill()">提交数据</button>',true);
+}
+function pickRadio(i,el,v){el.parentNode.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));el.classList.add('on');document.getElementById('ff'+i).dataset.val=v}
+function submitFill(){const f=curForm(),r={};for(let i=0;i<f.fields.length;i++){const fd=f.fields[i],el=document.getElementById('ff'+i),v=el.dataset.val!=null?el.dataset.val:el.value.trim();if(fd.req&&!v)return toast('请填写：'+fd.label,'err');r[fd.label]=v}f.records.push(r);closeModal();_ftab='data';save();render();log('录入表单数据：'+f.name);toast('数据提交成功')}
+function formStatHTML(f){
+  let h='<div class="grid g3" style="margin-bottom:16px"><div class="card stat"><div class="lbl">'+svg('users','ic-sm')+'采集数据总量</div><div class="num">'+f.records.length+'</div><div class="sub">当前表单记录数</div></div><div class="card stat"><div class="lbl">'+svg('form','ic-sm')+'表单字段数</div><div class="num">'+f.fields.length+'</div><div class="sub">含必填 '+f.fields.filter(x=>x.req).length+' 项</div></div><div class="card stat"><div class="lbl">'+svg('chart','ic-sm')+'数据完整度</div><div class="num">'+(f.records.length?Math.round(f.records.reduce((a,r)=>a+Object.values(r).filter(v=>v&&v!=='-').length,0)/(f.records.length*Math.max(1,f.fields.length))*100):0)+'%</div><div class="sub">字段有效填写比例</div></div></div>';
+  h+='<div class="card"><div class="card-h"><h3>'+svg('chart','ic-sm')+'字段数据分布</h3></div><div class="card-b">';
+  f.fields.forEach(fd=>{const vals={};f.records.forEach(r=>{const v=r[fd.label];if(v)vals[v]=(vals[v]||0)+1});const keys=Object.keys(vals).slice(0,6);const mx=Math.max(1,...Object.values(vals));
+    h+='<div style="margin-bottom:16px"><div style="font-size:12.5px;margin-bottom:7px">'+esc(fd.label)+'</div>';
+    if(!keys.length)h+='<div class="tip">暂无数据</div>';
+    keys.forEach(k=>{h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:5px"><span style="width:110px;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(k)+'</span><div class="bar teal" style="flex:1"><i style="width:'+(vals[k]/mx*100)+'%"></i></div><b style="width:24px;text-align:right;font-size:11px">'+vals[k]+'</b></div>'});h+='</div>'});
+  h+='</div></div>';return h;
+}
+function exportFormData(){const f=curForm();if(!f.records.length)return toast('暂无数据可导出','err');const cols=Object.keys(f.records[0]);downloadText(f.name+'_数据.csv',toCSV(cols,f.records.map(r=>cols.map(c=>r[c]||''))),'text/csv;charset=utf-8');log('导出表单数据：'+f.name);toast('数据已导出为 CSV')}
+/* ==================== APPROVAL ENGINE ==================== */
+let _flowId=null,_selNode=-1;
+function curFlow(){if(!_flowId||!S.flows.some(f=>f.id===_flowId))_flowId=S.flows[0]&&S.flows[0].id;return S.flows.find(f=>f.id===_flowId)||S.flows[0]}
+R.approval=function(){
+  const f=curFlow();if(!f)return '<div class="empty">暂无审批流程</div>';
+  let h='<div class="page-head"><div><h2>审批引擎</h2><p>可视化配置审批流程，支持多级审批（会签/或签）、条件分支与手写签名</p></div><div class="head-actions"><button class="btn" onclick="openSign()">'+svg('pen','ic-sm')+'手写签名板</button><button class="btn gold" onclick="saveFlow()">'+svg('save','ic-sm')+'保存流程</button></div></div>';
+  h+='<div class="ap-work"><section class="ap-flow"><div class="ap-flow-h"><select class="sel2" style="width:250px" id="flowSel" onchange="switchFlow()">'+S.flows.map(x=>'<option value="'+x.id+'" '+(x.id===f.id?'selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select><span class="tag g">'+f.nodes.length+' 节点</span><span class="tag t">会签 '+f.nodes.filter(n=>n.mode==='会签').length+'</span><span class="tag">或签 '+f.nodes.filter(n=>n.mode==='或签').length+'</span><span class="tag">分支 '+f.nodes.filter(n=>n.type==='branch').length+'</span></div>';
+  h+='<div class="ap-flow-title">'+svg('branch','ic-sm')+' 流程编排 <span>点击节点编辑 · 拖拽调整顺序</span></div>';
+  h+='<div class="flow-canvas" id="flowCanvas">';
+  f.nodes.forEach((n,i)=>{
+    const color=n.type==='start'?'t':n.type==='end'?'g':n.type==='branch'?'r':'';
+    h+='<div class="fnode '+(i===_selNode?'sel':'')+'" draggable="true" data-i="'+i+'" onclick="selNode('+i+')"><div class="fn-ord">'+(i+1)+'</div><div class="fn-body"><div class="nt">'+({start:'发起',task:'审批节点',branch:'条件分支',end:'结束'}[n.type])+'</div><div class="nn">'+esc(n.name)+'</div><div class="fn-meta"><span class="tag '+color+'">'+esc(n.mode)+'</span><span class="tip">'+esc((n.who||[]).join('、'))+'</span></div></div><button class="icobtn del" onclick="event.stopPropagation();delNode('+i+')">'+svg('x','ic-sm')+'</button></div>';
+    if(i<f.nodes.length-1)h+='<div class="fconn"></div>';
+  });
+  h+='</div><button class="ap-add" onclick="addNode()">'+svg('plus','ic-sm')+' 添加审批节点</button></section>';
+  h+='<aside class="ap-side"><div class="ap-side-b"><div class="mini-head">节点属性</div><div id="nodeProp">';
+  if(_selNode<0||!f.nodes[_selNode])h+='<div class="prop-empty">'+svg('branch')+'点击左侧节点<br>配置审批模式与人员</div>';
+  else{const n=f.nodes[_selNode];
+    h+='<div class="f-row"><label>节点名称</label><input class="inp2" value="'+esc(n.name)+'" onchange="updNode(\'name\',this.value)"></div>';
+    h+='<div class="f-row"><label>审批模式</label><select class="sel2" onchange="updNode(\'mode\',this.value)">'+['单人','或签','会签','分支'].map(x=>'<option '+(n.mode===x?'selected':'')+'>'+x+'</option>').join('')+'</select></div>';
+    h+='<div class="f-row"><label>审批人 / 条件（逗号分隔）</label><textarea class="ta2" onchange="updNode(\'who\',this.value)">'+esc((n.who||[]).join(','))+'</textarea></div>';
+    h+='<div class="tip">'+({单人:'由指定一人完成审批',或签:'多人中任一人同意即通过',会签:'需全部审批人同意方可通过',分支:'按条件表达式流转至不同节点'}[n.mode]||'')+'</div>';
+  }
+  h+='</div></div><div class="ap-side-b"><div class="mini-head">签名留痕</div><button class="btn sm" style="width:100%" onclick="openSign()">'+svg('pen','ic-sm')+'打开手写签名板</button><div class="ap-sign-list">'+S.signatures.slice(0,3).map(x=>'<div class="ap-sign-i">'+svg('check','ic-sm')+'<span>'+esc(x.t)+' · '+esc(x.u)+'</span></div>').join('')+'</div></div>';
+  h+='<div class="ap-side-b"><div class="mini-head">流程说明</div><div class="tip" style="line-height:1.9">'+esc(f.desc)+'</div><div class="ap-path">'+f.nodes.map(n=>'<span>'+esc(n.name)+'</span>').join('<i>→</i>')+'</div></div></aside></div>';
+  return h;
+};
+
+function switchFlow(){_flowId=document.getElementById('flowSel').value;_selNode=-1;render()}
+function saveFlow(){save();log('保存审批流程：'+curFlow().name);toast('审批流程已保存')}
+function selNode(i){_selNode=i;render()}
+function addNode(){const f=curFlow();f.nodes.splice(Math.max(1,f.nodes.length-1),0,{id:uid(),type:'task',name:'新审批节点',mode:'或签',who:['审批人']});_selNode=Math.max(1,f.nodes.length-2);save();render();toast('已添加审批节点')}
+function delNode(i){const f=curFlow();if(f.nodes[i].type==='start'||f.nodes[i].type==='end')return toast('起止节点不可删除','err');f.nodes.splice(i,1);_selNode=-1;save();render()}
+function updNode(k,v){const f=curFlow();if(!f.nodes[_selNode])return;f.nodes[_selNode][k]=k==='who'?v.split(/[,，]/).map(x=>x.trim()).filter(Boolean):v;save()}
+BIND.approval=function(){
+  const cv=document.getElementById('flowCanvas');if(!cv)return;let dragIdx=null;
+  cv.querySelectorAll('.fnode').forEach(el=>{el.addEventListener('dragstart',e=>{dragIdx=parseInt(el.dataset.i);e.dataTransfer.effectAllowed='move'});el.addEventListener('dragover',e=>e.preventDefault());el.addEventListener('drop',e=>{e.preventDefault();const to=parseInt(el.dataset.i);if(dragIdx==null||dragIdx===to)return;const arr=curFlow().nodes,it=arr.splice(dragIdx,1)[0];arr.splice(to,0,it);_selNode=to;save();render();toast('节点顺序已调整')})});
+};
+let _signCtx=null,_signEmpty=true;
+function openSign(){
+  modal('手写签名板','<div class="tip" style="margin-bottom:12px">请在此区域手写签名，签名将随审批节点一同留痕存证</div><div class="signpad"><canvas id="signCanvas"></canvas><div class="ph" id="signPh">请在此处手写签名</div></div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn sm" onclick="clearSign()">'+svg('refresh','ic-sm')+'清除重签</button><span class="tag t" id="signState">未签名</span></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="saveSign()">'+svg('save','ic-sm')+'保存签名</button>',true);
+  setTimeout(initSign,60);
+}
+function initSign(){const c=document.getElementById('signCanvas');if(!c)return;const r=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;c.width=r.width*dpr;c.height=r.height*dpr;const ctx=c.getContext('2d');ctx.scale(dpr,dpr);ctx.strokeStyle='#f0d493';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';_signCtx=ctx;_signEmpty=true;let drawing=false;
+  const pos=e=>{const b=c.getBoundingClientRect();return[e.clientX-b.left,e.clientY-b.top]};
+  c.addEventListener('pointerdown',e=>{drawing=true;_signEmpty=false;document.getElementById('signPh').style.display='none';document.getElementById('signState').textContent='已签名';ctx.beginPath();ctx.moveTo.apply(ctx,pos(e));c.setPointerCapture(e.pointerId)});
+  c.addEventListener('pointermove',e=>{if(!drawing)return;ctx.lineTo.apply(ctx,pos(e));ctx.stroke()});
+  c.addEventListener('pointerup',()=>drawing=false);
+}
+function clearSign(){if(_signCtx){const c=document.getElementById('signCanvas');_signCtx.clearRect(0,0,c.width,c.height);_signEmpty=true;document.getElementById('signPh').style.display='grid';document.getElementById('signState').textContent='未签名'}}
+function saveSign(){if(_signEmpty)return toast('请先手写签名','err');const c=document.getElementById('signCanvas');S.signatures.push({t:now(),u:S.user.name,img:c.toDataURL('image/png')});save();closeModal();log('保存手写签名');toast('手写签名已保存并留痕')}
+
+/* ==================== CHART ENGINE ==================== */
+let _chartId=null;
+function curChart(){if(!_chartId||!S.charts.some(c=>c.id===_chartId))_chartId=S.charts[0]&&S.charts[0].id;return S.charts.find(c=>c.id===_chartId)||S.charts[0]}
+R.chart=function(){
+  const c=curChart();if(!c)return '<div class="empty">暂无图表</div>';
+  let h='<div class="page-head"><div><h2>图表引擎</h2><p>多数据源接入，基于表单/审批数据或上传报表生成可视化图表</p></div><div class="head-actions"><button class="btn" onclick="uploadReport()">'+svg('upload','ic-sm')+'上传报表</button><button class="btn" onclick="addChart()">'+svg('plus','ic-sm')+'新建图表</button><button class="btn gold" onclick="saveChart()">'+svg('save','ic-sm')+'保存配置</button></div></div>';
+  h+='<div class="chart-work"><aside class="chart-list"><div class="mini-head">图表集（'+S.charts.length+'）</div>';
+  S.charts.forEach(x=>{h+='<div class="chart-list-i '+(x.id===c.id?'on':'')+'" onclick="switchChartById(\''+x.id+'\')"><div class="chart-list-ic">'+svg(x.type,'ic-sm')+'</div><div><b>'+esc(x.title)+'</b><span>'+esc(x.source)+' · '+x.data.length+' 项</span></div></div>'});
+  h+='<button class="btn sm" style="width:100%;margin-top:8px" onclick="addChart()">'+svg('plus','ic-sm')+'新建图表</button></aside>';
+  h+='<section class="chart-stage"><div class="chart-stage-h"><div><span class="chart-stage-k">CHART WORKSPACE</span><h3>'+esc(c.title)+'</h3></div><div class="chart-stage-tools"><div class="seg">'+[['bar','bar','柱状'],['line','line','折线'],['pie','pie','饼图']].map(x=>'<button class="'+(c.type===x[0]?'on':'')+'" onclick="updChart(\'type\',\''+x[0]+'\')">'+svg(x[1],'ic-sm')+' '+x[2]+'</button>').join('')+'</div><button class="btn sm" onclick="editChartData()">'+svg('edit','ic-sm')+'编辑数据</button></div></div>';
+  h+='<div class="chart-stage-b"><div class="chart-box">'+drawChart(c)+'</div></div>';
+  h+='<div class="chart-stage-f"><div><span>数据源</span><b>'+esc(c.source)+'</b></div><div><span>数据项</span><b>'+c.data.length+'</b></div><div><span>合计</span><b class="hl">'+c.data.reduce((a,d)=>a+d.v,0)+'</b></div><div><span>类型</span><b>'+({bar:'柱状图',line:'折线图',pie:'饼图'}[c.type])+'</b></div></div></section>';
+  h+='<aside class="chart-cfg"><div class="mini-head">数据源与配置</div><select class="sel2" id="chartSel" onchange="switchChart()" style="width:100%;margin-bottom:12px">'+S.charts.map(x=>'<option value="'+x.id+'" '+(x.id===c.id?'selected':'')+'>'+esc(x.title)+'</option>').join('')+'</select>';
+  h+='<div class="f-row"><label>图表标题</label><input class="inp2" value="'+esc(c.title)+'" onchange="updChart(\'title\',this.value)"></div>';
+  h+='<div class="f-row"><label>图表类型</label><select class="sel2" onchange="updChart(\'type\',this.value)">'+[['bar','柱状图'],['line','折线图'],['pie','饼图']].map(x=>'<option value="'+x[0]+'" '+(c.type===x[0]?'selected':'')+'>'+x[1]+'</option>').join('')+'</select></div>';
+  h+='<div class="f-row"><label>数据源</label><select class="sel2" onchange="updChart(\'source\',this.value)">'+['表单数据','审批数据','手动上传报表','外部接口'].map(x=>'<option '+(c.source===x?'selected':'')+'>'+x+'</option>').join('')+'</select></div>';
+  h+='<div class="divider"></div><div class="mini-head">数据预览</div><table class="tbl"><thead><tr><th>分类</th><th>数值</th></tr></thead><tbody>'+c.data.map(d=>'<tr><td>'+esc(d.n)+'</td><td class="hl">'+d.v+'</td></tr>').join('')+'</tbody></table></aside></div>';
+  return h;
+};
+function switchChartById(id){_chartId=id;render()}
+
+function switchChart(){_chartId=document.getElementById('chartSel').value;render()}
+function updChart(k,v){curChart()[k]=v;save();if(k==='title')toast('标题已更新');render()}
+function saveChart(){save();log('保存图表配置：'+curChart().title);toast('图表配置已保存')}
+function addChart(){const c={id:uid(),title:'新建数据图表',type:'bar',source:'表单数据',data:[{n:'类别A',v:30},{n:'类别B',v:55},{n:'类别C',v:42}]};S.charts.push(c);_chartId=c.id;save();render();toast('图表已创建')}
+function editChartData(){const c=curChart();modal('编辑图表数据 · '+c.title,'<div class="tip" style="margin-bottom:10px">每行一条数据：分类,数值</div><textarea class="ta2" id="chartData" style="min-height:220px;font-family:monospace">'+c.data.map(d=>esc(d.n)+','+d.v).join('\n')+'</textarea>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="saveChartData()">应用数据</button>')}
+function saveChartData(){const t=document.getElementById('chartData').value.split(/\n/).map(x=>x.split(/[,，]/)).filter(x=>x.length>=2&&x[0].trim());curChart().data=t.map(x=>({n:x[0].trim(),v:Number(x[1])||0}));closeModal();save();render();toast('图表数据已更新')}
+function uploadReport(){modal('上传报表数据','<div class="tip" style="margin-bottom:12px">支持 CSV 文件或直接粘贴表格数据（首列为分类，次列为数值）</div><div class="f-row"><label>选择 CSV 文件</label><input class="inp2" type="file" id="reportFile" accept=".csv,.txt" onchange="readReportFile(event)"></div><div class="f-row"><label>或粘贴数据</label><textarea class="ta2" id="reportText" style="min-height:160px;font-family:monospace" placeholder="类别A,30\n类别B,55"></textarea></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="applyReport()">导入并生成图表</button>')}
+function readReportFile(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{document.getElementById('reportText').value=r.result};r.readAsText(f,'UTF-8')}
+function applyReport(){const t=document.getElementById('reportText').value.trim();if(!t)return toast('请选择文件或粘贴数据','err');const rows=t.split(/\r?\n/).map(x=>x.split(/[,，\t]/)).filter(x=>x.length>=2);if(!rows.length)return toast('数据格式不正确','err');const c=curChart();c.data=rows.map(x=>({n:x[0].trim().replace(/^"|"$/g,''),v:Number(x[1])||0}));c.source='手动上传报表';closeModal();save();render();log('上传报表数据生成图表');toast('数据导入成功，图表已生成')}
+function drawChart(c){
+  const W=640,H=280,pad={l:50,r:20,t:24,b:42},data=c.data.slice(0,8),mx=Math.max(1,...data.map(d=>d.v));
+  let s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:100%">';
+  if(c.type==='pie'){
+    const cx=W/2,cy=H/2,R=100,total=data.reduce((a,d)=>a+d.v,0)||1;const cols=['#b1503a','#1e4b3d','#a9792f','#8a6f4e','#5b8f78','#cc8a63','#7d6b52','#d4b06a'];let a0=-Math.PI/2;
+    data.forEach((d,i)=>{const a1=a0+d.v/total*Math.PI*2;const x0=cx+R*Math.cos(a0),y0=cy+R*Math.sin(a0),x1=cx+R*Math.cos(a1),y1=cy+R*Math.sin(a1),large=(a1-a0)>Math.PI?1:0;
+      s+='<path d="M'+cx+' '+cy+' L'+x0+' '+y0+' A'+R+' '+R+' 0 '+large+' 1 '+x1+' '+y1+' Z" fill="'+cols[i%cols.length]+'" opacity=".88" stroke="#fffefa" stroke-width="2"/>';a0=a1});
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="52" fill="#fffefa" stroke="#e5e0d5"/>';
+    s+='<text x="'+cx+'" y="'+(cy-4)+'" text-anchor="middle" fill="#797266" font-size="11">合计</text><text x="'+cx+'" y="'+(cy+18)+'" text-anchor="middle" fill="#b1503a" font-size="20" font-weight="600">'+total+'</text>';
+    data.forEach((d,i)=>{const y=28+i*22;s+='<rect x="20" y="'+(y-9)+'" width="10" height="10" rx="2" fill="'+cols[i%cols.length]+'"/><text x="38" y="'+y+'" fill="#797266" font-size="11">'+esc(d.n)+'</text>'});
+  }else{
+    for(let i=0;i<=4;i++){const y=pad.t+i*(H-pad.t-pad.b)/4;s+='<line x1="'+pad.l+'" y1="'+y+'" x2="'+(W-pad.r)+'" y2="'+y+'" stroke="#e5e0d5"/><text x="'+(pad.l-8)+'" y="'+(y+4)+'" text-anchor="end" fill="#a8a091" font-size="10">'+Math.round(mx*(4-i)/4)+'</text>'}
+    const bw=(W-pad.l-pad.r)/data.length;
+    if(c.type==='bar'){
+      data.forEach((d,i)=>{const bh=(d.v/mx)*(H-pad.t-pad.b),x=pad.l+i*bw+bw*.22,y=H-pad.b-bh;
+        s+='<rect x="'+x+'" y="'+y+'" width="'+(bw*.56)+'" height="'+bh+'" rx="4" fill="url(#bg1)"/><text x="'+(x+bw*.28)+'" y="'+(y-6)+'" text-anchor="middle" fill="#b1503a" font-size="11">'+d.v+'</text><text x="'+(pad.l+i*bw+bw/2)+'" y="'+(H-pad.b+18)+'" text-anchor="middle" fill="#797266" font-size="10">'+esc(d.n)+'</text>'});
+    }else{
+      const pts=data.map((d,i)=>[pad.l+i*bw+bw/2,H-pad.b-(d.v/mx)*(H-pad.t-pad.b)]);
+      s+='<defs><linearGradient id="lg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b1503a" stop-opacity=".22"/><stop offset="1" stop-color="#b1503a" stop-opacity="0"/></linearGradient></defs>';
+      s+='<polygon points="'+pts.map(p=>p[0]+','+p[1]).join(' ')+' '+(pad.l+(data.length-1)*bw+bw/2)+','+(H-pad.b)+' '+pad.l+','+(H-pad.b)+'" fill="url(#lg1)"/>';
+      s+='<polyline points="'+pts.map(p=>p[0]+','+p[1]).join(' ')+'" fill="none" stroke="#b1503a" stroke-width="2.5" stroke-linejoin="round"/>';
+      pts.forEach((p,i)=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="4" fill="#fffefa" stroke="#b1503a" stroke-width="2"/><text x="'+p[0]+'" y="'+(p[1]-10)+'" text-anchor="middle" fill="#b1503a" font-size="10">'+data[i].v+'</text><text x="'+p[0]+'" y="'+(H-pad.b+18)+'" text-anchor="middle" fill="#797266" font-size="10">'+esc(data[i].n)+'</text>'});
+    }
+  }
+  s+='<defs><linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b1503a"/><stop offset="1" stop-color="#8a3d2b"/></linearGradient></defs></svg>';
+  return s;
+}
+/* ==================== COMPONENT LIBRARY ==================== */
+let _selComp=null,_dsMode={},_compFilter='全部';
+
+const COMP_META={number:['数字滚动','number'],text:['文本','text'],image:['图片','image'],table:['表格','table'],list:['图文列表','content'],pie:['饼图','pie'],bar:['柱状图','bar'],line:['折线图','line'],carousel:['轮播图','carousel']};
+R.components=function(){
+  const groups=[['全部','全部'],['数值文本','number,text,image'],['图表','pie,bar,line'],['内容','table,list,carousel']];
+  const types=_compFilter==='全部'?Object.keys(COMP_META):({数值文本:['number','text','image'],图表:['pie','bar','line'],内容:['table','list','carousel']}[_compFilter]||Object.keys(COMP_META));
+  let h='<div class="page-head"><div><h2>可视化组件库</h2><p>数字滚动、文本、图片、表格、图表等组件，支持样式修改与动态数据对接</p></div><div class="head-actions"><button class="btn" onclick="exportComponents()">'+svg('download','ic-sm')+'导出配置</button><button class="btn gold" onclick="saveComponents()">'+svg('save','ic-sm')+'保存配置</button></div></div>';
+  h+='<div class="comp-top"><div class="chips">'+groups.map(g=>'<div class="chip '+(_compFilter===g[0]?'on':'')+'" onclick="setCompFilter(\''+g[0]+'\')">'+g[0]+'</div>').join('')+'</div><span style="flex:1"></span><span class="tag g">'+S.components.length+' 个组件</span><button class="btn sm gold" onclick="addComponent()">'+svg('plus','ic-sm')+'添加组件</button></div>';
+  h+='<div class="comp-gallery">';
+  S.components.filter(w=>types.indexOf(w.type)>=0).forEach(w=>{const m=COMP_META[w.type]||['组件','components'];
+    h+='<div class="comp-card '+(w.id===_selComp?'sel':'')+'" onclick="selComp(\''+w.id+'\')"><div class="comp-preview" style="background:'+w.bg+';border:1px solid '+w.border+'">'+compPreview(w)+'</div><div class="comp-card-b"><b>'+esc(w.name)+'</b><span class="tag">'+m[0]+'</span></div><div class="tip">数据：'+(w.dynamic?'动态对接':'静态数据')+'</div></div>';
+  });
+  h+='</div>';
+  const w=S.components.find(x=>x.id===_selComp);
+  h+='<div class="comp-inspector"><div class="mini-head">组件检查器'+(w?' · '+esc(w.name):'')+'</div>';
+  if(!w)h+='<div class="comp-empty">'+svg('palette')+' 选中上方组件，配置样式、颜色与数据对接</div>';
+  else{
+    h+='<div class="comp-insp-grid"><div class="f-row"><label>组件名称</label><input class="inp2" value="'+esc(w.name)+'" onchange="updComp(\'name\',this.value)"></div><div class="f-row"><label>文本 / 数值内容</label><input class="inp2" value="'+esc(w.value)+'" onchange="updComp(\'value\',this.value)"></div>';
+    h+='<div class="f-row"><label>文字颜色</label><input type="color" value="'+w.color+'" style="width:100%;height:38px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:4px" onchange="updComp(\'color\',this.value)"></div>';
+    h+='<div class="f-row"><label>背景颜色</label><input type="color" value="'+w.bg+'" style="width:100%;height:38px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:4px" onchange="updComp(\'bg\',this.value)"></div>';
+    h+='<div class="f-row"><label>边框颜色</label><input type="color" value="'+w.border+'" style="width:100%;height:38px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:4px" onchange="updComp(\'border\',this.value)"></div>';
+    h+='<div class="f-row" style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12.5px">动态数据对接</div><div class="tip">对接表单/审批数据或标准接口</div></div><div class="switch '+(w.dynamic?'on':'')+'" onclick="toggleDynamic()"></div></div></div>';
+  }
+  h+='</div>';
+  return h;
+};
+function setCompFilter(g){_compFilter=g;render()}
+
+function compPreview(w){const c=w.color;
+  if(w.type==='number')return '<b style="font-size:26px;color:'+c+';font-variant-numeric:tabular-nums">'+esc(w.value)+'</b>';
+  if(w.type==='text')return '<span style="color:'+c+';font-size:12px;text-align:center;padding:0 8px">'+esc(w.value)+'</span>';
+  if(w.type==='image')return '<div style="text-align:center;color:'+c+'">'+svg('image','ic-xl')+'<div style="font-size:10px;margin-top:4px">'+esc(w.value)+'</div></div>';
+  if(w.type==='table')return '<div style="width:80%;font-size:9px;color:'+c+'"><div style="display:flex;border-bottom:1px solid '+c+';padding:2px 0"><span style="flex:1">名称</span><span style="flex:1">状态</span></div><div style="display:flex;padding:3px 0"><span style="flex:1">项目A</span><span style="flex:1">进行中</span></div><div style="display:flex;padding:3px 0"><span style="flex:1">项目B</span><span style="flex:1">已完成</span></div></div>';
+  if(w.type==='list')return '<div style="font-size:10px;color:'+c+'">'+svg('content','ic-lg')+'<div>图文列表 · 多级分类</div></div>';
+  if(w.type==='carousel')return '<div style="display:flex;align-items:center;gap:10px;color:'+c+'">'+svg('left','ic-lg')+'<div style="width:80px;height:44px;border:1px solid '+c+';border-radius:5px;display:grid;place-items:center;font-size:9px">Banner 1</div>'+svg('right','ic-lg')+'</div>';
+  const mini={pie:[[40,60,20],[160,50,30]],bar:[[20,70,20],[70,45,20],[120,55,20]],line:[[20,70],[70,40],[120,50],[170,25]]};
+  if(w.type==='pie')return '<svg width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="28" fill="'+c+'" opacity=".85"/><path d="M35 35 L35 7 A28 28 0 0 1 60 45 Z" fill="#1e4b3d" opacity=".8"/></svg>';
+  if(w.type==='bar')return '<svg width="140" height="70" viewBox="0 0 140 70"><rect x="15" y="30" width="20" height="35" fill="'+c+'"/><rect x="55" y="15" width="20" height="50" fill="#1e4b3d"/><rect x="95" y="38" width="20" height="27" fill="'+c+'"/></svg>';
+  return '<svg width="140" height="70" viewBox="0 0 140 70"><polyline points="10,55 45,30 80,42 115,15" fill="none" stroke="'+c+'" stroke-width="2.5"/><circle cx="115" cy="15" r="3" fill="'+c+'"/></svg>';
+}
+function selComp(id){_selComp=id;render()}
+function updComp(k,v){const w=S.components.find(x=>x.id===_selComp);if(!w)return;w[k]=v;save();if(k==='name'||k==='value')render()}
+function toggleDynamic(){const w=S.components.find(x=>x.id===_selComp);w.dynamic=!w.dynamic;save();render();toast(w.dynamic?'已切换为动态数据对接':'已切换为静态数据')}
+function addComponent(){modal('添加可视化组件','<div class="f-row"><label>组件类型</label><select class="sel2" id="acType">'+Object.keys(COMP_META).map(k=>'<option value="'+k+'">'+COMP_META[k][0]+'</option>').join('')+'</select></div><div class="f-row"><label>组件名称</label><input class="inp2" id="acName" placeholder="如：报名人数统计"></div><div class="f-row"><label>显示内容 / 数值</label><input class="inp2" id="acVal" value="128"></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="createComponent()">添加</button>')}
+function createComponent(){const t=document.getElementById('acType').value,n=document.getElementById('acName').value.trim()||COMP_META[t][0],v=document.getElementById('acVal').value;S.components.push({id:uid(),type:t,name:n,value:v,color:'#a9792f',bg:'#fffefa',border:'#d4ccbc',dynamic:false});closeModal();save();render();toast('组件已添加')}
+function saveComponents(){save();log('保存可视化组件配置');toast('组件配置已保存')}
+function exportComponents(){downloadText('组件配置.json',JSON.stringify(S.components,null,2),'application/json');toast('组件配置已导出')}
+
+/* ==================== CONTENT MANAGER ==================== */
+let _catFilter='全部',_kw='';
+R.content=function(){
+  const cats=['全部'].concat(Array.from(new Set(S.contents.map(c=>c.cat))));
+  let list=S.contents.filter(c=>(_catFilter==='全部'||c.cat===_catFilter)&&(!_kw||c.title.includes(_kw)||c.cat.includes(_kw))).slice().sort((a,b)=>(b.top?1:0)-(a.top?1:0));
+  let h='<div class="page-head"><div><h2>内容数据管理</h2><p>多级分类、置顶排序、关键词筛选与批量导入导出</p></div><div class="head-actions"><button class="btn" onclick="exportContent()">'+svg('download','ic-sm')+'批量导出</button><button class="btn" onclick="importContent()">'+svg('upload','ic-sm')+'批量导入</button><button class="btn gold" onclick="addContent()">'+svg('plus','ic-sm')+'新增内容</button></div></div>';
+  h+='<div class="ct-work"><aside class="ct-side"><div class="mini-head">内容分类</div>';
+  cats.forEach(c=>{h+='<div class="ct-cat '+(_catFilter===c?'on':'')+'" onclick="setCat(\''+c+'\')">'+svg('content','ic-sm')+'<span>'+esc(c)+'</span><b>'+(c==='全部'?S.contents.length:S.contents.filter(x=>x.cat===c).length)+'</b></div>'});
+  h+='<div class="divider"></div><div class="tb-search" style="width:100%">'+svg('search','ic-sm')+'<input id="kwInput" placeholder="关键词筛选" value="'+esc(_kw)+'" oninput="setKw(this.value)"></div></aside>';
+  h+='<section class="ct-flow"><div class="ct-flow-h"><div><h3>'+esc(_catFilter)+(_catFilter==='全部'?'内容':'')+'</h3><span>共 '+list.length+' 条 · 置顶 '+S.contents.filter(c=>c.top).length+' 条</span></div></div>';
+  if(!list.length)h+='<div class="empty">'+svg('content','ic-xl')+'当前分类暂无内容</div>';
+  list.forEach(c=>{h+='<div class="ct-card"><div class="ct-card-bar" style="background:'+(c.top?'var(--rust)':'var(--line2)')+'"></div><div class="ct-card-b"><div class="ct-card-top"><span class="tag">'+esc(c.cat)+'</span><span class="tag '+(c.status==='已发布'?'t':'')+'">'+esc(c.status)+'</span>'+(c.top?'<span class="tag g">置顶</span>':'')+'<span class="mini" style="margin-left:auto">'+esc(c.date)+'</span></div><h4>'+esc(c.title)+(c.top?' <span style="color:var(--rust);font-size:11px">★</span>':'')+'</h4><div class="ct-card-act"><button class="btn sm" onclick="toggleTop(\''+c.id+'\')">'+svg('star','ic-sm')+(c.top?'取消置顶':'置顶')+'</button><button class="btn sm" onclick="editContent(\''+c.id+'\')">'+svg('edit','ic-sm')+'编辑</button><button class="btn sm icon del" onclick="delContent(\''+c.id+'\')" title="删除">'+svg('trash','ic-sm')+'</button></div></div></div>'});
+  h+='</section></div>';
+  return h;
+};
+
+function setCat(c){_catFilter=c;render()}
+function setKw(v){_kw=v;const t=document.getElementById('kwInput');if(t){const rows=document.querySelectorAll('.tbl tbody tr');}}
+BIND.content=function(){const i=document.getElementById('kwInput');if(!i)return;i.oninput=function(){_kw=this.value;const pos=this.selectionStart;render();const n=document.getElementById('kwInput');if(n){n.focus();n.setSelectionRange(pos,pos)}}};
+function toggleTop(id){const c=S.contents.find(x=>x.id===id);c.top=!c.top;save();render();toast(c.top?'已置顶':'已取消置顶')}
+function delContent(id){confirmBox('确认删除该内容？',function(){S.contents=S.contents.filter(x=>x.id!==id);save();render();toast('内容已删除')})}
+function addContent(){contentModal(null)}
+function editContent(id){contentModal(S.contents.find(x=>x.id===id))}
+function contentModal(c){modal(c?'编辑内容':'新增内容','<div class="f-row"><label>内容标题</label><input class="inp2" id="ctTitle" value="'+esc(c?c.title:'')+'" placeholder="请输入标题"></div><div class="f-row"><label>多级分类</label><select class="sel2" id="ctCat">'+['赛事动态','通知公告','评审公示','资料下载'].map(x=>'<option '+(c&&c.cat===x?'selected':'')+'>'+x+'</option>').join('')+'</select></div><div class="f-row"><label>发布日期</label><input class="inp2" type="date" id="ctDate" value="'+(c?c.date:new Date().toISOString().slice(0,10))+'"></div><div class="f-row"><label>状态</label><select class="sel2" id="ctStatus">'+['已发布','草稿'].map(x=>'<option '+(c&&c.status===x?'selected':'')+'>'+x+'</option>').join('')+'</select></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="saveContent(\''+(c?c.id:'')+'\')">保存</button>')}
+function saveContent(id){const t=document.getElementById('ctTitle').value.trim();if(!t)return toast('请输入内容标题','err');const o={title:t,cat:document.getElementById('ctCat').value,date:document.getElementById('ctDate').value,status:document.getElementById('ctStatus').value};if(id)Object.assign(S.contents.find(x=>x.id===id),o);else S.contents.push(Object.assign({id:uid(),top:false},o));closeModal();save();render();toast('内容已保存')}
+function exportContent(){downloadText('内容数据.csv',toCSV(['标题','分类','日期','状态','置顶'],S.contents.map(c=>[c.title,c.cat,c.date,c.status,c.top?'是':'否'])),'text/csv;charset=utf-8');toast('内容数据已批量导出')}
+function importContent(){modal('批量导入内容','<div class="tip" style="margin-bottom:10px">每行一条：标题,分类,日期,状态（逗号分隔）</div><textarea class="ta2" id="impText" style="min-height:200px;font-family:monospace" placeholder="赛事新闻,赛事动态,2026-11-20,已发布"></textarea>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="doImportContent()">导入</button>')}
+function doImportContent(){const rows=document.getElementById('impText').value.split(/\n/).map(x=>x.split(/[,，]/)).filter(x=>x[0]&&x[0].trim());if(!rows.length)return toast('暂无可导入数据','err');rows.forEach(x=>S.contents.push({id:uid(),title:x[0].trim(),cat:(x[1]||'赛事动态').trim(),date:(x[2]||new Date().toISOString().slice(0,10)).trim(),status:(x[3]||'草稿').trim(),top:false}));closeModal();save();render();log('批量导入内容数据 '+rows.length+' 条');toast('成功导入 '+rows.length+' 条内容')}
+
+/* ==================== PORTAL BUILDER ==================== */
+let _dragBlock=null,_ptStep=1,_tplCat='全部';
+function setPtStep(n){_ptStep=n;render()}
+function setTplCat(c){_tplCat=c;render()}
+R.portal=function(){
+  const p=S.portal,dev=p.device,list=p[dev],st=p.tplStyles[p.template]||p.tplStyles['大屏数据门户'];
+  let h='<div class="page-head"><div><h2>门户可视化配置</h2><p>前后端分离架构 · 可视化设计后台 + 拖拽式页面布局，所见即所得</p></div><div class="head-actions"><button class="btn" onclick="saveAsTemplate()">'+svg('template','ic-sm')+'保存为模板</button><button class="btn gold" onclick="savePortal()">'+svg('save','ic-sm')+'发布门户</button></div></div>';
+  h+='<div class="pt-arch"><div class="pt-arch-l"><b>配置层</b><span>可视化设计后台</span></div><i>›</i><div class="pt-arch-l"><b>服务层</b><span>门户配置 API</span></div><i>›</i><div class="pt-arch-l on"><b>表现层</b><span>网页 / H5 / 个人空间</span></div><span class="pt-arch-note">前后端分离 · 配置无需二次开发</span></div>';
+  h+='<div class="pt-work"><nav class="pt-steps">'+[['配置端','desktop','选择要配置的终端'],['模板','template','挑选门户模板'],['模块','components','编排展示模块'],['主题','palette','设置主题样式']].map((x,i)=>'<div class="pt-step '+(_ptStep===i?'on':'')+' '+(i<_ptStep?'done':'')+'" onclick="setPtStep('+i+')"><span>'+(i+1)+'</span>'+svg(x[1],'ic-sm')+'<div><b>'+x[0]+'</b><small>'+x[2]+'</small></div></div>').join('')+'</nav>';
+  h+='<section class="pt-config"><div class="mini-head">第 '+(_ptStep+1)+' 步 / 共 4 步</div>';
+  if(_ptStep===0){
+    h+='<div class="pt-devcards">'+[['web','desktop','网页端门户','面向 PC 浏览器的完整门户'],['mobile','mobile','移动端首页','适配手机的 H5 首页'],['space','user','个人空间','参赛者个人中心页面']].map(x=>'<div class="pt-devcard '+(dev===x[0]?'on':'')+'" onclick="setDevice(\''+x[0]+'\')">'+svg(x[1],'ic-xl')+'<b>'+x[2]+'</b><span>'+x[3]+' · '+p[x[0]].length+' 个栏目</span></div>').join('')+'</div>';
+    h+='<div class="tip" style="margin-top:14px">当前配置：<b class="hl">'+({web:'网页端',mobile:'移动端',space:'个人空间'}[dev])+'</b>，可随时切换后再编排栏目。所有栏目由后台配置，无需二次开发。</div>';
+  }else if(_ptStep===1){
+    h+='<div class="pt-cats">'+[['全部','全部'],['大屏类','大屏类'],['H5类','H5类'],['官网类','官网类'],['自定义','自定义']].map(x=>'<div class="chip '+(_tplCat===x[1]?'on':'')+'" onclick="setTplCat(\''+x[1]+'\')">'+x[0]+'</div>').join('')+'</div>';
+    let shown=false;
+    p.saved.forEach(t=>{
+      const s2=p.tplStyles[t];if(!s2)return;
+      if(_tplCat==='自定义'){if(!s2.custom)return}else if(_tplCat!=='全部'&&s2.cat!==_tplCat)return;
+      shown=true;
+      const ticon=s2.cat==='大屏类'?'screen':s2.cat==='H5类'?'mobile':'portal';
+      const custom=!!s2.custom;
+      h+='<div class="pt-tplcard '+(p.template===t?'on':'')+'" onclick="chooseTemplate(\''+t+'\')"><div class="pt-tplico">'+svg(ticon)+'</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><b>'+esc(t)+'</b><span class="tag" style="font-size:9px">'+esc(s2.cat||'官网类')+'</span>'+(custom?'<span class="tag g" style="font-size:9px">自建</span>':'')+'</div><p>'+esc(s2.desc||'自定义模板')+'</p><div class="pt-tplmeta"><span>'+esc(s2.header||'')+'</span><span>布局 '+esc(s2.layout||'')+'</span><span>密度 '+esc(s2.density||'')+'</span></div></div>'+(custom?'<button class="icobtn del" title="删除模板" onclick="event.stopPropagation();delCustomTpl(\''+t+'\')">'+svg('trash','ic-sm')+'</button>':'')+'</div>';
+    });
+    if(!shown)h+='<div class="tip">该分类下暂无模板，可点击右上角「保存为模板」创建。</div>';
+    h+='<div class="tip" style="margin-top:10px">选择模板后可到下一步自由调整栏目布局与样式；「保存为模板」会把当前主题、栏目与样式一起存为可复用模板。</div>';
+  }else if(_ptStep===2){
+    h+='<div class="tip" style="margin-bottom:12px">在左侧列表或右侧预览中拖拽栏目即可调整顺序，开关控制显隐，所见即所得。</div>';
+    list.forEach((b,i)=>{h+='<div class="pblock" draggable="true" data-i="'+i+'" ondragover="event.preventDefault()" ondrop="dropBlock('+i+')" ondragstart="_dragBlock='+i+'">'+svg('drag','ic-sm')+svg(blockIcon(b.type),'ic-sm')+'<b>'+esc(b.name)+'</b><span class="tag" style="margin-left:auto">'+esc(b.type.toUpperCase())+'</span><div class="switch '+(b.on?'on':'')+'" onclick="toggleBlock('+i+')"></div><button class="icobtn del" onclick="delBlock('+i+')">'+svg('trash','ic-sm')+'</button></div>'});
+    h+='<button class="btn" style="width:100%;margin-top:8px" onclick="addBlock()">'+svg('plus','ic-sm')+'添加展示栏目</button>';
+  }else{
+    h+='<div class="f-row"><label>门户主题色（预设或自定义）</label><div class="chips" style="align-items:center">'+['#b1503a','#1e4b3d','#a9792f','#8a6f4e','#b06a5a'].map(c=>'<div class="chip" style="width:32px;height:32px;padding:0;background:'+c+';border:2px solid '+(p.theme.toLowerCase()===c?'#fff':'transparent')+'" onclick="setTheme(\''+c+'\')"></div>').join('')+'<label class="pt-color" title="自定义主题色"><input type="color" value="'+esc(p.theme)+'" oninput="setThemeCustom(this.value)">'+esc(p.theme)+'</label></div></div>';
+    h+='<div class="f-row"><label>导航栏样式</label><div class="seg" style="display:flex;width:100%">'+['顶部横向导航','左侧纵向导航','底部标签导航'].map(x=>'<button class="tab '+(p.nav===x?'on':'')+'" style="flex:1" onclick="setPortal(\'nav\',\''+x+'\')">'+x+'</button>').join('')+'</div></div>';
+    h+='<div class="f-row"><label>模块尺寸</label><div class="seg" style="display:flex;width:100%">'+['紧凑','标准','宽松'].map(x=>'<button class="tab '+((p.moduleSize||'标准')===x?'on':'')+'" style="flex:1" onclick="setModuleSize(\''+x+'\')">'+x+'</button>').join('')+'</div></div>';
+    h+='<div class="f-row"><label>模块样式</label><div class="seg" style="display:flex;width:100%">'+['描边','填充','投影'].map(x=>'<button class="tab '+((p.moduleStyle||'描边')===x?'on':'')+'" style="flex:1" onclick="setModuleStyle(\''+x+'\')">'+x+'</button>').join('')+'</div></div>';
+    h+='<div class="f-row"><label>模块圆角 · <b class="hl">'+(st.radius||8)+'px</b></label><input type="range" min="0" max="28" value="'+(st.radius||8)+'" style="width:100%" oninput="setRadius(this.value)"></div>';
+    h+='<div class="divider"></div><div class="kv"><span>当前模板</span><b class="hl">'+esc(p.template)+'</b></div><div class="kv"><span>配置端</span><b>'+({web:'网页端',mobile:'移动端',space:'个人空间'}[dev])+'</b></div><div class="kv"><span>栏目数量</span><b>'+list.length+' 个</b></div><div class="kv"><span>主题 / 导航</span><b>'+esc(p.theme)+' · '+esc(p.nav)+'</b></div>';
+  }
+  h+='<div class="pt-navfoot"><button class="btn" '+(_ptStep===0?'disabled':'')+' onclick="setPtStep('+(_ptStep-1)+')">上一步</button><button class="btn gold" '+(_ptStep===3?'disabled':'')+' onclick="setPtStep('+(_ptStep+1)+')">下一步 →</button></div></section>';
+  h+='<aside class="pt-preview"><div class="pt-preview-h"><div><h3>实时预览 · '+esc(p.template)+'</h3><span>'+svg('eye','ic-sm')+' 所见即所得</span></div></div><div class="tpl-meta"><div class="tag g">'+esc(st.header)+'</div><div class="tag">布局 '+esc(st.layout)+'</div><div class="tag">圆角 '+(st.radius||8)+'px</div></div><div class="tpl-desc">'+esc(st.desc)+'</div>'+renderTplPreview(p,st,list)+'</aside></div>';
+  return h;
+};
+
+function renderTplPreview(p,st,list){
+  const theme=p.theme,on=list.filter(b=>b.on),nav=p.nav||'顶部横向导航';
+  const szm={紧凑:'s',标准:'m',宽松:'l'},msm={描边:'line',填充:'fill',投影:'shadow'};
+  const sz=' sz-'+(szm[p.moduleSize]||'m'),ms=' ms-'+(msm[p.moduleStyle]||'line'),rd=(st.radius||8);
+  const typeName={stat:'数据概览',chart:'图表',list:'图文列表',table:'表格',shortcut:'快捷入口',form:'表单'};
+  function navH(bright){
+    const col=bright?'#e8d4a6':'var(--ink2)';
+    if(nav==='底部标签导航')return '<div class="tp-navb" style="border-top-color:'+theme+'44">'+['首页','赛事','报名','成绩'].map((x,i)=>'<span '+(i===0?'style="color:'+theme+'"':'')+'>'+x+'</span>').join('')+'</div>';
+    if(nav==='左侧纵向导航')return '<div class="tp-navv">'+['首页','赛事','报名','成绩'].map((x,i)=>'<span '+(i===0?'style="color:'+theme+'"':'')+'>'+x+'</span>').join('')+'</div>';
+    return '<div class="tp-navh"><b style="color:'+theme+'">观澜</b><span style="color:'+col+'">首页　　赛事介绍　　报名中心　　成绩公示</span></div>';
+  }
+  if(st.layout==='grid'){
+    let h='<div class="tpl-view tpl-screen'+sz+ms+'" style="border-radius:'+rd+'px">'+navH(true);
+    h+='<div class="tpl-screen-title" style="color:'+theme+'">2026 创新技能大赛 数据总览</div><div class="tpl-screen-grid">';
+    const mets=on.slice(0,4);
+    (mets.length?mets:[{name:'累计报名',type:'stat'},{name:'参赛队伍',type:'stat'},{name:'覆盖赛道',type:'stat'},{name:'今日访问',type:'stat'}]).forEach((b,i)=>{
+      const v=[156,86,3,2481][i]||88;
+      h+='<div class="tpl-metric" draggable="true" ondragstart="_dragBlock='+list.indexOf(b)+'" ondragover="event.preventDefault()" ondrop="dropBlock('+list.indexOf(b)+')" style="border-top:2px solid '+(i%2?'#1e4b3d':theme)+'"><span>'+esc(b.name)+'</span><b style="color:'+(i%2?'#c8b98a':theme)+'">'+v+'</b></div>';
+    });
+    h+='<div class="tpl-chartcell" style="grid-column:span 2;height:120px">'+drawChart({type:'bar',data:[{n:'技术',v:42},{n:'应用',v:31},{n:'创意',v:27},{n:'综合',v:38}]})+'</div>';
+    h+='<div class="tpl-chartcell" style="grid-column:span 2;height:120px">'+drawChart({type:'line',data:[{n:'1月',v:32},{n:'3月',v:65},{n:'5月',v:120},{n:'6月',v:156}]})+'</div>';
+    h+='</div><div class="tpl-foot" style="color:'+theme+'">LIVE · 实时数据刷新中</div>'+(nav==='底部标签导航'?navH(true):'')+'</div>';
+    return h;
+  }
+  if(st.layout==='mobile'){
+    let h='<div class="tpl-h5wrap"><div class="tpl-h5phone'+sz+ms+'" style="border-radius:'+rd+'px">';
+    h+='<div class="tpl-h5status"><span>9:41</span><span>●●● ▮</span></div>';
+    h+='<div class="tpl-h5head" style="background:linear-gradient(135deg,'+theme+','+theme+'aa)"><b>观澜赛事</b><div>发现 · 参与 · 竞技</div></div><div class="tpl-h5body">';
+    h+='<div class="tpl-h5banner" style="background:'+theme+'22;color:'+theme+'">2026 年度赛事报名火热进行中 →</div>';
+    on.slice(0,4).forEach(b=>{h+='<div class="tpl-h5card" draggable="true" ondragstart="_dragBlock='+list.indexOf(b)+'" ondragover="event.preventDefault()" ondrop="dropBlock('+list.indexOf(b)+')" style="border-left:3px solid '+theme+'">'+svg(blockIcon(b.type),'ic-sm')+'<div><b>'+esc(b.name)+'</b><span>'+esc(typeName[b.type]||'内容')+' · 点击查看详情</span></div></div>'});
+    h+='</div>'+navH(false)+'</div></div>';
+    return h;
+  }
+  let h='<div class="tpl-view tpl-simple'+sz+ms+'" style="border-radius:'+rd+'px">'+navH(false);
+  h+='<div class="tpl-simple-hero" style="background:linear-gradient(120deg,'+theme+'1f,transparent)"><div class="tpl-simple-tag" style="background:'+theme+'">2026 SEASON</div><h2>让每一份热爱<br><span style="color:'+theme+'">都有登场的舞台</span></h2><p>2026 年度创新技能大赛 · 报名通道已开启</p></div><div class="tpl-simple-body">';
+  on.slice(0,3).forEach(b=>{h+='<div class="tpl-simple-item" draggable="true" ondragstart="_dragBlock='+list.indexOf(b)+'" ondragover="event.preventDefault()" ondrop="dropBlock('+list.indexOf(b)+')"><div class="tpl-simple-ico" style="background:'+theme+'18;color:'+theme+'">'+svg(blockIcon(b.type))+'</div><div><b>'+esc(b.name)+'</b><p>'+esc(b.desc||'展示赛事相关内容与最新动态')+'</p></div><span style="color:'+theme+'">→</span></div>'});
+  h+='</div>'+(nav==='底部标签导航'?navH(false):'')+'</div>';
+  return h;
+}
+function blockIcon(t){return {stat:'number',chart:'chart',list:'content',table:'table',shortcut:'components',form:'form'}[t]||'components'}
+function setDevice(d){S.portal.device=d;save();render()}
+function chooseTemplate(t){const p=S.portal,rec=(p.customTpls||[]).find(x=>x.name===t);if(rec){p.theme=rec.theme;p.nav=rec.nav;p.moduleSize=rec.moduleSize;p.moduleStyle=rec.moduleStyle;['web','mobile','space'].forEach(function(k){if(rec[k])p[k]=JSON.parse(JSON.stringify(rec[k]))});if(p.tplStyles[t])p.tplStyles[t].radius=rec.radius}p.template=t;const st=p.tplStyles[t];save();render();toast('已切换模板：'+t+(st?'（'+st.cat+' · '+st.layout+' 布局）':''))}
+function setPortal(k,v){S.portal[k]=v;save();render();if(k==='nav')toast('导航栏样式：'+v)}
+function setTheme(c){S.portal.theme=c;save();render();toast('主题色已切换')}
+function setThemeCustom(c){S.portal.theme=c;save();render()}
+function setModuleSize(v){S.portal.moduleSize=v;save();render();toast('模块尺寸：'+v)}
+function setModuleStyle(v){S.portal.moduleStyle=v;save();render();toast('模块样式：'+v)}
+function setRadius(v){const st=S.portal.tplStyles[S.portal.template];if(!st)return;st.radius=Number(v);save();render()}
+function toggleBlock(i){const b=S.portal[S.portal.device][i];b.on=!b.on;save();render()}
+function delBlock(i){S.portal[S.portal.device].splice(i,1);save();render()}
+function addBlock(){modal('添加展示栏目','<div class="f-row"><label>栏目名称</label><input class="inp2" id="abName" placeholder="如：赛事新闻"></div><div class="f-row"><label>栏目类型</label><select class="sel2" id="abType">'+[['stat','数据概览'],['chart','图表'],['list','图文列表'],['table','表格'],['shortcut','快捷入口'],['form','表单']].map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join('')+'</select></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="doAddBlock()">添加</button>')}
+function doAddBlock(){const n=document.getElementById('abName').value.trim()||'新栏目',t=document.getElementById('abType').value;S.portal[S.portal.device].push({id:uid(),name:n,type:t,on:true});closeModal();save();render();toast('栏目已添加')}
+function dropBlock(to){if(_dragBlock==null||_dragBlock===to)return;const arr=S.portal[S.portal.device],it=arr.splice(_dragBlock,1)[0];arr.splice(to,0,it);_dragBlock=null;save();render();toast('栏目顺序已调整')}
+function saveAsTemplate(){modal('保存为门户模板','<div class="tip" style="margin-bottom:12px">将当前主题色、导航栏、模块尺寸/样式与三端栏目配置一起保存为可复用模板。</div><div class="f-row"><label>模板名称</label><input class="inp2" id="tplName" placeholder="如：招生季赛事门户"></div><div class="f-row"><label>模板分类</label><select class="sel2" id="tplCatSel"><option>大屏类</option><option>H5类</option><option selected>官网类</option></select></div><div class="f-row"><label>模板说明</label><input class="inp2" id="tplDesc" placeholder="简要说明适用场景"></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="doSaveAsTemplate()">保存模板</button>')}
+function doSaveAsTemplate(){
+  const name=document.getElementById('tplName').value.trim();if(!name)return toast('请输入模板名称','err');
+  const p=S.portal;if(p.saved.indexOf(name)>=0)return toast('模板名称已存在','err');
+  const cat=document.getElementById('tplCatSel').value,desc=document.getElementById('tplDesc').value.trim()||'由当前门户配置保存的自定义模板';
+  const st=p.tplStyles[p.template]||p.tplStyles['简约赛事门户'],layout=cat==='大屏类'?'grid':cat==='H5类'?'mobile':'list';
+  const rec={id:uid(),name:name,cat:cat,layout:layout,theme:p.theme,nav:p.nav,moduleSize:p.moduleSize||'标准',moduleStyle:p.moduleStyle||'描边',radius:st.radius||8,web:JSON.parse(JSON.stringify(p.web)),mobile:JSON.parse(JSON.stringify(p.mobile)),space:JSON.parse(JSON.stringify(p.space))};
+  p.customTpls=p.customTpls||[];p.customTpls.push(rec);
+  p.tplStyles[name]={cat:cat,custom:true,layout:layout,density:st.density||'标准',radius:st.radius||8,header:cat==='大屏类'?'大屏深色顶栏':cat==='H5类'?'移动端标题栏':'自定义品牌横幅',cols:layout==='grid'?2:1,desc:desc};
+  p.saved.push(name);p.template=name;_tplCat='自定义';
+  closeModal();save();render();log('保存门户为模板：'+name);toast('门户已保存为模板：'+name)
+}
+function delCustomTpl(name){
+  confirmBox('确认删除自定义模板「'+name+'」？',function(){
+    const p=S.portal;p.customTpls=(p.customTpls||[]).filter(function(x){return x.name!==name});p.saved=p.saved.filter(function(x){return x!==name});delete p.tplStyles[name];
+    if(p.template===name){p.template='简约赛事门户';_tplCat='全部'}
+    save();render();toast('自定义模板已删除')
+  })
+}
+function savePortal(){save();log('发布门户配置：'+S.portal.template+' / '+S.portal.nav+' / '+S.portal.moduleSize);toast('门户配置已发布')}
+/* ==================== BIG SCREEN ==================== */
+R.bigscreen=function(){
+  const d=S.charts[0].data;
+  let h='<div class="page-head"><div><h2>赛事数据大屏</h2><p>赛事专用大屏 · 报名数据、赛道分布与评审进度实时可视化呈现</p></div><div class="head-actions"><span class="tag g">'+svg('refresh','ic-sm')+' 实时数据</span><button class="btn" onclick="toggleFull()">'+svg('full','ic-sm')+'全屏展示</button><button class="btn" onclick="go(\'screens\')">屏幕管理 →</button></div></div>';
+  h+='<div class="big-wrap"><div class="big-top"><div><div class="big-kicker">GUANLAN · COMPETITION DATA CENTER</div><div class="big-title">2026 年度创新技能大赛 · 数据指挥中心</div></div><div class="big-clock" id="bigClock">'+now()+'</div></div>';
+  h+='<div class="big-kpi">'+[['累计报名','156','人'],['参赛队伍','86','支'],['覆盖赛道','3','个'],['今日访问','2,481','次']].map(x=>'<div class="big-kpi-i"><b>'+x[1]+'<small>'+x[2]+'</small></b><span>'+x[0]+'</span></div>').join('')+'</div>';
+  h+='<div class="big-body"><div class="big-main"><div class="big-card big-focus"><div class="mini-head">赛道报名分布</div><div class="big-pie">'+drawChart({type:'pie',data:d})+'</div></div><div class="big-card big-trend"><div class="mini-head">报名趋势</div><div class="big-line">'+drawChart({type:'line',data:S.charts[1].data})+'</div></div></div>';
+  h+='<div class="big-rail"><div class="big-card"><div class="mini-head">评审进度</div>'+[['初赛评审',62],['复赛评审',28],['决赛准备',10]].map((x,i)=>'<div class="big-prog"><div><span>'+x[0]+'</span><b class="hl">'+x[1]+'%</b></div><div class="bar '+(i===1?'teal':'')+'"><i style="width:'+x[1]+'%"></i></div></div>').join('')+'</div>';
+  h+='<div class="big-card"><div class="mini-head">实时动态</div>'+S.logs.slice(0,5).map(l=>'<div class="big-feed"><i></i><div><span class="hl">'+l.t.slice(11)+'</span><b>'+esc(l.a)+'</b></div></div>').join('')+'</div></div></div>';
+  h+='<div class="big-marquee"><span>LIVE · 赛事数据实时刷新</span><div>'+'报名通道开放中　◆　初赛评审进行中　◆　评审专家已就位　◆　成绩公示即将开启　◆　'.repeat(2)+'</div></div></div>';
+  return h;
+};
+
+function toggleFull(){const el=document.querySelector('.big-wrap');if(!el)return;if(document.fullscreenElement){document.exitFullscreen()}else if(el.requestFullscreen)el.requestFullscreen()}
+
+/* ==================== SCREEN MANAGEMENT ==================== */
+R.screens=function(){
+  let h='<div class="page-head"><div><h2>智能屏幕管理</h2><p>赛事大屏统一管理：编辑、删除、挂接自有域名、访问权限与展示配置</p></div><div class="head-actions"><button class="btn" onclick="go(\'bigscreen\')">'+svg('screen','ic-sm')+'预览大屏</button><button class="btn gold" onclick="addScreen()">'+svg('plus','ic-sm')+'新建屏幕</button></div></div>';
+  h+='<div class="sc-stat"><div><b>'+S.screens.length+'</b><span>屏幕总数</span></div><div><b>'+S.screens.filter(x=>x.online).length+'</b><span>在线运行</span></div><div><b>'+S.screens.filter(x=>x.access==='login').length+'</b><span>需登录访问</span></div><div><b>'+S.screens.filter(x=>x.intranet).length+'</b><span>仅内网</span></div></div>';
+  h+='<div class="sc-wall">';
+  S.screens.forEach(sc=>{h+='<div class="sc-card"><div class="sc-card-h"><div class="sc-screen-ic">'+svg(sc.icon)+'</div><div class="switch '+(sc.online?'on':'')+'" onclick="toggleScreen(\''+sc.id+'\')"></div></div>';
+    h+='<div class="sc-card-t"><b>'+esc(sc.name)+'</b><span>'+esc(sc.desc)+'</span></div>';
+    h+='<div class="sc-card-domain">'+svg('link','ic-sm')+'<span>'+esc(sc.domain)+'</span></div>';
+    h+='<div class="sc-card-tags"><span class="tag '+(sc.access==='login'?'g':'t')+'">'+(sc.access==='login'?'需登录访问':'无需权限')+'</span><span class="tag '+(sc.online?'t':'')+'">'+(sc.online?'在线':'已下线')+'</span><span class="tag">'+(sc.intranet?'仅内网':'IP '+sc.ip)+'</span></div>';
+    h+='<div class="sc-card-f"><button class="btn sm" onclick="openScreen(\''+sc.id+'\')">'+svg('edit','ic-sm')+'编辑</button><button class="btn sm" onclick="copyDomain(\''+sc.id+'\')">'+svg('copy','ic-sm')+'复制域名</button><button class="btn sm icon del" onclick="delScreen(\''+sc.id+'\')">'+svg('trash','ic-sm')+'</button></div></div>'});
+  h+='<button class="sc-add" onclick="addScreen()">'+svg('plus','ic-xl')+'<b>新建智能屏幕</b><span>挂接域名 · 配置访问权限</span></button></div>';
+  return h;
+};
+
+function toggleScreen(id){const s=S.screens.find(x=>x.id===id);s.online=!s.online;save();render();toast(s.online?'屏幕已上线':'屏幕已下线')}
+function copyDomain(id){const d=S.screens.find(x=>x.id===id).domain;if(navigator.clipboard)navigator.clipboard.writeText(d);toast('域名已复制：'+d)}
+function delScreen(id){confirmBox('确认删除该智能屏幕？',function(){S.screens=S.screens.filter(x=>x.id!==id);save();render();toast('屏幕已删除')})}
+function addScreen(){screenModal(null)}
+function openScreen(id){screenModal(S.screens.find(x=>x.id===id))}
+function screenModal(s){modal(s?'编辑智能屏幕':'新建智能屏幕','<div class="f-row"><label>屏幕名称</label><input class="inp2" id="scName" value="'+esc(s?s.name:'')+'"></div><div class="f-row"><label>访问域名（支持挂接自有域名）</label><input class="inp2" id="scDomain" value="'+esc(s?s.domain:'')+'" placeholder="screen.guanlan.cn/xxx"></div><div class="f-row"><label>简介</label><input class="inp2" id="scDesc" value="'+esc(s?s.desc:'')+'"></div><div class="f-row"><label>访问权限</label><select class="sel2" id="scAccess"><option value="free" '+(s&&s.access==='free'?'selected':'')+'>无需权限</option><option value="login" '+(s&&s.access==='login'?'selected':'')+'>需登录访问</option></select></div><div class="f-row"><label>网页图标</label><select class="sel2" id="scIcon">'+[['trophy','奖杯'],['chart','图表'],['users','用户'],['screen','屏幕']].map(x=>'<option value="'+x[0]+'" '+(s&&s.icon===x[0]?'selected':'')+'>'+x[1]+'</option>').join('')+'</select></div><div class="f-row"><label>IP 白名单</label><input class="inp2" id="scIp" value="'+esc(s?s.ip:'*')+'"></div><div class="f-row" style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12.5px">仅内网访问</span><div class="switch '+(s&&s.intranet?'on':'')+'" id="scIntra"></div></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="saveScreen(\''+(s?s.id:'')+'\')">保存</button>')}
+function saveScreen(id){const n=document.getElementById('scName').value.trim();if(!n)return toast('请输入屏幕名称','err');const o={name:n,domain:document.getElementById('scDomain').value.trim()||'screen.guanlan.cn/'+uid().slice(0,6),desc:document.getElementById('scDesc').value.trim(),access:document.getElementById('scAccess').value,icon:document.getElementById('scIcon').value,ip:document.getElementById('scIp').value.trim()||'*',intranet:document.getElementById('scIntra').classList.contains('on')};if(id)Object.assign(S.screens.find(x=>x.id===id),o);else S.screens.push(Object.assign({id:uid(),online:false,guest:false},o));closeModal();save();render();log((id?'编辑':'新建')+'智能屏幕：'+n);toast('屏幕配置已保存')}
+
+/* ==================== SECURITY ==================== */
+R.security=function(){
+  const s=S.sso,lm=s.loginMethods||{pwd:true,code:true,sso:true};
+  let h='<div class="page-head"><div><h2>访问与安全</h2><p>多种登录方式、第三方系统账号对接（SSO）、IP 白名单与操作审计</p></div><div class="head-actions"><button class="btn" onclick="exportLogs()">'+svg('download','ic-sm')+'导出操作记录</button><button class="btn" onclick="downloadPackage()">'+svg('package','ic-sm')+'下载镜像包</button><button class="btn gold" onclick="saveSecurity()">'+svg('save','ic-sm')+'保存配置</button></div></div>';
+  h+='<div class="sec-work"><section class="sec-main"><div class="sec-block"><div class="sec-block-h"><span class="sec-no">01</span><h3>登录方式</h3><span class="tag">登录页实时生效</span></div><div class="sec-block-b"><div class="sec-methods">';
+  [['pwd','账号密码登录','user','用户名 + 密码，账号 root'],['code','手机验证码登录','phone','手机号 + 短信验证码'],['sso','第三方 / SSO 统一认证','shield','CAS / OAuth2 / LDAP 对接']].forEach(x=>{h+='<div class="sec-method '+(lm[x[0]]?'on':'')+'" onclick="toggleLoginMethod(\''+x[0]+'\')"><div class="sec-method-ic">'+svg(x[2])+'</div><div><b>'+x[1]+'</b><span>'+x[3]+'</span></div><div class="switch '+(lm[x[0]]?'on':'')+'"></div></div>'});
+  h+='</div><div class="tip" style="margin-top:10px">停用的方式将不再出现在登录页；至少保留一种登录方式。</div></div></div>';
+  h+='<div class="sec-block"><div class="sec-block-h"><span class="sec-no">02</span><h3>SSO 对接与网络策略</h3><div class="switch '+(s.enabled?'on':'')+'" onclick="toggleSSO()"></div></div><div class="sec-block-b"><div class="kv"><span>认证提供方</span><b>'+esc(s.provider)+'</b></div><div class="kv"><span>应用标识 ClientID</span><b class="hl">'+esc(s.clientId)+'</b></div><div class="kv"><span>单点登录状态</span><span class="tag '+(s.enabled?'t':'r')+'">'+(s.enabled?'已启用':'已停用')+'</span></div><div class="f-row"><label>IP 白名单</label><textarea class="ta2" id="secWhite">'+esc(s.whitelist)+'</textarea></div>';
+  h+='<div class="sec-toggles">'+[['仅内网访问','限制外网直接访问管理后台',S.portal.intranet,'toggleIntra()'],['网站下线','临时下线后所有访问不可用',false,'toast(\'网站状态已切换\',\'info\')'],['访客模式','允许未登录用户浏览公开内容',S.screens[1].guest,'toggleGuest()']].map(x=>'<div class="sec-toggle"><div><b>'+x[0]+'</b><span>'+x[1]+'</span></div><div class="switch '+(x[2]?'on':'')+'" onclick="'+x[3]+'"></div></div>').join('')+'</div></div></div></section>';
+  h+='<aside class="sec-audit"><div class="sec-audit-h"><div><h3>操作记录审计</h3><span>共 '+S.logs.length+' 条操作留痕</span></div><button class="btn sm" onclick="addGuide()">'+svg('guide','ic-sm')+'引导图</button></div><div class="sec-audit-list">';
+  S.logs.forEach(l=>{h+='<div class="sec-log"><div class="sec-log-dot"></div><div class="sec-log-b"><b>'+esc(l.a)+'</b><span>'+esc(l.t)+' · '+esc(l.u)+' / '+esc(l.ip)+'</span></div></div>'});
+  h+='</div><button class="btn" style="width:100%;margin-top:12px" onclick="exportLogs()">'+svg('download','ic-sm')+'导出全部操作记录</button></aside></div>';
+  return h;
+};
+
+function toggleSSO(){S.sso.enabled=!S.sso.enabled;save();render();toast('SSO 单点登录'+(S.sso.enabled?'已启用':'已停用'))}
+function toggleLoginMethod(k){const lm=S.sso.loginMethods||(S.sso.loginMethods={pwd:true,code:true,sso:true});const cnt=Object.values(lm).filter(Boolean).length;if(lm[k]&&cnt<=1)return toast('至少保留一种登录方式','err');lm[k]=!lm[k];save();render();toast('登录方式配置已更新，登录页实时生效')}
+function toggleIntra(){S.portal.intranet=!S.portal.intranet;save();render();toast('内网访问限制已切换')}
+function toggleGuest(){S.screens[1].guest=!S.screens[1].guest;save();render();toast('访客模式已切换')}
+function saveSecurity(){S.sso.whitelist=document.getElementById('secWhite').value.trim();save();log('保存访问与安全配置');toast('安全配置已保存')}
+function exportLogs(){downloadText('操作记录.csv',toCSV(['时间','操作人','操作内容','IP'],S.logs.map(l=>[l.t,l.u,l.a,l.ip])),'text/csv;charset=utf-8');toast('操作记录已导出')}
+function downloadPackage(){const pkg={exportTime:now(),forms:S.forms,flows:S.flows,charts:S.charts,components:S.components,contents:S.contents,portal:S.portal,screens:S.screens,sso:S.sso,logs:S.logs};downloadText('观澜平台_镜像数据包.json',JSON.stringify(pkg,null,2),'application/json');log('下载镜像数据包');toast('镜像数据包已下载')}
+function addGuide(){modal('新手引导图片','<div class="tip" style="margin-bottom:12px">为智能屏幕配置新手引导图片，首次访问时展示操作指引</div><div class="f-row"><label>引导图片名称</label><input class="inp2" id="gdName" value="平台使用引导图"></div><div class="f-row"><label>展示位置</label><select class="sel2"><option>首次登录时</option><option>每次访问时</option><option>不展示</option></select></div><div class="rs-grid"><div class="rs-item" style="border-color:var(--gold);color:var(--gold2)">'+svg('image','ic-lg')+'<br>默认引导图</div><div class="rs-item">'+svg('plus','ic-lg')+'<br>上传图片</div></div>','<button class="btn" onclick="closeModal()">取消</button><button class="btn gold" onclick="closeModal();toast(\'新手引导图片已配置\')">保存</button>')}
+/* __APPEND_HERE__ */
+</script>
+</body>
+</html>
